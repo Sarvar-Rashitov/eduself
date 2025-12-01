@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SESSION_SECRET', 'django-insecure-dev-key-change-in-production')
 
-DEBUG =  not os.environ.get("RENDER")
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
