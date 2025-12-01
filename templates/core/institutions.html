@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Ta'lim muassasalari - EduSelf{% endblock %}
+
+{% block content %}
+<div class="section-title">{{ title }}</div>
+
+<div class="filter-tabs">
+    <a href="{% url 'core:institutions' %}" class="filter-tab {% if current_type == 'all' %}active{% endif %}">
+        Barchasi
+    </a>
+    <a href="{% url 'core:institutions' %}?type=training" class="filter-tab {% if current_type == 'training' %}active{% endif %}">
+        <i class="bi bi-book me-1"></i>O'quv markazlari ({{ training_centers_count }})
+    </a>
+    <a href="{% url 'core:institutions' %}?type=schools" class="filter-tab {% if current_type == 'schools' %}active{% endif %}">
+        <i class="bi bi-building me-1"></i>Maktablar ({{ schools_count }})
+    </a>
+    <a href="{% url 'core:institutions' %}?type=universities" class="filter-tab {% if current_type == 'universities' %}active{% endif %}">
+        <i class="bi bi-mortarboard me-1"></i>Oliy ta'lim ({{ universities_count }})
+    </a>
+</div>
+
+{% if institutions %}
+    {% for inst in institutions %}
+    <a href="{% url 'core:institution_detail' inst.pk %}" class="text-decoration-none">
+        <div class="institution-card">
+            <div class="d-flex align-items-center">
+                {% if inst.logo %}
+                <img src="{{ inst.logo.url }}" alt="{{ inst.name }}" class="institution-logo me-3">
+                {% else %}
+                <div class="institution-logo me-3 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-building fs-4 text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="flex-grow-1">
+                    <h6 class="mb-1 text-dark">{{ inst.name }}</h6>
+                    <span class="institution-type-badge">{{ inst.get_institution_type_display }}</span>
+                </div>
+                <i class="bi bi-chevron-right text-muted"></i>
+            </div>
+            {% if inst.description %}
+            <p class="text-muted small mt-3 mb-0">{{ inst.description|truncatewords:15 }}</p>
+            {% endif %}
+        </div>
+    </a>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <i class="bi bi-building"></i>
+        <p>Hozircha ta'lim muassasalari mavjud emas</p>
+    </div>
+{% endif %}
+{% endblock %}

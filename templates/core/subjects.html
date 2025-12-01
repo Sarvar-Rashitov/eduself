@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Fanlar - EduSelf{% endblock %}
+
+{% block content %}
+<div class="section-title">Fanlar</div>
+<p class="text-muted mb-4">O'zbekiston umumta'lim fanlari bo'yicha testlar</p>
+
+{% if subjects %}
+    {% for subject in subjects %}
+    <a href="{% url 'core:subject_detail' subject.pk %}" class="subject-card">
+        <div class="subject-icon">
+            <i class="{{ subject.icon }}"></i>
+        </div>
+        <div class="subject-info">
+            <div class="subject-name">{{ subject.name }}</div>
+            <div class="subject-meta">{{ subject.get_topics_count }} mavzu | {{ subject.get_tests_count }} test</div>
+        </div>
+        <div class="subject-arrow">
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </a>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <i class="bi bi-book"></i>
+        <p>Hozircha fanlar mavjud emas</p>
+    </div>
+{% endif %}
+{% endblock %}

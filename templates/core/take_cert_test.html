@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ test.title }} - EduSelf{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="mb-2">{{ test.title }}</h5>
+        <p class="text-muted mb-0 small">{{ test.cert_questions.count }} savol | {{ test.time_limit }} daqiqa | O'tish balli: {{ test.passing_score }}%</p>
+    </div>
+</div>
+
+<form method="post" id="testForm">
+    {% csrf_token %}
+    
+    {% for question in questions %}
+    <div class="question-card">
+        <div class="question-number">Savol {{ forloop.counter }} / {{ questions|length }}</div>
+        <div class="question-text">{{ question.text }}</div>
+        {% if question.image %}
+        <img src="{{ question.image.url }}" alt="Question image" class="img-fluid mb-3 rounded">
+        {% endif %}
+        
+        {% for answer in question.cert_answers.all %}
+        <label class="answer-option">
+            <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" required>
+            {{ answer.text }}
+        </label>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    
+    <button type="submit" class="btn btn-success w-100 mb-4">Testni yakunlash</button>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.answer-option').forEach(option => {
+    option.addEventListener('click', function() {
+        const name = this.querySelector('input').name;
+        document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+            input.closest('.answer-option').classList.remove('selected');
+        });
+        this.classList.add('selected');
+        this.querySelector('input').checked = true;
+    });
+});
+</script>
+{% endblock %}

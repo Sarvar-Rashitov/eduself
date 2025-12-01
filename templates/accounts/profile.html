@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil - EduSelf{% endblock %}
+
+{% block content %}
+<div class="section-title">Profil</div>
+
+<div class="card mb-4">
+    <div class="card-body text-center">
+        {% if user.profile_image %}
+        <img src="{{ user.profile_image.url }}" alt="Profile" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+        {% else %}
+        <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-primary text-white rounded-circle" style="width: 100px; height: 100px;">
+            <i class="bi bi-person fs-1"></i>
+        </div>
+        {% endif %}
+        <h5 class="mb-1">{{ user.username }}</h5>
+        <p class="text-muted mb-0">{{ user.email }}</p>
+    </div>
+</div>
+
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-value">{{ user.get_total_tests_taken }}</div>
+        <div class="stat-label">Jami testlar</div>
+    </div>
+    <div class="stat-card secondary">
+        <div class="stat-value">{{ user.get_passed_tests }}</div>
+        <div class="stat-label">Muvaffaqiyatli</div>
+    </div>
+    <div class="stat-card accent">
+        <div class="stat-value">{{ user.get_progress_percentage }}%</div>
+        <div class="stat-label">Progress</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h6 class="mb-3">Profilni tahrirlash</h6>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label class="form-label">Foydalanuvchi nomi</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Bio</label>
+                {{ form.bio }}
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label">Profil rasmi</label>
+                {{ form.profile_image }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100">Saqlash</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

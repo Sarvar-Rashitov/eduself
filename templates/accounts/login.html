@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Kirish - EduSelf{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="text-center mb-4">
+        <i class="bi bi-mortarboard-fill text-primary" style="font-size: 3rem;"></i>
+    </div>
+    <h4 class="auth-title">Xush kelibsiz!</h4>
+    <p class="auth-subtitle">Hisobingizga kiring</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label">{{ form.username.label }}</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+            <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">{{ form.password.label }}</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+            <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger small">
+            {% for error in form.non_field_errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="text-end mb-3">
+            <a href="{% url 'accounts:forgot_password' %}" class="text-decoration-none small">Parolni unutdingizmi?</a>
+        </div>
+        
+        <button type="submit" class="btn btn-primary w-100">Kirish</button>
+    </form>
+    
+    <div class="auth-footer">
+        Hisobingiz yo'qmi? <a href="{% url 'accounts:register' %}">Ro'yxatdan o'ting</a>
+    </div>
+</div>
+{% endblock %}

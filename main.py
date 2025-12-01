@@ -1,1 +1,7 @@
-/home/bumpaudr/Desktop/mvp/main.py
+import os
+import subprocess
+import sys
+
+if __name__ == "__main__":
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'eduself.settings')
+    subprocess.run([sys.executable, "manage.py", "runserver", "0.0.0.0:5000"])

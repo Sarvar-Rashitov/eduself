@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Mock Exams - EduSelf{% endblock %}
+
+{% block content %}
+<div class="section-title">Mock Exams</div>
+<p class="text-muted mb-4">Haqiqiy imtihonga o'xshash sinovlar</p>
+
+{% if exams %}
+    {% for exam in exams %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                {% if exam.image %}
+                <img src="{{ exam.image.url }}" alt="{{ exam.title }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                {% else %}
+                <div class="subject-icon me-3" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">
+                    <i class="bi bi-clipboard-check"></i>
+                </div>
+                {% endif %}
+                <div class="flex-grow-1">
+                    <h5 class="mb-1">{{ exam.title }}</h5>
+                    <p class="text-muted small mb-2">{{ exam.mock_questions.count }} savol | {{ exam.time_limit }} daqiqa</p>
+                    {% if exam.id in user_results %}
+                    <span class="badge {% if user_results|get_item:exam.id|get_item:'passed' %}badge-success{% else %}badge-danger{% endif %}">
+                        Oxirgi natija: {{ user_results|get_item:exam.id|get_item:'score' }}%
+                    </span>
+                    {% endif %}
+                </div>
+                <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-sm">
+                    {% if exam.id in user_results %}Qayta{% else %}Boshlash{% endif %}
+                </a>
+            </div>
+            {% if exam.description %}
+            <p class="text-muted small mt-3 mb-0">{{ exam.description }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <i class="bi bi-clipboard-check"></i>
+        <p>Hozircha mock imtihonlar mavjud emas</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ subject.name }} - EduSelf{% endblock %}
+
+{% block content %}
+<a href="{% url 'core:subjects' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
+    <i class="bi bi-arrow-left"></i> Fanlar
+</a>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex align-items-center mb-3">
+            <div class="subject-icon me-3">
+                <i class="{{ subject.icon }}"></i>
+            </div>
+            <div>
+                <h4 class="mb-1">{{ subject.name }}</h4>
+                <p class="text-muted mb-0 small">{{ subject.get_topics_count }} mavzu | {{ subject.get_tests_count }} test</p>
+            </div>
+        </div>
+        {% if subject.description %}
+        <p class="text-muted mb-0">{{ subject.description }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="section-title">Mavzular</div>
+
+{% if topics %}
+    {% for topic in topics %}
+    <a href="{% url 'core:topic_detail' topic.pk %}" class="topic-card">
+        <div class="topic-icon">
+            <i class="bi bi-bookmark"></i>
+        </div>
+        <div class="topic-info">
+            <div class="topic-name">{{ topic.name }}</div>
+            <div class="topic-meta">{{ topic.tests.count }} test</div>
+        </div>
+        <div class="topic-arrow">
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </a>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <i class="bi bi-folder"></i>
+        <p>Mavzular hali qo'shilmagan</p>
+    </div>
+{% endif %}
+{% endblock %}

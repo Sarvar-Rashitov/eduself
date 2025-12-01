@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ institution.name }} - EduSelf{% endblock %}
+
+{% block content %}
+<a href="{% url 'core:institutions' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
+    <i class="bi bi-arrow-left"></i> Ta'lim muassasalari
+</a>
+
+<div class="card">
+    <div class="card-body">
+        <div class="text-center mb-4">
+            {% if institution.logo %}
+            <img src="{{ institution.logo.url }}" alt="{{ institution.name }}" class="rounded mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+            {% else %}
+            <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-light rounded" style="width: 100px; height: 100px;">
+                <i class="bi bi-building fs-1 text-muted"></i>
+            </div>
+            {% endif %}
+            <h4 class="mb-2">{{ institution.name }}</h4>
+            <span class="institution-type-badge">{{ institution.get_institution_type_display }}</span>
+        </div>
+        
+        {% if institution.description %}
+        <div class="mb-4">
+            <h6 class="text-muted mb-2">Tavsif</h6>
+            <p class="mb-0">{{ institution.description }}</p>
+        </div>
+        {% endif %}
+        
+        <div class="border-top pt-3">
+            {% if institution.address %}
+            <div class="d-flex align-items-start mb-3">
+                <i class="bi bi-geo-alt text-primary me-3 fs-5"></i>
+                <div>
+                    <small class="text-muted d-block">Manzil</small>
+                    <span>{{ institution.address }}</span>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if institution.phone %}
+            <div class="d-flex align-items-start mb-3">
+                <i class="bi bi-telephone text-primary me-3 fs-5"></i>
+                <div>
+                    <small class="text-muted d-block">Telefon</small>
+                    <a href="tel:{{ institution.phone }}" class="text-decoration-none">{{ institution.phone }}</a>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if institution.email %}
+            <div class="d-flex align-items-start mb-3">
+                <i class="bi bi-envelope text-primary me-3 fs-5"></i>
+                <div>
+                    <small class="text-muted d-block">Email</small>
+                    <a href="mailto:{{ institution.email }}" class="text-decoration-none">{{ institution.email }}</a>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if institution.website %}
+            <div class="d-flex align-items-start">
+                <i class="bi bi-globe text-primary me-3 fs-5"></i>
+                <div>
+                    <small class="text-muted d-block">Veb-sayt</small>
+                    <a href="{{ institution.website }}" target="_blank" class="text-decoration-none">{{ institution.website }}</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
