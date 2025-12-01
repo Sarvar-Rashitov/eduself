@@ -7,7 +7,7 @@ SECRET_KEY = os.environ.get('SESSION_SECRET', 'django-insecure-dev-key-change-in
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['eduself-bqc5.onrender.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
