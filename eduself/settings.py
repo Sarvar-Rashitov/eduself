@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
+from environs import Env
 
+env = Env()
+env.read_env()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SESSION_SECRET', 'django-insecure-dev-key-change-in-production')
@@ -56,10 +59,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eduself.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': env.dj_db_url('DATABASE_URL')
 }
 
 AUTH_PASSWORD_VALIDATORS = [
