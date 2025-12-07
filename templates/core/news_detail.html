@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ news.title }} - EduSelf{% endblock %}
+
+{% block content %}
+<a href="{% url 'core:news_list' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
+    <i class="bi bi-arrow-left"></i> Yangiliklarga qaytish
+</a>
+
+<div class="card mb-4">
+    {% if news.image %}
+    <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}" style="max-height: 400px; object-fit: cover;">
+    {% endif %}
+    <div class="card-body">
+        <span class="badge bg-primary mb-3">{{ news.category.name }}</span>
+        <h3 class="card-title mb-3">{{ news.title }}</h3>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div>
+                {% if news.author %}
+                <small class="text-muted">
+                    <i class="bi bi-person-circle"></i> {{ news.author.username }}
+                </small>
+                {% endif %}
+            </div>
+            <div class="d-flex gap-3">
+                <small class="text-muted">
+                    <i class="bi bi-calendar3"></i> {{ news.published_at|date:"d F Y" }}
+                </small>
+                <small class="text-muted">
+                    <i class="bi bi-eye"></i> {{ news.views_count }}
+                </small>
+            </div>
+        </div>
+        
+        <div class="news-content">
+            {{ news.content|linebreaks }}
+        </div>
+    </div>
+</div>
+
+{% if related_news %}
+<div class="section-title">O'xshash yangiliklar</div>
+{% for related in related_news %}
+<a href="{% url 'core:news_detail' related.slug %}" class="text-decoration-none">
+    <div class="card mb-3">
+        <div class="row g-0">
+            {% if related.image %}
+            <div class="col-4">
+                <img src="{{ related.image.url }}" class="img-fluid rounded-start" alt="{{ related.title }}" style="height: 100%; object-fit: cover;">
+            </div>
+            <div class="col-8">
+            {% else %}
+            <div class="col-12">
+            {% endif %}
+                <div class="card-body">
+                    <span class="badge bg-primary mb-2">{{ related.category.name }}</span>
+                    <h6 class="card-title text-dark">{{ related.title }}</h6>
+                    <p class="card-text text-muted small">{{ related.summary|truncatewords:15 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</a>
+{% endfor %}
+{% endif %}
+{% endblock %}

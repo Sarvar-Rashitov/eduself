@@ -1,10 +1,13 @@
- asgiref==3.11.0
- crispy-bootstrap5==2025.6
- django==5.2.8
- django-crispy-forms==2.5
- gunicorn==23.0.0
- packaging==25.0
- pillow==12.0.0
- psycopg2-binary==2.9.11
- sqlparse==0.5.4
- whitenoise==6.11.0
+# requirements.txt generated from pyproject.toml
+# Python version: >=3.11
+crispy-bootstrap5>=2025.6
+Django>=5.2.8
+django-crispy-forms>=2.5
+flask-dance>=7.1.0
+Flask-Login>=0.6.3
+gunicorn>=23.0.0
+oauthlib>=3.3.1
+Pillow>=12.0.0
+psycopg2-binary>=2.9.11
+PyJWT>=2.10.1
+whitenoise>=6.11.0

@@ -29,7 +29,9 @@
             <div class="test-name">{{ test.title }}</div>
             <div class="test-meta">{{ test.cert_questions.count }} savol | {{ test.time_limit }} daqiqa</div>
         </div>
-        <a href="{% url 'core:take_cert_test' test.pk %}" class="btn btn-success btn-sm">Boshlash</a>
+        <a href="{% url 'core:cert_test_leaderboard' test.pk %}" class="btn btn-success btn-sm">
+            <i class="bi bi-trophy"></i> Boshlash
+        </a>
     </div>
     {% endfor %}
 {% else %}

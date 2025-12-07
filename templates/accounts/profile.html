@@ -34,6 +34,119 @@
     </div>
 </div>
 
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="mb-3">Fanlar bo'yicha progress</h6>
+        {% if subjects_progress %}
+            {% for item in subjects_progress %}
+            <div class="progress-item mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex align-items-center">
+                        <i class="{{ item.subject.icon }} me-2 text-primary"></i>
+                        <strong>{{ item.subject.name }}</strong>
+                    </div>
+                    <span class="badge {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}">
+                        {{ item.progress_percentage }}%
+                    </span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" 
+                         style="width: {{ item.progress_percentage }}%"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                    <small class="text-muted">{{ item.completed_tests }} / {{ item.total_tests }} test ishlangan</small>
+                    <small class="text-muted">{{ item.passed_tests }} muvaffaqiyatli</small>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center text-muted py-3">
+                <i class="bi bi-book fs-1 d-block mb-2"></i>
+                <p class="mb-0">Hali hech qanday fan bo'yicha test ishlanmagan</p>
+                <a href="{% url 'core:subjects' %}" class="btn btn-primary btn-sm mt-2">Fanlarni ko'rish</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="mb-3">Sertifikatlar bo'yicha progress</h6>
+        {% if certificates_progress %}
+            {% for item in certificates_progress %}
+            <div class="progress-item mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-award me-2 text-success"></i>
+                        <strong>{{ item.certificate.name }}</strong>
+                    </div>
+                    <span class="badge {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}">
+                        {{ item.progress_percentage }}%
+                    </span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" 
+                         style="width: {{ item.progress_percentage }}%"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                    <small class="text-muted">{{ item.completed_tests }} / {{ item.total_tests }} test ishlangan</small>
+                    <small class="text-muted">{{ item.passed_tests }} muvaffaqiyatli</small>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center text-muted py-3">
+                <i class="bi bi-award fs-1 d-block mb-2"></i>
+                <p class="mb-0">Hali hech qanday sertifikat bo'yicha test ishlanmagan</p>
+                <a href="{% url 'core:certificates' %}" class="btn btn-success btn-sm mt-2">Sertifikatlarni ko'rish</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="mb-3">Mock Exam bo'yicha progress</h6>
+        {% if mock_exams_progress %}
+            {% for item in mock_exams_progress %}
+            <div class="progress-item mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-clipboard-check me-2 text-warning"></i>
+                        <strong>{{ item.exam.title }}</strong>
+                    </div>
+                    {% if item.completed_exams > 0 %}
+                    <span class="badge {% if item.best_score >= item.exam.passing_score %}bg-success{% else %}bg-danger{% endif %}">
+                        Eng yaxshi: {{ item.best_score }}%
+                    </span>
+                    {% else %}
+                    <span class="badge bg-secondary">Ishlanmagan</span>
+                    {% endif %}
+                </div>
+                {% if item.completed_exams > 0 %}
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar {% if item.best_score >= item.exam.passing_score %}bg-success{% else %}bg-danger{% endif %}" 
+                         style="width: {{ item.best_score }}%"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                    <small class="text-muted">{{ item.completed_exams }} marta ishlangan</small>
+                    <small class="text-muted">{{ item.passed_exams }} marta o'tilgan</small>
+                </div>
+                {% else %}
+                <p class="text-muted small mb-0">Hali ishlanmagan</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center text-muted py-3">
+                <i class="bi bi-clipboard-check fs-1 d-block mb-2"></i>
+                <p class="mb-0">Hali hech qanday mock exam ishlanmagan</p>
+                <a href="{% url 'core:mock_exams' %}" class="btn btn-warning btn-sm mt-2">Mock Examlarni ko'rish</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
 <div class="card">
     <div class="card-body">
         <h6 class="mb-3">Profilni tahrirlash</h6>

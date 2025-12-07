@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }} - EduSelf{% endblock %}
+
+{% block content %}
+<a href="{% url 'core:courses' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
+    <i class="bi bi-arrow-left"></i> Kurslarga qaytish
+</a>
+
+<div class="card mb-4">
+    {% if course.image %}
+    <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="max-height: 300px; object-fit: cover;">
+    {% endif %}
+    <div class="card-body">
+        <span class="badge bg-primary mb-2">{{ course.category.name }}</span>
+        {% if course.is_free %}
+        <span class="badge bg-success mb-2">Bepul</span>
+        {% endif %}
+        <span class="badge bg-info mb-2">{{ course.get_level_display }}</span>
+        
+        <h3 class="card-title mb-3">{{ course.title }}</h3>
+        
+        <div class="course-meta mb-4">
+            <div class="row">
+                <div class="col-6">
+                    <small class="text-muted d-block">
+                        <i class="bi bi-person"></i> O'qituvchi
+                    </small>
+                    <strong>{{ course.instructor }}</strong>
+                </div>
+                <div class="col-6">
+                    <small class="text-muted d-block">
+                        <i class="bi bi-clock"></i> Davomiyligi
+                    </small>
+                    <strong>{{ course.duration|default:"Belgilanmagan" }}</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class="course-description mb-4">
+            <h5>Kurs haqida</h5>
+            <p>{{ course.description }}</p>
+        </div>
+        
+        {% if not is_enrolled and not course.is_free %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Bu kursga yozilish uchun ro'yxatdan o'ting
+        </div>
+        {% endif %}
+        
+        {% if user.is_authenticated %}
+            {% if not is_enrolled %}
+            <form method="post" action="{% url 'core:enroll_course' course.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-check-circle me-2"></i>Kursga yozilish
+                </button>
+            </form>
+            {% else %}
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i> Siz bu kursga yozilgansiz
+            </div>
+            {% endif %}
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg w-100">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Kursga yozilish uchun kirish
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="section-title">Darslar</div>
+
+{% if lessons %}
+    {% for lesson in lessons %}
+    <div class="card mb-3 lesson-card">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div class="lesson-icon me-3">
+                    <i class="bi bi-play-circle-fill"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">{{ forloop.counter }}. {{ lesson.title }}</h6>
+                    <p class="text-muted small mb-0">{{ lesson.description|truncatewords:15 }}</p>
+                    {% if lesson.duration %}
+                    <small class="text-muted">
+                        <i class="bi bi-clock"></i> {{ lesson.duration }}
+                    </small>
+                    {% endif %}
+                    {% if lesson.is_free %}
+                    <span class="badge bg-success ms-2">Bepul</span>
+                    {% endif %}
+                </div>
+                {% if is_enrolled or lesson.is_free or course.is_free %}
+                <a href="{% url 'core:lesson_detail' course.slug lesson.id %}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-play"></i> Ko'rish
+                </a>
+                {% else %}
+                <button class="btn btn-secondary btn-sm" disabled>
+                    <i class="bi bi-lock"></i> Yopiq
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <i class="bi bi-play-circle"></i>
+        <p>Hozircha darslar qo'shilmagan</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -28,8 +28,8 @@
                     </span>
                     {% endif %}
                 </div>
-                <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-sm">
-                    {% if exam.id in user_results %}Qayta{% else %}Boshlash{% endif %}
+                <a href="{% url 'core:mock_exam_leaderboard' exam.pk %}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-trophy"></i> Boshlash
                 </a>
             </div>
             {% if exam.description %}

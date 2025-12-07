@@ -19,6 +19,7 @@
     
     <div class="mt-4">
         <a href="{% url 'core:take_cert_test' test.pk %}" class="btn btn-success me-2">Qayta urinish</a>
+        <a href="{% url 'core:cert_test_analysis' test.pk %}" class="btn btn-info me-2">Tahlil</a>
         <a href="{% url 'core:cert_topic_detail' test.topic.pk %}" class="btn btn-outline-success">Ortga</a>
     </div>
 </div>

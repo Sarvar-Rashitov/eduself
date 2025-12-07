@@ -3,7 +3,8 @@ from .models import (
     SiteSettings, Subject, Topic, Test, Question, Answer, TestResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
-    Institution, Advertisement, Statistic
+    Institution, Advertisement, Statistic, NewsCategory, News,
+    CourseCategory, Course, Lesson, CourseEnrollment, Notification
 )
 
 
@@ -200,6 +201,131 @@ class StatisticAdmin(admin.ModelAdmin):
     list_editable = ['value', 'icon', 'order']
 
 
+@admin.register(NewsCategory)
+class NewsCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'icon', 'order', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name', 'description']
+    list_editable = ['order', 'is_active']
+    prepopulated_fields = {'slug': ('name',)}
+
+
+@admin.register(News)
+class NewsAdmin(admin.ModelAdmin):
+    list_display = ['title', 'category', 'author', 'views_count', 'is_featured', 'is_published', 'published_at']
+    list_filter = ['category', 'is_featured', 'is_published', 'published_at']
+    search_fields = ['title', 'summary', 'content']
+    list_editable = ['is_featured', 'is_published']
+    prepopulated_fields = {'slug': ('title',)}
+    readonly_fields = ['views_count', 'published_at', 'updated_at']
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('title', 'slug', 'category', 'author')
+        }),
+        ('Kontent', {
+            'fields': ('summary', 'content', 'image')
+        }),
+        ('Sozlamalar', {
+            'fields': ('is_featured', 'is_published')
+        }),
+        ('Statistika', {
+            'fields': ('views_count', 'published_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
 admin.site.site_header = "EduSelf Admin"
 admin.site.site_title = "EduSelf"
 admin.site.index_title = "Boshqaruv paneli"
+
+
+class LessonInline(admin.TabularInline):
+    model = Lesson
+    extra = 1
+    show_change_link = True
+
+
+@admin.register(CourseCategory)
+class CourseCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'icon', 'order', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name', 'description']
+    list_editable = ['order', 'is_active']
+    prepopulated_fields = {'slug': ('name',)}
+
+
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ['title', 'category', 'instructor', 'level', 'price', 'is_free', 'is_featured', 'is_active', 'get_lessons_count']
+    list_filter = ['category', 'level', 'is_free', 'is_featured', 'is_active', 'created_at']
+    search_fields = ['title', 'description', 'instructor']
+    list_editable = ['is_featured', 'is_active']
+    prepopulated_fields = {'slug': ('title',)}
+    inlines = [LessonInline]
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('category', 'title', 'slug', 'instructor')
+        }),
+        ('Kontent', {
+            'fields': ('description', 'image')
+        }),
+        ('Kurs ma\'lumotlari', {
+            'fields': ('duration', 'level', 'price', 'is_free')
+        }),
+        ('Sozlamalar', {
+            'fields': ('is_featured', 'is_active', 'order')
+        }),
+    )
+
+
+@admin.register(Lesson)
+class LessonAdmin(admin.ModelAdmin):
+    list_display = ['title', 'course', 'duration', 'order', 'is_free', 'is_active', 'created_at']
+    list_filter = ['course__category', 'course', 'is_free', 'is_active', 'created_at']
+    search_fields = ['title', 'description', 'content']
+    list_editable = ['order', 'is_free', 'is_active']
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('course', 'title', 'description')
+        }),
+        ('Kontent', {
+            'fields': ('content', 'video_url', 'video_file', 'duration')
+        }),
+        ('Sozlamalar', {
+            'fields': ('order', 'is_free', 'is_active')
+        }),
+    )
+
+
+@admin.register(CourseEnrollment)
+class CourseEnrollmentAdmin(admin.ModelAdmin):
+    list_display = ['user', 'course', 'progress', 'completed', 'enrolled_at']
+    list_filter = ['completed', 'enrolled_at', 'course__category']
+    search_fields = ['user__username', 'course__title']
+    readonly_fields = ['enrolled_at']
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ['title', 'notification_type', 'user', 'is_global', 'is_read', 'created_at']
+    list_filter = ['notification_type', 'is_global', 'is_read', 'created_at']
+    search_fields = ['title', 'message']
+    list_editable = ['is_read']
+    readonly_fields = ['created_at']
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('notification_type', 'title', 'message', 'link', 'icon')
+        }),
+        ('Qabul qiluvchi', {
+            'fields': ('user', 'is_global'),
+            'description': 'Agar "Barcha foydalanuvchilar uchun" belgilansa, "Foydalanuvchi" maydoni e\'tiborga olinmaydi.'
+        }),
+        ('Holat', {
+            'fields': ('is_read', 'created_at')
+        }),
+    )

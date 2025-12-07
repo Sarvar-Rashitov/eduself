@@ -38,11 +38,63 @@
                 <a href="{% url 'core:home' %}" class="logo-text">EduSelf</a>
             </div>
             <div class="header-right">
+                {% if user.is_authenticated %}
+                <button class="notification-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificationMenu">
+                    <i class="bi bi-bell"></i>
+                    {% if unread_notifications_count > 0 %}
+                    <span class="notification-badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </button>
+                {% endif %}
                 <button class="menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideMenu">
                     <i class="bi bi-list"></i>
                 </button>
             </div>
         </header>
+
+        {% if user.is_authenticated %}
+        <div class="offcanvas offcanvas-end notification-offcanvas" tabindex="-1" id="notificationMenu">
+            <div class="offcanvas-header border-bottom">
+                <h5 class="offcanvas-title d-flex align-items-center">
+                    <i class="bi bi-bell-fill text-warning me-2"></i> Bildirishnomalar
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body p-0">
+                {% if notifications %}
+                <div class="notification-list">
+                    {% for notification in notifications %}
+                    <a href="{% url 'core:mark_notification_read' notification.id %}" class="notification-item {% if not notification.is_read %}unread{% endif %}" data-bs-dismiss="offcanvas">
+                        <div class="notification-icon-wrapper">
+                            <div class="notification-icon">
+                                <i class="{{ notification.icon }}"></i>
+                            </div>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">{{ notification.title }}</div>
+                            <div class="notification-message">{{ notification.message|truncatewords:12 }}</div>
+                            <div class="notification-time">
+                                <i class="bi bi-clock"></i> {{ notification.created_at|timesince }} oldin
+                            </div>
+                        </div>
+                        {% if not notification.is_read %}
+                        <div class="notification-dot"></div>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-notification-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-bell-slash"></i>
+                    </div>
+                    <p class="empty-text">Bildirishnomalar yo'q</p>
+                    <p class="empty-subtext">Yangi bildirishnomalar bu yerda ko'rinadi</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
 
         <div class="offcanvas offcanvas-end" tabindex="-1" id="sideMenu">
             <div class="offcanvas-header">
@@ -70,6 +122,12 @@
                     <a href="{% url 'accounts:profile' %}" class="menu-item">
                         <i class="bi bi-person"></i> Profil
                     </a>
+                    <a href="{% url 'core:news_list' %}" class="menu-item">
+                        <i class="bi bi-newspaper"></i> Yangiliklar
+                    </a>
+                    <a href="{% url 'core:courses' %}" class="menu-item">
+                        <i class="bi bi-play-circle"></i> Online kurslar
+                    </a>
                     {% if user.is_staff %}
                     <a href="/admin/" class="menu-item">
                         <i class="bi bi-gear"></i> Admin panel
@@ -84,6 +142,12 @@
                     </a>
                     <a href="{% url 'accounts:register' %}" class="menu-item">
                         <i class="bi bi-person-plus"></i> Ro'yxatdan o'tish
+                    </a>
+                    <a href="{% url 'core:news_list' %}" class="menu-item">
+                        <i class="bi bi-newspaper"></i> Yangiliklar
+                    </a>
+                    <a href="{% url 'core:courses' %}" class="menu-item">
+                        <i class="bi bi-play-circle"></i> Online kurslar
                     </a>
                     {% endif %}
                 </div>
@@ -104,6 +168,8 @@
             
             {% block content %}{% endblock %}
         </main>
+
+        {% block footer %}{% endblock %}
 
         <nav class="bottom-nav">
             <a href="{% url 'core:home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">

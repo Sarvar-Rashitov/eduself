@@ -34,8 +34,10 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, "Tizimga kirdingiz!")
-            next_url = request.GET.get('next', 'core:home')
-            return redirect(next_url)
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            return redirect('core:home')
     else:
         form = LoginForm()
     
@@ -111,4 +113,131 @@ def profile_view(request):
     else:
         form = ProfileForm(instance=request.user)
     
-    return render(request, 'accounts/profile.html', {'form': form})
+    # Fanlar bo'yicha progress - FAQAT foydalanuvchi ishlagan fanlar
+    from core.models import Subject, TestResult, Test
+    subjects_progress = []
+    
+    # Foydalanuvchi ishlagan testlarning fanlarini topish
+    user_test_ids = TestResult.objects.filter(user=request.user).values_list('test_id', flat=True).distinct()
+    user_subjects = Subject.objects.filter(
+        topics__tests__id__in=user_test_ids,
+        is_active=True
+    ).distinct().prefetch_related('topics__tests')
+    
+    for subject in user_subjects:
+        # Bu fan bo'yicha barcha testlar
+        all_tests = Test.objects.filter(
+            topic__subject=subject,
+            topic__is_active=True,
+            is_active=True
+        )
+        total_tests = all_tests.count()
+        
+        # Foydalanuvchi ishlagan testlar
+        user_results = TestResult.objects.filter(
+            user=request.user,
+            test__topic__subject=subject
+        )
+        
+        completed_tests = user_results.values('test').distinct().count()
+        passed_tests = user_results.filter(passed=True).values('test').distinct().count()
+        
+        if total_tests > 0:
+            progress_percentage = int((passed_tests / total_tests) * 100)
+        else:
+            progress_percentage = 0
+        
+        subjects_progress.append({
+            'subject': subject,
+            'total_tests': total_tests,
+            'completed_tests': completed_tests,
+            'passed_tests': passed_tests,
+            'progress_percentage': progress_percentage,
+        })
+    
+    # Sertifikatlar bo'yicha progress - FAQAT foydalanuvchi ishlagan sertifikatlar
+    from core.models import Certificate, CertificateResult, CertificateTest
+    certificates_progress = []
+    
+    # Foydalanuvchi ishlagan sertifikat testlarini topish
+    user_cert_test_ids = CertificateResult.objects.filter(user=request.user).values_list('test_id', flat=True).distinct()
+    user_certificates = Certificate.objects.filter(
+        cert_topics__cert_tests__id__in=user_cert_test_ids,
+        is_active=True
+    ).distinct().prefetch_related('cert_topics__cert_tests')
+    
+    for certificate in user_certificates:
+        # Bu sertifikat bo'yicha barcha testlar
+        all_tests = CertificateTest.objects.filter(
+            topic__certificate=certificate,
+            topic__is_active=True,
+            is_active=True
+        )
+        total_tests = all_tests.count()
+        
+        # Foydalanuvchi ishlagan testlar
+        user_results = CertificateResult.objects.filter(
+            user=request.user,
+            test__topic__certificate=certificate
+        )
+        
+        completed_tests = user_results.values('test').distinct().count()
+        passed_tests = user_results.filter(passed=True).values('test').distinct().count()
+        
+        if total_tests > 0:
+            progress_percentage = int((passed_tests / total_tests) * 100)
+        else:
+            progress_percentage = 0
+        
+        certificates_progress.append({
+            'certificate': certificate,
+            'total_tests': total_tests,
+            'completed_tests': completed_tests,
+            'passed_tests': passed_tests,
+            'progress_percentage': progress_percentage,
+        })
+    
+    # Mock examlar bo'yicha progress - FAQAT foydalanuvchi ishlagan mock examlar
+    from core.models import MockExam, MockExamResult
+    mock_exams_progress = []
+    
+    # Foydalanuvchi ishlagan mock examlarni topish
+    user_mock_exam_ids = MockExamResult.objects.filter(user=request.user).values_list('exam_id', flat=True).distinct()
+    user_mock_exams = MockExam.objects.filter(id__in=user_mock_exam_ids, is_active=True)
+    
+    for exam in user_mock_exams:
+        # Foydalanuvchi ishlagan imtihonlar
+        user_results = MockExamResult.objects.filter(
+            user=request.user,
+            exam=exam
+        )
+        
+        completed_exams = user_results.count()
+        passed_exams = user_results.filter(passed=True).count()
+        
+        # Har bir mock exam uchun progress - o'tgan yoki o'tmagan
+        if completed_exams > 0:
+            progress_percentage = int((passed_exams / completed_exams) * 100) if completed_exams > 0 else 0
+        else:
+            progress_percentage = 0
+        
+        # Eng yaxshi natija
+        best_result = user_results.order_by('-score').first()
+        best_score = best_result.score if best_result else 0
+        
+        mock_exams_progress.append({
+            'exam': exam,
+            'completed_exams': completed_exams,
+            'passed_exams': passed_exams,
+            'progress_percentage': progress_percentage,
+            'best_score': best_score,
+        })
+    
+    context = {
+        'form': form,
+        'subjects_progress': subjects_progress,
+        'certificates_progress': certificates_progress,
+        'mock_exams_progress': mock_exams_progress,
+    }
+    
+    return render(request, 'accounts/profile.html', context)

@@ -18,6 +18,9 @@
     <a href="{% url 'core:institutions' %}?type=universities" class="filter-tab {% if current_type == 'universities' %}active{% endif %}">
         <i class="bi bi-mortarboard me-1"></i>Oliy ta'lim ({{ universities_count }})
     </a>
+    <a href="{% url 'core:institutions' %}?type=consulting" class="filter-tab {% if current_type == 'consulting' %}active{% endif %}">
+        <i class="bi bi-briefcase me-1"></i>Konsalting ({{ consulting_count }})
+    </a>
 </div>
 
 {% if institutions %}

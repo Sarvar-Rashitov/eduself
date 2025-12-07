@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+import json
 
 class SiteSettings(models.Model):
     site_name = models.CharField(max_length=100, default='EduSelf')
@@ -116,6 +117,7 @@ class TestResult(models.Model):
     correct_answers = models.PositiveIntegerField(default=0)
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
+    user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -214,6 +216,7 @@ class CertificateResult(models.Model):
     correct_answers = models.PositiveIntegerField(default=0)
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
+    user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -277,6 +280,7 @@ class MockExamResult(models.Model):
     correct_answers = models.PositiveIntegerField(default=0)
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
+    user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -292,6 +296,7 @@ class InstitutionType(models.TextChoices):
     STATE_UNIVERSITY = 'state_uni', "Davlat oliy ta'lim"
     FOREIGN_BRANCH = 'foreign_branch', "Xorijiy filial"
     PRIVATE_UNIVERSITY = 'private_uni', "Xususiy oliy ta'lim"
+    CONSULTING = 'consulting', "Konsalting"
 
 
 class Institution(models.Model):
@@ -349,3 +354,193 @@ class Statistic(models.Model):
     
     def __str__(self):
         return self.title
+
+
+class NewsCategory(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Kategoriya nomi")
+    slug = models.SlugField(max_length=100, unique=True, verbose_name="Slug")
+    description = models.TextField(blank=True, verbose_name="Tavsif")
+    icon = models.CharField(max_length=50, default='bi-newspaper', verbose_name="Icon")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = "Yangilik kategoriyasi"
+        verbose_name_plural = "Yangilik kategoriyalari"
+    
+    def __str__(self):
+        return self.name
+
+
+class News(models.Model):
+    title = models.CharField(max_length=300, verbose_name="Sarlavha")
+    slug = models.SlugField(max_length=300, unique=True, verbose_name="Slug")
+    category = models.ForeignKey(NewsCategory, on_delete=models.CASCADE, related_name='news', verbose_name="Kategoriya")
+    summary = models.TextField(max_length=500, verbose_name="Qisqacha mazmuni")
+    content = models.TextField(verbose_name="To'liq mazmuni")
+    image = models.ImageField(upload_to='news/', verbose_name="Asosiy rasm")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Muallif")
+    views_count = models.PositiveIntegerField(default=0, verbose_name="Ko'rishlar soni")
+    is_featured = models.BooleanField(default=False, verbose_name="Asosiy yangilik")
+    is_published = models.BooleanField(default=True, verbose_name="Nashr qilingan")
+    published_at = models.DateTimeField(auto_now_add=True, verbose_name="Nashr sanasi")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Yangilangan sana")
+    
+    class Meta:
+        ordering = ['-published_at']
+        verbose_name = "Yangilik"
+        verbose_name_plural = "Yangiliklar"
+    
+    def __str__(self):
+        return self.title
+    
+    def increment_views(self):
+        self.views_count += 1
+        self.save(update_fields=['views_count'])
+
+
+class CourseCategory(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Kategoriya nomi")
+    slug = models.SlugField(max_length=200, unique=True, verbose_name="Slug")
+    description = models.TextField(blank=True, verbose_name="Tavsif")
+    icon = models.CharField(max_length=50, default='bi-play-circle', verbose_name="Icon")
+    image = models.ImageField(upload_to='course_categories/', blank=True, null=True, verbose_name="Rasm")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = "Kurs kategoriyasi"
+        verbose_name_plural = "Kurs kategoriyalari"
+    
+    def __str__(self):
+        return self.name
+
+
+class Course(models.Model):
+    category = models.ForeignKey(CourseCategory, on_delete=models.CASCADE, related_name='courses', verbose_name="Kategoriya")
+    title = models.CharField(max_length=300, verbose_name="Kurs nomi")
+    slug = models.SlugField(max_length=300, unique=True, verbose_name="Slug")
+    description = models.TextField(verbose_name="Tavsif")
+    image = models.ImageField(upload_to='courses/', verbose_name="Kurs rasmi")
+    instructor = models.CharField(max_length=200, verbose_name="O'qituvchi")
+    duration = models.CharField(max_length=100, blank=True, verbose_name="Davomiyligi")
+    level = models.CharField(max_length=50, choices=[
+        ('beginner', 'Boshlang\'ich'),
+        ('intermediate', 'O\'rta'),
+        ('advanced', 'Yuqori')
+    ], default='beginner', verbose_name="Daraja")
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Narxi")
+    is_free = models.BooleanField(default=False, verbose_name="Bepul")
+    is_featured = models.BooleanField(default=False, verbose_name="Mashhur")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = "Kurs"
+        verbose_name_plural = "Kurslar"
+    
+    def __str__(self):
+        return self.title
+    
+    def get_lessons_count(self):
+        return self.lessons.count()
+
+
+class Lesson(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons', verbose_name="Kurs")
+    title = models.CharField(max_length=300, verbose_name="Dars nomi")
+    description = models.TextField(verbose_name="Tavsif")
+    content = models.TextField(verbose_name="Matnli ma'lumot")
+    video_url = models.URLField(blank=True, verbose_name="Video URL (YouTube, Vimeo)")
+    video_file = models.FileField(upload_to='lessons/videos/', blank=True, null=True, verbose_name="Video fayl")
+    duration = models.CharField(max_length=50, blank=True, verbose_name="Davomiyligi")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_free = models.BooleanField(default=False, verbose_name="Bepul dars")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order', 'created_at']
+        verbose_name = "Dars"
+        verbose_name_plural = "Darslar"
+    
+    def __str__(self):
+        return f"{self.course.title} - {self.title}"
+    
+    def get_embed_url(self):
+        """YouTube URL'ni embed formatiga o'tkazish"""
+        if not self.video_url:
+            return None
+        
+        url = self.video_url
+        
+        # YouTube watch URL
+        if 'youtube.com/watch?v=' in url:
+            video_id = url.split('watch?v=')[1].split('&')[0]
+            return f'https://www.youtube.com/embed/{video_id}'
+        
+        # YouTube short URL
+        elif 'youtu.be/' in url:
+            video_id = url.split('youtu.be/')[1].split('?')[0]
+            return f'https://www.youtube.com/embed/{video_id}'
+        
+        # Vimeo URL
+        elif 'vimeo.com/' in url:
+            video_id = url.split('vimeo.com/')[1].split('?')[0]
+            return f'https://player.vimeo.com/video/{video_id}'
+        
+        # Agar boshqa format bo'lsa, o'zini qaytarish
+        return url
+
+
+class CourseEnrollment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='course_enrollments')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+    completed = models.BooleanField(default=False)
+    progress = models.PositiveIntegerField(default=0, verbose_name="Progress (%)")
+    
+    class Meta:
+        unique_together = ['user', 'course']
+        ordering = ['-enrolled_at']
+        verbose_name = "Kursga yozilish"
+        verbose_name_plural = "Kursga yozilishlar"
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.course.title}"
+
+
+class NotificationType(models.TextChoices):
+    NEWS = 'news', 'Yangilik'
+    TEST = 'test', 'Yangi test'
+    CERTIFICATE = 'certificate', 'Yangi sertifikat'
+    MOCK_EXAM = 'mock_exam', 'Yangi mock exam'
+    COURSE = 'course', 'Yangi kurs'
+    SYSTEM = 'system', 'Tizim xabari'
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications', verbose_name="Foydalanuvchi", null=True, blank=True)
+    notification_type = models.CharField(max_length=20, choices=NotificationType.choices, verbose_name="Turi")
+    title = models.CharField(max_length=200, verbose_name="Sarlavha")
+    message = models.TextField(verbose_name="Xabar")
+    link = models.CharField(max_length=500, blank=True, verbose_name="Havola")
+    icon = models.CharField(max_length=50, default='bi-bell', verbose_name="Icon")
+    is_read = models.BooleanField(default=False, verbose_name="O'qilgan")
+    is_global = models.BooleanField(default=False, verbose_name="Barcha foydalanuvchilar uchun")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Bildirishnoma"
+        verbose_name_plural = "Bildirishnomalar"
+    
+    def __str__(self):
+        return f"{self.title} - {self.get_notification_type_display()}"

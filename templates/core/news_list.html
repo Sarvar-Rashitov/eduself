@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - EduSelf{% endblock %}
+
+{% block content %}
+<div class="section-title">{{ title }}</div>
+
+{% if featured_news %}
+<div class="mb-4">
+    <h6 class="mb-3 text-muted">Asosiy yangiliklar</h6>
+    {% for news in featured_news %}
+    <a href="{% url 'core:news_detail' news.slug %}" class="text-decoration-none">
+        <div class="card mb-3 news-featured-card">
+            {% if news.image %}
+            <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}" style="height: 200px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <span class="badge bg-primary mb-2">{{ news.category.name }}</span>
+                <h5 class="card-title text-dark">{{ news.title }}</h5>
+                <p class="card-text text-muted small">{{ news.summary|truncatewords:20 }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="bi bi-calendar3"></i> {{ news.published_at|date:"d.m.Y" }}
+                    </small>
+                    <small class="text-muted">
+                        <i class="bi bi-eye"></i> {{ news.views_count }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="filter-tabs mb-4">
+    <a href="{% url 'core:news_list' %}" class="filter-tab {% if not current_category %}active{% endif %}">
+        Barchasi
+    </a>
+    {% for cat in categories %}
+    <a href="{% url 'core:news_list' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.id == cat.id %}active{% endif %}">
+        <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
+
+{% if news_list %}
+    {% for news in news_list %}
+    <a href="{% url 'core:news_detail' news.slug %}" class="text-decoration-none">
+        <div class="card mb-3 news-card">
+            <div class="row g-0">
+                {% if news.image %}
+                <div class="col-4">
+                    <img src="{{ news.image.url }}" class="img-fluid rounded-start" alt="{{ news.title }}" style="height: 100%; object-fit: cover;">
+                </div>
+                <div class="col-8">
+                {% else %}
+                <div class="col-12">
+                {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-primary mb-2">{{ news.category.name }}</span>
+                        <h6 class="card-title text-dark">{{ news.title }}</h6>
+                        <p class="card-text text-muted small mb-2">{{ news.summary|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar3"></i> {{ news.published_at|date:"d.m.Y" }}
+                            </small>
+                            <small class="text-muted">
+                                <i class="bi bi-eye"></i> {{ news.views_count }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <i class="bi bi-newspaper"></i>
+        <p>Hozircha yangiliklar mavjud emas</p>
+    </div>
+{% endif %}
+{% endblock %}
