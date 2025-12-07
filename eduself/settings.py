@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from environs import Env
+import dj_database_url
 
 env = Env()
 env.read_env()
@@ -59,8 +60,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eduself.wsgi.application'
 
 DATABASES = {
-    'default': env.dj_db_url('DATABASE_URL')
+    'default':  dj_database_url.config(default=env("DATABASE_URL"))
 }
+
+
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
