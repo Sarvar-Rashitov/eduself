@@ -11,7 +11,7 @@ SECRET_KEY = os.environ.get('SESSION_SECRET', 'django-insecure-dev-key-change-in
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['eduself-bqc5.onrender.com', 'eduself.uz']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -94,7 +94,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = [BASE_DIR / 'media']
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
