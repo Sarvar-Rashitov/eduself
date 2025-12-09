@@ -225,7 +225,27 @@ class CertificateResult(models.Model):
         verbose_name_plural = "Sertifikat natijalari"
 
 
+class MockExamCategory(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Kategoriya nomi")
+    slug = models.SlugField(max_length=200, unique=True, verbose_name="Slug")
+    description = models.TextField(blank=True, verbose_name="Tavsif")
+    icon = models.CharField(max_length=50, default='bi-clipboard-check', verbose_name="Icon")
+    image = models.ImageField(upload_to='mock_categories/', blank=True, null=True, verbose_name="Rasm")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = "Mock imtihon kategoriyasi"
+        verbose_name_plural = "Mock imtihon kategoriyalari"
+    
+    def __str__(self):
+        return self.name
+
+
 class MockExam(models.Model):
+    category = models.ForeignKey(MockExamCategory, on_delete=models.CASCADE, related_name='mock_exams', verbose_name="Kategoriya", null=True, blank=True)
     title = models.CharField(max_length=200, verbose_name="Imtihon nomi")
     description = models.TextField(blank=True, verbose_name="Tavsif")
     image = models.ImageField(upload_to='mock_exams/', blank=True, null=True, verbose_name="Rasm")

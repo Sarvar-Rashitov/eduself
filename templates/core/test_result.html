@@ -17,9 +17,9 @@
     </div>
     <p class="small text-muted mt-2">O'tish balli: {{ test.passing_score }}%</p>
     
-    <div class="mt-4">
-        <a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary me-2">Qayta urinish</a>
-        <a href="{% url 'core:test_analysis' test.pk %}" class="btn btn-info me-2">Tahlil</a>
+    <div class="result-buttons">
+        <a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary">Qayta urinish</a>
+        <a href="{% url 'core:test_analysis' test.pk %}" class="btn btn-info">Tahlil</a>
         <a href="{% url 'core:topic_detail' test.topic.pk %}" class="btn btn-outline-primary">Ortga</a>
     </div>
 </div>

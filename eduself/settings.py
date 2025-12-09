@@ -11,7 +11,7 @@ SECRET_KEY = os.environ.get('SESSION_SECRET', 'django-insecure-dev-key-change-in
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['eduself-bqc5.onrender.com', 'eduself.uz', 'www.eduself.uz']
+ALLOWED_HOSTS = ['eduself-bqc5.onrender.com', 'eduself.uz', 'www.eduself.uz', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -60,7 +60,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eduself.wsgi.application'
 
 DATABASES = {
-    'default':  dj_database_url.config(default=env("DATABASE_URL"))
+    'default': dj_database_url.config(default=env("DATABASE_URL"))
 }
 
 

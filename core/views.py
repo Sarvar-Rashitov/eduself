@@ -5,7 +5,7 @@ from django.db.models import Avg, Count
 from .models import (
     Subject, Topic, Test, Question, Answer, TestResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
-    MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
+    MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     Institution, InstitutionType, Advertisement, Statistic, SiteSettings,
     NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment
@@ -360,7 +360,18 @@ def cert_test_analysis_view(request, pk):
 
 
 def mock_exams_view(request):
-    exams = MockExam.objects.filter(is_active=True)
+    category_slug = request.GET.get('category')
+    
+    if category_slug:
+        category = get_object_or_404(MockExamCategory, slug=category_slug, is_active=True)
+        exams = MockExam.objects.filter(category=category, is_active=True)
+        title = category.name
+    else:
+        exams = MockExam.objects.filter(is_active=True)
+        title = "Barcha Mock Imtihonlar"
+        category = None
+    
+    categories = MockExamCategory.objects.filter(is_active=True)
     
     user_results = {}
     if request.user.is_authenticated:
@@ -369,7 +380,14 @@ def mock_exams_view(request):
             if result:
                 user_results[exam.id] = result
     
-    return render(request, 'core/mock_exams.html', {'exams': exams, 'user_results': user_results})
+    context = {
+        'exams': exams,
+        'categories': categories,
+        'current_category': category,
+        'title': title,
+        'user_results': user_results,
+    }
+    return render(request, 'core/mock_exams.html', context)
 
 
 @login_required

@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     SiteSettings, Subject, Topic, Test, Question, Answer, TestResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
-    MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
+    MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     Institution, Advertisement, Statistic, NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment, Notification
 )
@@ -155,10 +155,19 @@ class MockQuestionInline(admin.TabularInline):
     show_change_link = True
 
 
+@admin.register(MockExamCategory)
+class MockExamCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'icon', 'order', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name', 'description']
+    list_editable = ['order', 'is_active']
+    prepopulated_fields = {'slug': ('name',)}
+
+
 @admin.register(MockExam)
 class MockExamAdmin(admin.ModelAdmin):
-    list_display = ['title', 'time_limit', 'passing_score', 'order', 'is_active', 'created_at']
-    list_filter = ['is_active', 'created_at']
+    list_display = ['title', 'category', 'time_limit', 'passing_score', 'order', 'is_active', 'created_at']
+    list_filter = ['category', 'is_active', 'created_at']
     search_fields = ['title', 'description']
     list_editable = ['order', 'is_active']
     inlines = [MockQuestionInline]

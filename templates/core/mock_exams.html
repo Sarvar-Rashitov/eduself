@@ -1,11 +1,24 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
 
-{% block title %}Mock Exams - EduSelf{% endblock %}
+{% block title %}{{ title }} - EduSelf{% endblock %}
 
 {% block content %}
-<div class="section-title">Mock Exams</div>
+<div class="section-title">{{ title }}</div>
 <p class="text-muted mb-4">Haqiqiy imtihonga o'xshash sinovlar</p>
+
+{% if categories %}
+<div class="filter-tabs">
+    <a href="{% url 'core:mock_exams' %}" class="filter-tab {% if not current_category %}active{% endif %}">
+        <i class="bi bi-grid"></i> Barchasi
+    </a>
+    {% for cat in categories %}
+    <a href="{% url 'core:mock_exams' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.id == cat.id %}active{% endif %}">
+        <i class="{{ cat.icon }}"></i> {{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
 
 {% if exams %}
     {% for exam in exams %}

@@ -612,7 +612,7 @@ body {
 .app-footer {
     background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
     color: #E5E7EB;
-    padding: 40px 20px 100px;
+    padding: 40px 16px 100px;
     margin-top: 40px;
 }
 
@@ -622,20 +622,20 @@ body {
 }
 
 .footer-brand {
-    text-align: center;
+    text-align: left;
     margin-bottom: 32px;
     padding-bottom: 24px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-logo {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: white;
     margin-bottom: 8px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 8px;
 }
 
@@ -652,12 +652,12 @@ body {
 .footer-links {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 32px;
     margin-bottom: 32px;
 }
 
 .footer-section {
-    text-align: center;
+    text-align: left;
 }
 
 .footer-title {
@@ -673,8 +673,7 @@ body {
     content: '';
     position: absolute;
     bottom: -4px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
     width: 40px;
     height: 2px;
     background: var(--primary-light);
@@ -709,11 +708,12 @@ body {
 .footer-list i {
     font-size: 1rem;
     color: var(--primary-light);
+    flex-shrink: 0;
 }
 
 .social-links {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 12px;
     flex-wrap: wrap;
 }
@@ -741,7 +741,7 @@ body {
 }
 
 .footer-bottom {
-    text-align: center;
+    text-align: left;
     padding-top: 24px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -754,7 +754,7 @@ body {
 
 .footer-bottom-links {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
@@ -1138,7 +1138,7 @@ body {
     margin-bottom: 16px;
 }
 
-/* Responsive Footer */
+/* Responsive Styles */
 @media (min-width: 481px) {
     .app-container {
         border-left: 1px solid var(--border-color);
@@ -1152,33 +1152,18 @@ body {
     }
     
     .footer-links {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 32px;
-    }
-    
-    .footer-section {
-        text-align: left;
-    }
-    
-    .footer-title::after {
-        left: 0;
-        transform: none;
-    }
-    
-    .social-links {
-        justify-content: flex-start;
-    }
-    
-    .footer-brand {
-        text-align: left;
-    }
-    
-    .footer-logo {
-        justify-content: flex-start;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
     }
 }
 
 @media (min-width: 768px) {
+    .footer-links {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+        margin-bottom: 48px;
+    }
+    
     .app-footer {
         padding: 60px 40px 120px;
     }
@@ -1188,7 +1173,67 @@ body {
         padding-bottom: 32px;
     }
     
-    .footer-links {
-        margin-bottom: 48px;
+    .footer-logo {
+        font-size: 1.75rem;
     }
+}
+
+/* Result Buttons */
+.result-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.result-buttons .btn {
+    width: 100%;
+    margin: 0 !important;
+}
+
+@media (min-width: 576px) {
+    .result-buttons {
+        flex-direction: row;
+        justify-content: center;
+    }
+    
+    .result-buttons .btn {
+        width: auto;
+        flex: 0 1 auto;
+    }
+}
+
+/* Form Hints */
+.password-hint, .form-hint {
+    margin-top: 6px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(79, 70, 229, 0.02));
+    border-left: 3px solid var(--primary-light);
+    border-radius: 6px;
+}
+
+.password-hint small, .form-hint small {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    line-height: 1.5;
+}
+
+.password-hint i, .form-hint i {
+    color: var(--primary-color);
+    font-size: 1rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* Form Error Messages */
+.text-danger {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.text-danger i {
+    margin-top: 2px;
+    flex-shrink: 0;
 }
