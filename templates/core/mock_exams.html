@@ -4,8 +4,37 @@
 {% block title %}{{ title }} - EduSelf{% endblock %}
 
 {% block content %}
-<div class="section-title">{{ title }}</div>
-<p class="text-muted mb-4">Haqiqiy imtihonga o'xshash sinovlar</p>
+<div class="page-header mock-exams-header">
+    <div class="page-header-content">
+        <h1 class="page-header-title">
+            <div class="page-header-icon">
+                {% if current_category %}
+                    <i class="{{ current_category.icon }}"></i>
+                {% else %}
+                    <i class="bi bi-clipboard-check"></i>
+                {% endif %}
+            </div>
+            {{ title }}
+        </h1>
+        <p class="page-header-subtitle">
+            {% if current_category and current_category.description %}
+                {{ current_category.description }}
+            {% else %}
+                Haqiqiy imtihonga o'xshash sinovlar va tayyorgarlik testlari
+            {% endif %}
+        </p>
+        <div class="page-header-stats">
+            <div class="page-header-stat">
+                <i class="bi bi-clipboard-check me-1"></i>
+                {{ exams.count }} ta imtihon
+            </div>
+            <div class="page-header-stat">
+                <i class="bi bi-stopwatch me-1"></i>
+                Vaqt bilan cheklangan
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Qidiruv -->
 <div class="search-container mb-4">

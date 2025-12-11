@@ -3,7 +3,29 @@
 {% block title %}Sertifikatlar - EduSelf{% endblock %}
 
 {% block content %}
-<div class="section-title">Sertifikatlar</div>
+<div class="page-header certificates-header">
+    <div class="page-header-content">
+        <h1 class="page-header-title">
+            <div class="page-header-icon">
+                <i class="bi bi-award"></i>
+            </div>
+            Sertifikatlar
+        </h1>
+        <p class="page-header-subtitle">
+            Professional sertifikatlar va malaka oshirish kurslari
+        </p>
+        <div class="page-header-stats">
+            <div class="page-header-stat">
+                <i class="bi bi-award me-1"></i>
+                {{ certificates.count }} ta sertifikat
+            </div>
+            <div class="page-header-stat">
+                <i class="bi bi-check-circle me-1"></i>
+                Rasmiy hujjatlar
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Qidiruv -->
 <div class="search-container mb-4">
     <div class="search-input-wrapper">

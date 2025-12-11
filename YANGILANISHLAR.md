@@ -2,6 +2,33 @@
 
 ## 2025-12-10 - Muhim Yangilanishlar
 
+### 13. ✅ Sahifa Sarlavhalari Chiroyli Qilindi
+
+**Muammo:** Fanlar, sertifikatlar, muassasalar va mock exam sahifalarining sarlavhalari oddiy va kategoriya tanlaganda o'zgarmas edi.
+
+**Yechim:**
+- Barcha asosiy sahifalar uchun chiroyli gradient header qo'shildi
+- Kategoriya tanlaganda header ikoni va mazmuni o'zgaradi
+- Har bir sahifa uchun alohida rang sxemasi:
+  - **Fanlar**: Binafsha gradient (subjects-header)
+  - **Sertifikatlar**: Yashil gradient (certificates-header)  
+  - **Muassasalar**: Sariq-qizil gradient (institutions-header)
+  - **Mock Exam**: Qizil gradient (mock-exams-header)
+- Header tarkibi:
+  - Dinamik ikon (kategoriya tanlaganda o'zgaradi)
+  - Sahifa/kategoriya nomi
+  - Tavsif (kategoriya tanlaganda kategoriya tavsifi)
+  - Statistika (elementlar soni)
+- Mobil qurilmalar uchun optimallashtirilgan
+- Smooth animatsiyalar va hover effektlari
+
+**O'zgartirilgan fayllar:**
+- `static/css/style.css` - Yangi `.page-header` CSS klasslari
+- `templates/core/subjects.html` - Chiroyli header
+- `templates/core/institutions.html` - Chiroyli header
+- `templates/core/certificates.html` - Chiroyli header
+- `templates/core/mock_exams.html` - Chiroyli header
+
 ### 12. ✅ Fanlar Kategoriyalari Qo'shildi
 
 **Muammo:** Fanlar bo'limida kategoriyalar yo'q edi, barcha fanlar aralash ko'rinardi.

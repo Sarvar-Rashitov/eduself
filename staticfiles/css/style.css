@@ -1523,3 +1523,142 @@ a .institution-card .text-dark {
 a:hover .institution-card .text-dark {
     color: var(--primary-color) !important;
 }
+
+/* Page Header Styles */
+.page-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    color: white;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(30px, -30px);
+}
+
+.page-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    transform: translate(-20px, 20px);
+}
+
+.page-header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.page-header-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-header-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.page-header-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.page-header-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.page-header-stat {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 8px 16px;
+    border-radius: var(--radius-lg);
+    font-size: 0.85rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Category-specific header colors */
+.page-header.subjects-header {
+    background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+}
+
+.page-header.certificates-header {
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+}
+
+.page-header.institutions-header {
+    background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+}
+
+.page-header.mock-exams-header {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+}
+
+/* Animation for header changes */
+.page-header {
+    transition: all 0.3s ease;
+}
+
+.page-header-title {
+    transition: all 0.3s ease;
+}
+
+/* Mobile optimization */
+@media (max-width: 480px) {
+    .page-header {
+        padding: 20px 16px;
+        margin-bottom: 20px;
+    }
+    
+    .page-header-title {
+        font-size: 1.25rem;
+    }
+    
+    .page-header-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+    
+    .page-header-stats {
+        gap: 12px;
+        margin-top: 12px;
+    }
+    
+    .page-header-stat {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}

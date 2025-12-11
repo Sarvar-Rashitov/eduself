@@ -3,7 +3,37 @@
 {% block title %}{{ title }} - EduSelf{% endblock %}
 
 {% block content %}
-<div class="section-title">{{ title }}</div>
+<div class="page-header institutions-header">
+    <div class="page-header-content">
+        <h1 class="page-header-title">
+            <div class="page-header-icon">
+                {% if current_category %}
+                    <i class="{{ current_category.icon }}"></i>
+                {% else %}
+                    <i class="bi bi-building"></i>
+                {% endif %}
+            </div>
+            {{ title }}
+        </h1>
+        <p class="page-header-subtitle">
+            {% if current_category and current_category.description %}
+                {{ current_category.description }}
+            {% else %}
+                O'zbekistondagi eng yaxshi ta'lim muassasalari
+            {% endif %}
+        </p>
+        <div class="page-header-stats">
+            <div class="page-header-stat">
+                <i class="bi bi-building me-1"></i>
+                {{ institutions.count }} ta muassasa
+            </div>
+            <div class="page-header-stat">
+                <i class="bi bi-geo-alt me-1"></i>
+                Butun O'zbekiston
+            </div>
+        </div>
+    </div>
+</div>
 
 {% if categories %}
 <div class="filter-tabs mb-4">
