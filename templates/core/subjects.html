@@ -3,8 +3,20 @@
 {% block title %}Fanlar - EduSelf{% endblock %}
 
 {% block content %}
-<div class="section-title">Fanlar</div>
-<p class="text-muted mb-4">O'zbekiston umumta'lim fanlari bo'yicha testlar</p>
+<div class="section-title">{{ title }}</div>
+
+{% if categories %}
+<div class="filter-tabs mb-4">
+    <a href="{% url 'core:subjects' %}" class="filter-tab {% if not current_category %}active{% endif %}">
+        <i class="bi bi-grid"></i> Barchasi
+    </a>
+    {% for cat in categories %}
+    <a href="{% url 'core:subjects' %}?category={{ cat.slug }}" class="filter-tab {% if current_category and current_category.id == cat.id %}active{% endif %}">
+        <i class="{{ cat.icon }}"></i> {{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
 
 <!-- Qidiruv -->
 <div class="search-container mb-4">

@@ -3,10 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Avg, Count
 from .models import (
-    Subject, Topic, Test, Question, Answer, TestResult,
+    SubjectCategory, Subject, Topic, Test, Question, Answer, TestResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
-    Institution, InstitutionType, Advertisement, Statistic, SiteSettings,
+    InstitutionCategory, Institution, InstitutionType, Advertisement, Statistic, SiteSettings,
     NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment
 )
@@ -38,8 +38,29 @@ def home_view(request):
 
 
 def subjects_view(request):
-    subjects = Subject.objects.filter(is_active=True)
-    return render(request, 'core/subjects.html', {'subjects': subjects})
+    category_slug = request.GET.get('category')
+    
+    # Kategoriya bo'yicha filterlash
+    if category_slug:
+        category = get_object_or_404(SubjectCategory, slug=category_slug, is_active=True)
+        subjects = Subject.objects.filter(category=category, is_active=True)
+        title = category.name
+        current_category = category
+    else:
+        current_category = None
+        subjects = Subject.objects.filter(is_active=True)
+        title = "Barcha fanlar"
+    
+    # Kategoriyalar ro'yxati
+    categories = SubjectCategory.objects.filter(is_active=True)
+    
+    context = {
+        'subjects': subjects,
+        'categories': categories,
+        'current_category': current_category,
+        'title': title,
+    }
+    return render(request, 'core/subjects.html', context)
 
 
 def subject_detail_view(request, pk):
@@ -527,49 +548,27 @@ def mock_exam_analysis_view(request, pk):
 
 
 def institutions_view(request):
-    institution_type = request.GET.get('type', 'all')
+    category_slug = request.GET.get('category')
     
-    if institution_type == 'training':
-        institutions = Institution.objects.filter(institution_type=InstitutionType.TRAINING_CENTER, is_active=True)
-        title = "O'quv markazlari"
-    elif institution_type == 'schools':
-        institutions = Institution.objects.filter(
-            institution_type__in=[InstitutionType.STATE_SCHOOL, InstitutionType.PRIVATE_SCHOOL],
-            is_active=True
-        )
-        title = "Maktablar"
-    elif institution_type == 'universities':
-        institutions = Institution.objects.filter(
-            institution_type__in=[InstitutionType.STATE_UNIVERSITY, InstitutionType.FOREIGN_BRANCH, InstitutionType.PRIVATE_UNIVERSITY],
-            is_active=True
-        )
-        title = "Oliy ta'lim muassasalari"
-    elif institution_type == 'consulting':
-        institutions = Institution.objects.filter(institution_type=InstitutionType.CONSULTING, is_active=True)
-        title = "Konsalting"
+    # Kategoriya bo'yicha filterlash
+    if category_slug:
+        category = get_object_or_404(InstitutionCategory, slug=category_slug, is_active=True)
+        institutions = Institution.objects.filter(category=category, is_active=True)
+        title = category.name
+        current_category = category
     else:
+        current_category = None
         institutions = Institution.objects.filter(is_active=True)
         title = "Barcha ta'lim muassasalari"
     
-    training_centers = Institution.objects.filter(institution_type=InstitutionType.TRAINING_CENTER, is_active=True).count()
-    schools = Institution.objects.filter(
-        institution_type__in=[InstitutionType.STATE_SCHOOL, InstitutionType.PRIVATE_SCHOOL],
-        is_active=True
-    ).count()
-    universities = Institution.objects.filter(
-        institution_type__in=[InstitutionType.STATE_UNIVERSITY, InstitutionType.FOREIGN_BRANCH, InstitutionType.PRIVATE_UNIVERSITY],
-        is_active=True
-    ).count()
-    consulting = Institution.objects.filter(institution_type=InstitutionType.CONSULTING, is_active=True).count()
+    # Kategoriyalar ro'yxati
+    categories = InstitutionCategory.objects.filter(is_active=True)
     
     context = {
         'institutions': institutions,
+        'categories': categories,
+        'current_category': current_category,
         'title': title,
-        'current_type': institution_type,
-        'training_centers_count': training_centers,
-        'schools_count': schools,
-        'universities_count': universities,
-        'consulting_count': consulting,
     }
     return render(request, 'core/institutions.html', context)
 

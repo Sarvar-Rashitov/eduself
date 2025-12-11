@@ -1,9 +1,9 @@
 from django.contrib import admin
 from .models import (
-    SiteSettings, Subject, Topic, Test, Question, Answer, TestResult,
+    SiteSettings, SubjectCategory, Subject, Topic, Test, Question, Answer, TestResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
-    Institution, Advertisement, Statistic, NewsCategory, News,
+    InstitutionCategory, Institution, Advertisement, Statistic, NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment, Notification
 )
 
@@ -36,10 +36,19 @@ class TestInline(admin.TabularInline):
     show_change_link = True
 
 
+@admin.register(SubjectCategory)
+class SubjectCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'icon', 'order', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name', 'description']
+    list_editable = ['order', 'is_active']
+    prepopulated_fields = {'slug': ('name',)}
+
+
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ['name', 'order', 'is_active', 'get_topics_count', 'created_at']
-    list_filter = ['is_active', 'created_at']
+    list_display = ['name', 'category', 'order', 'is_active', 'get_topics_count', 'created_at']
+    list_filter = ['category', 'is_active', 'created_at']
     search_fields = ['name', 'description']
     list_editable = ['order', 'is_active']
     inlines = [TopicInline]
@@ -188,10 +197,19 @@ class MockExamResultAdmin(admin.ModelAdmin):
     readonly_fields = ['user', 'exam', 'score', 'correct_answers', 'total_questions', 'passed', 'completed_at']
 
 
+@admin.register(InstitutionCategory)
+class InstitutionCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'icon', 'order', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name', 'description']
+    list_editable = ['order', 'is_active']
+    prepopulated_fields = {'slug': ('name',)}
+
+
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'institution_type', 'is_featured', 'is_active', 'order']
-    list_filter = ['institution_type', 'is_featured', 'is_active']
+    list_display = ['name', 'category', 'institution_type', 'is_featured', 'is_active', 'order']
+    list_filter = ['category', 'institution_type', 'is_featured', 'is_active']
     search_fields = ['name', 'description', 'address']
     list_editable = ['is_featured', 'is_active', 'order']
 

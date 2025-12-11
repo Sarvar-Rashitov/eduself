@@ -5,6 +5,19 @@
 {% block content %}
 <div class="section-title">{{ title }}</div>
 
+{% if categories %}
+<div class="filter-tabs mb-4">
+    <a href="{% url 'core:institutions' %}" class="filter-tab {% if not current_category %}active{% endif %}">
+        <i class="bi bi-grid"></i> Barchasi
+    </a>
+    {% for cat in categories %}
+    <a href="{% url 'core:institutions' %}?category={{ cat.slug }}" class="filter-tab {% if current_category and current_category.id == cat.id %}active{% endif %}">
+        <i class="{{ cat.icon }}"></i> {{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
 <!-- Qidiruv -->
 <div class="search-container mb-4">
     <div class="search-input-wrapper">
@@ -21,37 +34,6 @@
         <span class="institution-results-count"></span>
         <button type="button" id="showAllInstitutions" class="btn btn-link btn-sm">Barcha muassasalarni ko'rsatish</button>
     </div>
-</div>
-
-{% if categories %}
-<div class="filter-tabs">
-    <a href="{% url 'core:institutions' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-        <i class="bi bi-grid"></i> Barchasi
-    </a>
-    {% for cat in categories %}
-    <a href="{% url 'core:institutions' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.id == cat.id %}active{% endif %}">
-        <i class="{{ cat.icon }}"></i> {{ cat.name }}
-    </a>
-    {% endfor %}
-</div>
-{% endif %}
-
-<div class="filter-tabs">
-    <a href="{% url 'core:institutions' %}" class="filter-tab {% if current_type == 'all' %}active{% endif %}">
-        Barchasi
-    </a>
-    <a href="{% url 'core:institutions' %}?type=training" class="filter-tab {% if current_type == 'training' %}active{% endif %}">
-        <i class="bi bi-book me-1"></i>O'quv markazlari ({{ training_centers_count }})
-    </a>
-    <a href="{% url 'core:institutions' %}?type=schools" class="filter-tab {% if current_type == 'schools' %}active{% endif %}">
-        <i class="bi bi-building me-1"></i>Maktablar ({{ schools_count }})
-    </a>
-    <a href="{% url 'core:institutions' %}?type=universities" class="filter-tab {% if current_type == 'universities' %}active{% endif %}">
-        <i class="bi bi-mortarboard me-1"></i>Oliy ta'lim ({{ universities_count }})
-    </a>
-    <a href="{% url 'core:institutions' %}?type=consulting" class="filter-tab {% if current_type == 'consulting' %}active{% endif %}">
-        <i class="bi bi-briefcase me-1"></i>Konsalting ({{ consulting_count }})
-    </a>
 </div>
 
 <div id="institutionsList">

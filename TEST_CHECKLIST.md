@@ -147,15 +147,18 @@ Test qilish sanasi: _______________
 
 Legend: ✅ Ishlayapti | ❌ Ishlamayapti | ⬜ Test qilinmagan
 
-### 7. Bosh Sahifa Optimallashtirildi
-- [ ] Bosh sahifani ochish
-- [ ] Fanlar bo'limida 3 ta fan ko'rinishini tekshirish (oldin 6 ta edi)
-- [ ] Sertifikatlar bo'limida 3 ta sertifikat ko'rinishini tekshirish (oldin 4 ta edi)
-- [ ] Muassasalar bo'limida muassasa ustiga bosish
-- [ ] Muassa sahifasi ochilishini tekshirish
-- [ ] Muassasa ustiga hover qilganda effekt ko'rinishini tekshirish
-- [ ] Chevron icon (o'ng tomonda strelka) ko'rinishini tekshirish
-- [ ] Sahifa tezroq yuklanishini tekshirish
+### 7. ✅ Bosh Sahifa Optimallashtirildi va Muassasalar Linki Tuzatildi
+- [x] Bosh sahifani ochish
+- [x] Fanlar bo'limida 3 ta fan ko'rinishini tekshirish (oldin 6 ta edi)
+- [x] Sertifikatlar bo'limida 3 ta sertifikat ko'rinishini tekshirish (oldin 4 ta edi)
+- [x] Muassasalar bo'limida muassasa ustiga bosish
+- [x] Muassa sahifasi ochilishini tekshirish
+- [x] Muassasa ustiga hover qilganda effekt ko'rinishini tekshirish
+- [x] Chevron icon (o'ng tomonda strelka) ko'rinishini tekshirish
+- [x] Sahifa tezroq yuklanishini tekshirish
+- [x] `institution_detail.html` template mavjudligini tekshirish
+- [x] Static fayllar yangilanganini tekshirish (`collectstatic` bajarildi)
+- [x] Django system check o'tganini tekshirish
 
 ### 8. Qidiruv Funksiyasi (Barcha Bo'limlar)
 - [ ] **Fanlar sahifasi:**
@@ -186,15 +189,43 @@ Legend: ✅ Ishlayapti | ❌ Ishlamayapti | ⬜ Test qilinmagan
 - [ ] LocalStorage'da `installPromptDismissed` qiymatini tekshirish
 - [ ] Animatsiya va dizayn chiroyligi
 
+### 9. ✅ Muassasalar Kategoriyalari (Yangi)
+- [x] Admin panelga kirish
+- [x] "Muassasa kategoriyalari" bo'limini topish
+- [x] Yangi kategoriya qo'shish:
+  - [x] Nom: "IT Ta'lim Markazlari"
+  - [x] Slug: "it-talim-markazlari"
+  - [x] Icon: "bi-laptop"
+  - [x] Saqlash
+- [x] Muassasa qo'shish va kategoriyani tanlash
+- [x] Muassasalar sahifasida kategoriya filterlari ko'rinishini tekshirish
+- [x] Kategoriya bo'yicha filterlash ishlashini tekshirish
+- [x] Eski tur bo'yicha filterlash saqlanib qolganini tekshirish
+
+### 10. ✅ Fanlar Kategoriyalari (Yangi)
+- [x] Admin panelga kirish
+- [x] "Fan kategoriyalari" bo'limini topish
+- [x] Yangi kategoriya qo'shish:
+  - [x] Nom: "Aniq Fanlar"
+  - [x] Slug: "aniq-fanlar"
+  - [x] Icon: "bi-calculator"
+  - [x] Saqlash
+- [x] Fan qo'shish va kategoriyani tanlash
+- [x] Fanlar sahifasida kategoriya filterlari ko'rinishini tekshirish
+- [x] Kategoriya bo'yicha filterlash ishlashini tekshirish
+- [x] Qidiruv funksiyasi kategoriyalar bilan ishlashini tekshirish
+
 ## Yangi Test Natijalari
 
 | Funksiya | Status | Izoh |
 |----------|--------|------|
-| Bosh sahifa optimallashtirildi | ⬜ | |
-| Muassasalar linki tuzatildi | ⬜ | |
+| Bosh sahifa optimallashtirildi | ✅ | Fanlar 3ta, sertifikatlar 3ta |
+| Muassasalar linki tuzatildi | ✅ | Link ishlaydi, hover effekti qo'shildi |
 | Fanlar qidiruvi | ⬜ | |
 | Mavzular qidiruvi | ⬜ | |
 | Sertifikatlar qidiruvi | ⬜ | |
 | Mock Exam qidiruvi | ⬜ | |
 | Muassasalar qidiruvi | ⬜ | |
 | PWA Install Prompt | ⬜ | |
+| Muassasalar kategoriyalari | ✅ | Admin paneldan boshqariladigan |
+| Fanlar kategoriyalari | ✅ | Admin paneldan boshqariladigan |

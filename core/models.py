@@ -19,8 +19,28 @@ class SiteSettings(models.Model):
         return self.site_name
 
 
+class SubjectCategory(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Kategoriya nomi")
+    slug = models.SlugField(max_length=200, unique=True, verbose_name="Slug")
+    description = models.TextField(blank=True, verbose_name="Tavsif")
+    icon = models.CharField(max_length=50, default='bi-book', verbose_name="Icon")
+    image = models.ImageField(upload_to='subject_categories/', blank=True, null=True, verbose_name="Rasm")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = "Fan kategoriyasi"
+        verbose_name_plural = "Fan kategoriyalari"
+    
+    def __str__(self):
+        return self.name
+
+
 class Subject(models.Model):
     name = models.CharField(max_length=200, verbose_name="Fan nomi")
+    category = models.ForeignKey(SubjectCategory, on_delete=models.CASCADE, related_name='subjects', verbose_name="Kategoriya", null=True, blank=True)
     description = models.TextField(blank=True, verbose_name="Tavsif")
     icon = models.CharField(max_length=50, default='bi-book', verbose_name="Icon")
     image = models.ImageField(upload_to='subjects/', blank=True, null=True, verbose_name="Rasm")
@@ -309,6 +329,25 @@ class MockExamResult(models.Model):
         verbose_name_plural = "Mock natijalar"
 
 
+class InstitutionCategory(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Kategoriya nomi")
+    slug = models.SlugField(max_length=200, unique=True, verbose_name="Slug")
+    description = models.TextField(blank=True, verbose_name="Tavsif")
+    icon = models.CharField(max_length=50, default='bi-building', verbose_name="Icon")
+    image = models.ImageField(upload_to='institution_categories/', blank=True, null=True, verbose_name="Rasm")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = "Muassasa kategoriyasi"
+        verbose_name_plural = "Muassasa kategoriyalari"
+    
+    def __str__(self):
+        return self.name
+
+
 class InstitutionType(models.TextChoices):
     TRAINING_CENTER = 'training', "O'quv markazi"
     STATE_SCHOOL = 'state_school', "Davlat maktabi"
@@ -321,6 +360,7 @@ class InstitutionType(models.TextChoices):
 
 class Institution(models.Model):
     name = models.CharField(max_length=300, verbose_name="Nomi")
+    category = models.ForeignKey(InstitutionCategory, on_delete=models.CASCADE, related_name='institutions', verbose_name="Kategoriya", null=True, blank=True)
     institution_type = models.CharField(max_length=20, choices=InstitutionType.choices, verbose_name="Turi")
     description = models.TextField(blank=True, verbose_name="Tavsif")
     logo = models.ImageField(upload_to='institutions/', blank=True, null=True, verbose_name="Logo")
