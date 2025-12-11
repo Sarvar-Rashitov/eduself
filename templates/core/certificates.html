@@ -4,8 +4,27 @@
 
 {% block content %}
 <div class="section-title">Sertifikatlar</div>
-<p class="text-muted mb-4">Xalqaro sertifikatlar uchun tayyorgarlik testlari</p>
+<p class="text-muted mb-4">Xalqaro va Milliy sertifikatlar uchun tayyorgarlik testlari</p>
 
+<!-- Qidiruv -->
+<div class="search-container mb-4">
+    <div class="search-input-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" id="certificateSearch" class="form-control search-input" placeholder="Sertifikatlarni qidiring...">
+        <button type="button" id="clearCertificateSearch" class="search-clear" style="display: none;">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+</div>
+
+<div id="certificateSearchResults" style="display: none;">
+    <div class="search-results-header">
+        <span class="certificate-results-count"></span>
+        <button type="button" id="showAllCertificates" class="btn btn-link btn-sm">Barcha sertifikatlarni ko'rsatish</button>
+    </div>
+</div>
+
+<div id="certificatesList">
 {% if certificates %}
     {% for cert in certificates %}
     <a href="{% url 'core:certificate_detail' cert.pk %}" class="subject-card">
@@ -27,4 +46,83 @@
         <p>Hozircha sertifikatlar mavjud emas</p>
     </div>
 {% endif %}
+</div>
+
+<div id="noCertificateResults" class="empty-state" style="display: none;">
+    <i class="bi bi-search"></i>
+    <p>Qidiruv bo'yicha sertifikat topilmadi</p>
+    <small class="text-muted">Boshqa kalit so'zlar bilan qidirib ko'ring</small>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('certificateSearch');
+    const clearButton = document.getElementById('clearCertificateSearch');
+    const searchResults = document.getElementById('certificateSearchResults');
+    const showAllButton = document.getElementById('showAllCertificates');
+    const noResults = document.getElementById('noCertificateResults');
+    const certificatesList = document.getElementById('certificatesList');
+    const certificateCards = document.querySelectorAll('.subject-card');
+    
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim().toLowerCase();
+        
+        if (query.length === 0) {
+            clearSearch();
+            return;
+        }
+        
+        clearButton.style.display = 'block';
+        
+        searchTimeout = setTimeout(() => {
+            performSearch(query);
+        }, 300);
+    });
+    
+    clearButton.addEventListener('click', clearSearch);
+    showAllButton.addEventListener('click', clearSearch);
+    
+    function performSearch(query) {
+        let visibleCount = 0;
+        
+        certificateCards.forEach(card => {
+            const certificateName = card.querySelector('.subject-name').textContent.toLowerCase();
+            const certificateMeta = card.querySelector('.subject-meta').textContent.toLowerCase();
+            
+            if (certificateName.includes(query) || certificateMeta.includes(query)) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        if (visibleCount > 0) {
+            searchResults.style.display = 'block';
+            searchResults.querySelector('.certificate-results-count').textContent = 
+                `${visibleCount} ta sertifikat topildi`;
+            noResults.style.display = 'none';
+        } else {
+            searchResults.style.display = 'none';
+            noResults.style.display = 'block';
+        }
+    }
+    
+    function clearSearch() {
+        searchInput.value = '';
+        clearButton.style.display = 'none';
+        searchResults.style.display = 'none';
+        noResults.style.display = 'none';
+        
+        certificateCards.forEach(card => {
+            card.style.display = 'flex';
+        });
+    }
+});
+</script>
 {% endblock %}

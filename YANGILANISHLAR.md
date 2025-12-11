@@ -2,6 +2,74 @@
 
 ## 2025-12-10 - Muhim Yangilanishlar
 
+### 10. ✅ Bosh Sahifa Optimallashtirildi
+
+**Muammo:** Bosh sahifada fanlar va sertifikatlar juda ko'p ko'rinib, sahifa uzun bo'lib qolgan edi.
+
+**Yechim:**
+- Fanlar: 6 tadan 3 taga qisqartirildi
+- Sertifikatlar: 4 tadan 3 taga qisqartirildi
+- Sahifa endi qisqaroq va tezroq yuklanadi
+- Foydalanuvchi tajribasi yaxshilandi
+
+**O'zgartirilgan fayllar:**
+- `core/views.py` - home_view funksiyasi
+
+### 8. ✅ Qidiruv Funksiyasi Barcha Bo'limlarga Qo'shildi
+
+**Muammo:** Fanlar, mavzular, sertifikatlar, mock examlar va muassasalar ko'p bo'lganda kerakli elementni topish qiyin edi.
+
+**Yechim:**
+- **Fanlar sahifasi:** Real-time qidiruv
+- **Mavzular sahifasi:** Real-time qidiruv  
+- **Sertifikatlar sahifasi:** Real-time qidiruv
+- **Mock Exam sahifasi:** Real-time qidiruv
+- **Muassasalar sahifasi:** Real-time qidiruv
+- 300ms debounce (tez yozishda lag bo'lmaydi)
+- Qidiruv natijalarini ko'rsatish
+- "Barchasini ko'rsatish" tugmasi
+- Qidiruvni tozalash tugmasi
+
+**Qidiruv Xususiyatlari:**
+- Nom bo'yicha qidiruv (fan, mavzu, sertifikat, imtihon, muassasa)
+- Meta ma'lumotlar bo'yicha qidiruv (test soni, mavzu soni)
+- Tavsif bo'yicha qidiruv (muassasalar uchun)
+- Tur bo'yicha qidiruv (muassasalar uchun)
+- Natijalar soni ko'rsatiladi
+- Agar natija topilmasa, "Natija topilmadi" xabari
+
+**O'zgartirilgan fayllar:**
+- `templates/core/subjects.html` - Fanlar qidiruvi
+- `templates/core/subject_detail.html` - Mavzular qidiruvi
+- `templates/core/certificates.html` - Sertifikatlar qidiruvi
+- `templates/core/mock_exams.html` - Mock Exam qidiruvi
+- `templates/core/institutions.html` - Muassasalar qidiruvi
+- `static/css/style.css` - Qidiruv CSS
+
+### 9. ✅ PWA Install Prompt Qo'shildi
+
+**Muammo:** Foydalanuvchilar PWA'ni o'rnatish mumkinligini bilmas edi.
+
+**Yechim:**
+- Telefondan kirganda avtomatik install prompt ko'rsatiladi
+- 3 soniya kutgandan keyin prompt paydo bo'ladi
+- "O'rnatish" va "Keyinroq" tugmalari
+- Agar "Keyinroq" bosilsa, 7 kun davomida ko'rsatilmaydi
+- Chiroyli animatsiya va dizayn
+- Mobil qurilmalar uchun optimallashtirilgan
+
+**PWA Install Prompt Xususiyatlari:**
+- Avtomatik paydo bo'lish (3 soniya kutgandan keyin)
+- LocalStorage orqali holatni saqlash
+- 7 kundan keyin qayta ko'rsatish
+- Mobil uchun maxsus pozitsiya (bottom navigation ustida)
+- Smooth animatsiya
+- Backdrop blur effekti
+
+**O'zgartirilgan fayllar:**
+- `templates/base.html` - Install prompt HTML va JavaScript
+- `static/css/style.css` - Install prompt CSS
+
 ### 0. ✅ Footer Mobil Muammosi Hal Qilindi
 
 **Muammo:** Footer telefonda o'rtadan bo'lib qolgan edi, barcha matnlar markazda joylashgan edi.

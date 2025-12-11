@@ -12,8 +12,8 @@ from .models import (
 )
 
 def home_view(request):
-    subjects = Subject.objects.filter(is_active=True)[:6]
-    certificates = Certificate.objects.filter(is_active=True)[:4]
+    subjects = Subject.objects.filter(is_active=True)[:3]
+    certificates = Certificate.objects.filter(is_active=True)[:3]
     institutions = Institution.objects.filter(is_featured=True, is_active=True)[:4]
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
     statistics = Statistic.objects.all()

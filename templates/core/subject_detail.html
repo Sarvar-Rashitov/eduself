@@ -26,6 +26,25 @@
 
 <div class="section-title">Mavzular</div>
 
+<!-- Qidiruv -->
+<div class="search-container mb-4">
+    <div class="search-input-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" id="topicSearch" class="form-control search-input" placeholder="Mavzularni qidiring...">
+        <button type="button" id="clearTopicSearch" class="search-clear" style="display: none;">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+</div>
+
+<div id="topicSearchResults" style="display: none;">
+    <div class="search-results-header">
+        <span class="topic-results-count"></span>
+        <button type="button" id="showAllTopics" class="btn btn-link btn-sm">Barcha mavzularni ko'rsatish</button>
+    </div>
+</div>
+
+<div id="topicsList">
 {% if topics %}
     {% for topic in topics %}
     <a href="{% url 'core:topic_detail' topic.pk %}" class="topic-card">
@@ -47,4 +66,83 @@
         <p>Mavzular hali qo'shilmagan</p>
     </div>
 {% endif %}
+</div>
+
+<div id="noTopicResults" class="empty-state" style="display: none;">
+    <i class="bi bi-search"></i>
+    <p>Qidiruv bo'yicha mavzu topilmadi</p>
+    <small class="text-muted">Boshqa kalit so'zlar bilan qidirib ko'ring</small>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('topicSearch');
+    const clearButton = document.getElementById('clearTopicSearch');
+    const searchResults = document.getElementById('topicSearchResults');
+    const showAllButton = document.getElementById('showAllTopics');
+    const noResults = document.getElementById('noTopicResults');
+    const topicsList = document.getElementById('topicsList');
+    const topicCards = document.querySelectorAll('.topic-card');
+    
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim().toLowerCase();
+        
+        if (query.length === 0) {
+            clearSearch();
+            return;
+        }
+        
+        clearButton.style.display = 'block';
+        
+        searchTimeout = setTimeout(() => {
+            performSearch(query);
+        }, 300);
+    });
+    
+    clearButton.addEventListener('click', clearSearch);
+    showAllButton.addEventListener('click', clearSearch);
+    
+    function performSearch(query) {
+        let visibleCount = 0;
+        
+        topicCards.forEach(card => {
+            const topicName = card.querySelector('.topic-name').textContent.toLowerCase();
+            const topicMeta = card.querySelector('.topic-meta').textContent.toLowerCase();
+            
+            if (topicName.includes(query) || topicMeta.includes(query)) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        if (visibleCount > 0) {
+            searchResults.style.display = 'block';
+            searchResults.querySelector('.topic-results-count').textContent = 
+                `${visibleCount} ta mavzu topildi`;
+            noResults.style.display = 'none';
+        } else {
+            searchResults.style.display = 'none';
+            noResults.style.display = 'block';
+        }
+    }
+    
+    function clearSearch() {
+        searchInput.value = '';
+        clearButton.style.display = 'none';
+        searchResults.style.display = 'none';
+        noResults.style.display = 'none';
+        
+        topicCards.forEach(card => {
+            card.style.display = 'flex';
+        });
+    }
+});
+</script>
 {% endblock %}

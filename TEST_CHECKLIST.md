@@ -146,3 +146,50 @@ Test qilish sanasi: _______________
 | Icon fayllar | ⬜ | |
 
 Legend: ✅ Ishlayapti | ❌ Ishlamayapti | ⬜ Test qilinmagan
+
+### 7. Bosh Sahifa Optimallashtirildi
+- [ ] Bosh sahifani ochish
+- [ ] Fanlar bo'limida 3 ta fan ko'rinishini tekshirish (oldin 6 ta edi)
+- [ ] Sertifikatlar bo'limida 3 ta sertifikat ko'rinishini tekshirish (oldin 4 ta edi)
+- [ ] Sahifa tezroq yuklanishini tekshirish
+
+### 8. Qidiruv Funksiyasi (Barcha Bo'limlar)
+- [ ] **Fanlar sahifasi:**
+  - [ ] Qidiruv maydoniga "Matematika" yozish
+  - [ ] Natijalar real-time ko'rinishini tekshirish
+  - [ ] "X" tugmasi bilan qidiruvni tozalash
+- [ ] **Mavzular sahifasi:**
+  - [ ] Biror fanga kirish
+  - [ ] Mavzular qidiruvi ishlashini tekshirish
+- [ ] **Sertifikatlar sahifasi:**
+  - [ ] Sertifikatlar sahifasini ochish
+  - [ ] Qidiruv funksiyasi ishlashini tekshirish
+- [ ] **Mock Exam sahifasi:**
+  - [ ] Mock Exam sahifasini ochish
+  - [ ] Imtihonlarni qidirishni tekshirish
+- [ ] **Muassasalar sahifasi:**
+  - [ ] Muassasalar sahifasini ochish
+  - [ ] Muassasa nomi bo'yicha qidirishni tekshirish
+  - [ ] Muassasa turi bo'yicha qidirishni tekshirish
+
+### 8. PWA Install Prompt
+- [ ] Mobil telefondan saytni ochish (yoki Chrome DevTools'da mobil rejim)
+- [ ] 3 soniya kutish
+- [ ] Install prompt paydo bo'lishini kutish
+- [ ] "O'rnatish" tugmasi ishlashini tekshirish
+- [ ] "Keyinroq" tugmasi bosganda prompt yo'qolishini tekshirish
+- [ ] Sahifani yangilab, prompt qayta chiqmasligini tekshirish (7 kun davomida)
+- [ ] LocalStorage'da `installPromptDismissed` qiymatini tekshirish
+- [ ] Animatsiya va dizayn chiroyligi
+
+## Yangi Test Natijalari
+
+| Funksiya | Status | Izoh |
+|----------|--------|------|
+| Bosh sahifa optimallashtirildi | ⬜ | |
+| Fanlar qidiruvi | ⬜ | |
+| Mavzular qidiruvi | ⬜ | |
+| Sertifikatlar qidiruvi | ⬜ | |
+| Mock Exam qidiruvi | ⬜ | |
+| Muassasalar qidiruvi | ⬜ | |
+| PWA Install Prompt | ⬜ | |

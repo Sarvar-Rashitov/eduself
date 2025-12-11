@@ -1,9 +1,40 @@
 {% extends 'base.html' %}
 
-{% block title %}Ta'lim muassasalari - EduSelf{% endblock %}
+{% block title %}{{ title }} - EduSelf{% endblock %}
 
 {% block content %}
 <div class="section-title">{{ title }}</div>
+
+<!-- Qidiruv -->
+<div class="search-container mb-4">
+    <div class="search-input-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" id="institutionSearch" class="form-control search-input" placeholder="Muassasalarni qidiring...">
+        <button type="button" id="clearInstitutionSearch" class="search-clear" style="display: none;">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+</div>
+
+<div id="institutionSearchResults" style="display: none;">
+    <div class="search-results-header">
+        <span class="institution-results-count"></span>
+        <button type="button" id="showAllInstitutions" class="btn btn-link btn-sm">Barcha muassasalarni ko'rsatish</button>
+    </div>
+</div>
+
+{% if categories %}
+<div class="filter-tabs">
+    <a href="{% url 'core:institutions' %}" class="filter-tab {% if not current_category %}active{% endif %}">
+        <i class="bi bi-grid"></i> Barchasi
+    </a>
+    {% for cat in categories %}
+    <a href="{% url 'core:institutions' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.id == cat.id %}active{% endif %}">
+        <i class="{{ cat.icon }}"></i> {{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
 
 <div class="filter-tabs">
     <a href="{% url 'core:institutions' %}" class="filter-tab {% if current_type == 'all' %}active{% endif %}">
@@ -23,6 +54,7 @@
     </a>
 </div>
 
+<div id="institutionsList">
 {% if institutions %}
     {% for inst in institutions %}
     <a href="{% url 'core:institution_detail' inst.pk %}" class="text-decoration-none">
@@ -53,4 +85,85 @@
         <p>Hozircha ta'lim muassasalari mavjud emas</p>
     </div>
 {% endif %}
+</div>
+
+<div id="noInstitutionResults" class="empty-state" style="display: none;">
+    <i class="bi bi-search"></i>
+    <p>Qidiruv bo'yicha muassasa topilmadi</p>
+    <small class="text-muted">Boshqa kalit so'zlar bilan qidirib ko'ring</small>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('institutionSearch');
+    const clearButton = document.getElementById('clearInstitutionSearch');
+    const searchResults = document.getElementById('institutionSearchResults');
+    const showAllButton = document.getElementById('showAllInstitutions');
+    const noResults = document.getElementById('noInstitutionResults');
+    const institutionsList = document.getElementById('institutionsList');
+    const institutionCards = document.querySelectorAll('.institution-card');
+    
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim().toLowerCase();
+        
+        if (query.length === 0) {
+            clearSearch();
+            return;
+        }
+        
+        clearButton.style.display = 'block';
+        
+        searchTimeout = setTimeout(() => {
+            performSearch(query);
+        }, 300);
+    });
+    
+    clearButton.addEventListener('click', clearSearch);
+    showAllButton.addEventListener('click', clearSearch);
+    
+    function performSearch(query) {
+        let visibleCount = 0;
+        
+        institutionCards.forEach(card => {
+            const institutionName = card.querySelector('h6').textContent.toLowerCase();
+            const institutionType = card.querySelector('.institution-type-badge').textContent.toLowerCase();
+            const institutionDesc = card.querySelector('.text-muted.small');
+            const description = institutionDesc ? institutionDesc.textContent.toLowerCase() : '';
+            
+            if (institutionName.includes(query) || institutionType.includes(query) || description.includes(query)) {
+                card.parentElement.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.parentElement.style.display = 'none';
+            }
+        });
+        
+        if (visibleCount > 0) {
+            searchResults.style.display = 'block';
+            searchResults.querySelector('.institution-results-count').textContent = 
+                `${visibleCount} ta muassasa topildi`;
+            noResults.style.display = 'none';
+        } else {
+            searchResults.style.display = 'none';
+            noResults.style.display = 'block';
+        }
+    }
+    
+    function clearSearch() {
+        searchInput.value = '';
+        clearButton.style.display = 'none';
+        searchResults.style.display = 'none';
+        noResults.style.display = 'none';
+        
+        institutionCards.forEach(card => {
+            card.parentElement.style.display = 'block';
+        });
+    }
+});
+</script>
 {% endblock %}
