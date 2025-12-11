@@ -1505,3 +1505,21 @@ body {
     border-color: var(--text-muted);
     color: var(--text-primary);
 }
+/* Institution Card Hover Effect */
+.institution-card {
+    transition: all 0.3s ease;
+}
+
+a:hover .institution-card {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--primary-light);
+}
+
+a .institution-card .text-dark {
+    color: var(--text-primary) !important;
+}
+
+a:hover .institution-card .text-dark {
+    color: var(--primary-color) !important;
+}

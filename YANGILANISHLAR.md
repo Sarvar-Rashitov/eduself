@@ -2,18 +2,28 @@
 
 ## 2025-12-10 - Muhim Yangilanishlar
 
-### 10. ✅ Bosh Sahifa Optimallashtirildi
+### 10. ✅ Bosh Sahifa Optimallashtirildi va Muassasalar Linki Tuzatildi
 
-**Muammo:** Bosh sahifada fanlar va sertifikatlar juda ko'p ko'rinib, sahifa uzun bo'lib qolgan edi.
+**Muammo:** 
+- Bosh sahifada fanlar va sertifikatlar juda ko'p ko'rinib, sahifa uzun bo'lib qolgan edi
+- Muassasalar ustiga bosganda ochilmaydi (link yo'q edi)
 
 **Yechim:**
 - Fanlar: 6 tadan 3 taga qisqartirildi
 - Sertifikatlar: 4 tadan 3 taga qisqartirildi
+- Muassasalar uchun link qo'shildi - endi bosganda muassa sahifasi ochiladi
+- Muassasalar uchun hover effekti qo'shildi
+- Chevron icon qo'shildi (o'ng tomonda strelka)
 - Sahifa endi qisqaroq va tezroq yuklanadi
 - Foydalanuvchi tajribasi yaxshilandi
+- `institution_detail.html` template mavjud va to'liq ishlaydi
+- Static fayllar yangilandi (`collectstatic` bajarildi)
 
 **O'zgartirilgan fayllar:**
-- `core/views.py` - home_view funksiyasi
+- `core/views.py` - home_view funksiyasi (3 ta fan, 3 ta sertifikat)
+- `templates/core/home.html` - Muassasalar uchun link qo'shildi
+- `static/css/style.css` - Institution card hover effekti
+- `templates/core/institution_detail.html` - Muassa tafsilotlari sahifasi
 
 ### 8. ✅ Qidiruv Funksiyasi Barcha Bo'limlarga Qo'shildi
 

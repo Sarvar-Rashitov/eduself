@@ -141,21 +141,27 @@
     <a href="{% url 'core:institutions' %}" class="text-primary text-decoration-none small">Barchasi <i class="bi bi-arrow-right"></i></a>
 </div>
 {% for inst in institutions %}
-<div class="institution-card">
-    <div class="d-flex align-items-center">
-        {% if inst.logo %}
-        <img src="{{ inst.logo.url }}" alt="{{ inst.name }}" class="institution-logo me-3">
-        {% else %}
-        <div class="institution-logo me-3 d-flex align-items-center justify-content-center">
-            <i class="bi bi-building fs-4 text-muted"></i>
+<a href="{% url 'core:institution_detail' inst.pk %}" class="text-decoration-none">
+    <div class="institution-card">
+        <div class="d-flex align-items-center">
+            {% if inst.logo %}
+            <img src="{{ inst.logo.url }}" alt="{{ inst.name }}" class="institution-logo me-3">
+            {% else %}
+            <div class="institution-logo me-3 d-flex align-items-center justify-content-center">
+                <i class="bi bi-building fs-4 text-muted"></i>
+            </div>
+            {% endif %}
+            <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ inst.name }}</h6>
+                <span class="institution-type-badge">{{ inst.get_institution_type_display }}</span>
+            </div>
+            <i class="bi bi-chevron-right text-muted"></i>
         </div>
+        {% if inst.description %}
+        <p class="text-muted small mt-3 mb-0">{{ inst.description|truncatewords:10 }}</p>
         {% endif %}
-        <div>
-            <h6 class="mb-1">{{ inst.name }}</h6>
-            <span class="institution-type-badge">{{ inst.get_institution_type_display }}</span>
-        </div>
     </div>
-</div>
+</a>
 {% endfor %}
 {% endif %}
 {% endblock %}

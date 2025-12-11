@@ -151,6 +151,10 @@ Legend: ✅ Ishlayapti | ❌ Ishlamayapti | ⬜ Test qilinmagan
 - [ ] Bosh sahifani ochish
 - [ ] Fanlar bo'limida 3 ta fan ko'rinishini tekshirish (oldin 6 ta edi)
 - [ ] Sertifikatlar bo'limida 3 ta sertifikat ko'rinishini tekshirish (oldin 4 ta edi)
+- [ ] Muassasalar bo'limida muassasa ustiga bosish
+- [ ] Muassa sahifasi ochilishini tekshirish
+- [ ] Muassasa ustiga hover qilganda effekt ko'rinishini tekshirish
+- [ ] Chevron icon (o'ng tomonda strelka) ko'rinishini tekshirish
 - [ ] Sahifa tezroq yuklanishini tekshirish
 
 ### 8. Qidiruv Funksiyasi (Barcha Bo'limlar)
@@ -187,6 +191,7 @@ Legend: ✅ Ishlayapti | ❌ Ishlamayapti | ⬜ Test qilinmagan
 | Funksiya | Status | Izoh |
 |----------|--------|------|
 | Bosh sahifa optimallashtirildi | ⬜ | |
+| Muassasalar linki tuzatildi | ⬜ | |
 | Fanlar qidiruvi | ⬜ | |
 | Mavzular qidiruvi | ⬜ | |
 | Sertifikatlar qidiruvi | ⬜ | |
