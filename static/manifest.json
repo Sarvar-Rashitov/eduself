@@ -7,8 +7,6 @@
   "background_color": "#4F46E5",
   "theme_color": "#4F46E5",
   "orientation": "portrait",
-  "prefer_related_applications": false,
-  "scope": "/",
   "icons": [
     {
       "src": "/static/icons/icon-72x72.png",
