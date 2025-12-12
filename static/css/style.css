@@ -334,6 +334,105 @@
     color: var(--white) !important;
 }
 
+/* PWA Loading Progress Bar - Light Mode (White) */
+::-webkit-progress-bar {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+::-webkit-progress-value {
+    background-color: #ffffff !important;
+}
+
+progress {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+}
+
+progress::-moz-progress-bar {
+    background-color: #ffffff !important;
+}
+
+/* PWA Loading Progress Bar - Dark Mode (Black) */
+[data-theme="dark"] ::-webkit-progress-bar {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] ::-webkit-progress-value {
+    background-color: #000000 !important;
+}
+
+[data-theme="dark"] progress {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    color: #000000 !important;
+}
+
+[data-theme="dark"] progress::-moz-progress-bar {
+    background-color: #000000 !important;
+}
+
+/* Browser loading indicators */
+[data-theme="dark"] {
+    color-scheme: dark;
+}
+
+/* Browser native loading bar */
+[data-theme="dark"] html {
+    color-scheme: dark;
+}
+
+/* Address bar loading indicator */
+[data-theme="dark"] meta[name="theme-color"] {
+    content: var(--card-bg) !important;
+}
+
+/* Top loading bar (nprogress) - Light Mode (White) */
+#nprogress .bar {
+    background: #ffffff !important;
+}
+
+#nprogress .peg {
+    box-shadow: 0 0 10px #ffffff, 0 0 5px #ffffff !important;
+}
+
+#nprogress .spinner-icon {
+    border-top-color: #ffffff !important;
+    border-left-color: #ffffff !important;
+}
+
+/* Top loading bar (nprogress) - Dark Mode (Black) */
+[data-theme="dark"] #nprogress .bar {
+    background: #000000 !important;
+}
+
+[data-theme="dark"] #nprogress .peg {
+    box-shadow: 0 0 10px #000000, 0 0 5px #000000 !important;
+}
+
+[data-theme="dark"] #nprogress .spinner-icon {
+    border-top-color: #000000 !important;
+    border-left-color: #000000 !important;
+}
+
+/* Custom loading bars - Light Mode (White) */
+.loading-bar,
+.progress-bar-custom {
+    background-color: #ffffff !important;
+}
+
+.loading-container {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Custom loading bars - Dark Mode (Black) */
+[data-theme="dark"] .loading-bar,
+[data-theme="dark"] .progress-bar-custom {
+    background-color: #000000 !important;
+}
+
+[data-theme="dark"] .loading-container {
+    background-color: var(--border-color) !important;
+}
+
 * {
     margin: 0;
     padding: 0;
