@@ -381,22 +381,7 @@ body {
     color: white;
 }
 
-.institution-card {
-    background: white;
-    border-radius: var(--radius-md);
-    padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-}
 
-.institution-logo {
-    width: 60px;
-    height: 60px;
-    border-radius: var(--radius-md);
-    object-fit: cover;
-    background: var(--background-color);
-}
 
 .institution-type-badge {
     display: inline-block;
@@ -1501,24 +1486,7 @@ body {
     border-color: var(--text-muted);
     color: var(--text-primary);
 }
-/* Institution Card Hover Effect */
-.institution-card {
-    transition: all 0.3s ease;
-}
 
-a:hover .institution-card {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-    border-color: var(--primary-light);
-}
-
-a .institution-card .text-dark {
-    color: var(--text-primary) !important;
-}
-
-a:hover .institution-card .text-dark {
-    color: var(--primary-color) !important;
-}
 
 /* Page Header Styles */
 .page-header {
@@ -1659,52 +1627,7 @@ a:hover .institution-card .text-dark {
     }
 }
 
-/* Institution Styles */
-.institution-card {
-    background: var(--card-bg);
-    border-radius: var(--radius-md);
-    padding: 20px;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.3s ease;
-    border: 1px solid var(--border-color);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
 
-.institution-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary-light);
-}
-
-.institution-image {
-    width: 100%;
-    height: 200px;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    margin-bottom: 16px;
-}
-
-.institution-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.institution-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.institution-name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-    line-height: 1.4;
-}
 
 .institution-price {
     color: var(--secondary-color);
@@ -1858,14 +1781,6 @@ a:hover .institution-card .text-dark {
 }
 
 @media (max-width: 576px) {
-    .institution-card {
-        padding: 16px;
-    }
-    
-    .institution-name {
-        font-size: 1rem;
-    }
-    
     .map-container {
         height: 250px;
     }
@@ -1896,7 +1811,7 @@ a:hover .institution-card .text-dark {
 }
 
 .contract-price-display {
-    background: linear-gradient(135deg, #EF4444, #DC2626);
+    background: linear-gradient(135deg, var(--secondary-color), #059669);
     border-radius: var(--radius-md);
     padding: 20px;
     margin-bottom: 24px;
@@ -2010,6 +1925,21 @@ a:hover .institution-card .text-dark {
     object-fit: cover;
     border-radius: 50%;
     border: 4px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.institution-image-container {
+    display: flex;
+    justify-content: center;
+}
+
+.institution-image-detail {
+    width: 100%;
+    max-width: 500px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
     box-shadow: var(--shadow-md);
 }
 
@@ -2154,6 +2084,10 @@ a:hover .institution-card .text-dark {
         height: 80px;
     }
     
+    .institution-image-detail {
+        height: 180px;
+    }
+    
     .info-box {
         padding: 16px;
         margin-bottom: 16px;
@@ -2237,4 +2171,192 @@ a:hover .institution-card .text-dark {
 
 .admission-period-with-label .admission-period {
     margin-top: 0;
+}
+
+/* Institution Card Styles */
+.institution-card-new {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.institution-card-new:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
+}
+
+.institution-card-new::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.institution-card-new:hover::before {
+    opacity: 1;
+}
+
+.institution-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.institution-logo-wrapper {
+    flex-shrink: 0;
+    position: relative;
+}
+
+.institution-logo-new {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+    background: var(--background-color);
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.institution-card-new:hover .institution-logo-new {
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.institution-main-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.institution-name-new {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.institution-short-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.institution-details {
+    margin-top: auto;
+}
+
+.institution-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.meta-item i {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+}
+
+.institution-arrow {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.institution-card-new:hover .institution-arrow {
+    color: var(--primary-color);
+    transform: translateY(-50%) translateX(4px);
+}
+
+/* Responsive Design for Institution Cards */
+@media (max-width: 768px) {
+    .institution-card-new {
+        padding: 16px;
+    }
+    
+    .institution-header {
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .institution-logo-new {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .institution-name-new {
+        font-size: 1rem;
+    }
+    
+    .institution-short-desc {
+        font-size: 0.8rem;
+    }
+    
+    .institution-meta-row {
+        gap: 12px;
+    }
+    
+    .meta-item {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .institution-card-new {
+        padding: 14px;
+    }
+    
+    .institution-header {
+        gap: 10px;
+    }
+    
+    .institution-logo-new {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .institution-name-new {
+        font-size: 0.9rem;
+    }
+    
+    .institution-short-desc {
+        font-size: 0.7rem;
+    }
 }

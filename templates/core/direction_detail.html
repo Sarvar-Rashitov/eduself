@@ -3,17 +3,9 @@
 {% block title %}{{ direction.name }} - {{ direction.institution.name }} - EduSelf{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-            <a href="{% url 'core:institutions' %}" class="text-decoration-none">Ta'lim muassasalari</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="{% url 'core:institution_detail' direction.institution.pk %}" class="text-decoration-none">{{ direction.institution.name }}</a>
-        </li>
-        <li class="breadcrumb-item active">{{ direction.name }}</li>
-    </ol>
-</nav>
+<a href="{% url 'core:institution_detail' direction.institution.pk %}" class="text-decoration-none text-muted mb-3 d-inline-block">
+    <i class="bi bi-arrow-left"></i> {{ direction.institution.name }}
+</a>
 
 <div class="card">
     <div class="card-header">
@@ -52,7 +44,7 @@
         <!-- Imtihon topshirish tugmasi -->
         {% if direction.exam_url %}
         <div class="text-center mb-4">
-            <a href="{{ direction.exam_url }}" class="btn btn-primary btn-lg" target="_blank">
+            <a href="{{ direction.exam_url }}" class="btn btn-primary" target="_blank">
                 <i class="bi bi-pencil-square me-2"></i>
                 Imtihon topshirish
             </a>

@@ -10,9 +10,9 @@
 <!-- Logo va qisqa ma'lumot -->
 <div class="card mb-4">
     <div class="card-body text-center">
-        {% if institution.logo %}
-        <div class="institution-logo-container mb-3">
-            <img src="{{ institution.logo.url }}" alt="{{ institution.name }}" class="institution-logo-detail">
+        {% if institution.image %}
+        <div class="institution-image-container mb-3">
+            <img src="{{ institution.image.url }}" alt="{{ institution.name }}" class="institution-image-detail">
         </div>
         {% endif %}
         <h3 class="mb-3">{{ institution.name }}</h3>
@@ -242,7 +242,7 @@
 <!-- Universitet website -->
 {% if institution.website %}
 <div class="text-center mb-4">
-    <a href="{{ institution.website }}" class="btn btn-primary btn-lg" target="_blank">
+    <a href="{{ institution.website }}" class="btn btn-primary" target="_blank">
         <i class="bi bi-globe me-2"></i>
         Universitet vebsaytiga o'tish
     </a>

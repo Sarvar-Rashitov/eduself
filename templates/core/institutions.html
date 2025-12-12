@@ -72,42 +72,41 @@
         {% for inst in institutions %}
         <div class="col-md-6 col-lg-4 mb-4">
             <a href="{% url 'core:institution_detail' inst.pk %}" class="text-decoration-none">
-                <div class="institution-card h-100">
-                    {% if inst.image %}
-                    <div class="institution-image">
-                        <img src="{{ inst.image.url }}" alt="{{ inst.name }}" class="img-fluid">
-                    </div>
-                    {% endif %}
-                    <div class="institution-content">
-                        <h5 class="institution-name">{{ inst.name }}</h5>
-                        
-                        <div class="institution-info">
-                            <div class="info-item">
-                                <i class="bi bi-mortarboard me-1"></i>
-                                <span>{{ inst.get_directions_count }} ta yo'nalish</span>
-                            </div>
-                            {% if inst.category %}
-                            <div class="info-item">
-                                <i class="{{ inst.category.icon }} me-1"></i>
-                                <span>{{ inst.category.name }}</span>
+                <div class="institution-card-new h-100">
+                    <div class="institution-header">
+                        <div class="institution-logo-wrapper">
+                            {% if inst.logo %}
+                            <img src="{{ inst.logo.url }}" alt="{{ inst.name }}" class="institution-logo-new">
+                            {% else %}
+                            <div class="institution-logo-new d-flex align-items-center justify-content-center">
+                                <i class="bi bi-building text-muted"></i>
                             </div>
                             {% endif %}
                         </div>
-                        
-                        {% if inst.contract_price_min or inst.contract_price_max %}
-                        <div class="institution-price">
-                            {{ inst.get_contract_price_range }}
+                        <div class="institution-main-info">
+                            <h6 class="institution-name-new">{{ inst.name }}</h6>
+                            {% if inst.short_description %}
+                            <p class="institution-short-desc">{{ inst.short_description }}</p>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                        
-                        {% if inst.admission_start_date or inst.admission_end_date %}
-                        <div class="admission-period">
-                            <i class="bi bi-calendar-event me-1"></i>
-                            {{ inst.get_admission_period }}
+                    </div>
+                    
+                    <div class="institution-details">
+                        <div class="institution-meta-row">
+                            <div class="meta-item">
+                                <i class="bi bi-mortarboard"></i>
+                                <span>{{ inst.get_directions_count }} yo'nalish</span>
+                            </div>
+                            {% if inst.category %}
+                            <div class="meta-item">
+                                <i class="{{ inst.category.icon }}"></i>
+                                <span>{{ inst.category.name }} muassasasi</span>
+                            </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                        
-                        <span class="institution-type-badge">{{ inst.get_institution_type_display }}</span>
+                        <div class="institution-arrow">
+                            <i class="bi bi-chevron-right"></i>
+                        </div>
                     </div>
                 </div>
             </a>
@@ -138,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const showAllButton = document.getElementById('showAllInstitutions');
     const noResults = document.getElementById('noInstitutionResults');
     const institutionsList = document.getElementById('institutionsList');
-    const institutionCards = document.querySelectorAll('.institution-card');
+    const institutionCards = document.querySelectorAll('.institution-card-new');
     
     let searchTimeout;
     
@@ -165,12 +164,13 @@ document.addEventListener('DOMContentLoaded', function() {
         let visibleCount = 0;
         
         institutionCards.forEach(card => {
-            const institutionName = card.querySelector('h6').textContent.toLowerCase();
-            const institutionType = card.querySelector('.institution-type-badge').textContent.toLowerCase();
-            const institutionDesc = card.querySelector('.text-muted.small');
+            const institutionName = card.querySelector('.institution-name-new').textContent.toLowerCase();
+            const institutionDesc = card.querySelector('.institution-short-desc');
             const description = institutionDesc ? institutionDesc.textContent.toLowerCase() : '';
+            const categoryElement = card.querySelector('.meta-item:last-child span');
+            const category = categoryElement ? categoryElement.textContent.toLowerCase() : '';
             
-            if (institutionName.includes(query) || institutionType.includes(query) || description.includes(query)) {
+            if (institutionName.includes(query) || description.includes(query) || category.includes(query)) {
                 card.parentElement.style.display = 'block';
                 visibleCount++;
             } else {
