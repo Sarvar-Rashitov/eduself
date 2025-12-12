@@ -7,68 +7,273 @@
     <i class="bi bi-arrow-left"></i> Ta'lim muassasalari
 </a>
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center mb-4">
-            {% if institution.logo %}
-            <img src="{{ institution.logo.url }}" alt="{{ institution.name }}" class="rounded mb-3" style="width: 100px; height: 100px; object-fit: cover;">
-            {% else %}
-            <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-light rounded" style="width: 100px; height: 100px;">
-                <i class="bi bi-building fs-1 text-muted"></i>
-            </div>
-            {% endif %}
-            <h4 class="mb-2">{{ institution.name }}</h4>
-            <span class="institution-type-badge">{{ institution.get_institution_type_display }}</span>
-        </div>
-        
-        {% if institution.description %}
-        <div class="mb-4">
-            <h6 class="text-muted mb-2">Tavsif</h6>
-            <p class="mb-0">{{ institution.description }}</p>
+<!-- Logo va qisqa ma'lumot -->
+<div class="card mb-4">
+    <div class="card-body text-center">
+        {% if institution.logo %}
+        <div class="institution-logo-container mb-3">
+            <img src="{{ institution.logo.url }}" alt="{{ institution.name }}" class="institution-logo-detail">
         </div>
         {% endif %}
-        
-        <div class="border-top pt-3">
-            {% if institution.address %}
-            <div class="d-flex align-items-start mb-3">
-                <i class="bi bi-geo-alt text-primary me-3 fs-5"></i>
-                <div>
-                    <small class="text-muted d-block">Manzil</small>
-                    <span>{{ institution.address }}</span>
+        <h3 class="mb-3">{{ institution.name }}</h3>
+        {% if institution.short_description %}
+        <p class="lead text-muted">{{ institution.short_description }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Kontrakt, qabul, litsenziya -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row text-center">
+            {% if institution.contract_price_min or institution.contract_price_max %}
+            <div class="col-md-4 mb-3">
+                <div class="info-box">
+                    <div class="info-icon contract-icon">
+                        <i class="bi bi-currency-exchange"></i>
+                    </div>
+                    <h6>Kontrakt to'lovi</h6>
+                    <p class="mb-0">{{ institution.get_contract_price_range }}</p>
                 </div>
             </div>
             {% endif %}
             
-            {% if institution.phone %}
-            <div class="d-flex align-items-start mb-3">
-                <i class="bi bi-telephone text-primary me-3 fs-5"></i>
-                <div>
-                    <small class="text-muted d-block">Telefon</small>
-                    <a href="tel:{{ institution.phone }}" class="text-decoration-none">{{ institution.phone }}</a>
+            {% if institution.admission_start_date or institution.admission_end_date %}
+            <div class="col-md-4 mb-3">
+                <div class="info-box">
+                    <div class="info-icon admission-icon">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <h6>Qabul muddati</h6>
+                    <p class="mb-0">{{ institution.get_admission_period }}</p>
                 </div>
             </div>
             {% endif %}
             
-            {% if institution.email %}
-            <div class="d-flex align-items-start mb-3">
-                <i class="bi bi-envelope text-primary me-3 fs-5"></i>
-                <div>
-                    <small class="text-muted d-block">Email</small>
-                    <a href="mailto:{{ institution.email }}" class="text-decoration-none">{{ institution.email }}</a>
-                </div>
-            </div>
-            {% endif %}
-            
-            {% if institution.website %}
-            <div class="d-flex align-items-start">
-                <i class="bi bi-globe text-primary me-3 fs-5"></i>
-                <div>
-                    <small class="text-muted d-block">Veb-sayt</small>
-                    <a href="{{ institution.website }}" target="_blank" class="text-decoration-none">{{ institution.website }}</a>
+            {% if institution.license_file %}
+            <div class="col-md-4 mb-3">
+                <div class="info-box">
+                    <div class="info-icon license-icon">
+                        <i class="bi bi-file-earmark-check"></i>
+                    </div>
+                    <h6>Muassasa litsenziyasi</h6>
+                    <div class="license-actions">
+                        <a href="{{ institution.license_file.url }}" class="btn btn-outline-primary btn-sm me-2" target="_blank">
+                            <i class="bi bi-eye me-1"></i>Ko'rish
+                        </a>
+                        <a href="{{ institution.license_file.url }}" class="btn btn-primary btn-sm" download>
+                            <i class="bi bi-download me-1"></i>Yuklab olish
+                        </a>
+                    </div>
                 </div>
             </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Ta'lim yo'nalishlari -->
+{% if directions %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-mortarboard me-2"></i>
+            Ta'lim yo'nalishlari
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for direction in directions %}
+            <div class="col-md-6 mb-4">
+                <div class="direction-card-new">
+                    <h6 class="direction-name-new">{{ direction.name }}</h6>
+                    
+                    <div class="direction-details">
+                        <div class="detail-row">
+                            <span class="detail-label">{{ direction.get_education_language_display }}</span>
+                            <span class="detail-separator">•</span>
+                            <span class="detail-label">{{ direction.get_education_form_display }}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            {% if direction.passing_score %}
+                            <span class="detail-label">O'tish bali: {{ direction.passing_score }}</span>
+                            {% endif %}
+                            {% if direction.contract_price %}
+                            <span class="detail-separator">•</span>
+                            <span class="detail-price">{{ direction.get_contract_price_display }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="direction-actions-new">
+                        <a href="{% url 'core:direction_detail' direction.pk %}" class="btn btn-outline-primary btn-sm me-2">
+                            <i class="bi bi-info-circle me-1"></i>Batafsil
+                        </a>
+                        {% if direction.exam_url %}
+                        <a href="{{ direction.exam_url }}" class="btn btn-primary btn-sm" target="_blank">
+                            <i class="bi bi-pencil-square me-1"></i>Imtihon topshirish
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- To'liq ma'lumot -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-info-circle me-2"></i>
+            To'liq ma'lumot
+        </h5>
+    </div>
+    <div class="card-body">
+        <!-- YouTube Video -->
+        {% if institution.video_url %}
+        <div class="video-container mb-4">
+            <iframe 
+                src="{{ institution.get_video_embed_url }}" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin" 
+                allowfullscreen>
+            </iframe>
+        </div>
+        {% endif %}
+        
+        <!-- Matnli ma'lumot -->
+        {% if institution.description %}
+        <div class="description-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">Muassasa haqida</h6>
+                <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#fullDescription">
+                    <span class="show-text">Batafsil</span>
+                    <span class="hide-text" style="display: none;">Yashirish</span>
+                    <i class="bi bi-chevron-down ms-1"></i>
+                </button>
+            </div>
+            
+            <div class="description-preview">
+                <p class="mb-0">{{ institution.description|truncatewords:30 }}</p>
+            </div>
+            
+            <div class="collapse" id="fullDescription">
+                <div class="description-full mt-3">
+                    <p class="mb-0">{{ institution.description }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Aloqa ma'lumotlari -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-telephone me-2"></i>
+            Aloqa ma'lumotlari
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% if institution.phone %}
+            <div class="col-md-6 mb-3">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-telephone text-primary me-3 fs-5"></i>
+                    <div>
+                        <small class="text-muted d-block">Telefon</small>
+                        <a href="tel:{{ institution.phone }}" class="text-decoration-none">{{ institution.phone }}</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if institution.email %}
+            <div class="col-md-6 mb-3">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-envelope text-primary me-3 fs-5"></i>
+                    <div>
+                        <small class="text-muted d-block">Email</small>
+                        <a href="mailto:{{ institution.email }}" class="text-decoration-none">{{ institution.email }}</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if institution.address %}
+            <div class="col-12 mb-3">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-geo-alt text-primary me-3 fs-5"></i>
+                    <div>
+                        <small class="text-muted d-block">Manzil</small>
+                        <span>{{ institution.address }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Manzil xaritasi -->
+{% if institution.address_iframe %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-map me-2"></i>
+            Manzil xaritasi
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="map-container">
+            {{ institution.address_iframe|safe }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Universitet website -->
+{% if institution.website %}
+<div class="text-center mb-4">
+    <a href="{{ institution.website }}" class="btn btn-primary btn-lg" target="_blank">
+        <i class="bi bi-globe me-2"></i>
+        Universitet vebsaytiga o'tish
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Batafsil tugmasi
+    const toggleButton = document.querySelector('[data-bs-toggle="collapse"]');
+    if (toggleButton) {
+        const showText = toggleButton.querySelector('.show-text');
+        const hideText = toggleButton.querySelector('.hide-text');
+        const icon = toggleButton.querySelector('i');
+        
+        document.getElementById('fullDescription').addEventListener('show.bs.collapse', function() {
+            showText.style.display = 'none';
+            hideText.style.display = 'inline';
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-up');
+        });
+        
+        document.getElementById('fullDescription').addEventListener('hide.bs.collapse', function() {
+            showText.style.display = 'inline';
+            hideText.style.display = 'none';
+            icon.classList.remove('bi-chevron-up');
+            icon.classList.add('bi-chevron-down');
+        });
+    }
+});
+</script>
 {% endblock %}

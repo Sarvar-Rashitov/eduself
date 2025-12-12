@@ -6,7 +6,7 @@ from .models import (
     SubjectCategory, Subject, Topic, Test, Question, Answer, TestResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
-    InstitutionCategory, Institution, InstitutionType, Advertisement, Statistic, SiteSettings,
+    InstitutionCategory, Institution, InstitutionDirection, InstitutionType, Advertisement, Statistic, SiteSettings,
     NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment
 )
@@ -575,7 +575,17 @@ def institutions_view(request):
 
 def institution_detail_view(request, pk):
     institution = get_object_or_404(Institution, pk=pk, is_active=True)
-    return render(request, 'core/institution_detail.html', {'institution': institution})
+    directions = institution.directions.filter(is_active=True)
+    return render(request, 'core/institution_detail.html', {
+        'institution': institution,
+        'directions': directions
+    })
+
+
+def direction_detail_view(request, pk):
+    """Yo'nalish batafsil sahifasi"""
+    direction = get_object_or_404(InstitutionDirection, pk=pk, is_active=True)
+    return render(request, 'core/direction_detail.html', {'direction': direction})
 
 
 def news_list_view(request):

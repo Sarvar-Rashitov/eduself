@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ direction.name }} - {{ direction.institution.name }} - EduSelf{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{% url 'core:institutions' %}" class="text-decoration-none">Ta'lim muassasalari</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{% url 'core:institution_detail' direction.institution.pk %}" class="text-decoration-none">{{ direction.institution.name }}</a>
+        </li>
+        <li class="breadcrumb-item active">{{ direction.name }}</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <i class="bi bi-mortarboard fs-3 text-primary"></i>
+            </div>
+            <div>
+                <h4 class="mb-1">{{ direction.name }}</h4>
+                <p class="text-muted mb-0">{{ direction.institution.name }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        {% if direction.contract_price %}
+        <div class="contract-price-display">
+            <div class="d-flex align-items-center justify-content-center">
+                <div class="price-badge">
+                    <strong>Kontrakt summasi:</strong>
+                    <span class="price-amount">{{ direction.get_contract_price_display }}</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if direction.description %}
+        <div class="mb-4">
+            <h5 class="mb-3">Yo'nalish haqida</h5>
+            <div class="description-content">
+                {{ direction.description|linebreaks }}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Imtihon topshirish tugmasi -->
+        {% if direction.exam_url %}
+        <div class="text-center mb-4">
+            <a href="{{ direction.exam_url }}" class="btn btn-primary btn-lg" target="_blank">
+                <i class="bi bi-pencil-square me-2"></i>
+                Imtihon topshirish
+            </a>
+        </div>
+        {% endif %}
+        
+        <!-- Muassasa ma'lumotlari -->
+        <div class="border-top pt-4 mt-4">
+            <h5 class="mb-3">Muassasa ma'lumotlari</h5>
+            <div class="row">
+                {% if direction.institution.phone %}
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-telephone text-primary me-3 fs-5"></i>
+                        <div>
+                            <small class="text-muted d-block">Telefon</small>
+                            <a href="tel:{{ direction.institution.phone }}" class="text-decoration-none">{{ direction.institution.phone }}</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if direction.institution.email %}
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-envelope text-primary me-3 fs-5"></i>
+                        <div>
+                            <small class="text-muted d-block">Email</small>
+                            <a href="mailto:{{ direction.institution.email }}" class="text-decoration-none">{{ direction.institution.email }}</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if direction.institution.address %}
+                <div class="col-12 mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-geo-alt text-primary me-3 fs-5"></i>
+                        <div>
+                            <small class="text-muted d-block">Manzil</small>
+                            <span>{{ direction.institution.address }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manzil xaritasi -->
+{% if direction.institution.address_iframe %}
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-map me-2"></i>
+            Manzil xaritasi
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="map-container">
+            {{ direction.institution.address_iframe|safe }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Universitet website -->
+{% if institution.website %}
+<div class="text-center mb-4">
+    <a href="{{ institution.website }}" class="btn btn-primary btn-lg" target="_blank">
+        <i class="bi bi-globe me-2"></i>
+        Universitet vebsaytiga o'tish
+    </a>
+</div>
+{% endif %}
+{% endblock %}

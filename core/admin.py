@@ -3,7 +3,7 @@ from .models import (
     SiteSettings, SubjectCategory, Subject, Topic, Test, Question, Answer, TestResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
-    InstitutionCategory, Institution, Advertisement, Statistic, NewsCategory, News,
+    InstitutionCategory, Institution, InstitutionDirection, Advertisement, Statistic, NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment, Notification
 )
 
@@ -206,12 +206,69 @@ class InstitutionCategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
+class InstitutionDirectionInline(admin.TabularInline):
+    model = InstitutionDirection
+    extra = 1
+    show_change_link = True
+
+
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):
     list_display = ['name', 'category', 'institution_type', 'is_featured', 'is_active', 'order']
     list_filter = ['category', 'institution_type', 'is_featured', 'is_active']
     search_fields = ['name', 'description', 'address']
     list_editable = ['is_featured', 'is_active', 'order']
+    inlines = [InstitutionDirectionInline]
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('name', 'category', 'institution_type', 'image', 'logo')
+        }),
+        ('Tavsif', {
+            'fields': ('short_description', 'description')
+        }),
+        ('Kontrakt ma\'lumotlari', {
+            'fields': ('contract_price_min', 'contract_price_max')
+        }),
+        ('Qabul ma\'lumotlari', {
+            'fields': ('admission_start_date', 'admission_end_date')
+        }),
+        ('Hujjatlar va media', {
+            'fields': ('license_file', 'video_url')
+        }),
+        ('Aloqa ma\'lumotlari', {
+            'fields': ('phone', 'email', 'website', 'address', 'address_iframe')
+        }),
+        ('Sozlamalar', {
+            'fields': ('is_featured', 'is_active', 'order')
+        }),
+    )
+
+
+@admin.register(InstitutionDirection)
+class InstitutionDirectionAdmin(admin.ModelAdmin):
+    list_display = ['name', 'institution', 'get_contract_price_display', 'order', 'is_active']
+    list_filter = ['institution', 'is_active', 'created_at']
+    search_fields = ['name', 'description', 'institution__name']
+    list_editable = ['order', 'is_active']
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('institution', 'name', 'description')
+        }),
+        ('Ta\'lim ma\'lumotlari', {
+            'fields': ('education_language', 'education_form', 'passing_score')
+        }),
+        ('Kontrakt ma\'lumotlari', {
+            'fields': ('contract_price',)
+        }),
+        ('Imtihon', {
+            'fields': ('exam_url',)
+        }),
+        ('Sozlamalar', {
+            'fields': ('order', 'is_active')
+        }),
+    )
 
 
 @admin.register(Advertisement)

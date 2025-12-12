@@ -68,29 +68,52 @@
 
 <div id="institutionsList">
 {% if institutions %}
-    {% for inst in institutions %}
-    <a href="{% url 'core:institution_detail' inst.pk %}" class="text-decoration-none">
-        <div class="institution-card">
-            <div class="d-flex align-items-center">
-                {% if inst.logo %}
-                <img src="{{ inst.logo.url }}" alt="{{ inst.name }}" class="institution-logo me-3">
-                {% else %}
-                <div class="institution-logo me-3 d-flex align-items-center justify-content-center">
-                    <i class="bi bi-building fs-4 text-muted"></i>
+    <div class="row">
+        {% for inst in institutions %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <a href="{% url 'core:institution_detail' inst.pk %}" class="text-decoration-none">
+                <div class="institution-card h-100">
+                    {% if inst.image %}
+                    <div class="institution-image">
+                        <img src="{{ inst.image.url }}" alt="{{ inst.name }}" class="img-fluid">
+                    </div>
+                    {% endif %}
+                    <div class="institution-content">
+                        <h5 class="institution-name">{{ inst.name }}</h5>
+                        
+                        <div class="institution-info">
+                            <div class="info-item">
+                                <i class="bi bi-mortarboard me-1"></i>
+                                <span>{{ inst.get_directions_count }} ta yo'nalish</span>
+                            </div>
+                            {% if inst.category %}
+                            <div class="info-item">
+                                <i class="{{ inst.category.icon }} me-1"></i>
+                                <span>{{ inst.category.name }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if inst.contract_price_min or inst.contract_price_max %}
+                        <div class="institution-price">
+                            {{ inst.get_contract_price_range }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if inst.admission_start_date or inst.admission_end_date %}
+                        <div class="admission-period">
+                            <i class="bi bi-calendar-event me-1"></i>
+                            {{ inst.get_admission_period }}
+                        </div>
+                        {% endif %}
+                        
+                        <span class="institution-type-badge">{{ inst.get_institution_type_display }}</span>
+                    </div>
                 </div>
-                {% endif %}
-                <div class="flex-grow-1">
-                    <h6 class="mb-1 text-dark">{{ inst.name }}</h6>
-                    <span class="institution-type-badge">{{ inst.get_institution_type_display }}</span>
-                </div>
-                <i class="bi bi-chevron-right text-muted"></i>
-            </div>
-            {% if inst.description %}
-            <p class="text-muted small mt-3 mb-0">{{ inst.description|truncatewords:15 }}</p>
-            {% endif %}
+            </a>
         </div>
-    </a>
-    {% endfor %}
+        {% endfor %}
+    </div>
 {% else %}
     <div class="empty-state">
         <i class="bi bi-building"></i>

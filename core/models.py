@@ -362,12 +362,21 @@ class Institution(models.Model):
     name = models.CharField(max_length=300, verbose_name="Nomi")
     category = models.ForeignKey(InstitutionCategory, on_delete=models.CASCADE, related_name='institutions', verbose_name="Kategoriya", null=True, blank=True)
     institution_type = models.CharField(max_length=20, choices=InstitutionType.choices, verbose_name="Turi")
-    description = models.TextField(blank=True, verbose_name="Tavsif")
-    logo = models.ImageField(upload_to='institutions/', blank=True, null=True, verbose_name="Logo")
+    short_description = models.TextField(max_length=200, blank=True, verbose_name="Qisqa tavsif")
+    description = models.TextField(blank=True, verbose_name="To'liq tavsif")
+    image = models.ImageField(upload_to='institutions/', blank=True, null=True, verbose_name="Asosiy rasm")
+    logo = models.ImageField(upload_to='institutions/logos/', blank=True, null=True, verbose_name="Logo")
     address = models.TextField(blank=True, verbose_name="Manzil")
+    address_iframe = models.TextField(blank=True, verbose_name="Manzil iframe kodi")
     phone = models.CharField(max_length=50, blank=True, verbose_name="Telefon")
     email = models.EmailField(blank=True, verbose_name="Email")
     website = models.URLField(blank=True, verbose_name="Veb-sayt")
+    contract_price_min = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Kontrakt summasi (min)")
+    contract_price_max = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Kontrakt summasi (max)")
+    admission_start_date = models.DateField(null=True, blank=True, verbose_name="Qabul boshlanish sanasi")
+    admission_end_date = models.DateField(null=True, blank=True, verbose_name="Qabul tugash sanasi")
+    license_file = models.FileField(upload_to='institutions/licenses/', blank=True, null=True, verbose_name="Litsenziya fayli")
+    video_url = models.URLField(blank=True, verbose_name="Video URL (YouTube)")
     is_featured = models.BooleanField(default=False, verbose_name="Reklama")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
@@ -380,6 +389,102 @@ class Institution(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def get_contract_price_range(self):
+        """Kontrakt summasi oralig'ini qaytarish"""
+        if self.contract_price_min and self.contract_price_max:
+            return f"{self.contract_price_min:,.0f} - {self.contract_price_max:,.0f} so'm"
+        elif self.contract_price_min:
+            return f"{self.contract_price_min:,.0f} so'm dan"
+        elif self.contract_price_max:
+            return f"{self.contract_price_max:,.0f} so'm gacha"
+        return "Narx ko'rsatilmagan"
+    
+    def get_admission_period(self):
+        """Qabul muddatini qaytarish"""
+        if self.admission_start_date and self.admission_end_date:
+            return f"{self.admission_start_date.strftime('%d.%m.%Y')} - {self.admission_end_date.strftime('%d.%m.%Y')}"
+        elif self.admission_start_date:
+            return f"{self.admission_start_date.strftime('%d.%m.%Y')} dan"
+        elif self.admission_end_date:
+            return f"{self.admission_end_date.strftime('%d.%m.%Y')} gacha"
+        return "Qabul muddati ko'rsatilmagan"
+    
+    def get_directions_count(self):
+        """Yo'nalishlar sonini qaytarish"""
+        return self.directions.filter(is_active=True).count()
+    
+    def get_video_embed_url(self):
+        """YouTube URL'ni embed formatiga o'tkazish"""
+        if not self.video_url:
+            return None
+        
+        url = self.video_url.strip()
+        
+        # YouTube watch URL
+        if 'youtube.com/watch?v=' in url:
+            video_id = url.split('watch?v=')[1].split('&')[0]
+            return f'https://www.youtube.com/embed/{video_id}?rel=0&modestbranding=1'
+        
+        # YouTube short URL
+        elif 'youtu.be/' in url:
+            video_id = url.split('youtu.be/')[1].split('?')[0]
+            return f'https://www.youtube.com/embed/{video_id}?rel=0&modestbranding=1'
+        
+        # YouTube embed URL (agar allaqachon embed bo'lsa)
+        elif 'youtube.com/embed/' in url:
+            return url
+        
+        # Vimeo URL
+        elif 'vimeo.com/' in url:
+            video_id = url.split('vimeo.com/')[1].split('?')[0]
+            return f'https://player.vimeo.com/video/{video_id}'
+        
+        # Agar boshqa format bo'lsa, o'zini qaytarish
+        return url
+
+
+class EducationLanguage(models.TextChoices):
+    UZBEK = 'uzbek', "O'zbek tili"
+    RUSSIAN = 'russian', "Rus tili"
+    ENGLISH = 'english', "Ingliz tili"
+    MIXED = 'mixed', "Aralash"
+
+
+class EducationForm(models.TextChoices):
+    FULL_TIME = 'full_time', "Kunduzgi"
+    PART_TIME = 'part_time', "Sirtqi"
+    EVENING = 'evening', "Kechki"
+    DISTANCE = 'distance', "Masofaviy"
+
+
+class InstitutionDirection(models.Model):
+    """Muassasa yo'nalishlari"""
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='directions', verbose_name="Muassasa")
+    name = models.CharField(max_length=300, verbose_name="Yo'nalish nomi")
+    description = models.TextField(blank=True, verbose_name="Yo'nalish tavsifi")
+    contract_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Kontrakt summasi")
+    education_language = models.CharField(max_length=20, choices=EducationLanguage.choices, default=EducationLanguage.UZBEK, verbose_name="Ta'lim tili")
+    education_form = models.CharField(max_length=20, choices=EducationForm.choices, default=EducationForm.FULL_TIME, verbose_name="Ta'lim shakli")
+    passing_score = models.PositiveIntegerField(null=True, blank=True, verbose_name="O'tish bali")
+    exam_url = models.URLField(blank=True, verbose_name="Imtihon URL manzili")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = "Muassasa yo'nalishi"
+        verbose_name_plural = "Muassasa yo'nalishlari"
+    
+    def __str__(self):
+        return f"{self.institution.name} - {self.name}"
+    
+    def get_contract_price_display(self):
+        """Yo'nalish kontrakt summasini qaytarish"""
+        if self.contract_price:
+            return f"{self.contract_price:,.0f} so'm"
+        return "Narx ko'rsatilmagan"
 
 
 class Advertisement(models.Model):

@@ -30,6 +30,7 @@ urlpatterns = [
     
     path('institutions/', views.institutions_view, name='institutions'),
     path('institutions/<int:pk>/', views.institution_detail_view, name='institution_detail'),
+    path('directions/<int:pk>/', views.direction_detail_view, name='direction_detail'),
     
     path('news/', views.news_list_view, name='news_list'),
     path('news/<slug:slug>/', views.news_detail_view, name='news_detail'),

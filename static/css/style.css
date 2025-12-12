@@ -1040,11 +1040,7 @@ body {
     font-size: 1.5rem;
 }
 
-.video-container {
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-}
+
 
 .lesson-content {
     font-size: 1rem;
@@ -1661,4 +1657,584 @@ a:hover .institution-card .text-dark {
         padding: 6px 12px;
         font-size: 0.8rem;
     }
+}
+
+/* Institution Styles */
+.institution-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.institution-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
+}
+
+.institution-image {
+    width: 100%;
+    height: 200px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.institution-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.institution-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.institution-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.institution-price {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.institution-type-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-top: auto;
+}
+
+/* Institution Detail Styles */
+.institution-detail-image {
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+}
+
+.institution-detail-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.description-preview {
+    color: var(--text-secondary);
+}
+
+.description-full {
+    color: var(--text-primary);
+}
+
+/* Direction Styles */
+.direction-card {
+    background: var(--background-color);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    height: 100%;
+}
+
+.direction-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.direction-price {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+}
+
+.direction-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.action-card {
+    background: var(--background-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.action-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+}
+
+.action-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.action-content h6 {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.action-content .btn {
+    margin-top: auto;
+}
+
+/* Map Container */
+.map-container {
+    width: 100%;
+    height: 300px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .institution-image {
+        height: 150px;
+    }
+    
+    .institution-detail-image {
+        height: 200px;
+    }
+    
+    .direction-actions {
+        flex-direction: column;
+    }
+    
+    .direction-actions .btn {
+        width: 100%;
+    }
+    
+    .action-card {
+        padding: 16px;
+    }
+    
+    .action-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .institution-card {
+        padding: 16px;
+    }
+    
+    .institution-name {
+        font-size: 1rem;
+    }
+    
+    .map-container {
+        height: 250px;
+    }
+}
+/* Contract Price Styling */
+.institution-price {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.direction-price {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.contract-price-display {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.price-badge {
+    color: white;
+    text-align: center;
+}
+
+.price-badge strong {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    opacity: 0.9;
+}
+
+.price-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: block;
+}
+
+/* Responsive price styling */
+@media (max-width: 576px) {
+    .price-amount {
+        font-size: 1.25rem;
+    }
+    
+    .contract-price-display {
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+}
+/* Institution List New Styles */
+.institution-info {
+    margin-bottom: 12px;
+}
+
+.info-item {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-right: 12px;
+    margin-bottom: 4px;
+}
+
+.admission-period {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+/* Institution Detail New Styles */
+.institution-info-section {
+    margin-bottom: 16px;
+}
+
+.institution-info-item {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.info-separator {
+    margin: 0 8px;
+    color: var(--text-muted);
+}
+
+.institution-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.institution-price-main {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: inline-block;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.admission-period-main {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.institution-logo-container {
+    display: flex;
+    justify-content: center;
+}
+
+.institution-logo-detail {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+/* Info Boxes */
+.info-box {
+    text-align: center;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    height: 100%;
+}
+
+.info-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.contract-icon {
+    background: linear-gradient(135deg, #10B981, #059669);
+}
+
+.admission-icon {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+}
+
+.license-icon {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+}
+
+.license-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Direction Cards New */
+.direction-card-new {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.direction-name-new {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+.direction-details {
+    flex: 1;
+    margin-bottom: 16px;
+}
+
+.detail-row {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.detail-label {
+    color: var(--text-secondary);
+}
+
+.detail-separator {
+    margin: 0 8px;
+    color: var(--text-muted);
+}
+
+.detail-price {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.direction-actions-new {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Video Container */
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Description Section */
+.description-section h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.description-preview {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.description-full {
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .institution-title {
+        font-size: 1.5rem;
+    }
+    
+    .institution-logo-detail {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .info-box {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .info-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+        margin-bottom: 12px;
+    }
+    
+    .direction-actions-new {
+        flex-direction: column;
+    }
+    
+    .direction-actions-new .btn {
+        width: 100%;
+    }
+    
+    .license-actions {
+        flex-direction: column;
+    }
+    
+    .license-actions .btn {
+        width: 100%;
+        margin: 2px 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .institution-price-main {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+    
+    .admission-period-main {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+    
+    .direction-card-new {
+        padding: 16px;
+    }
+    
+    .direction-name-new {
+        font-size: 1rem;
+    }
+}
+/* Institution Card Labels */
+.institution-price-with-label {
+    margin-bottom: 12px;
+}
+
+.price-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admission-period-with-label {
+    margin-bottom: 12px;
+}
+
+.period-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Update existing styles to remove margin when used with labels */
+.institution-price-with-label .institution-price {
+    margin-bottom: 0;
+}
+
+.admission-period-with-label .admission-period {
+    margin-top: 0;
 }
