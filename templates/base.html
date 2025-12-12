@@ -32,38 +32,51 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div class="app-container">
-        <header class="app-header">
-            <div class="header-left">
+    <!-- Mobile App Container -->
+    <div class="mobile-app">
+        
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-btn" id="menuBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideMenu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="logo-mini">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    <span>EduSelf</span>
+                </div>
+            </div>
+            <div class="top-bar-right">
                 {% if user.is_authenticated %}
-                <a href="{% url 'accounts:profile' %}" class="profile-btn">
-                    {% if user.profile_image %}
-                    <img src="{{ user.profile_image.url }}" alt="Profile" class="profile-img">
-                    {% else %}
-                    <i class="bi bi-person-circle"></i>
+                <button class="notification-btn" id="notifBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificationMenu">
+                    <i class="bi bi-bell"></i>
+                    {% if unread_notifications_count > 0 %}
+                    <span class="notif-badge">{{ unread_notifications_count }}</span>
                     {% endif %}
-                </a>
+                </button>
+                <div class="dropdown">
+                    <button class="user-avatar" id="userAvatar" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% if user.profile_image %}
+                        <img src="{{ user.profile_image.url }}" alt="User" class="profile-img">
+                        {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ user.username|default:'User' }}&background=6366f1&color=fff" alt="User">
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                            <i class="bi bi-person-circle me-2"></i>Mening Profilim
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
+                            <i class="bi bi-box-arrow-right me-2"></i>Chiqish
+                        </a></li>
+                    </ul>
+                </div>
                 {% else %}
                 <a href="{% url 'accounts:login' %}" class="profile-btn">
                     <i class="bi bi-person-circle"></i>
                 </a>
                 {% endif %}
-            </div>
-            <div class="header-center">
-                <a href="{% url 'core:home' %}" class="logo-text">EduSelf</a>
-            </div>
-            <div class="header-right">
-                {% if user.is_authenticated %}
-                <button class="notification-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificationMenu">
-                    <i class="bi bi-bell"></i>
-                    {% if unread_notifications_count > 0 %}
-                    <span class="notification-badge">{{ unread_notifications_count }}</span>
-                    {% endif %}
-                </button>
-                {% endif %}
-                <button class="menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideMenu">
-                    <i class="bi bi-list"></i>
-                </button>
             </div>
         </header>
 
@@ -111,65 +124,106 @@
         </div>
         {% endif %}
 
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="sideMenu">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title">
-                    <i class="bi bi-mortarboard-fill text-primary"></i> EduSelf
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div class="offcanvas-body">
-                <div class="menu-items">
+        <!-- Sidebar Menu -->
+        <div class="offcanvas offcanvas-start sidebar-menu" tabindex="-1" id="sideMenu">
+            <div class="sidebar-header">
+                <div class="user-profile">
                     {% if user.is_authenticated %}
-                    <div class="user-info mb-4">
-                        <div class="d-flex align-items-center">
-                            {% if user.profile_image %}
-                            <img src="{{ user.profile_image.url }}" alt="Profile" class="menu-profile-img me-3">
-                            {% else %}
-                            <i class="bi bi-person-circle fs-1 me-3"></i>
-                            {% endif %}
-                            <div>
-                                <h6 class="mb-0">{{ user.username }}</h6>
-                                <small class="text-muted">{{ user.email }}</small>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="{% url 'accounts:profile' %}" class="menu-item">
-                        <i class="bi bi-person"></i> Profil
-                    </a>
-                    <a href="{% url 'core:news_list' %}" class="menu-item">
-                        <i class="bi bi-newspaper"></i> Yangiliklar
-                    </a>
-                    <a href="{% url 'core:courses' %}" class="menu-item">
-                        <i class="bi bi-play-circle"></i> Online kurslar
-                    </a>
-                    {% if user.is_staff %}
-                    <a href="/admin/" class="menu-item">
-                        <i class="bi bi-gear"></i> Admin panel
-                    </a>
-                    {% endif %}
-                    <a href="{% url 'accounts:logout' %}" class="menu-item text-danger">
-                        <i class="bi bi-box-arrow-right"></i> Chiqish
-                    </a>
+                    {% if user.profile_image %}
+                    <img src="{{ user.profile_image.url }}" alt="User">
                     {% else %}
-                    <a href="{% url 'accounts:login' %}" class="menu-item">
-                        <i class="bi bi-box-arrow-in-right"></i> Kirish
-                    </a>
-                    <a href="{% url 'accounts:register' %}" class="menu-item">
-                        <i class="bi bi-person-plus"></i> Ro'yxatdan o'tish
-                    </a>
-                    <a href="{% url 'core:news_list' %}" class="menu-item">
-                        <i class="bi bi-newspaper"></i> Yangiliklar
-                    </a>
-                    <a href="{% url 'core:courses' %}" class="menu-item">
-                        <i class="bi bi-play-circle"></i> Online kurslar
-                    </a>
+                    <img src="https://ui-avatars.com/api/?name={{ user.username|default:'User' }}&background=6366f1&color=fff" alt="User">
+                    {% endif %}
+                    <div class="user-info">
+                        <h3 id="userName">{{ user.username|default:'Foydalanuvchi' }}</h3>
+                        <p id="userEmail">{{ user.email|default:'user@eduself.uz' }}</p>
+                    </div>
+                    {% else %}
+                    <img src="https://ui-avatars.com/api/?name=Guest&background=6366f1&color=fff" alt="Guest">
+                    <div class="user-info">
+                        <h3 id="userName">Mehmon</h3>
+                        <p id="userEmail">Kirish talab qilinadi</p>
+                    </div>
                     {% endif %}
                 </div>
+                <button class="close-sidebar" type="button" data-bs-dismiss="offcanvas">
+                    <i class="bi bi-x"></i>
+                </button>
             </div>
+            
+            <nav class="sidebar-nav">
+                <a href="{% url 'core:news_list' %}" class="nav-item">
+                    <i class="bi bi-newspaper"></i>
+                    <span>Yangiliklar</span>
+                </a>
+                <a href="{% url 'core:courses' %}" class="nav-item">
+                    <i class="bi bi-play-circle"></i>
+                    <span>Online Kurslar</span>
+                </a>
+                <a href="#" class="nav-item ai-assistant-link">
+                    <i class="bi bi-robot"></i>
+                    <span>AI Hamroh</span>
+                </a>
+                
+                <div class="nav-divider"></div>
+                
+                <a href="{% url 'core:home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <i class="bi bi-house"></i>
+                    <span>Bosh sahifa</span>
+                </a>
+                <a href="{% url 'core:subjects' %}" class="nav-item {% if 'subjects' in request.path %}active{% endif %}">
+                    <i class="bi bi-book"></i>
+                    <span>Fanlar</span>
+                </a>
+                <a href="{% url 'core:certificates' %}" class="nav-item {% if 'certificates' in request.path %}active{% endif %}">
+                    <i class="bi bi-award"></i>
+                    <span>Sertifikatlar</span>
+                </a>
+                <a href="{% url 'core:mock_exams' %}" class="nav-item {% if 'mock' in request.path %}active{% endif %}">
+                    <i class="bi bi-clipboard-check"></i>
+                    <span>Imtihonlar</span>
+                </a>
+                <a href="{% url 'core:institutions' %}" class="nav-item {% if 'institutions' in request.path %}active{% endif %}">
+                    <i class="bi bi-building"></i>
+                    <span>Ta'lim Muassasalari</span>
+                </a>
+                
+                <div class="nav-divider"></div>
+                
+                {% if user.is_authenticated %}
+                <a href="{% url 'accounts:profile' %}" class="nav-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Mening Profilim</span>
+                </a>
+                {% if user.is_staff %}
+                <a href="/nokia/" class="nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Sozlamalar</span>
+                </a>
+                {% endif %}
+                
+                <div class="nav-divider"></div>
+                
+                <a href="{% url 'accounts:logout' %}" class="nav-item">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Chiqish</span>
+                </a>
+                {% else %}
+                <a href="{% url 'accounts:login' %}" class="nav-item">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Kirish</span>
+                </a>
+                <a href="{% url 'accounts:register' %}" class="nav-item">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Ro'yxatdan o'tish</span>
+                </a>
+                {% endif %}
+
+            </nav>
         </div>
 
-        <main class="app-content">
+        <!-- Main Content -->
+        <main class="main-container">
             {% if messages %}
             <div class="messages-container">
                 {% for message in messages %}
@@ -186,31 +240,372 @@
 
         {% block footer %}{% endblock %}
 
+        <!-- Bottom Navigation -->
         <nav class="bottom-nav">
-            <a href="{% url 'core:home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <a href="{% url 'core:home' %}" class="nav-btn {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                 <i class="bi bi-house"></i>
                 <span>Bosh sahifa</span>
             </a>
-            <a href="{% url 'core:subjects' %}" class="nav-item {% if 'subjects' in request.path or 'topics' in request.path or 'tests' in request.path %}active{% endif %}">
+            <a href="{% url 'core:subjects' %}" class="nav-btn {% if 'subjects' in request.path or 'topics' in request.path or 'tests' in request.path %}active{% endif %}">
                 <i class="bi bi-book"></i>
                 <span>Fanlar</span>
             </a>
-            <a href="{% url 'core:certificates' %}" class="nav-item {% if 'certificates' in request.path or 'cert' in request.path %}active{% endif %}">
+            <a href="{% url 'core:certificates' %}" class="nav-btn {% if 'certificates' in request.path or 'cert' in request.path %}active{% endif %}">
                 <i class="bi bi-award"></i>
                 <span>Sertifikatlar</span>
             </a>
-            <a href="{% url 'core:mock_exams' %}" class="nav-item {% if 'mock' in request.path %}active{% endif %}">
+            <a href="{% url 'core:mock_exams' %}" class="nav-btn {% if 'mock' in request.path %}active{% endif %}">
                 <i class="bi bi-clipboard-check"></i>
                 <span>Mock Exam</span>
             </a>
-            <a href="{% url 'core:institutions' %}" class="nav-item {% if 'institutions' in request.path %}active{% endif %}">
+            <a href="{% url 'core:institutions' %}" class="nav-btn {% if 'institutions' in request.path %}active{% endif %}">
                 <i class="bi bi-building"></i>
                 <span>Muassasalar</span>
             </a>
         </nav>
+
+        <!-- AI Assistant Floating Button -->
+        <button class="ai-fab" id="aiFab">
+            <i class="bi bi-robot"></i>
+            <span class="ai-pulse"></span>
+        </button>
+
+        <!-- AI Chat Modal -->
+        <div class="ai-modal" id="aiModal">
+            <div class="ai-modal-header">
+                <div class="ai-header-info">
+                    <i class="bi bi-robot"></i>
+                    <div>
+                        <h3>AI Hamroh</h3>
+                        <span class="ai-status">Online</span>
+                    </div>
+                </div>
+                <button class="close-ai" id="closeAi">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="ai-messages" id="aiMessages">
+                <div class="ai-message bot">
+                    <div class="ai-avatar">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div class="ai-bubble">
+                        Salom! Men sizning shaxsiy AI yordamchingizman. Statistikangizni tahlil qilaman va tavsiyalar beraman! 😊
+                    </div>
+                </div>
+            </div>
+            <div class="ai-input-container">
+                <input type="text" id="aiInput" placeholder="Savol yozing...">
+                <button id="aiSend">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Overlay -->
+        <div class="overlay" id="overlay"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Sidebar Navigation JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle sidebar navigation clicks
+            const sidebarNavItems = document.querySelectorAll('.sidebar-nav .nav-item');
+            const sidebarOffcanvas = document.getElementById('sideMenu');
+            
+            sidebarNavItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    
+                    // Special handling for AI Assistant link
+                    if (this.classList.contains('ai-assistant-link')) {
+                        e.preventDefault();
+                        
+                        // Close the sidebar first
+                        const bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarOffcanvas);
+                        if (bsOffcanvas) {
+                            bsOffcanvas.hide();
+                            
+                            // Open AI modal after sidebar is hidden
+                            sidebarOffcanvas.addEventListener('hidden.bs.offcanvas', function() {
+                                openAIModal();
+                            }, { once: true });
+                        } else {
+                            // If offcanvas instance not found, open AI modal directly
+                            openAIModal();
+                        }
+                        return;
+                    }
+                    
+                    // If it's a valid link (not #), navigate after closing sidebar
+                    if (href && href !== '#' && !href.startsWith('javascript:')) {
+                        e.preventDefault();
+                        
+                        // Close the sidebar first
+                        const bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarOffcanvas);
+                        if (bsOffcanvas) {
+                            bsOffcanvas.hide();
+                            
+                            // Navigate after sidebar is hidden
+                            sidebarOffcanvas.addEventListener('hidden.bs.offcanvas', function() {
+                                window.location.href = href;
+                            }, { once: true });
+                        } else {
+                            // If offcanvas instance not found, navigate directly
+                            window.location.href = href;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <!-- AI Assistant JavaScript -->
+    <script>
+        // ========== AI ASSISTANT ==========
+        let currentUser = null;
+        let userStats = {
+            completed: 15,
+            streak: 7,
+            points: 856,
+            subjects: {
+                physics: {
+                    progress: 10,
+                    topics: 156,
+                    completed: 15
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAIAssistant();
+            initOverlay();
+        });
+
+        function initAIAssistant() {
+            const aiFab = document.getElementById('aiFab');
+            const aiModal = document.getElementById('aiModal');
+            const closeAi = document.getElementById('closeAi');
+            const aiSend = document.getElementById('aiSend');
+            const aiInput = document.getElementById('aiInput');
+            
+            if (aiFab) aiFab.addEventListener('click', openAIModal);
+            if (closeAi) closeAi.addEventListener('click', closeAIModal);
+            if (aiSend) aiSend.addEventListener('click', sendAIMessage);
+            
+            if (aiInput) {
+                aiInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendAIMessage();
+                    }
+                });
+            }
+        }
+
+        function initOverlay() {
+            const overlay = document.getElementById('overlay');
+            if (overlay) {
+                overlay.addEventListener('click', () => {
+                    closeAIModal();
+                });
+            }
+        }
+
+        function openAIModal() {
+            const aiModal = document.getElementById('aiModal');
+            const overlay = document.getElementById('overlay');
+            const aiInput = document.getElementById('aiInput');
+            
+            if (aiModal) aiModal.classList.add('active');
+            if (overlay) overlay.classList.add('active');
+            if (aiInput) aiInput.focus();
+        }
+
+        function closeAIModal() {
+            const aiModal = document.getElementById('aiModal');
+            const overlay = document.getElementById('overlay');
+            
+            if (aiModal) aiModal.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+        }
+
+        function sendAIMessage() {
+            const aiInput = document.getElementById('aiInput');
+            const message = aiInput.value.trim();
+            
+            if (message) {
+                // Add user message
+                addAIMessage(message, true);
+                aiInput.value = '';
+                
+                // Show typing indicator
+                showTyping();
+                
+                // Get AI response
+                setTimeout(() => {
+                    hideTyping();
+                    const response = getAIResponse(message);
+                    addAIMessage(response, false);
+                }, 1000);
+            }
+        }
+
+        function addAIMessage(text, isUser = false) {
+            const aiMessages = document.getElementById('aiMessages');
+            if (!aiMessages) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `ai-message ${isUser ? 'user' : 'bot'}`;
+            
+            messageDiv.innerHTML = `
+                <div class="ai-avatar">
+                    <i class="bi bi-${isUser ? 'person' : 'robot'}"></i>
+                </div>
+                <div class="ai-bubble">${text}</div>
+            `;
+            
+            aiMessages.appendChild(messageDiv);
+            aiMessages.scrollTop = aiMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            const aiMessages = document.getElementById('aiMessages');
+            if (!aiMessages) return;
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'ai-message bot typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="ai-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="ai-bubble">
+                    <div class="loading"></div>
+                </div>
+            `;
+            aiMessages.appendChild(typingDiv);
+            aiMessages.scrollTop = aiMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function getAIResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // AI response logic based on keywords
+            const responses = {
+                'salom': 'Salom! Men sizning shaxsiy AI yordamchingizman. Sizga qanday yordam bera olaman? 😊',
+                'assalom': 'Va aleykum assalom! Xush kelibsiz! 🙏',
+                
+                'fizika': `Fizika bo'yicha statistikangiz:\n\n✅ Tugallangan: ${userStats.subjects.physics.completed}/${userStats.subjects.physics.topics}\n📊 Progress: ${userStats.subjects.physics.progress}%\n🔥 Mexanika bo'limini ajoyib o'zlashtirdingiz!\n\n💡 Tavsiya: Molekulyar fizikaga o'ting va yangi mavzularni boshlang!`,
+                
+                'matematika': 'Matematika bo\'yicha sizning natijalaringiz ajoyib! Algebra bo\'limida 92% ko\'rsatdingiz. Geometriyaga ko\'proq e\'tibor bering. 📐',
+                
+                'test': 'Oxirgi DTM testida 78% natija ko\'rsatdingiz. Bu yaxshi natija! Men sizga yanada yaxshiroq tayyorgarlik ko\'rish uchun quyidagi mavzularni tavsiya qilaman:\n\n1. Mexanika - asosiy formulalar\n2. Elektr toki - Ohm qonuni\n3. Optika - yorug\'lik sindirishi',
+                
+                'tavsiya': `Sizning statistikangizga qarab:\n\n🎯 Asosiy tavsiyalar:\n1. Har kuni 30 daqiqa fizika mashqlari\n2. DTM test namunalarini ishlash\n3. O'yinlar orqali o'rganish\n4. 7 kun ketma-ketlikni davom ettiring!\n\n💪 Siz yaxshi yo'ldasiz, davom eting!`,
+                
+                'kurs': 'Sizning darajangizga mos kurslar:\n\n📚 "Fizika Masterclass" - Mexanikadan Optikagacha\n📊 "Matematika Pro" - DTM ga tayyorgarlik\n🎯 "GRE Bootcamp" - Xorijga o\'qishga tayyorgarlik\n\nQaysi biri qiziqtirdi?',
+                
+                'natija': `Sizning umumiy natijalaringiz:\n\n✅ Tugallangan mavzular: ${userStats.completed}\n🔥 Ketma-ketlik: ${userStats.streak} kun\n⭐ Umumiy ball: ${userStats.points}\n📈 O'sish: +12% (oxirgi hafta)\n\nAjoyib! Davom eting! 🚀`,
+                
+                'dtm': 'DTM imtihoniga tayyorgarlik:\n\n📝 1000+ asl test savollari\n📊 Real vaqtda natijalar\n🎯 To\'liq tahlil va tushuntirish\n⏱️ Vaqtni boshqarish mashqlari\n\nBoshlash uchun "Imtihonlar" bo\'limiga o\'ting!',
+                
+                'help': 'Men sizga quyidagilar bilan yordam bera olaman:\n\n📊 Statistikani tahlil qilish\n💡 Shaxsiy tavsiyalar berish\n🎯 Kurslar tanlashda yordam\n📚 Mavzularni tushuntirish\n🎮 O\'yinlar orqali o\'rgatish\n⏱️ O\'rganish rejasini tuzish\n\nNimada yordam kerak?'
+            };
+            
+            // Check for keywords
+            for (let keyword in responses) {
+                if (lowerMessage.includes(keyword)) {
+                    return responses[keyword];
+                }
+            }
+            
+            // Default response with suggestions
+            return `Qiziqarli savol! Men sizning statistikalaringizni tahlil qilyapman...\n\n💡 Shu orada, siz quyidagilarni so'rashingiz mumkin:\n\n• "Fizika statistikam"\n• "Tavsiyalar ber"\n• "DTM ga tayyorgarlik"\n• "Natijalarim"`;
+        }
+
+        // ========== CLICK HANDLERS ==========
+        // Featured cards
+        document.querySelectorAll('.btn-card-action').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const card = btn.closest('.featured-card');
+                const title = card.querySelector('h3').textContent;
+                
+                openAIModal();
+                setTimeout(() => {
+                    addAIMessage(`${title} kursiga xush kelibsiz! 🎓\n\nBu kurs sizning darajangizga mos. Boshlash uchun tayyormisiz?`, false);
+                }, 500);
+            });
+        });
+
+        // Subject cards
+        document.querySelectorAll('.subject-mini').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (card.href) return; // Let the link work normally
+                
+                e.preventDefault();
+                // Navigate to subjects page
+                window.location.href = '/subjects/';
+            });
+        });
+
+        // Category buttons
+        document.querySelectorAll('.btn-category').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const category = btn.closest('.category-card').querySelector('h3').textContent;
+                
+                openAIModal();
+                setTimeout(() => {
+                    addAIMessage(`${category} bo'limi! 🏫\n\nBu yerda siz turli xil ta'lim muassasalari haqida ma'lumot topishingiz mumkin.\n\nQaysi birini ko'rmoqchisiz?`, false);
+                }, 500);
+            });
+        });
+
+        // Play button on continue learning
+        document.querySelectorAll('.btn-play').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const card = btn.closest('.learning-card');
+                const subject = card.querySelector('h3').textContent;
+                const topic = card.querySelector('p').textContent;
+                
+                openAIModal();
+                setTimeout(() => {
+                    addAIMessage(`${subject} - ${topic} mavzusini davom ettiramiz! 🚀\n\nSiz 60% tugatgansiz. Ajoyib!\n\nKeyingi qismga o'tamizmi?`, false);
+                }, 500);
+            });
+        });
+
+        // Topic buttons
+        document.querySelectorAll('.btn-mini').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (btn.href) return; // Let the link work normally
+                
+                e.stopPropagation();
+                e.preventDefault();
+                const topic = btn.closest('.topic-mobile');
+                const topicName = topic.querySelector('h5').textContent;
+                const isQuiz = btn.querySelector('.bi-controller');
+                
+                openAIModal();
+                setTimeout(() => {
+                    if (isQuiz) {
+                        addAIMessage(`${topicName} bo'yicha kviz! 🎯\n\n10 ta savol, 10 daqiqa vaqt.\n\nTayyormisiz? "Boshlash" deb yozing!`, false);
+                    } else {
+                        addAIMessage(`${topicName} mavzusini o'rganamiz! 📚\n\nBu mavzu 25 ta qism va 3 soat videolardan iborat.\n\nQayerdan boshlaysiz?`, false);
+                    }
+                }, 500);
+            });
+        });
+    </script>
     
     <!-- PWA Install Prompt -->
     <div id="installPrompt" class="install-prompt" style="display: none;">
