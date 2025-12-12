@@ -141,25 +141,43 @@
     <a href="{% url 'core:institutions' %}" class="text-primary text-decoration-none small">Barchasi <i class="bi bi-arrow-right"></i></a>
 </div>
 {% for inst in institutions %}
-<a href="{% url 'core:institution_detail' inst.pk %}" class="text-decoration-none">
-    <div class="institution-card">
-        <div class="d-flex align-items-center">
-            {% if inst.logo %}
-            <img src="{{ inst.logo.url }}" alt="{{ inst.name }}" class="institution-logo me-3">
-            {% else %}
-            <div class="institution-logo me-3 d-flex align-items-center justify-content-center">
-                <i class="bi bi-building fs-4 text-muted"></i>
+<a href="{% url 'core:institution_detail' inst.pk %}" class="text-decoration-none mb-3 d-block">
+    <div class="institution-card-new">
+        <div class="institution-header">
+            <div class="institution-logo-wrapper">
+                {% if inst.logo %}
+                <img src="{{ inst.logo.url }}" alt="{{ inst.name }}" class="institution-logo-new">
+                {% else %}
+                <div class="institution-logo-new d-flex align-items-center justify-content-center">
+                    <i class="bi bi-building text-muted"></i>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
-            <div class="flex-grow-1">
-                <h6 class="mb-1 text-dark">{{ inst.name }}</h6>
-                <span class="institution-type-badge">{{ inst.get_institution_type_display }}</span>
+            <div class="institution-main-info">
+                <h6 class="institution-name-new">{{ inst.name }}</h6>
+                {% if inst.short_description %}
+                <p class="institution-short-desc">{{ inst.short_description }}</p>
+                {% endif %}
             </div>
-            <i class="bi bi-chevron-right text-muted"></i>
         </div>
-        {% if inst.description %}
-        <p class="text-muted small mt-3 mb-0">{{ inst.description|truncatewords:10 }}</p>
-        {% endif %}
+        
+        <div class="institution-details">
+            <div class="institution-meta-row">
+                <div class="meta-item">
+                    <i class="bi bi-mortarboard"></i>
+                    <span>{{ inst.get_directions_count }} yo'nalish</span>
+                </div>
+                {% if inst.category %}
+                <div class="meta-item">
+                    <i class="{{ inst.category.icon }}"></i>
+                    <span>{{ inst.category.name }}</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="institution-arrow">
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </div>
     </div>
 </a>
 {% endfor %}

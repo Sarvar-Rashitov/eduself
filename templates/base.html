@@ -14,6 +14,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EduSelf">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
     
     <!-- PWA Manifest -->
     {% load static %}
@@ -211,6 +213,66 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- PWA Loading Management -->
+    <script>
+        // Hide browser loading indicators in PWA
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if running as PWA
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                         window.navigator.standalone === true;
+            
+            if (isPWA) {
+                // Hide browser loading indicators
+                const style = document.createElement('style');
+                style.textContent = `
+                    ::-webkit-progress-bar,
+                    ::-webkit-progress-value,
+                    progress {
+                        display: none !important;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // Prevent pull-to-refresh
+                document.body.addEventListener('touchstart', function(e) {
+                    if (e.touches.length !== 1) return;
+                    const scrollY = window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop;
+                    if (scrollY === 0) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                document.body.addEventListener('touchmove', function(e) {
+                    if (e.touches.length !== 1) return;
+                    const scrollY = window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop;
+                    if (scrollY === 0) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+            }
+            
+            // Custom page loading for smooth transitions
+            const links = document.querySelectorAll('a[href^="/"]');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (this.target === '_blank') return;
+                    
+                    const loadingOverlay = document.createElement('div');
+                    loadingOverlay.className = 'page-loading show';
+                    loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
+                    document.body.appendChild(loadingOverlay);
+                    
+                    // Remove loading after navigation
+                    setTimeout(() => {
+                        if (loadingOverlay.parentNode) {
+                            loadingOverlay.remove();
+                        }
+                    }, 1000);
+                });
+            });
+        });
+    </script>
     
     <!-- PWA Install Prompt -->
     <div id="installPrompt" class="install-prompt" style="display: none;">
