@@ -2991,6 +2991,8 @@ body {
     overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
+    -webkit-overflow-scrolling: touch;
+    max-height: calc(100vh - 140px);
 }
 
 .sidebar-nav::-webkit-scrollbar {
@@ -3803,6 +3805,23 @@ body {
     .logo-mini i {
         font-size: 26px;
     }
+    
+    /* Mobile sidebar fixes */
+    .sidebar-menu {
+        height: 100vh !important;
+        max-height: 100vh !important;
+    }
+    
+    .sidebar-nav {
+        max-height: calc(100vh - 140px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .sidebar-header {
+        flex-shrink: 0 !important;
+        min-height: 120px;
+    }
 }
 
 @media (max-width: 400px) {
@@ -3817,6 +3836,30 @@ body {
     
     .bottom-nav {
         gap: 0;
+    }
+    
+    /* Very small screens sidebar fixes */
+    .sidebar-nav {
+        max-height: calc(100vh - 120px) !important;
+        padding: 8px 0;
+    }
+    
+    .sidebar-header {
+        padding: 16px;
+        min-height: 100px;
+    }
+    
+    .user-profile img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .user-info h3 {
+        font-size: 16px;
+    }
+    
+    .user-info p {
+        font-size: 12px;
     }
 }
 
