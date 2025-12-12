@@ -137,12 +137,28 @@
                     <div class="user-info">
                         <h3 id="userName">{{ user.username|default:'Foydalanuvchi' }}</h3>
                         <p id="userEmail">{{ user.email|default:'user@eduself.uz' }}</p>
+                        
+                        <!-- Theme Toggle -->
+                        <div class="theme-toggle">
+                            <button class="theme-btn" id="themeToggle">
+                                <i class="bi bi-sun-fill" id="themeIcon"></i>
+                                <span id="themeText">Oq rejim</span>
+                            </button>
+                        </div>
                     </div>
                     {% else %}
                     <img src="https://ui-avatars.com/api/?name=Guest&background=6366f1&color=fff" alt="Guest">
                     <div class="user-info">
                         <h3 id="userName">Mehmon</h3>
                         <p id="userEmail">Kirish talab qilinadi</p>
+                        
+                        <!-- Theme Toggle for Guest -->
+                        <div class="theme-toggle">
+                            <button class="theme-btn" id="themeToggleGuest">
+                                <i class="bi bi-sun-fill" id="themeIconGuest"></i>
+                                <span id="themeTextGuest">Oq rejim</span>
+                            </button>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
@@ -315,6 +331,9 @@
     <!-- Sidebar Navigation JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            initTheme();
+            
             // Handle sidebar navigation clicks
             const sidebarNavItems = document.querySelectorAll('.sidebar-nav .nav-item');
             const sidebarOffcanvas = document.getElementById('sideMenu');
@@ -364,6 +383,56 @@
                 });
             });
         });
+        
+        // Theme Management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+            
+            // Theme toggle buttons
+            const themeToggle = document.getElementById('themeToggle');
+            const themeToggleGuest = document.getElementById('themeToggleGuest');
+            
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+            if (themeToggleGuest) {
+                themeToggleGuest.addEventListener('click', toggleTheme);
+            }
+        }
+        
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            // Update theme button text and icon
+            updateThemeButton(theme);
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+        
+        function updateThemeButton(theme) {
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            const themeIconGuest = document.getElementById('themeIconGuest');
+            const themeTextGuest = document.getElementById('themeTextGuest');
+            
+            if (theme === 'dark') {
+                if (themeIcon) themeIcon.className = 'bi bi-moon-fill';
+                if (themeText) themeText.textContent = 'Qora rejim';
+                if (themeIconGuest) themeIconGuest.className = 'bi bi-moon-fill';
+                if (themeTextGuest) themeTextGuest.textContent = 'Qora rejim';
+            } else {
+                if (themeIcon) themeIcon.className = 'bi bi-sun-fill';
+                if (themeText) themeText.textContent = 'Oq rejim';
+                if (themeIconGuest) themeIconGuest.className = 'bi bi-sun-fill';
+                if (themeTextGuest) themeTextGuest.textContent = 'Oq rejim';
+            }
+        }
     </script>
     
     <!-- AI Assistant JavaScript -->
