@@ -42,28 +42,41 @@
             <p>{{ course.description }}</p>
         </div>
         
-        {% if not is_enrolled and not course.is_free %}
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> Bu kursga yozilish uchun ro'yxatdan o'ting
-        </div>
-        {% endif %}
-        
         {% if user.is_authenticated %}
-            {% if not is_enrolled %}
-            <form method="post" action="{% url 'core:enroll_course' course.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary btn-lg w-100">
-                    <i class="bi bi-check-circle me-2"></i>Kursga yozilish
-                </button>
-            </form>
+            {% if course.is_free %}
+                {% if not is_enrolled %}
+                <form method="post" action="{% url 'core:enroll_course' course.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-lg w-100">
+                        <i class="bi bi-check-circle me-2"></i>Bepul kursga yozilish
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> Siz bu bepul kursga yozilgansiz
+                </div>
+                {% endif %}
             {% else %}
-            <div class="alert alert-success">
-                <i class="bi bi-check-circle"></i> Siz bu kursga yozilgansiz
-            </div>
+                {% if not is_enrolled %}
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle"></i> Bu pullik kurs. To'lov qilganingizdan keyin barcha darslarga kirish huquqiga ega bo'lasiz.
+                </div>
+                <button class="btn btn-warning btn-lg w-100" onclick="showPaymentModal('{{ course.title }}', '{{ course.payment_url }}', {{ course.price|default:0 }})">
+                    <i class="bi bi-credit-card me-2"></i>To'lov qilish ({{ course.price|floatformat:0 }} so'm)
+                </button>
+                {% elif not payment_confirmed %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-clock"></i> Siz kursga yozildingiz, lekin to'lovingiz hali tasdiqlanmagan. Admin tomonidan tasdiqlanishini kuting.
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> Siz bu kursga to'lov qilgansiz va barcha darslarga kirishingiz mumkin
+                </div>
+                {% endif %}
             {% endif %}
         {% else %}
         <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg w-100">
-            <i class="bi bi-box-arrow-in-right me-2"></i>Kursga yozilish uchun kirish
+            <i class="bi bi-box-arrow-in-right me-2"></i>Kirish
         </a>
         {% endif %}
     </div>
@@ -91,13 +104,15 @@
                     <span class="badge bg-success ms-2">Bepul</span>
                     {% endif %}
                 </div>
-                {% if is_enrolled or lesson.is_free or course.is_free %}
+                {% if course.is_free or lesson.is_free or forloop.counter == 1 or payment_confirmed %}
                 <a href="{% url 'core:lesson_detail' course.slug lesson.id %}" class="btn btn-primary btn-sm">
                     <i class="bi bi-play"></i> Ko'rish
                 </a>
+                {% elif forloop.counter == 1 %}
+                <span class="badge bg-success">Bepul dars</span>
                 {% else %}
-                <button class="btn btn-secondary btn-sm" disabled>
-                    <i class="bi bi-lock"></i> Yopiq
+                <button class="btn btn-warning btn-sm" onclick="showPaymentModal('{{ course.title }}', '{{ course.payment_url }}', {{ course.price|default:0 }})">
+                    <i class="bi bi-lock"></i> To'lov kerak
                 </button>
                 {% endif %}
             </div>
@@ -110,4 +125,89 @@
         <p>Hozircha darslar qo'shilmagan</p>
     </div>
 {% endif %}
+
+<!-- Payment Modal -->
+<div class="enrollment-modal" id="paymentModal">
+    <div class="enrollment-modal-content">
+        <div class="enrollment-modal-header">
+            <h5 class="modal-title" id="paymentModalTitle">To'lov qilish</h5>
+            <button type="button" class="btn-close" onclick="hidePaymentModal()">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        <div class="enrollment-modal-body">
+            <div class="text-center mb-4">
+                <i class="bi bi-credit-card text-warning" style="font-size: 3rem;"></i>
+                <h6 class="mt-3" id="paymentCourseTitle">Kurs nomi</h6>
+                <p class="text-warning" id="paymentCoursePrice">Narx: 0 so'm</p>
+            </div>
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> To'lov qilganingizdan keyin admin tomonidan tasdiqlanishi kerak. Tasdiqlanganidan keyin barcha darslarga kirish huquqiga ega bo'lasiz.
+            </div>
+        </div>
+        <div class="enrollment-modal-footer">
+            <div class="d-flex gap-2 w-100">
+                <button type="button" class="btn btn-secondary flex-fill" onclick="hidePaymentModal()">
+                    <i class="bi bi-x-circle"></i> Bekor qilish
+                </button>
+                <button type="button" class="btn btn-warning flex-fill" id="proceedPaymentBtn" onclick="proceedToPayment()">
+                    <i class="bi bi-credit-card"></i> To'lov sahifasiga o'tish
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentPaymentUrl = '';
+let currentCoursePrice = 0;
+
+function showPaymentModal(courseTitle, paymentUrl, price) {
+    currentPaymentUrl = paymentUrl;
+    currentCoursePrice = price;
+    
+    document.getElementById('paymentCourseTitle').textContent = courseTitle;
+    document.getElementById('paymentModalTitle').textContent = 'To\'lov qilish - ' + courseTitle;
+    document.getElementById('paymentCoursePrice').textContent = 'Narx: ' + price.toLocaleString() + ' so\'m';
+    
+    document.getElementById('paymentModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function hidePaymentModal() {
+    document.getElementById('paymentModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+function proceedToPayment() {
+    if (currentPaymentUrl) {
+        // To'lov URL'ga yo'naltirish
+        window.open(currentPaymentUrl, '_blank');
+        hidePaymentModal();
+        
+        // Foydalanuvchini kursga yozish (to'lov kutilayotgan holatda)
+        fetch(`/courses/{{ course.id }}/enroll/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    } else {
+        alert('To\'lov URL manzili mavjud emas. Admin bilan bog\'laning.');
+    }
+}
+
+// Modal tashqarisiga bosganda yopish
+document.getElementById('paymentModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hidePaymentModal();
+    }
+});
+</script>
+
 {% endblock %}

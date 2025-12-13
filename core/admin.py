@@ -357,7 +357,7 @@ class CourseAdmin(admin.ModelAdmin):
             'fields': ('description', 'image')
         }),
         ('Kurs ma\'lumotlari', {
-            'fields': ('duration', 'level', 'price', 'is_free')
+            'fields': ('duration', 'level', 'price', 'is_free', 'payment_url')
         }),
         ('Sozlamalar', {
             'fields': ('is_featured', 'is_active', 'order')
@@ -387,9 +387,10 @@ class LessonAdmin(admin.ModelAdmin):
 
 @admin.register(CourseEnrollment)
 class CourseEnrollmentAdmin(admin.ModelAdmin):
-    list_display = ['user', 'course', 'progress', 'completed', 'enrolled_at']
-    list_filter = ['completed', 'enrolled_at', 'course__category']
+    list_display = ['user', 'course', 'progress', 'completed', 'payment_confirmed', 'enrolled_at']
+    list_filter = ['completed', 'payment_confirmed', 'enrolled_at', 'course__category']
     search_fields = ['user__username', 'course__title']
+    list_editable = ['payment_confirmed']
     readonly_fields = ['enrolled_at']
 
 

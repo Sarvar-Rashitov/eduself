@@ -659,18 +659,23 @@ def course_detail_view(request, slug):
     course = get_object_or_404(Course, slug=slug, is_active=True)
     lessons = course.lessons.filter(is_active=True)
     
-    # Foydalanuvchi kursga yozilganmi?
+    # Foydalanuvchi kursga yozilganmi va to'lov tasdiqlanganmi?
     is_enrolled = False
+    payment_confirmed = False
     if request.user.is_authenticated:
-        is_enrolled = CourseEnrollment.objects.filter(
+        enrollment = CourseEnrollment.objects.filter(
             user=request.user,
             course=course
-        ).exists()
+        ).first()
+        if enrollment:
+            is_enrolled = True
+            payment_confirmed = enrollment.payment_confirmed
     
     context = {
         'course': course,
         'lessons': lessons,
         'is_enrolled': is_enrolled,
+        'payment_confirmed': payment_confirmed,
     }
     return render(request, 'core/course_detail.html', context)
 
@@ -680,24 +685,42 @@ def lesson_detail_view(request, course_slug, lesson_id):
     course = get_object_or_404(Course, slug=course_slug, is_active=True)
     lesson = get_object_or_404(Lesson, id=lesson_id, course=course, is_active=True)
     
-    # Foydalanuvchi kursga yozilganmi yoki dars bepulmi?
-    is_enrolled = CourseEnrollment.objects.filter(
+    # Kurs darslarini olish
+    all_lessons = course.lessons.filter(is_active=True).order_by('order')
+    first_lesson = all_lessons.first()
+    
+    # Foydalanuvchi kursga yozilganmi va to'lov tasdiqlanganmi?
+    enrollment = CourseEnrollment.objects.filter(
         user=request.user,
         course=course
-    ).exists()
+    ).first()
     
-    if not is_enrolled and not lesson.is_free and not course.is_free:
-        messages.error(request, "Bu darsni ko'rish uchun kursga yozilishingiz kerak.")
+    is_enrolled = enrollment is not None
+    payment_confirmed = enrollment.payment_confirmed if enrollment else False
+    
+    # Ruxsat tekshirish: 
+    # 1. Bepul kurs bo'lsa
+    # 2. Birinchi dars bo'lsa
+    # 3. To'lov tasdiqlangan bo'lsa
+    # 4. Dars bepul bo'lsa
+    can_access = (
+        course.is_free or 
+        lesson.is_free or 
+        (lesson == first_lesson) or 
+        payment_confirmed
+    )
+    
+    if not can_access:
+        messages.error(request, "Bu darsni ko'rish uchun to'lovingiz tasdiqlanishi kerak.")
         return redirect('core:course_detail', slug=course_slug)
-    
-    # Kurs darslarini olish
-    all_lessons = course.lessons.filter(is_active=True)
     
     context = {
         'course': course,
         'lesson': lesson,
         'all_lessons': all_lessons,
         'is_enrolled': is_enrolled,
+        'payment_confirmed': payment_confirmed,
+        'is_first_lesson': lesson == first_lesson,
     }
     return render(request, 'core/lesson_detail.html', context)
 

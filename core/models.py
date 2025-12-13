@@ -599,6 +599,7 @@ class Course(models.Model):
         ('advanced', 'Yuqori')
     ], default='beginner', verbose_name="Daraja")
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Narxi")
+    payment_url = models.URLField(blank=True, verbose_name="To'lov URL manzili")
     is_free = models.BooleanField(default=False, verbose_name="Bepul")
     is_featured = models.BooleanField(default=False, verbose_name="Mashhur")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
@@ -671,6 +672,7 @@ class CourseEnrollment(models.Model):
     enrolled_at = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
     progress = models.PositiveIntegerField(default=0, verbose_name="Progress (%)")
+    payment_confirmed = models.BooleanField(default=False, verbose_name="To'lov tasdiqlangan")
     
     class Meta:
         unique_together = ['user', 'course']

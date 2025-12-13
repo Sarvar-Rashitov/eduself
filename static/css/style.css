@@ -334,104 +334,13 @@
     color: var(--white) !important;
 }
 
-/* PWA Loading Progress Bar - Light Mode (White) */
-::-webkit-progress-bar {
-    background-color: rgba(255, 255, 255, 0.3) !important;
-}
 
-::-webkit-progress-value {
-    background-color: #ffffff !important;
-}
 
-progress {
-    background-color: rgba(255, 255, 255, 0.3) !important;
-    color: #ffffff !important;
-}
 
-progress::-moz-progress-bar {
-    background-color: #ffffff !important;
-}
 
-/* PWA Loading Progress Bar - Dark Mode (Black) */
-[data-theme="dark"] ::-webkit-progress-bar {
-    background-color: rgba(0, 0, 0, 0.3) !important;
-}
 
-[data-theme="dark"] ::-webkit-progress-value {
-    background-color: #000000 !important;
-}
 
-[data-theme="dark"] progress {
-    background-color: rgba(0, 0, 0, 0.3) !important;
-    color: #000000 !important;
-}
 
-[data-theme="dark"] progress::-moz-progress-bar {
-    background-color: #000000 !important;
-}
-
-/* Browser loading indicators */
-[data-theme="dark"] {
-    color-scheme: dark;
-}
-
-/* Browser native loading bar */
-[data-theme="dark"] html {
-    color-scheme: dark;
-}
-
-/* Address bar loading indicator */
-[data-theme="dark"] meta[name="theme-color"] {
-    content: var(--card-bg) !important;
-}
-
-/* Top loading bar (nprogress) - Light Mode (White) */
-#nprogress .bar {
-    background: #ffffff !important;
-}
-
-#nprogress .peg {
-    box-shadow: 0 0 10px #ffffff, 0 0 5px #ffffff !important;
-}
-
-#nprogress .spinner-icon {
-    border-top-color: #ffffff !important;
-    border-left-color: #ffffff !important;
-}
-
-/* Top loading bar (nprogress) - Dark Mode (Black) */
-[data-theme="dark"] #nprogress .bar {
-    background: #000000 !important;
-}
-
-[data-theme="dark"] #nprogress .peg {
-    box-shadow: 0 0 10px #000000, 0 0 5px #000000 !important;
-}
-
-[data-theme="dark"] #nprogress .spinner-icon {
-    border-top-color: #000000 !important;
-    border-left-color: #000000 !important;
-}
-
-/* Custom loading bars - Light Mode (White) */
-.loading-bar,
-.progress-bar-custom {
-    background-color: #ffffff !important;
-}
-
-.loading-container {
-    background-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-/* Custom loading bars - Dark Mode (Black) */
-[data-theme="dark"] .loading-bar,
-[data-theme="dark"] .progress-bar-custom {
-    background-color: #000000 !important;
-}
-
-[data-theme="dark"] .loading-container {
-    background-color: var(--border-color) !important;
-}
 
 * {
     margin: 0;
@@ -1477,6 +1386,137 @@ body {
 
 .lesson-card:hover {
     box-shadow: var(--shadow-md);
+}
+
+/* Enrollment Modal */
+.enrollment-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.enrollment-modal.active {
+    display: flex;
+}
+
+.enrollment-modal-content {
+    background: var(--card-bg);
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.enrollment-modal-header {
+    padding: 20px;
+    background: var(--gradient);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.enrollment-modal-header .modal-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    flex: 1;
+}
+
+.enrollment-modal-header .btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.enrollment-modal-header .btn-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.enrollment-modal-body {
+    padding: 20px;
+}
+
+.enrollment-modal-footer {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Mobile responsive for enrollment modal */
+@media (max-width: 768px) {
+    .enrollment-modal {
+        padding: 10px;
+    }
+    
+    .enrollment-modal-content {
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    .enrollment-modal-header {
+        padding: 15px;
+    }
+    
+    .enrollment-modal-body {
+        padding: 15px;
+    }
+    
+    .enrollment-modal-footer {
+        padding: 15px;
+    }
+    
+    .enrollment-modal-footer .d-flex {
+        flex-direction: row !important;
+        gap: 10px;
+    }
+    
+    .enrollment-modal-footer .btn {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+}
+
+/* Dark mode for enrollment modal */
+[data-theme="dark"] .enrollment-modal-content {
+    background: var(--dark-card-bg);
+    color: var(--dark-text);
+}
+
+[data-theme="dark"] .enrollment-modal-footer {
+    border-top-color: var(--dark-border);
 }
 
 .lesson-icon {
