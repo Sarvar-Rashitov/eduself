@@ -20,6 +20,9 @@
     <div class="result-buttons">
         <a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary">Qayta urinish</a>
         <a href="{% url 'core:test_analysis' test.pk %}" class="btn btn-info">Tahlil</a>
+        {% if next_test %}
+        <a href="{% url 'core:take_test' next_test.pk %}" class="btn btn-success">Keyingi test</a>
+        {% endif %}
         <a href="{% url 'core:topic_detail' test.topic.pk %}" class="btn btn-outline-primary">Ortga</a>
     </div>
 </div>

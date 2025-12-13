@@ -13,6 +13,7 @@ urlpatterns = [
     path('tests/<int:pk>/', views.take_test_view, name='take_test'),
     path('tests/<int:pk>/result/', views.test_result_view, name='test_result'),
     path('tests/<int:pk>/analysis/', views.test_analysis_view, name='test_analysis'),
+    path('check-answer/<int:question_id>/<int:answer_id>/', views.check_answer_view, name='check_answer'),
     
     path('certificates/', views.certificates_view, name='certificates'),
     path('certificates/<int:pk>/', views.certificate_detail_view, name='certificate_detail'),
@@ -21,12 +22,14 @@ urlpatterns = [
     path('cert-tests/<int:pk>/', views.take_cert_test_view, name='take_cert_test'),
     path('cert-tests/<int:pk>/result/', views.cert_test_result_view, name='cert_test_result'),
     path('cert-tests/<int:pk>/analysis/', views.cert_test_analysis_view, name='cert_test_analysis'),
+    path('check-cert-answer/<int:question_id>/<int:answer_id>/', views.check_cert_answer_view, name='check_cert_answer'),
     
     path('mock-exams/', views.mock_exams_view, name='mock_exams'),
     path('mock-exams/<int:pk>/leaderboard/', views.mock_exam_leaderboard_view, name='mock_exam_leaderboard'),
     path('mock-exams/<int:pk>/', views.take_mock_exam_view, name='take_mock_exam'),
     path('mock-exams/<int:pk>/result/', views.mock_exam_result_view, name='mock_exam_result'),
     path('mock-exams/<int:pk>/analysis/', views.mock_exam_analysis_view, name='mock_exam_analysis'),
+    path('check-mock-answer/<int:question_id>/<int:answer_id>/', views.check_mock_answer_view, name='check_mock_answer'),
     
     path('institutions/', views.institutions_view, name='institutions'),
     path('institutions/<int:pk>/', views.institution_detail_view, name='institution_detail'),

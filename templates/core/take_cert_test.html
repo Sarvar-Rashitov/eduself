@@ -4,38 +4,95 @@
 
 {% block content %}
 <div class="card mb-4">
-    <div class="card-body">
-        <h5 class="mb-2">{{ test.title }}</h5>
-        <p class="text-muted mb-0 small">{{ test.cert_questions.count }} savol | {{ test.time_limit }} daqiqa | O'tish balli: {{ test.passing_score }}%</p>
+    <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-2">{{ test.title }}</h5>
+            <p class="text-muted mb-0 small">{{ test.cert_questions.count }} savol | {{ test.time_limit }} daqiqa | O'tish balli: {{ test.passing_score }}%</p>
+        </div>
+        <div class="timer-display">
+            <i class="bi bi-clock"></i>
+            <span id="timer">{{ test.time_limit }}:00</span>
+        </div>
     </div>
 </div>
 
-<form method="post" id="testForm">
+<div class="progress mb-4" style="height: 8px;">
+    <div class="progress-bar bg-success" id="progressBar" style="width: 0%"></div>
+</div>
+
+<form method="post" id="testForm" style="display: none;">
     {% csrf_token %}
-    
+    <input type="hidden" id="answersData" name="answers_data" value="">
+</form>
+
+<div id="questionContainer">
     {% for question in questions %}
-    <div class="question-card">
+    <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
         <div class="question-number">Savol {{ forloop.counter }} / {{ questions|length }}</div>
         <div class="question-text">{{ question.text }}</div>
         {% if question.image %}
         <img src="{{ question.image.url }}" alt="Question image" class="img-fluid mb-3 rounded">
         {% endif %}
         
-        {% for answer in question.cert_answers.all %}
-        <label class="answer-option">
-            <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" required>
-            {{ answer.text }}
-        </label>
-        {% endfor %}
+        <div class="answers-container">
+            {% for answer in question.cert_answers.all %}
+            <label class="answer-option" data-answer-id="{{ answer.id }}">
+                <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" data-question-id="{{ question.id }}">
+                {{ answer.text }}
+            </label>
+            {% endfor %}
+        </div>
+        
+        <div class="question-buttons mt-4">
+            <button type="button" class="btn btn-success" id="checkAnswer-{{ forloop.counter0 }}" onclick="checkAnswer({{ forloop.counter0 }}, {{ question.id }})" disabled>Javobni tekshirish</button>
+            <button type="button" class="btn btn-warning" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" style="display: none;" data-is-last="{% if forloop.last %}true{% else %}false{% endif %}">
+                {% if forloop.last %}Testni yakunlash{% else %}Keyingi savol{% endif %}
+            </button>
+        </div>
     </div>
     {% endfor %}
-    
-    <button type="submit" class="btn btn-success w-100 mb-4">Testni yakunlash</button>
-</form>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+let currentQuestion = 0;
+let totalQuestions = {{ questions|length }};
+let timeLimit = {{ test.time_limit }} * 60;
+let timeRemaining = timeLimit;
+let timerInterval;
+let userAnswers = {};
+let questionResults = {};
+
+function startTimer() {
+    timerInterval = setInterval(function() {
+        timeRemaining--;
+        updateTimerDisplay();
+        
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert('Vaqt tugadi!');
+            submitTest();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    let minutes = Math.floor(timeRemaining / 60);
+    let seconds = timeRemaining % 60;
+    document.getElementById('timer').textContent = 
+        minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+    
+    if (timeRemaining < 300) {
+        document.getElementById('timer').style.color = '#dc3545';
+    }
+}
+
+function updateProgressBar() {
+    let progress = ((currentQuestion + 1) / totalQuestions) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+}
+
 document.querySelectorAll('.answer-option').forEach(option => {
     option.addEventListener('click', function() {
         const name = this.querySelector('input').name;
@@ -44,7 +101,175 @@ document.querySelectorAll('.answer-option').forEach(option => {
         });
         this.classList.add('selected');
         this.querySelector('input').checked = true;
+        
+        const questionIndex = currentQuestion;
+        document.getElementById(`checkAnswer-${questionIndex}`).disabled = false;
     });
+});
+
+function checkAnswer(questionIndex, questionId) {
+    const selectedAnswer = document.querySelector(`input[name="question_${questionId}"]:checked`);
+    if (!selectedAnswer) {
+        alert('Iltimos, javobni tanlang!');
+        return;
+    }
+    
+    const answerId = selectedAnswer.value;
+    userAnswers[questionId] = answerId;
+    
+    fetch(`/check-cert-answer/${questionId}/${answerId}/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        questionResults[questionId] = data;
+        showAnswerResults(questionIndex, questionId, data);
+        
+        document.getElementById(`checkAnswer-${questionIndex}`).style.display = 'none';
+        document.getElementById(`nextQuestion-${questionIndex}`).style.display = 'inline-block';
+        
+        document.querySelectorAll(`input[name="question_${questionId}"]`).forEach(input => {
+            input.disabled = true;
+        });
+    })
+    .catch(error => {
+        console.error('Xatolik:', error);
+        alert('Javobni tekshirishda xatolik yuz berdi!');
+    });
+}
+
+function showAnswerResults(questionIndex, questionId, result) {
+    const answerOptions = document.querySelectorAll(`input[name="question_${questionId}"]`);
+    const selectedAnswerId = document.querySelector(`input[name="question_${questionId}"]:checked`).value;
+    
+    answerOptions.forEach(input => {
+        const answerOption = input.closest('.answer-option');
+        const answerId = input.value;
+        
+        answerOption.classList.remove('answer-correct', 'answer-incorrect', 'selected');
+        
+        if (result.correct_answer_id && answerId == result.correct_answer_id) {
+            answerOption.classList.add('answer-correct');
+        }
+        
+        if (answerId == selectedAnswerId && !result.is_correct) {
+            answerOption.classList.add('answer-incorrect');
+        }
+    });
+}
+
+function handleNextQuestion(questionIndex) {
+    console.log('=== CERT TEST HANDLE NEXT ===');
+    console.log('Question index:', questionIndex);
+    
+    const button = document.getElementById(`nextQuestion-${questionIndex}`);
+    if (!button) {
+        console.error('Cert test tugma topilmadi');
+        return;
+    }
+    
+    const isLast = button.getAttribute('data-is-last') === 'true';
+    console.log('Cert test is last:', isLast);
+    console.log('Button text:', button.textContent.trim());
+    
+    if (isLast) {
+        console.log('=== CERT TEST YAKUNLASH ===');
+        submitTest();
+    } else {
+        console.log('=== CERT TEST KEYINGI SAVOL ===');
+        nextQuestion(questionIndex);
+    }
+}
+
+function nextQuestion(questionIndex) {
+    console.log('Next cert question called for index:', questionIndex);
+    
+    document.getElementById(`question-${questionIndex}`).style.display = 'none';
+    currentQuestion = questionIndex + 1;
+    document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+    updateProgressBar();
+}
+
+function submitTest() {
+    console.log('=== SERTIFIKAT TESTNI YAKUNLASH ===');
+    console.log('User answers:', userAnswers);
+    
+    testCompleted = true;
+    
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+    
+    if (Object.keys(userAnswers).length === 0) {
+        alert('Hech qanday javob berilmagan!');
+        testCompleted = false;
+        return;
+    }
+    
+
+    
+    const answersData = JSON.stringify(userAnswers);
+    console.log('Cert test answers JSON:', answersData);
+    
+    const answersInput = document.getElementById('answersData');
+    if (answersInput) {
+        answersInput.value = answersData;
+        console.log('Cert test answers set to input:', answersInput.value);
+    } else {
+        console.error('answersData input not found!');
+        alert('Xatolik: Form elementi topilmadi!');
+        return;
+    }
+    
+    const form = document.getElementById('testForm');
+    if (form) {
+        console.log('Cert test form found, submitting...');
+        form.style.display = 'block';
+        document.body.style.cursor = 'wait';
+        form.submit();
+    } else {
+        console.error('testForm not found!');
+        alert('Xatolik: Form topilmadi!');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    startTimer();
+    updateProgressBar();
+});
+
+let testCompleted = false;
+
+window.addEventListener('beforeunload', function(e) {
+    if (!testCompleted && timeRemaining > 0 && Object.keys(userAnswers).length > 0) {
+        e.preventDefault();
+        e.returnValue = 'Test davom etmoqda. Sahifani yopishni xohlaysizmi?';
+        return e.returnValue;
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        const checkBtn = document.getElementById(`checkAnswer-${currentQuestion}`);
+        const nextBtn = document.getElementById(`nextQuestion-${currentQuestion}`);
+        
+        if (checkBtn && checkBtn.style.display !== 'none') {
+            checkBtn.click();
+        } else if (nextBtn && nextBtn.style.display !== 'none') {
+            nextBtn.click();
+        }
+    }
+    
+    if (e.key >= '1' && e.key <= '4') {
+        const answerIndex = parseInt(e.key) - 1;
+        const answers = document.querySelectorAll(`#question-${currentQuestion} .answer-option`);
+        if (answers[answerIndex]) {
+            answers[answerIndex].click();
+        }
+    }
 });
 </script>
 {% endblock %}

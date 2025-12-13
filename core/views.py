@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Avg, Count
+from django.http import JsonResponse
+import json
 from .models import (
     SubjectCategory, Subject, Topic, Test, Question, Answer, TestResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
@@ -119,23 +121,55 @@ def test_leaderboard_view(request, pk):
 
 
 @login_required
+def check_answer_view(request, question_id, answer_id):
+    """AJAX orqali javobni tekshirish"""
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            question = get_object_or_404(Question, id=question_id)
+            selected_answer = get_object_or_404(Answer, id=answer_id, question=question)
+            correct_answer = question.answers.filter(is_correct=True).first()
+            
+            return JsonResponse({
+                'is_correct': selected_answer.is_correct,
+                'correct_answer': correct_answer.text if correct_answer else '',
+                'correct_answer_id': correct_answer.id if correct_answer else None,
+                'selected_answer': selected_answer.text
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@login_required
 def take_test_view(request, pk):
     test = get_object_or_404(Test, pk=pk, is_active=True)
     questions = test.questions.all().prefetch_related('answers')
     
     if request.method == 'POST':
+        # JSON formatdagi javoblarni olish
+        answers_data = request.POST.get('answers_data')
+        
+        if answers_data:
+            try:
+                user_answers_dict = json.loads(answers_data)
+            except json.JSONDecodeError:
+                user_answers_dict = {}
+        else:
+            user_answers_dict = {}
+        
         correct = 0
         total = questions.count()
         user_answers = {}
         
         for question in questions:
-            selected_answer = request.POST.get(f'question_{question.id}')
-            if selected_answer:
+            question_id_str = str(question.id)
+            if question_id_str in user_answers_dict:
+                selected_answer_id = user_answers_dict[question_id_str]
                 try:
-                    selected_answer_id = int(selected_answer)
                     answer = Answer.objects.filter(id=selected_answer_id, question=question).first()
                     if answer:
-                        user_answers[str(question.id)] = {
+                        user_answers[question_id_str] = {
                             'selected_answer_id': selected_answer_id,
                             'selected_answer_text': answer.text,
                             'is_correct': answer.is_correct
@@ -145,7 +179,7 @@ def take_test_view(request, pk):
                 except (ValueError, TypeError):
                     pass
             else:
-                user_answers[str(question.id)] = {
+                user_answers[question_id_str] = {
                     'selected_answer_id': None,
                     'selected_answer_text': None,
                     'is_correct': False
@@ -164,7 +198,6 @@ def take_test_view(request, pk):
             user_answers=user_answers
         )
         
-        messages.success(request, f"Test yakunlandi! Natija: {score}% ({correct}/{total})")
         return redirect('core:test_result', pk=test.pk)
     
     return render(request, 'core/take_test.html', {'test': test, 'questions': questions})
@@ -174,7 +207,20 @@ def take_test_view(request, pk):
 def test_result_view(request, pk):
     test = get_object_or_404(Test, pk=pk)
     result = TestResult.objects.filter(user=request.user, test=test).order_by('-completed_at').first()
-    return render(request, 'core/test_result.html', {'test': test, 'result': result})
+    
+    # Keyingi testni topish
+    next_test = Test.objects.filter(
+        topic=test.topic,
+        is_active=True,
+        id__gt=test.id
+    ).order_by('id').first()
+    
+    context = {
+        'test': test,
+        'result': result,
+        'next_test': next_test
+    }
+    return render(request, 'core/test_result.html', context)
 
 
 @login_required
@@ -280,23 +326,54 @@ def cert_test_leaderboard_view(request, pk):
 
 
 @login_required
+def check_cert_answer_view(request, question_id, answer_id):
+    """AJAX orqali sertifikat test javobini tekshirish"""
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            question = get_object_or_404(CertificateQuestion, id=question_id)
+            selected_answer = get_object_or_404(CertificateAnswer, id=answer_id, question=question)
+            correct_answer = question.cert_answers.filter(is_correct=True).first()
+            
+            return JsonResponse({
+                'is_correct': selected_answer.is_correct,
+                'correct_answer': correct_answer.text if correct_answer else '',
+                'correct_answer_id': correct_answer.id if correct_answer else None,
+                'selected_answer': selected_answer.text
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@login_required
 def take_cert_test_view(request, pk):
     test = get_object_or_404(CertificateTest, pk=pk, is_active=True)
     questions = test.cert_questions.all().prefetch_related('cert_answers')
     
     if request.method == 'POST':
+        # JSON formatdagi javoblarni olish
+        answers_data = request.POST.get('answers_data')
+        if answers_data:
+            try:
+                user_answers_dict = json.loads(answers_data)
+            except json.JSONDecodeError:
+                user_answers_dict = {}
+        else:
+            user_answers_dict = {}
+        
         correct = 0
         total = questions.count()
         user_answers = {}
         
         for question in questions:
-            selected_answer = request.POST.get(f'question_{question.id}')
-            if selected_answer:
+            question_id_str = str(question.id)
+            if question_id_str in user_answers_dict:
+                selected_answer_id = user_answers_dict[question_id_str]
                 try:
-                    selected_answer_id = int(selected_answer)
                     answer = CertificateAnswer.objects.filter(id=selected_answer_id, question=question).first()
                     if answer:
-                        user_answers[str(question.id)] = {
+                        user_answers[question_id_str] = {
                             'selected_answer_id': selected_answer_id,
                             'selected_answer_text': answer.text,
                             'is_correct': answer.is_correct
@@ -306,7 +383,7 @@ def take_cert_test_view(request, pk):
                 except (ValueError, TypeError):
                     pass
             else:
-                user_answers[str(question.id)] = {
+                user_answers[question_id_str] = {
                     'selected_answer_id': None,
                     'selected_answer_text': None,
                     'is_correct': False
@@ -325,7 +402,6 @@ def take_cert_test_view(request, pk):
             user_answers=user_answers
         )
         
-        messages.success(request, f"Test yakunlandi! Natija: {score}% ({correct}/{total})")
         return redirect('core:cert_test_result', pk=test.pk)
     
     return render(request, 'core/take_cert_test.html', {'test': test, 'questions': questions})
@@ -335,7 +411,20 @@ def take_cert_test_view(request, pk):
 def cert_test_result_view(request, pk):
     test = get_object_or_404(CertificateTest, pk=pk)
     result = CertificateResult.objects.filter(user=request.user, test=test).order_by('-completed_at').first()
-    return render(request, 'core/cert_test_result.html', {'test': test, 'result': result})
+    
+    # Keyingi testni topish
+    next_test = CertificateTest.objects.filter(
+        topic=test.topic,
+        is_active=True,
+        id__gt=test.id
+    ).order_by('id').first()
+    
+    context = {
+        'test': test,
+        'result': result,
+        'next_test': next_test
+    }
+    return render(request, 'core/cert_test_result.html', context)
 
 
 @login_required
@@ -447,23 +536,54 @@ def mock_exam_leaderboard_view(request, pk):
 
 
 @login_required
+def check_mock_answer_view(request, question_id, answer_id):
+    """AJAX orqali mock exam javobini tekshirish"""
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            question = get_object_or_404(MockExamQuestion, id=question_id)
+            selected_answer = get_object_or_404(MockExamAnswer, id=answer_id, question=question)
+            correct_answer = question.mock_answers.filter(is_correct=True).first()
+            
+            return JsonResponse({
+                'is_correct': selected_answer.is_correct,
+                'correct_answer': correct_answer.text if correct_answer else '',
+                'correct_answer_id': correct_answer.id if correct_answer else None,
+                'selected_answer': selected_answer.text
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@login_required
 def take_mock_exam_view(request, pk):
     exam = get_object_or_404(MockExam, pk=pk, is_active=True)
     questions = exam.mock_questions.all().prefetch_related('mock_answers')
     
     if request.method == 'POST':
+        # JSON formatdagi javoblarni olish
+        answers_data = request.POST.get('answers_data')
+        if answers_data:
+            try:
+                user_answers_dict = json.loads(answers_data)
+            except json.JSONDecodeError:
+                user_answers_dict = {}
+        else:
+            user_answers_dict = {}
+        
         correct = 0
         total = questions.count()
         user_answers = {}
         
         for question in questions:
-            selected_answer = request.POST.get(f'question_{question.id}')
-            if selected_answer:
+            question_id_str = str(question.id)
+            if question_id_str in user_answers_dict:
+                selected_answer_id = user_answers_dict[question_id_str]
                 try:
-                    selected_answer_id = int(selected_answer)
                     answer = MockExamAnswer.objects.filter(id=selected_answer_id, question=question).first()
                     if answer:
-                        user_answers[str(question.id)] = {
+                        user_answers[question_id_str] = {
                             'selected_answer_id': selected_answer_id,
                             'selected_answer_text': answer.text,
                             'is_correct': answer.is_correct
@@ -473,7 +593,7 @@ def take_mock_exam_view(request, pk):
                 except (ValueError, TypeError):
                     pass
             else:
-                user_answers[str(question.id)] = {
+                user_answers[question_id_str] = {
                     'selected_answer_id': None,
                     'selected_answer_text': None,
                     'is_correct': False
@@ -492,7 +612,6 @@ def take_mock_exam_view(request, pk):
             user_answers=user_answers
         )
         
-        messages.success(request, f"Imtihon yakunlandi! Natija: {score}% ({correct}/{total})")
         return redirect('core:mock_exam_result', pk=exam.pk)
     
     return render(request, 'core/take_mock_exam.html', {'exam': exam, 'questions': questions})
