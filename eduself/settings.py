@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'core',
     'accounts',
+    'ai_assistant',
 ]
 
 MIDDLEWARE = [

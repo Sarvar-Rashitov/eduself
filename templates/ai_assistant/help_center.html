@@ -1,0 +1,410 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Yordam Markazi - EduSelf{% endblock %}
+
+{% block extra_css %}
+<style>
+    .help-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+    
+    .help-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .help-hero p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .stat-card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+    
+    .faq-section {
+        margin: 3rem 0;
+    }
+    
+    .faq-category {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    
+    .faq-category-header {
+        background: var(--primary-color);
+        color: white;
+        padding: 1.5rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .faq-questions {
+        padding: 1rem;
+    }
+    
+    .faq-question {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        margin-bottom: 0.75rem;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .faq-question:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateX(5px);
+    }
+    
+    .faq-question i {
+        font-size: 1.1rem;
+        opacity: 0.7;
+    }
+    
+    .quick-start {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        margin: 2rem 0;
+    }
+    
+    .quick-start h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .quick-start-form {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+        text-align: left;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-color);
+        color: var(--text-color);
+        font-size: 0.9rem;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .btn-primary-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    
+    .feature-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .feature-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+    
+    .feature-description {
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+    
+    @media (max-width: 768px) {
+        .help-hero h1 {
+            font-size: 2rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="help-hero">
+        <h1><i class="bi bi-robot me-3"></i>AI Yordam Markazi</h1>
+        <p>AI Hamroh bilan tanishing va barcha imkoniyatlardan foydalaning. Sizning shaxsiy ta'lim yordamchingiz har doim yordamga tayyor!</p>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-book"></i>
+            </div>
+            <div class="stat-number">{{ stats.subjects }}</div>
+            <div class="stat-label">Fanlar</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-building"></i>
+            </div>
+            <div class="stat-number">{{ stats.institutions }}</div>
+            <div class="stat-label">Ta'lim muassasalari</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-award"></i>
+            </div>
+            <div class="stat-number">{{ stats.certificates }}</div>
+            <div class="stat-label">Sertifikatlar</div>
+        </div>
+    </div>
+    
+    <!-- Quick Start -->
+    <div class="quick-start">
+        <h3><i class="bi bi-lightning-charge me-2"></i>Tezkor Savol</h3>
+        <p class="mb-4">AI Hamrohdan biror narsa so'rashni xohlaysizmi? Savolingizni yozing va darhol javob oling!</p>
+        
+        <form class="quick-start-form" method="post" action="{% url 'ai_assistant:quick_question' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Savolingiz:</label>
+                <textarea class="form-control" name="question" rows="3" placeholder="Masalan: Matematika fanini qanday o'rganish kerak?" required></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Kategoriya:</label>
+                <select class="form-control" name="category">
+                    <option value="general">Umumiy</option>
+                    <option value="subject_help">Fan bo'yicha yordam</option>
+                    <option value="institution_advice">Muassasa tanlash</option>
+                    <option value="certificate_guide">Sertifikat yo'riqnomasi</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary-gradient">
+                <i class="bi bi-send me-2"></i>Savol yuborish
+            </button>
+        </form>
+    </div>
+    
+    <!-- Features -->
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="bi bi-book-half"></i>
+            </div>
+            <h4 class="feature-title">Fanlar bo'yicha yordam</h4>
+            <p class="feature-description">Matematika, fizika, kimya va boshqa fanlar bo'yicha savollaringizga batafsil javoblar olish</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="bi bi-building-check"></i>
+            </div>
+            <h4 class="feature-title">Muassasa tanlash</h4>
+            <p class="feature-description">Sizning ehtiyojlaringizga mos ta'lim muassasalarini topish va taqqoslash</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="bi bi-award-fill"></i>
+            </div>
+            <h4 class="feature-title">Sertifikat yo'riqnomasi</h4>
+            <p class="feature-description">Turli sertifikatlar haqida ma'lumot va ularni qanday olish bo'yicha maslahatlar</p>
+        </div>
+    </div>
+    
+    <!-- FAQ Section -->
+    <div class="faq-section">
+        <h2 class="text-center mb-4">Tez-tez so'raladigan savollar</h2>
+        
+        {% for category in faq_data %}
+        <div class="faq-category">
+            <div class="faq-category-header">
+                <i class="bi bi-question-circle me-2"></i>{{ category.category }}
+            </div>
+            <div class="faq-questions">
+                {% for question in category.questions %}
+                <div class="faq-question" onclick="askFAQQuestion('{{ question }}')">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>{{ question }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Call to Action -->
+    <div class="text-center mt-5 mb-4">
+        <h3 class="mb-3">AI Hamroh bilan suhbatni boshlang!</h3>
+        <a href="{% url 'ai_assistant:chat_redirect' %}" class="btn-primary-gradient">
+            <i class="bi bi-robot me-2"></i>Suhbatni boshlash
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function askFAQQuestion(question) {
+    // Create a form and submit the question
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "ai_assistant:quick_question" %}';
+    
+    // Add CSRF token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = getCookie('csrftoken');
+    form.appendChild(csrfInput);
+    
+    // Add question
+    const questionInput = document.createElement('input');
+    questionInput.type = 'hidden';
+    questionInput.name = 'question';
+    questionInput.value = question;
+    form.appendChild(questionInput);
+    
+    // Add category
+    const categoryInput = document.createElement('input');
+    categoryInput.type = 'hidden';
+    categoryInput.name = 'category';
+    categoryInput.value = 'general';
+    form.appendChild(categoryInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

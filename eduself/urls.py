@@ -7,6 +7,7 @@ urlpatterns = [
     path('nokia/', admin.site.urls),
     path('', include('core.urls')),
     path('accounts/', include('accounts.urls')),
+    path('ai-hamroh/', include('ai_assistant.urls')),
 ]
 
 if settings.DEBUG:

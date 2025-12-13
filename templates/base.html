@@ -177,7 +177,7 @@
                     <span>Online Kurslar</span>
                 </a>
                 {% if user.is_authenticated %}
-                <a href="#" class="nav-item ai-assistant-link">
+                <a href="{% url 'ai_assistant:chat_redirect' %}" class="nav-item">
                     <i class="bi bi-robot"></i>
                     <span>AI Hamroh</span>
                 </a>
@@ -242,6 +242,7 @@
 
         <!-- Main Content -->
         <main class="main-container">
+            {% block messages %}
             {% if messages %}
             <div class="messages-container">
                 {% for message in messages %}
@@ -252,6 +253,7 @@
                 {% endfor %}
             </div>
             {% endif %}
+            {% endblock %}
             
             {% block content %}{% endblock %}
         </main>
@@ -282,47 +284,12 @@
             </a>
         </nav>
 
-        <!-- AI Assistant Floating Button -->
+        <!-- AI Hamroh Floating Button -->
         {% if user.is_authenticated %}
-        <button class="ai-fab" id="aiFab">
+        <a href="{% url 'ai_assistant:chat_redirect' %}" class="ai-fab" id="aiFab">
             <i class="bi bi-robot"></i>
             <span class="ai-pulse"></span>
-        </button>
-
-        <!-- AI Chat Modal -->
-        <div class="ai-modal" id="aiModal">
-            <div class="ai-modal-header">
-                <div class="ai-header-info">
-                    <i class="bi bi-robot"></i>
-                    <div>
-                        <h3>AI Hamroh</h3>
-                        <span class="ai-status">Online</span>
-                    </div>
-                </div>
-                <button class="close-ai" id="closeAi">
-                    <i class="bi bi-x"></i>
-                </button>
-            </div>
-            <div class="ai-messages" id="aiMessages">
-                <div class="ai-message bot">
-                    <div class="ai-avatar">
-                        <i class="bi bi-robot"></i>
-                    </div>
-                    <div class="ai-bubble">
-                        Salom! Men sizning shaxsiy AI yordamchingizman. Statistikangizni tahlil qilaman va tavsiyalar beraman! 😊
-                    </div>
-                </div>
-            </div>
-            <div class="ai-input-container">
-                <input type="text" id="aiInput" placeholder="Savol yozing...">
-                <button id="aiSend">
-                    <i class="bi bi-send"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Overlay -->
-        <div class="overlay" id="overlay"></div>
+        </a>
         {% endif %}
     </div>
 
@@ -342,25 +309,7 @@
                 item.addEventListener('click', function(e) {
                     const href = this.getAttribute('href');
                     
-                    // Special handling for AI Assistant link
-                    if (this.classList.contains('ai-assistant-link')) {
-                        e.preventDefault();
-                        
-                        // Close the sidebar first
-                        const bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarOffcanvas);
-                        if (bsOffcanvas) {
-                            bsOffcanvas.hide();
-                            
-                            // Open AI modal after sidebar is hidden
-                            sidebarOffcanvas.addEventListener('hidden.bs.offcanvas', function() {
-                                openAIModal();
-                            }, { once: true });
-                        } else {
-                            // If offcanvas instance not found, open AI modal directly
-                            openAIModal();
-                        }
-                        return;
-                    }
+
                     
                     // If it's a valid link (not #), navigate after closing sidebar
                     if (href && href !== '#' && !href.startsWith('javascript:')) {
@@ -435,249 +384,7 @@
         }
     </script>
     
-    <!-- AI Assistant JavaScript -->
-    <script>
-        // ========== AI ASSISTANT ==========
-        let currentUser = null;
-        let userStats = {
-            completed: 15,
-            streak: 7,
-            points: 856,
-            subjects: {
-                physics: {
-                    progress: 10,
-                    topics: 156,
-                    completed: 15
-                }
-            }
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initAIAssistant();
-            initOverlay();
-        });
-
-        function initAIAssistant() {
-            const aiFab = document.getElementById('aiFab');
-            const aiModal = document.getElementById('aiModal');
-            const closeAi = document.getElementById('closeAi');
-            const aiSend = document.getElementById('aiSend');
-            const aiInput = document.getElementById('aiInput');
-            
-            if (aiFab) aiFab.addEventListener('click', openAIModal);
-            if (closeAi) closeAi.addEventListener('click', closeAIModal);
-            if (aiSend) aiSend.addEventListener('click', sendAIMessage);
-            
-            if (aiInput) {
-                aiInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        sendAIMessage();
-                    }
-                });
-            }
-        }
-
-        function initOverlay() {
-            const overlay = document.getElementById('overlay');
-            if (overlay) {
-                overlay.addEventListener('click', () => {
-                    closeAIModal();
-                });
-            }
-        }
-
-        function openAIModal() {
-            const aiModal = document.getElementById('aiModal');
-            const overlay = document.getElementById('overlay');
-            const aiInput = document.getElementById('aiInput');
-            
-            if (aiModal) aiModal.classList.add('active');
-            if (overlay) overlay.classList.add('active');
-            if (aiInput) aiInput.focus();
-        }
-
-        function closeAIModal() {
-            const aiModal = document.getElementById('aiModal');
-            const overlay = document.getElementById('overlay');
-            
-            if (aiModal) aiModal.classList.remove('active');
-            if (overlay) overlay.classList.remove('active');
-        }
-
-        function sendAIMessage() {
-            const aiInput = document.getElementById('aiInput');
-            const message = aiInput.value.trim();
-            
-            if (message) {
-                // Add user message
-                addAIMessage(message, true);
-                aiInput.value = '';
-                
-                // Show typing indicator
-                showTyping();
-                
-                // Get AI response
-                setTimeout(() => {
-                    hideTyping();
-                    const response = getAIResponse(message);
-                    addAIMessage(response, false);
-                }, 1000);
-            }
-        }
-
-        function addAIMessage(text, isUser = false) {
-            const aiMessages = document.getElementById('aiMessages');
-            if (!aiMessages) return;
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `ai-message ${isUser ? 'user' : 'bot'}`;
-            
-            messageDiv.innerHTML = `
-                <div class="ai-avatar">
-                    <i class="bi bi-${isUser ? 'person' : 'robot'}"></i>
-                </div>
-                <div class="ai-bubble">${text}</div>
-            `;
-            
-            aiMessages.appendChild(messageDiv);
-            aiMessages.scrollTop = aiMessages.scrollHeight;
-        }
-
-        function showTyping() {
-            const aiMessages = document.getElementById('aiMessages');
-            if (!aiMessages) return;
-            
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'ai-message bot typing-indicator';
-            typingDiv.id = 'typingIndicator';
-            typingDiv.innerHTML = `
-                <div class="ai-avatar">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <div class="ai-bubble">
-                    <div class="loading"></div>
-                </div>
-            `;
-            aiMessages.appendChild(typingDiv);
-            aiMessages.scrollTop = aiMessages.scrollHeight;
-        }
-
-        function hideTyping() {
-            const typingIndicator = document.getElementById('typingIndicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
-        }
-
-        function getAIResponse(message) {
-            const lowerMessage = message.toLowerCase();
-            
-            // AI response logic based on keywords
-            const responses = {
-                'salom': 'Salom! Men sizning shaxsiy AI yordamchingizman. Sizga qanday yordam bera olaman? 😊',
-                'assalom': 'Va aleykum assalom! Xush kelibsiz! 🙏',
-                
-                'fizika': `Fizika bo'yicha statistikangiz:\n\n✅ Tugallangan: ${userStats.subjects.physics.completed}/${userStats.subjects.physics.topics}\n📊 Progress: ${userStats.subjects.physics.progress}%\n🔥 Mexanika bo'limini ajoyib o'zlashtirdingiz!\n\n💡 Tavsiya: Molekulyar fizikaga o'ting va yangi mavzularni boshlang!`,
-                
-                'matematika': 'Matematika bo\'yicha sizning natijalaringiz ajoyib! Algebra bo\'limida 92% ko\'rsatdingiz. Geometriyaga ko\'proq e\'tibor bering. 📐',
-                
-                'test': 'Oxirgi DTM testida 78% natija ko\'rsatdingiz. Bu yaxshi natija! Men sizga yanada yaxshiroq tayyorgarlik ko\'rish uchun quyidagi mavzularni tavsiya qilaman:\n\n1. Mexanika - asosiy formulalar\n2. Elektr toki - Ohm qonuni\n3. Optika - yorug\'lik sindirishi',
-                
-                'tavsiya': `Sizning statistikangizga qarab:\n\n🎯 Asosiy tavsiyalar:\n1. Har kuni 30 daqiqa fizika mashqlari\n2. DTM test namunalarini ishlash\n3. O'yinlar orqali o'rganish\n4. 7 kun ketma-ketlikni davom ettiring!\n\n💪 Siz yaxshi yo'ldasiz, davom eting!`,
-                
-                'kurs': 'Sizning darajangizga mos kurslar:\n\n📚 "Fizika Masterclass" - Mexanikadan Optikagacha\n📊 "Matematika Pro" - DTM ga tayyorgarlik\n🎯 "GRE Bootcamp" - Xorijga o\'qishga tayyorgarlik\n\nQaysi biri qiziqtirdi?',
-                
-                'natija': `Sizning umumiy natijalaringiz:\n\n✅ Tugallangan mavzular: ${userStats.completed}\n🔥 Ketma-ketlik: ${userStats.streak} kun\n⭐ Umumiy ball: ${userStats.points}\n📈 O'sish: +12% (oxirgi hafta)\n\nAjoyib! Davom eting! 🚀`,
-                
-                'dtm': 'DTM imtihoniga tayyorgarlik:\n\n📝 1000+ asl test savollari\n📊 Real vaqtda natijalar\n🎯 To\'liq tahlil va tushuntirish\n⏱️ Vaqtni boshqarish mashqlari\n\nBoshlash uchun "Imtihonlar" bo\'limiga o\'ting!',
-                
-                'help': 'Men sizga quyidagilar bilan yordam bera olaman:\n\n📊 Statistikani tahlil qilish\n💡 Shaxsiy tavsiyalar berish\n🎯 Kurslar tanlashda yordam\n📚 Mavzularni tushuntirish\n🎮 O\'yinlar orqali o\'rgatish\n⏱️ O\'rganish rejasini tuzish\n\nNimada yordam kerak?'
-            };
-            
-            // Check for keywords
-            for (let keyword in responses) {
-                if (lowerMessage.includes(keyword)) {
-                    return responses[keyword];
-                }
-            }
-            
-            // Default response with suggestions
-            return `Qiziqarli savol! Men sizning statistikalaringizni tahlil qilyapman...\n\n💡 Shu orada, siz quyidagilarni so'rashingiz mumkin:\n\n• "Fizika statistikam"\n• "Tavsiyalar ber"\n• "DTM ga tayyorgarlik"\n• "Natijalarim"`;
-        }
-
-        // ========== CLICK HANDLERS ==========
-        // Featured cards
-        document.querySelectorAll('.btn-card-action').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const card = btn.closest('.featured-card');
-                const title = card.querySelector('h3').textContent;
-                
-                openAIModal();
-                setTimeout(() => {
-                    addAIMessage(`${title} kursiga xush kelibsiz! 🎓\n\nBu kurs sizning darajangizga mos. Boshlash uchun tayyormisiz?`, false);
-                }, 500);
-            });
-        });
-
-        // Subject cards
-        document.querySelectorAll('.subject-mini').forEach(card => {
-            card.addEventListener('click', (e) => {
-                if (card.href) return; // Let the link work normally
-                
-                e.preventDefault();
-                // Navigate to subjects page
-                window.location.href = '/subjects/';
-            });
-        });
-
-        // Category buttons
-        document.querySelectorAll('.btn-category').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const category = btn.closest('.category-card').querySelector('h3').textContent;
-                
-                openAIModal();
-                setTimeout(() => {
-                    addAIMessage(`${category} bo'limi! 🏫\n\nBu yerda siz turli xil ta'lim muassasalari haqida ma'lumot topishingiz mumkin.\n\nQaysi birini ko'rmoqchisiz?`, false);
-                }, 500);
-            });
-        });
-
-        // Play button on continue learning
-        document.querySelectorAll('.btn-play').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const card = btn.closest('.learning-card');
-                const subject = card.querySelector('h3').textContent;
-                const topic = card.querySelector('p').textContent;
-                
-                openAIModal();
-                setTimeout(() => {
-                    addAIMessage(`${subject} - ${topic} mavzusini davom ettiramiz! 🚀\n\nSiz 60% tugatgansiz. Ajoyib!\n\nKeyingi qismga o'tamizmi?`, false);
-                }, 500);
-            });
-        });
-
-        // Topic buttons
-        document.querySelectorAll('.btn-mini').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if (btn.href) return; // Let the link work normally
-                
-                e.stopPropagation();
-                e.preventDefault();
-                const topic = btn.closest('.topic-mobile');
-                const topicName = topic.querySelector('h5').textContent;
-                const isQuiz = btn.querySelector('.bi-controller');
-                
-                openAIModal();
-                setTimeout(() => {
-                    if (isQuiz) {
-                        addAIMessage(`${topicName} bo'yicha kviz! 🎯\n\n10 ta savol, 10 daqiqa vaqt.\n\nTayyormisiz? "Boshlash" deb yozing!`, false);
-                    } else {
-                        addAIMessage(`${topicName} mavzusini o'rganamiz! 📚\n\nBu mavzu 25 ta qism va 3 soat videolardan iborat.\n\nQayerdan boshlaysiz?`, false);
-                    }
-                }, 500);
-            });
-        });
+ons
     </script>
     
     <!-- PWA Install Prompt -->
