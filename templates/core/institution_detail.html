@@ -17,7 +17,7 @@
         {% endif %}
         <h3 class="mb-3">{{ institution.name }}</h3>
         {% if institution.short_description %}
-        <p class="lead text-muted">{{ institution.short_description }}</p>
+        <p class="lead text-muted">{{ institution.short_description | safe }}</p>
         {% endif %}
     </div>
 </div>
@@ -165,7 +165,7 @@
             
             <div class="collapse" id="fullDescription">
                 <div class="description-full mt-3">
-                    <p class="mb-0">{{ institution.description }}</p>
+                    <p class="mb-0">{{ institution.description | safe }}</p>
                 </div>
             </div>
         </div>

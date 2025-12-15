@@ -19,7 +19,7 @@
             </div>
         </div>
         {% if subject.description %}
-        <p class="text-muted mb-0">{{ subject.description }}</p>
+        <p class="text-muted mb-0">{{ subject.description | safe }}</p>
         {% endif %}
     </div>
 </div>

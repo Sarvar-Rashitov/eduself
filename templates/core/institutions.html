@@ -17,7 +17,7 @@
         </h1>
         <p class="page-header-subtitle">
             {% if current_category and current_category.description %}
-                {{ current_category.description }}
+                {{ current_category.description | safe }}
             {% else %}
                 O'zbekistondagi eng yaxshi ta'lim muassasalari
             {% endif %}
@@ -86,7 +86,7 @@
                         <div class="institution-main-info">
                             <h6 class="institution-name-new">{{ inst.name }}</h6>
                             {% if inst.short_description %}
-                            <p class="institution-short-desc">{{ inst.short_description }}</p>
+                            <p class="institution-short-desc">{{ inst.short_description | safe }}</p>
                             {% endif %}
                         </div>
                     </div>

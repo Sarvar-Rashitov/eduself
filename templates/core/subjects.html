@@ -17,7 +17,7 @@
         </h1>
         <p class="page-header-subtitle">
             {% if current_category and current_category.description %}
-                {{ current_category.description }}
+                {{ current_category.description | safe }}
             {% else %}
                 O'zbekiston umumta'lim fanlari bo'yicha testlar va mavzular
             {% endif %}

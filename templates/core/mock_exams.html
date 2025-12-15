@@ -18,7 +18,7 @@
         </h1>
         <p class="page-header-subtitle">
             {% if current_category and current_category.description %}
-                {{ current_category.description }}
+                {{ current_category.description | safe }}
             {% else %}
                 Haqiqiy imtihonga o'xshash sinovlar va tayyorgarlik testlari
             {% endif %}
@@ -27,10 +27,6 @@
             <div class="page-header-stat">
                 <i class="bi bi-clipboard-check me-1"></i>
                 {{ exams.count }} ta imtihon
-            </div>
-            <div class="page-header-stat">
-                <i class="bi bi-stopwatch me-1"></i>
-                Vaqt bilan cheklangan
             </div>
         </div>
     </div>
@@ -94,7 +90,7 @@
                 </a>
             </div>
             {% if exam.description %}
-            <p class="text-muted small mt-3 mb-0">{{ exam.description }}</p>
+            <p class="text-muted small mt-3 mb-0">{{ exam.description | safe }}</p>
             {% endif %}
         </div>
     </div>

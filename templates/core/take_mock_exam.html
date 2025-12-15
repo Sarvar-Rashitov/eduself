@@ -29,7 +29,7 @@
     {% for question in questions %}
     <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
         <div class="question-number">Savol {{ forloop.counter }} / {{ questions|length }}</div>
-        <div class="question-text">{{ question.text }}</div>
+        <div class="question-text">{{ question.text | safe }}</div>
         {% if question.image %}
         <img src="{{ question.image.url }}" alt="Question image" class="img-fluid mb-3 rounded">
         {% endif %}
@@ -38,7 +38,7 @@
             {% for answer in question.mock_answers.all %}
             <label class="answer-option" data-answer-id="{{ answer.id }}">
                 <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" data-question-id="{{ question.id }}">
-                {{ answer.text }}
+                {{ answer.text | safe }}
             </label>
             {% endfor %}
         </div>

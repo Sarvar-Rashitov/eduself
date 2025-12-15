@@ -19,7 +19,7 @@
             </div>
         </div>
         {% if certificate.description %}
-        <p class="text-muted mb-0">{{ certificate.description }}</p>
+        <p class="text-muted mb-0">{{ certificate.description | safe }}</p>
         {% endif %}
     </div>
 </div>
