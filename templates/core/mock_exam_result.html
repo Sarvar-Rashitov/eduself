@@ -19,19 +19,49 @@
     <p class="small text-muted mt-2">O'tish balli: {{ exam.passing_score }}%</p>
     
     <div class="result-buttons">
-        <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning">Qayta urinish</a>
-        <a href="{% url 'core:mock_exam_analysis' exam.pk %}" class="btn btn-info">Tahlil</a>
-        <a href="{% url 'core:mock_exam_leaderboard' exam.pk %}" class="btn btn-primary">
+        <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-sm">Qayta urinish</a>
+        <a href="{% url 'core:mock_exam_analysis' exam.pk %}" class="btn btn-info btn-sm">Tahlil</a>
+        <a href="{% url 'core:mock_exam_leaderboard' exam.pk %}" class="btn btn-primary btn-sm">
             <i class="bi bi-trophy me-1"></i>Reyting
         </a>
-        <a href="{% url 'core:mock_exams' %}" class="btn btn-outline-warning">Mock Exams</a>
+        <a href="{% url 'core:mock_exams' %}" class="btn btn-outline-warning btn-sm">Mock Exams</a>
     </div>
 </div>
 {% else %}
 <div class="empty-state">
     <i class="bi bi-file-text"></i>
     <p>Natija topilmadi</p>
-    <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning">Imtihonni boshlash</a>
+    <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-sm">Imtihonni boshlash</a>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.result-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.result-buttons .btn {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+}
+
+@media (max-width: 576px) {
+    .result-buttons {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .result-buttons .btn {
+        font-size: 0.8rem;
+        padding: 8px 10px;
+        width: 100%;
+    }
+}
+</style>
 {% endblock %}

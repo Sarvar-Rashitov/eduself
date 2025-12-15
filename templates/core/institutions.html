@@ -35,19 +35,6 @@
     </div>
 </div>
 
-{% if categories %}
-<div class="filter-tabs mb-4">
-    <a href="{% url 'core:institutions' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-        <i class="bi bi-grid"></i> Barchasi
-    </a>
-    {% for cat in categories %}
-    <a href="{% url 'core:institutions' %}?category={{ cat.slug }}" class="filter-tab {% if current_category and current_category.id == cat.id %}active{% endif %}">
-        <i class="{{ cat.icon }}"></i> {{ cat.name }}
-    </a>
-    {% endfor %}
-</div>
-{% endif %}
-
 <!-- Qidiruv -->
 <div class="search-container mb-4">
     <div class="search-input-wrapper">
@@ -65,6 +52,19 @@
         <button type="button" id="showAllInstitutions" class="btn btn-link btn-sm">Barcha muassasalarni ko'rsatish</button>
     </div>
 </div>
+
+{% if categories %}
+<div class="filter-tabs mb-4">
+    <a href="{% url 'core:institutions' %}" class="filter-tab {% if not current_category %}active{% endif %}">
+        <i class="bi bi-grid"></i> Barchasi
+    </a>
+    {% for cat in categories %}
+    <a href="{% url 'core:institutions' %}?category={{ cat.slug }}" class="filter-tab {% if current_category and current_category.id == cat.id %}active{% endif %}">
+        <i class="{{ cat.icon }}"></i> {{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
 
 <div id="institutionsList">
 {% if institutions %}

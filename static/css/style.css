@@ -801,12 +801,12 @@ body {
 }
 
 .filter-tab {
-    padding: 10px 20px;
-    border-radius: 20px;
+    padding: 8px 14px;
+    border-radius: 16px;
     background: var(--card-bg);
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 500;
     white-space: nowrap;
     border: 1px solid var(--border-color);

@@ -50,12 +50,54 @@
         
         <div class="question-buttons mt-4">
             <button type="button" class="btn btn-success" id="checkAnswer-{{ forloop.counter0 }}" onclick="checkAnswer({{ forloop.counter0 }}, {{ question.id }})" disabled>Javobni tekshirish</button>
-            <button type="button" class="btn btn-warning" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" style="display: none;" data-is-last="{% if forloop.last %}true{% else %}false{% endif %}">
-                {% if forloop.last %}Testni yakunlash{% else %}Keyingi savol{% endif %}
-            </button>
+            <div id="afterCheckButtons-{{ forloop.counter0 }}" style="display: none;">
+                {% if forloop.last %}
+                <button type="button" class="btn btn-warning" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" data-is-last="true">
+                    Testni yakunlash
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-warning" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" data-is-last="false">
+                    Keyingi savol
+                </button>
+                <button type="button" class="btn btn-danger" onclick="showFinishConfirmation()">
+                    <i class="bi bi-stop-circle"></i> Testni tugatish
+                </button>
+                {% endif %}
+            </div>
         </div>
     </div>
     {% endfor %}
+</div>
+
+<!-- Testni tugatish modal oynasi -->
+<div class="modal fade" id="finishTestModal" tabindex="-1" aria-labelledby="finishTestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="finishTestModalLabel">
+                    <i class="bi bi-exclamation-triangle"></i> Ogohlantirish
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-3">
+                    <i class="bi bi-question-circle text-warning" style="font-size: 4rem;"></i>
+                </div>
+                <h5>Testni tugatmoqchimisiz?</h5>
+                <p class="text-muted mb-0">Hozircha <strong id="answeredCount">0</strong> ta savolga javob berdingiz.</p>
+                <p class="text-muted">Joriy ballingiz: <strong id="modalCurrentScore">0</strong> ball</p>
+                <p class="text-danger small">Tugatilgandan so'ng qaytib bo'lmaydi!</p>
+            </div>
+            <div class="modal-footer justify-content-center gap-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                    <i class="bi bi-arrow-left"></i> Davom etish
+                </button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="confirmFinishTest()">
+                    <i class="bi bi-check-circle"></i> Tugatish
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -172,8 +214,35 @@
 
 .question-buttons {
     display: flex;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
     justify-content: flex-end;
+}
+
+.question-buttons .btn {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+}
+
+/* Responsive tugmalar */
+@media (max-width: 576px) {
+    .question-buttons {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .question-buttons .btn {
+        font-size: 0.8rem;
+        padding: 8px 10px;
+        width: 100%;
+    }
+    
+    .question-buttons > div {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: 100%;
+    }
 }
 
 .progress {
@@ -283,7 +352,8 @@ function checkAnswer(questionIndex, questionId) {
         updateCurrentScore(data.points_earned);
         
         document.getElementById(`checkAnswer-${questionIndex}`).style.display = 'none';
-        document.getElementById(`nextQuestion-${questionIndex}`).style.display = 'inline-block';
+        document.getElementById(`afterCheckButtons-${questionIndex}`).style.display = 'flex';
+        document.getElementById(`afterCheckButtons-${questionIndex}`).style.gap = '12px';
         
         document.querySelectorAll(`input[name="question_${questionId}"]`).forEach(input => {
             input.disabled = true;
@@ -404,6 +474,21 @@ window.addEventListener('beforeunload', function(e) {
         return e.returnValue;
     }
 });
+
+// Testni tugatish modal oynasini ko'rsatish
+function showFinishConfirmation() {
+    document.getElementById('answeredCount').textContent = Object.keys(userAnswers).length;
+    document.getElementById('modalCurrentScore').textContent = currentScore;
+    const modal = new bootstrap.Modal(document.getElementById('finishTestModal'));
+    modal.show();
+}
+
+// Testni tugatishni tasdiqlash
+function confirmFinishTest() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('finishTestModal'));
+    modal.hide();
+    submitTest();
+}
 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {

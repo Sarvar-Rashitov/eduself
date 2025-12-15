@@ -52,12 +52,12 @@
             {% endif %}
         </div>
         {% if test.is_unlocked %}
-            <a href="{% url 'core:test_leaderboard' test.pk %}" class="btn btn-primary btn-sm">
-                <i class="bi bi-trophy"></i> Boshlash
+            <a href="{% url 'core:test_leaderboard' test.pk %}" class="btn btn-primary btn-sm test-btn">
+                <i class="bi bi-trophy"></i> <span class="btn-text">Boshlash</span>
             </a>
         {% else %}
-            <button class="btn btn-secondary btn-sm" disabled>
-                <i class="bi bi-lock"></i> Yopiq
+            <button class="btn btn-secondary btn-sm test-btn" disabled>
+                <i class="bi bi-lock"></i> <span class="btn-text">Yopiq</span>
             </button>
         {% endif %}
     </div>
@@ -89,6 +89,19 @@
 .test-card.locked:hover {
     transform: none;
     box-shadow: none;
+}
+
+.test-btn {
+    font-size: 0.875rem;
+    padding: 8px 14px;
+    white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+    .test-btn {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
 }
 </style>
 {% endblock %}

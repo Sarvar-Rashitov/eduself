@@ -21,22 +21,52 @@
     <p class="small text-muted mt-2">O'tish balli: {{ test.passing_score }}%</p>
     
     <div class="result-buttons">
-        <a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary">Qayta urinish</a>
-        <a href="{% url 'core:test_analysis' test.pk %}" class="btn btn-info">Tahlil</a>
-        <a href="{% url 'core:test_leaderboard' test.pk %}" class="btn btn-warning">
+        <a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary btn-sm">Qayta urinish</a>
+        <a href="{% url 'core:test_analysis' test.pk %}" class="btn btn-info btn-sm">Tahlil</a>
+        <a href="{% url 'core:test_leaderboard' test.pk %}" class="btn btn-warning btn-sm">
             <i class="bi bi-trophy me-1"></i>Reyting
         </a>
         {% if next_test %}
-        <a href="{% url 'core:take_test' next_test.pk %}" class="btn btn-success">Keyingi test</a>
+        <a href="{% url 'core:take_test' next_test.pk %}" class="btn btn-success btn-sm">Keyingi test</a>
         {% endif %}
-        <a href="{% url 'core:topic_detail' test.topic.pk %}" class="btn btn-outline-primary">Ortga</a>
+        <a href="{% url 'core:topic_detail' test.topic.pk %}" class="btn btn-outline-primary btn-sm">Ortga</a>
     </div>
 </div>
 {% else %}
 <div class="empty-state">
     <i class="bi bi-file-text"></i>
     <p>Natija topilmadi</p>
-    <a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary">Testni boshlash</a>
+    <a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary btn-sm">Testni boshlash</a>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.result-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.result-buttons .btn {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+}
+
+@media (max-width: 576px) {
+    .result-buttons {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .result-buttons .btn {
+        font-size: 0.8rem;
+        padding: 8px 10px;
+        width: 100%;
+    }
+}
+</style>
 {% endblock %}
