@@ -290,10 +290,12 @@
 
         <!-- AI Hamroh Floating Button -->
         {% if user.is_authenticated %}
+        {% block ai_fab %}
         <a href="{% url 'ai_assistant:chat_redirect' %}" class="ai-fab" id="aiFab">
             <i class="bi bi-robot"></i>
             <span class="ai-pulse"></span>
         </a>
+        {% endblock ai_fab %}
         {% endif %}
     </div>
 
