@@ -205,6 +205,10 @@
                     <i class="bi bi-building"></i>
                     <span>Ta'lim Muassasalari</span>
                 </a>
+                <a href="{% url 'core:global_leaderboard' %}" class="nav-item {% if 'leaderboard' in request.path %}active{% endif %}">
+                    <i class="bi bi-trophy"></i>
+                    <span>Reyting</span>
+                </a>
                 
                 <div class="nav-divider"></div>
                 

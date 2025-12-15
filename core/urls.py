@@ -31,6 +31,8 @@ urlpatterns = [
     path('mock-exams/<int:pk>/analysis/', views.mock_exam_analysis_view, name='mock_exam_analysis'),
     path('check-mock-answer/<int:question_id>/<int:answer_id>/', views.check_mock_answer_view, name='check_mock_answer'),
     
+    path('leaderboard/', views.global_leaderboard_view, name='global_leaderboard'),
+    
     path('institutions/', views.institutions_view, name='institutions'),
     path('institutions/<int:pk>/', views.institution_detail_view, name='institution_detail'),
     path('directions/<int:pk>/', views.direction_detail_view, name='direction_detail'),
@@ -42,6 +44,7 @@ urlpatterns = [
     path('courses/<slug:slug>/', views.course_detail_view, name='course_detail'),
     path('courses/<slug:course_slug>/lesson/<int:lesson_id>/', views.lesson_detail_view, name='lesson_detail'),
     path('courses/<int:course_id>/enroll/', views.enroll_course, name='enroll_course'),
+    path('courses/<int:course_id>/enroll-paid/', views.enroll_paid_course, name='enroll_paid_course'),
     
     path('notification/<int:notification_id>/read/', views.mark_notification_read, name='mark_notification_read'),
 ]

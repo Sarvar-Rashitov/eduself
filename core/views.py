@@ -20,13 +20,25 @@ def home_view(request):
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
     statistics = Statistic.objects.all()
     
+    # Top 5 foydalanuvchilarni olish
+    from accounts.models import User
+    top_users = User.objects.filter(
+        total_points__gt=0
+    ).select_related().order_by('-total_points')[:5]
+    
     user_stats = {}
+    user_position = None
     if request.user.is_authenticated:
         user_stats = {
             'total_tests': request.user.get_total_tests_taken(),
             'passed_tests': request.user.get_passed_tests(),
             'progress': request.user.get_progress_percentage(),
         }
+        
+        # Foydalanuvchining pozitsiyasini topish
+        if request.user.total_points > 0:
+            higher_users_count = User.objects.filter(total_points__gt=request.user.total_points).count()
+            user_position = higher_users_count + 1
     
     context = {
         'subjects': subjects,
@@ -35,6 +47,8 @@ def home_view(request):
         'advertisements': advertisements,
         'statistics': statistics,
         'user_stats': user_stats,
+        'top_users': top_users,
+        'user_position': user_position,
     }
     return render(request, 'core/home.html', context)
 
@@ -73,7 +87,7 @@ def subject_detail_view(request, pk):
 
 def topic_detail_view(request, pk):
     topic = get_object_or_404(Topic, pk=pk, is_active=True)
-    tests = topic.tests.filter(is_active=True)
+    tests = topic.tests.filter(is_active=True).order_by('order', 'created_at')
     
     user_results = {}
     if request.user.is_authenticated:
@@ -81,6 +95,11 @@ def topic_detail_view(request, pk):
             result = TestResult.objects.filter(user=request.user, test=test).order_by('-completed_at').first()
             if result:
                 user_results[test.id] = result
+            # Test ochilganligini tekshirish
+            test.is_unlocked = test.is_unlocked_for_user(request.user)
+    else:
+        for test in tests:
+            test.is_unlocked = False
     
     return render(request, 'core/topic_detail.html', {'topic': topic, 'tests': tests, 'user_results': user_results})
 
@@ -89,28 +108,28 @@ def topic_detail_view(request, pk):
 def test_leaderboard_view(request, pk):
     test = get_object_or_404(Test, pk=pk, is_active=True)
     
-    # Har bir foydalanuvchining eng yaxshi natijasini olish
+    # Har bir foydalanuvchining eng yaxshi natijasini olish (earned_points bo'yicha)
     from django.db.models import Max
-    best_scores = TestResult.objects.filter(test=test).values('user').annotate(
-        best_score=Max('score')
-    ).values_list('user', 'best_score')
+    best_points = TestResult.objects.filter(test=test).values('user').annotate(
+        best_points=Max('earned_points')
+    ).values_list('user', 'best_points')
     
     # Har bir foydalanuvchi uchun eng yaxshi natijani topish
     top_results = []
-    for user_id, best_score in best_scores:
+    for user_id, best_earned_points in best_points:
         result = TestResult.objects.filter(
             test=test, 
             user_id=user_id, 
-            score=best_score
-        ).select_related('user').order_by('-completed_at').first()
+            earned_points=best_earned_points
+        ).select_related('user').order_by('completed_at').first()  # Tezroq yechgan birinchi
         if result:
             top_results.append(result)
     
-    # Ball bo'yicha saralash va top 10 ni olish
-    top_results = sorted(top_results, key=lambda x: (-x.score, x.completed_at))[:10]
+    # Ball bo'yicha saralash (yuqoridan pastga), keyin vaqt bo'yicha (tezroq birinchi)
+    top_results = sorted(top_results, key=lambda x: (-x.earned_points, x.completed_at))[:10]
     
     # Foydalanuvchining eng yaxshi natijasi
-    user_best = TestResult.objects.filter(test=test, user=request.user).order_by('-score').first()
+    user_best = TestResult.objects.filter(test=test, user=request.user).order_by('-earned_points', 'completed_at').first()
     
     context = {
         'test': test,
@@ -129,11 +148,16 @@ def check_answer_view(request, question_id, answer_id):
             selected_answer = get_object_or_404(Answer, id=answer_id, question=question)
             correct_answer = question.answers.filter(is_correct=True).first()
             
+            # Ball ma'lumotini qo'shish
+            points_earned = question.points if selected_answer.is_correct else 0
+            
             return JsonResponse({
                 'is_correct': selected_answer.is_correct,
                 'correct_answer': correct_answer.text if correct_answer else '',
                 'correct_answer_id': correct_answer.id if correct_answer else None,
-                'selected_answer': selected_answer.text
+                'selected_answer': selected_answer.text,
+                'points_earned': points_earned,
+                'question_points': question.points
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -144,6 +168,12 @@ def check_answer_view(request, question_id, answer_id):
 @login_required
 def take_test_view(request, pk):
     test = get_object_or_404(Test, pk=pk, is_active=True)
+    
+    # Test ochilganligini tekshirish
+    if not test.is_unlocked_for_user(request.user):
+        messages.error(request, "Bu testni yechish uchun oldingi testlarni muvaffaqiyatli yakunlashingiz kerak.")
+        return redirect('core:topic_detail', pk=test.topic.pk)
+    
     questions = test.questions.all().prefetch_related('answers')
     
     if request.method == 'POST':
@@ -188,6 +218,16 @@ def take_test_view(request, pk):
         score = int((correct / total) * 100) if total > 0 else 0
         passed = score >= test.passing_score
         
+        # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
+        earned_points = 0
+        for question_id, answer_data in user_answers.items():
+            if answer_data.get('is_correct', False):
+                try:
+                    question = Question.objects.get(id=question_id)
+                    earned_points += question.points
+                except Question.DoesNotExist:
+                    continue
+        
         TestResult.objects.create(
             user=request.user,
             test=test,
@@ -195,7 +235,8 @@ def take_test_view(request, pk):
             total_questions=total,
             correct_answers=correct,
             passed=passed,
-            user_answers=user_answers
+            user_answers=user_answers,
+            earned_points=earned_points
         )
         
         return redirect('core:test_result', pk=test.pk)
@@ -278,7 +319,7 @@ def certificate_detail_view(request, pk):
 
 def cert_topic_detail_view(request, pk):
     topic = get_object_or_404(CertificateTopic, pk=pk, is_active=True)
-    tests = topic.cert_tests.filter(is_active=True)
+    tests = topic.cert_tests.filter(is_active=True).order_by('order', 'created_at')
     
     user_results = {}
     if request.user.is_authenticated:
@@ -286,6 +327,11 @@ def cert_topic_detail_view(request, pk):
             result = CertificateResult.objects.filter(user=request.user, test=test).order_by('-completed_at').first()
             if result:
                 user_results[test.id] = result
+            # Test ochilganligini tekshirish
+            test.is_unlocked = test.is_unlocked_for_user(request.user)
+    else:
+        for test in tests:
+            test.is_unlocked = False
     
     return render(request, 'core/cert_topic_detail.html', {'topic': topic, 'tests': tests, 'user_results': user_results})
 
@@ -294,28 +340,28 @@ def cert_topic_detail_view(request, pk):
 def cert_test_leaderboard_view(request, pk):
     test = get_object_or_404(CertificateTest, pk=pk, is_active=True)
     
-    # Har bir foydalanuvchining eng yaxshi natijasini olish
+    # Har bir foydalanuvchining eng yaxshi natijasini olish (earned_points bo'yicha)
     from django.db.models import Max
-    best_scores = CertificateResult.objects.filter(test=test).values('user').annotate(
-        best_score=Max('score')
-    ).values_list('user', 'best_score')
+    best_points = CertificateResult.objects.filter(test=test).values('user').annotate(
+        best_points=Max('earned_points')
+    ).values_list('user', 'best_points')
     
     # Har bir foydalanuvchi uchun eng yaxshi natijani topish
     top_results = []
-    for user_id, best_score in best_scores:
+    for user_id, best_earned_points in best_points:
         result = CertificateResult.objects.filter(
             test=test, 
             user_id=user_id, 
-            score=best_score
-        ).select_related('user').order_by('-completed_at').first()
+            earned_points=best_earned_points
+        ).select_related('user').order_by('completed_at').first()  # Tezroq yechgan birinchi
         if result:
             top_results.append(result)
     
-    # Ball bo'yicha saralash va top 10 ni olish
-    top_results = sorted(top_results, key=lambda x: (-x.score, x.completed_at))[:10]
+    # Ball bo'yicha saralash (yuqoridan pastga), keyin vaqt bo'yicha (tezroq birinchi)
+    top_results = sorted(top_results, key=lambda x: (-x.earned_points, x.completed_at))[:10]
     
     # Foydalanuvchining eng yaxshi natijasi
-    user_best = CertificateResult.objects.filter(test=test, user=request.user).order_by('-score').first()
+    user_best = CertificateResult.objects.filter(test=test, user=request.user).order_by('-earned_points', 'completed_at').first()
     
     context = {
         'test': test,
@@ -334,11 +380,16 @@ def check_cert_answer_view(request, question_id, answer_id):
             selected_answer = get_object_or_404(CertificateAnswer, id=answer_id, question=question)
             correct_answer = question.cert_answers.filter(is_correct=True).first()
             
+            # Ball ma'lumotini qo'shish
+            points_earned = question.points if selected_answer.is_correct else 0
+            
             return JsonResponse({
                 'is_correct': selected_answer.is_correct,
                 'correct_answer': correct_answer.text if correct_answer else '',
                 'correct_answer_id': correct_answer.id if correct_answer else None,
-                'selected_answer': selected_answer.text
+                'selected_answer': selected_answer.text,
+                'points_earned': points_earned,
+                'question_points': question.points
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -349,6 +400,12 @@ def check_cert_answer_view(request, question_id, answer_id):
 @login_required
 def take_cert_test_view(request, pk):
     test = get_object_or_404(CertificateTest, pk=pk, is_active=True)
+    
+    # Test ochilganligini tekshirish
+    if not test.is_unlocked_for_user(request.user):
+        messages.error(request, "Bu testni yechish uchun oldingi testlarni muvaffaqiyatli yakunlashingiz kerak.")
+        return redirect('core:cert_topic_detail', pk=test.topic.pk)
+    
     questions = test.cert_questions.all().prefetch_related('cert_answers')
     
     if request.method == 'POST':
@@ -392,6 +449,16 @@ def take_cert_test_view(request, pk):
         score = int((correct / total) * 100) if total > 0 else 0
         passed = score >= test.passing_score
         
+        # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
+        earned_points = 0
+        for question_id, answer_data in user_answers.items():
+            if answer_data.get('is_correct', False):
+                try:
+                    question = CertificateQuestion.objects.get(id=question_id)
+                    earned_points += question.points
+                except CertificateQuestion.DoesNotExist:
+                    continue
+        
         CertificateResult.objects.create(
             user=request.user,
             test=test,
@@ -399,7 +466,8 @@ def take_cert_test_view(request, pk):
             total_questions=total,
             correct_answers=correct,
             passed=passed,
-            user_answers=user_answers
+            user_answers=user_answers,
+            earned_points=earned_points
         )
         
         return redirect('core:cert_test_result', pk=test.pk)
@@ -474,10 +542,10 @@ def mock_exams_view(request):
     
     if category_slug:
         category = get_object_or_404(MockExamCategory, slug=category_slug, is_active=True)
-        exams = MockExam.objects.filter(category=category, is_active=True)
+        exams = MockExam.objects.filter(category=category, is_active=True).order_by('order', 'created_at')
         title = category.name
     else:
-        exams = MockExam.objects.filter(is_active=True)
+        exams = MockExam.objects.filter(is_active=True).order_by('order', 'created_at')
         title = "Barcha Mock Imtihonlar"
         category = None
     
@@ -489,6 +557,11 @@ def mock_exams_view(request):
             result = MockExamResult.objects.filter(user=request.user, exam=exam).order_by('-completed_at').first()
             if result:
                 user_results[exam.id] = result
+            # Imtihon ochilganligini tekshirish
+            exam.is_unlocked = exam.is_unlocked_for_user(request.user)
+    else:
+        for exam in exams:
+            exam.is_unlocked = False
     
     context = {
         'exams': exams,
@@ -504,28 +577,28 @@ def mock_exams_view(request):
 def mock_exam_leaderboard_view(request, pk):
     exam = get_object_or_404(MockExam, pk=pk, is_active=True)
     
-    # Har bir foydalanuvchining eng yaxshi natijasini olish
+    # Har bir foydalanuvchining eng yaxshi natijasini olish (earned_points bo'yicha)
     from django.db.models import Max
-    best_scores = MockExamResult.objects.filter(exam=exam).values('user').annotate(
-        best_score=Max('score')
-    ).values_list('user', 'best_score')
+    best_points = MockExamResult.objects.filter(exam=exam).values('user').annotate(
+        best_points=Max('earned_points')
+    ).values_list('user', 'best_points')
     
     # Har bir foydalanuvchi uchun eng yaxshi natijani topish
     top_results = []
-    for user_id, best_score in best_scores:
+    for user_id, best_earned_points in best_points:
         result = MockExamResult.objects.filter(
             exam=exam, 
             user_id=user_id, 
-            score=best_score
-        ).select_related('user').order_by('-completed_at').first()
+            earned_points=best_earned_points
+        ).select_related('user').order_by('completed_at').first()  # Tezroq yechgan birinchi
         if result:
             top_results.append(result)
     
-    # Ball bo'yicha saralash va top 10 ni olish
-    top_results = sorted(top_results, key=lambda x: (-x.score, x.completed_at))[:10]
+    # Ball bo'yicha saralash (yuqoridan pastga), keyin vaqt bo'yicha (tezroq birinchi)
+    top_results = sorted(top_results, key=lambda x: (-x.earned_points, x.completed_at))[:10]
     
     # Foydalanuvchining eng yaxshi natijasi
-    user_best = MockExamResult.objects.filter(exam=exam, user=request.user).order_by('-score').first()
+    user_best = MockExamResult.objects.filter(exam=exam, user=request.user).order_by('-earned_points', 'completed_at').first()
     
     context = {
         'exam': exam,
@@ -544,11 +617,16 @@ def check_mock_answer_view(request, question_id, answer_id):
             selected_answer = get_object_or_404(MockExamAnswer, id=answer_id, question=question)
             correct_answer = question.mock_answers.filter(is_correct=True).first()
             
+            # Ball ma'lumotini qo'shish
+            points_earned = question.points if selected_answer.is_correct else 0
+            
             return JsonResponse({
                 'is_correct': selected_answer.is_correct,
                 'correct_answer': correct_answer.text if correct_answer else '',
                 'correct_answer_id': correct_answer.id if correct_answer else None,
-                'selected_answer': selected_answer.text
+                'selected_answer': selected_answer.text,
+                'points_earned': points_earned,
+                'question_points': question.points
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -559,6 +637,12 @@ def check_mock_answer_view(request, question_id, answer_id):
 @login_required
 def take_mock_exam_view(request, pk):
     exam = get_object_or_404(MockExam, pk=pk, is_active=True)
+    
+    # Imtihon ochilganligini tekshirish
+    if not exam.is_unlocked_for_user(request.user):
+        messages.error(request, "Bu imtihonni yechish uchun oldingi imtihonlarni muvaffaqiyatli yakunlashingiz kerak.")
+        return redirect('core:mock_exams')
+    
     questions = exam.mock_questions.all().prefetch_related('mock_answers')
     
     if request.method == 'POST':
@@ -602,6 +686,16 @@ def take_mock_exam_view(request, pk):
         score = int((correct / total) * 100) if total > 0 else 0
         passed = score >= exam.passing_score
         
+        # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
+        earned_points = 0
+        for question_id, answer_data in user_answers.items():
+            if answer_data.get('is_correct', False):
+                try:
+                    question = MockExamQuestion.objects.get(id=question_id)
+                    earned_points += question.points
+                except MockExamQuestion.DoesNotExist:
+                    continue
+        
         MockExamResult.objects.create(
             user=request.user,
             exam=exam,
@@ -609,7 +703,8 @@ def take_mock_exam_view(request, pk):
             total_questions=total,
             correct_answers=correct,
             passed=passed,
-            user_answers=user_answers
+            user_answers=user_answers,
+            earned_points=earned_points
         )
         
         return redirect('core:mock_exam_result', pk=exam.pk)
@@ -848,18 +943,85 @@ def lesson_detail_view(request, course_slug, lesson_id):
 def enroll_course(request, course_id):
     course = get_object_or_404(Course, id=course_id, is_active=True)
     
+    # Faqat bepul kurslarga avtomatik yozilish imkoni
+    if not course.is_free:
+        messages.error(request, "Bu pullik kurs. To'lov qilganingizdan keyin yozilishingiz mumkin.")
+        return redirect('core:course_detail', slug=course.slug)
+    
     # Foydalanuvchi allaqachon yozilganmi?
     enrollment, created = CourseEnrollment.objects.get_or_create(
         user=request.user,
-        course=course
+        course=course,
+        defaults={'payment_confirmed': True}  # Bepul kurslar uchun avtomatik tasdiqlash
     )
     
     if created:
-        messages.success(request, f"Siz '{course.title}' kursiga muvaffaqiyatli yozildingiz!")
+        messages.success(request, f"Siz '{course.title}' bepul kursiga muvaffaqiyatli yozildingiz!")
     else:
         messages.info(request, "Siz allaqachon bu kursga yozilgansiz.")
     
     return redirect('core:course_detail', slug=course.slug)
+
+
+@login_required
+def enroll_paid_course(request, course_id):
+    """Pullik kursga yozilish (to'lov kutilayotgan holatda)"""
+    course = get_object_or_404(Course, id=course_id, is_active=True)
+    
+    # Faqat pullik kurslar uchun
+    if course.is_free:
+        messages.error(request, "Bu bepul kurs. Oddiy yozilish tugmasini ishlating.")
+        return redirect('core:course_detail', slug=course.slug)
+    
+    # To'lov URL mavjudligini tekshirish
+    if not course.payment_url:
+        messages.error(request, "Bu kurs uchun to'lov tizimi hozircha mavjud emas.")
+        return redirect('core:course_detail', slug=course.slug)
+    
+    # Foydalanuvchi allaqachon yozilganmi?
+    enrollment, created = CourseEnrollment.objects.get_or_create(
+        user=request.user,
+        course=course,
+        defaults={'payment_confirmed': False}  # To'lov kutilayotgan holat
+    )
+    
+    if created:
+        messages.info(request, f"Siz '{course.title}' kursiga yozildingiz. To'lovingiz tasdiqlanganidan keyin barcha darslarga kirishingiz mumkin.")
+    else:
+        if enrollment.payment_confirmed:
+            messages.info(request, "Sizning to'lovingiz allaqachon tasdiqlangan.")
+        else:
+            messages.info(request, "Siz allaqachon bu kursga yozilgansiz. To'lovingiz tasdiqlanishini kuting.")
+    
+    return redirect('core:course_detail', slug=course.slug)
+
+
+def global_leaderboard_view(request):
+    """Global leaderboard - barcha foydalanuvchilarni total_points bo'yicha tartiblanish"""
+    from accounts.models import User
+    
+    # Top 100 foydalanuvchini total_points bo'yicha tartiblanish
+    top_users = User.objects.filter(
+        total_points__gt=0
+    ).select_related().order_by('-total_points')[:100]
+    
+    # Joriy foydalanuvchining pozitsiyasini topish
+    user_position = None
+    user_points = None
+    if request.user.is_authenticated:
+        user_points = request.user.total_points
+        if user_points > 0:
+            # Foydalanuvchidan yuqori ball to'plagan foydalanuvchilar sonini hisoblash
+            higher_users_count = User.objects.filter(total_points__gt=user_points).count()
+            user_position = higher_users_count + 1
+    
+    context = {
+        'top_users': top_users,
+        'user_position': user_position,
+        'user_points': user_points,
+        'title': 'Global Leaderboard'
+    }
+    return render(request, 'core/global_leaderboard.html', context)
 
 
 @login_required

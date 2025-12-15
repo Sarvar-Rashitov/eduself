@@ -86,19 +86,62 @@ class Test(models.Model):
     description = models.TextField(blank=True, verbose_name="Tavsif")
     time_limit = models.PositiveIntegerField(default=30, verbose_name="Vaqt limiti (daqiqa)")
     passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish balli (%)")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    unlock_score = models.PositiveIntegerField(default=60, verbose_name="Ochish uchun kerakli ball (%)")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['order', 'created_at']
         verbose_name = "Test"
         verbose_name_plural = "Testlar"
     
     def __str__(self):
-        return self.title
+        return f"{self.topic.name} - {self.title}"
     
     def get_questions_count(self):
         return self.questions.count()
+    
+    def get_max_points(self):
+        """Testdagi barcha savollar ballarining yig'indisini qaytarish"""
+        return self.questions.aggregate(
+            total_points=models.Sum('points')
+        )['total_points'] or 0
+    
+    def is_unlocked_for_user(self, user):
+        """Foydalanuvchi uchun test ochilganligini tekshirish"""
+        if not user.is_authenticated:
+            return False
+        
+        # Birinchi test har doim ochiq
+        first_test = self.topic.tests.filter(is_active=True).order_by('order', 'created_at').first()
+        if self == first_test:
+            return True
+        
+        # Oldingi testni topish
+        previous_tests = self.topic.tests.filter(
+            is_active=True,
+            order__lt=self.order
+        ).order_by('order', 'created_at')
+        
+        if not previous_tests.exists():
+            # Agar order bir xil bo'lsa, created_at bo'yicha
+            previous_tests = self.topic.tests.filter(
+                is_active=True,
+                created_at__lt=self.created_at
+            ).order_by('order', 'created_at')
+        
+        # Barcha oldingi testlar o'tilganligini tekshirish
+        for prev_test in previous_tests:
+            best_result = TestResult.objects.filter(
+                user=user,
+                test=prev_test
+            ).order_by('-score').first()
+            
+            if not best_result or best_result.score < prev_test.unlock_score:
+                return False
+        
+        return True
 
 
 class Question(models.Model):
@@ -106,6 +149,7 @@ class Question(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    points = models.PositiveIntegerField(default=1, verbose_name="Ball")
     
     class Meta:
         ordering = ['order']
@@ -138,6 +182,7 @@ class TestResult(models.Model):
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
+    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -168,36 +213,79 @@ class Certificate(models.Model):
 
 class CertificateTopic(models.Model):
     certificate = models.ForeignKey(Certificate, on_delete=models.CASCADE, related_name='cert_topics', verbose_name="Sertifikat")
-    name = models.CharField(max_length=200, verbose_name="Mavzu nomi")
+    name = models.CharField(max_length=200, verbose_name="Fan nomi")
     description = models.TextField(blank=True, verbose_name="Tavsif")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     
     class Meta:
         ordering = ['order', 'name']
-        verbose_name = "Sertifikat mavzusi"
-        verbose_name_plural = "Sertifikat mavzulari"
+        verbose_name = "Sertifikat fani"
+        verbose_name_plural = "Sertifikat fanlari"
     
     def __str__(self):
         return f"{self.certificate.name} - {self.name}"
 
 
 class CertificateTest(models.Model):
-    topic = models.ForeignKey(CertificateTopic, on_delete=models.CASCADE, related_name='cert_tests', verbose_name="Mavzu")
+    topic = models.ForeignKey(CertificateTopic, on_delete=models.CASCADE, related_name='cert_tests', verbose_name="Fan")
     title = models.CharField(max_length=200, verbose_name="Test nomi")
     description = models.TextField(blank=True, verbose_name="Tavsif")
     time_limit = models.PositiveIntegerField(default=30, verbose_name="Vaqt limiti (daqiqa)")
     passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish balli (%)")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    unlock_score = models.PositiveIntegerField(default=60, verbose_name="Ochish uchun kerakli ball (%)")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['order', 'created_at']
         verbose_name = "Sertifikat testi"
         verbose_name_plural = "Sertifikat testlari"
     
     def __str__(self):
-        return self.title
+        return f"{self.topic.name} - {self.title}"
+    
+    def get_max_points(self):
+        """Testdagi barcha savollar ballarining yig'indisini qaytarish"""
+        return self.cert_questions.aggregate(
+            total_points=models.Sum('points')
+        )['total_points'] or 0
+    
+    def is_unlocked_for_user(self, user):
+        """Foydalanuvchi uchun test ochilganligini tekshirish"""
+        if not user.is_authenticated:
+            return False
+        
+        # Birinchi test har doim ochiq
+        first_test = self.topic.cert_tests.filter(is_active=True).order_by('order', 'created_at').first()
+        if self == first_test:
+            return True
+        
+        # Oldingi testni topish
+        previous_tests = self.topic.cert_tests.filter(
+            is_active=True,
+            order__lt=self.order
+        ).order_by('order', 'created_at')
+        
+        if not previous_tests.exists():
+            # Agar order bir xil bo'lsa, created_at bo'yicha
+            previous_tests = self.topic.cert_tests.filter(
+                is_active=True,
+                created_at__lt=self.created_at
+            ).order_by('order', 'created_at')
+        
+        # Barcha oldingi testlar o'tilganligini tekshirish
+        for prev_test in previous_tests:
+            best_result = CertificateResult.objects.filter(
+                user=user,
+                test=prev_test
+            ).order_by('-score').first()
+            
+            if not best_result or best_result.score < prev_test.unlock_score:
+                return False
+        
+        return True
 
 
 class CertificateQuestion(models.Model):
@@ -205,6 +293,7 @@ class CertificateQuestion(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='cert_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    points = models.PositiveIntegerField(default=1, verbose_name="Ball")
     
     class Meta:
         ordering = ['order']
@@ -237,12 +326,16 @@ class CertificateResult(models.Model):
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
+    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         ordering = ['-completed_at']
         verbose_name = "Sertifikat natijasi"
         verbose_name_plural = "Sertifikat natijalari"
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.test.title} - {self.score}%"
 
 
 class MockExamCategory(models.Model):
@@ -271,6 +364,7 @@ class MockExam(models.Model):
     image = models.ImageField(upload_to='mock_exams/', blank=True, null=True, verbose_name="Rasm")
     time_limit = models.PositiveIntegerField(default=120, verbose_name="Vaqt limiti (daqiqa)")
     passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish balli (%)")
+    unlock_score = models.PositiveIntegerField(default=60, verbose_name="Ochish uchun kerakli ball (%)")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -282,6 +376,64 @@ class MockExam(models.Model):
     
     def __str__(self):
         return self.title
+    
+    def get_max_points(self):
+        """Imtihondagi barcha savollar ballarining yig'indisini qaytarish"""
+        return self.mock_questions.aggregate(
+            total_points=models.Sum('points')
+        )['total_points'] or 0
+    
+    def is_unlocked_for_user(self, user):
+        """Foydalanuvchi uchun imtihon ochilganligini tekshirish"""
+        if not user.is_authenticated:
+            return False
+        
+        # Birinchi imtihon har doim ochiq
+        if self.category:
+            first_exam = self.category.mock_exams.filter(is_active=True).order_by('order', 'created_at').first()
+        else:
+            first_exam = MockExam.objects.filter(is_active=True, category__isnull=True).order_by('order', 'created_at').first()
+        
+        if self == first_exam:
+            return True
+        
+        # Oldingi imtihonlarni topish
+        if self.category:
+            previous_exams = self.category.mock_exams.filter(
+                is_active=True,
+                order__lt=self.order
+            ).order_by('order', 'created_at')
+            
+            if not previous_exams.exists():
+                previous_exams = self.category.mock_exams.filter(
+                    is_active=True,
+                    created_at__lt=self.created_at
+                ).order_by('order', 'created_at')
+        else:
+            previous_exams = MockExam.objects.filter(
+                is_active=True,
+                category__isnull=True,
+                order__lt=self.order
+            ).order_by('order', 'created_at')
+            
+            if not previous_exams.exists():
+                previous_exams = MockExam.objects.filter(
+                    is_active=True,
+                    category__isnull=True,
+                    created_at__lt=self.created_at
+                ).order_by('order', 'created_at')
+        
+        # Barcha oldingi imtihonlar o'tilganligini tekshirish
+        for prev_exam in previous_exams:
+            best_result = MockExamResult.objects.filter(
+                user=user,
+                exam=prev_exam
+            ).order_by('-score').first()
+            
+            if not best_result or best_result.score < prev_exam.unlock_score:
+                return False
+        
+        return True
 
 
 class MockExamQuestion(models.Model):
@@ -289,6 +441,7 @@ class MockExamQuestion(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='mock_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    points = models.PositiveIntegerField(default=1, verbose_name="Ball")
     
     class Meta:
         ordering = ['order']
@@ -321,12 +474,16 @@ class MockExamResult(models.Model):
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
+    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         ordering = ['-completed_at']
         verbose_name = "Mock natija"
         verbose_name_plural = "Mock natijalar"
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.exam.title} - {self.score}%"
 
 
 class InstitutionCategory(models.Model):
@@ -492,6 +649,7 @@ class Advertisement(models.Model):
     description = models.TextField(blank=True, verbose_name="Tavsif")
     image = models.ImageField(upload_to='ads/', verbose_name="Rasm")
     link = models.URLField(blank=True, verbose_name="Havola")
+    link_url = models.URLField(blank=True, null=True, verbose_name="Havola URL")
     institution = models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Ta'lim muassasasi")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")

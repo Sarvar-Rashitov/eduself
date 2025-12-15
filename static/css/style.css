@@ -65,6 +65,21 @@
     --secondary-color: #34d399;
     --accent-color: #fbbf24;
     --danger-color: #f87171;
+    
+    /* Additional dark mode variables for new components */
+    --notification-bg: #2d2d2d;
+    --notification-border: #404040;
+    --notification-hover: rgba(129, 140, 248, 0.05);
+    --notification-unread: rgba(129, 140, 248, 0.1);
+    --question-bg: #2d2d2d;
+    --question-border: #404040;
+    --answer-hover: rgba(129, 140, 248, 0.1);
+    --answer-selected: rgba(129, 140, 248, 0.15);
+    --offcanvas-bg: #2d2d2d;
+    --modal-bg: #2d2d2d;
+    --input-bg: #2d2d2d;
+    --input-border: #404040;
+    --input-focus: #818cf8;
 }
 
 /* Dark mode for Bootstrap classes */
@@ -744,6 +759,16 @@ body {
     position: relative;
 }
 
+.ad-slide.clickable-slide {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ad-slide.clickable-slide:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
 .ad-overlay {
     position: absolute;
     bottom: 0;
@@ -837,6 +862,81 @@ body {
 .answer-option.selected {
     border-color: var(--primary-color);
     background: rgba(79, 70, 229, 0.1);
+}
+
+/* Dark Mode for Test Pages */
+[data-theme="dark"] .question-card {
+    background: var(--question-bg) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--question-border) !important;
+}
+
+[data-theme="dark"] .question-number {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="dark"] .question-text {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .answer-option {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .answer-option:hover {
+    border-color: var(--primary-color) !important;
+    background: var(--answer-hover) !important;
+}
+
+[data-theme="dark"] .answer-option.selected {
+    border-color: var(--primary-color) !important;
+    background: var(--answer-selected) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Dark Mode for Additional Components */
+[data-theme="dark"] .offcanvas {
+    background-color: var(--offcanvas-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .offcanvas-header {
+    background-color: var(--card-bg) !important;
+    border-bottom-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .offcanvas-title {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .offcanvas-body {
+    background-color: var(--background-color) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .modal-content {
+    background-color: var(--modal-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .modal-header {
+    background-color: var(--card-bg) !important;
+    border-bottom-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .modal-body {
+    background-color: var(--modal-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .modal-footer {
+    background-color: var(--card-bg) !important;
+    border-top-color: var(--border-color) !important;
 }
 
 .result-card {
@@ -1194,6 +1294,34 @@ body {
     color: var(--text-primary);
     margin-bottom: 4px;
     line-height: 1.4;
+}
+
+/* Dark Mode for Notifications */
+[data-theme="dark"] .notification-offcanvas {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .notification-item {
+    border-bottom-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .notification-item:hover {
+    background: linear-gradient(90deg, rgba(129, 140, 248, 0.05), transparent) !important;
+}
+
+[data-theme="dark"] .notification-item.unread {
+    background: linear-gradient(90deg, rgba(129, 140, 248, 0.1), rgba(129, 140, 248, 0.03)) !important;
+    border-left-color: var(--primary-color) !important;
+}
+
+[data-theme="dark"] .notification-content {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .notification-title {
+    color: var(--text-primary) !important;
 }
 
 .notification-message {

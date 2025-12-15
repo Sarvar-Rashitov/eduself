@@ -66,28 +66,48 @@
 <div id="mockExamsList">
 {% if exams %}
     {% for exam in exams %}
-    <div class="card mb-3">
+    <div class="card mb-3 {% if not exam.is_unlocked %}locked-exam{% endif %}">
         <div class="card-body">
             <div class="d-flex align-items-center">
                 {% if exam.image %}
-                <img src="{{ exam.image.url }}" alt="{{ exam.title }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                <img src="{{ exam.image.url }}" alt="{{ exam.title }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover; {% if not exam.is_unlocked %}opacity: 0.5;{% endif %}">
                 {% else %}
-                <div class="subject-icon me-3" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">
-                    <i class="bi bi-clipboard-check"></i>
+                <div class="subject-icon me-3" style="background: {% if exam.is_unlocked %}linear-gradient(135deg, #F59E0B, #FBBF24){% else %}#6c757d{% endif %};">
+                    {% if exam.is_unlocked %}
+                        <i class="bi bi-clipboard-check"></i>
+                    {% else %}
+                        <i class="bi bi-lock-fill"></i>
+                    {% endif %}
                 </div>
                 {% endif %}
                 <div class="flex-grow-1">
-                    <h5 class="mb-1">{{ exam.title }}</h5>
+                    <h5 class="mb-1 {% if not exam.is_unlocked %}text-muted{% endif %}">
+                        {{ exam.title }}
+                        {% if not exam.is_unlocked %}
+                            <i class="bi bi-lock-fill text-muted ms-2"></i>
+                        {% endif %}
+                    </h5>
                     <p class="text-muted small mb-2">{{ exam.mock_questions.count }} savol | {{ exam.time_limit }} daqiqa</p>
+                    {% if not exam.is_unlocked %}
+                        <div class="mb-2">
+                            <small class="text-muted">Ochish uchun: {{ exam.unlock_score }}% ball kerak</small>
+                        </div>
+                    {% endif %}
                     {% if exam.id in user_results %}
                     <span class="badge {% if user_results|get_item:exam.id|get_item:'passed' %}badge-success{% else %}badge-danger{% endif %}">
                         Oxirgi natija: {{ user_results|get_item:exam.id|get_item:'score' }}%
                     </span>
                     {% endif %}
                 </div>
-                <a href="{% url 'core:mock_exam_leaderboard' exam.pk %}" class="btn btn-warning btn-sm">
-                    <i class="bi bi-trophy"></i> Boshlash
-                </a>
+                {% if exam.is_unlocked %}
+                    <a href="{% url 'core:mock_exam_leaderboard' exam.pk %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-trophy"></i> Boshlash
+                    </a>
+                {% else %}
+                    <button class="btn btn-secondary btn-sm" disabled>
+                        <i class="bi bi-lock"></i> Yopiq
+                    </button>
+                {% endif %}
             </div>
             {% if exam.description %}
             <p class="text-muted small mt-3 mb-0">{{ exam.description | safe }}</p>
@@ -108,6 +128,21 @@
     <p>Qidiruv bo'yicha imtihon topilmadi</p>
     <small class="text-muted">Boshqa kalit so'zlar bilan qidirib ko'ring</small>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.locked-exam {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+    border: 1px dashed #dee2e6;
+}
+
+.locked-exam:hover {
+    transform: none;
+    box-shadow: none;
+}
+</style>
 {% endblock %}
 
 {% block extra_js %}

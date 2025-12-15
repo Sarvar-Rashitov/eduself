@@ -11,6 +11,7 @@
     <h4 class="mb-3">{% if result.passed %}Tabriklaymiz!{% else %}Afsuski...{% endif %}</h4>
     <div class="result-score">{{ result.score }}%</div>
     <p class="text-muted mt-2">{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri javob</p>
+    <p class="text-muted mt-1"><strong>{{ result.earned_points }}</strong> / {{ exam.get_max_points }} ball</p>
     
     <div class="progress mt-4" style="height: 12px;">
         <div class="progress-bar {% if result.passed %}bg-success{% else %}bg-danger{% endif %}" style="width: {{ result.score }}%"></div>
@@ -20,6 +21,9 @@
     <div class="result-buttons">
         <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning">Qayta urinish</a>
         <a href="{% url 'core:mock_exam_analysis' exam.pk %}" class="btn btn-info">Tahlil</a>
+        <a href="{% url 'core:mock_exam_leaderboard' exam.pk %}" class="btn btn-primary">
+            <i class="bi bi-trophy me-1"></i>Reyting
+        </a>
         <a href="{% url 'core:mock_exams' %}" class="btn btn-outline-warning">Mock Exams</a>
     </div>
 </div>

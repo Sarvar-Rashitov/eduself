@@ -65,27 +65,28 @@ class TopicAdmin(admin.ModelAdmin):
 
 @admin.register(Test)
 class TestAdmin(admin.ModelAdmin):
-    list_display = ['title', 'topic', 'time_limit', 'passing_score', 'is_active', 'get_questions_count']
+    list_display = ['title', 'topic', 'order', 'time_limit', 'passing_score', 'unlock_score', 'is_active', 'get_questions_count']
     list_filter = ['topic__subject', 'is_active', 'created_at']
     search_fields = ['title', 'description']
-    list_editable = ['is_active']
+    list_editable = ['order', 'unlock_score', 'is_active']
     inlines = [QuestionInline]
 
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['text', 'test', 'order']
+    list_display = ['text', 'test', 'order', 'points']
     list_filter = ['test__topic__subject', 'test']
     search_fields = ['text']
+    list_editable = ['points']
     inlines = [AnswerInline]
 
 
 @admin.register(TestResult)
 class TestResultAdmin(admin.ModelAdmin):
-    list_display = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'passed', 'completed_at']
+    list_display = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
     list_filter = ['passed', 'completed_at', 'test__topic__subject']
     search_fields = ['user__username', 'test__title']
-    readonly_fields = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'passed', 'completed_at']
+    readonly_fields = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
 
 
 class CertAnswerInline(admin.TabularInline):
@@ -131,26 +132,27 @@ class CertificateTopicAdmin(admin.ModelAdmin):
 
 @admin.register(CertificateTest)
 class CertificateTestAdmin(admin.ModelAdmin):
-    list_display = ['title', 'topic', 'time_limit', 'passing_score', 'is_active']
+    list_display = ['title', 'topic', 'order', 'time_limit', 'passing_score', 'unlock_score', 'is_active']
     list_filter = ['topic__certificate', 'is_active', 'created_at']
     search_fields = ['title', 'description']
-    list_editable = ['is_active']
+    list_editable = ['order', 'unlock_score', 'is_active']
     inlines = [CertQuestionInline]
 
 
 @admin.register(CertificateQuestion)
 class CertificateQuestionAdmin(admin.ModelAdmin):
-    list_display = ['text', 'test', 'order']
+    list_display = ['text', 'test', 'order', 'points']
     list_filter = ['test__topic__certificate', 'test']
     search_fields = ['text']
+    list_editable = ['points']
     inlines = [CertAnswerInline]
 
 
 @admin.register(CertificateResult)
 class CertificateResultAdmin(admin.ModelAdmin):
-    list_display = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'passed', 'completed_at']
+    list_display = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
     list_filter = ['passed', 'completed_at']
-    readonly_fields = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'passed', 'completed_at']
+    readonly_fields = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
 
 
 class MockAnswerInline(admin.TabularInline):
@@ -175,26 +177,27 @@ class MockExamCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(MockExam)
 class MockExamAdmin(admin.ModelAdmin):
-    list_display = ['title', 'category', 'time_limit', 'passing_score', 'order', 'is_active', 'created_at']
+    list_display = ['title', 'category', 'time_limit', 'passing_score', 'unlock_score', 'order', 'is_active', 'created_at']
     list_filter = ['category', 'is_active', 'created_at']
     search_fields = ['title', 'description']
-    list_editable = ['order', 'is_active']
+    list_editable = ['unlock_score', 'order', 'is_active']
     inlines = [MockQuestionInline]
 
 
 @admin.register(MockExamQuestion)
 class MockExamQuestionAdmin(admin.ModelAdmin):
-    list_display = ['text', 'exam', 'order']
+    list_display = ['text', 'exam', 'order', 'points']
     list_filter = ['exam']
     search_fields = ['text']
+    list_editable = ['points']
     inlines = [MockAnswerInline]
 
 
 @admin.register(MockExamResult)
 class MockExamResultAdmin(admin.ModelAdmin):
-    list_display = ['user', 'exam', 'score', 'correct_answers', 'total_questions', 'passed', 'completed_at']
+    list_display = ['user', 'exam', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
     list_filter = ['passed', 'completed_at', 'exam']
-    readonly_fields = ['user', 'exam', 'score', 'correct_answers', 'total_questions', 'passed', 'completed_at']
+    readonly_fields = ['user', 'exam', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
 
 
 @admin.register(InstitutionCategory)
@@ -273,10 +276,22 @@ class InstitutionDirectionAdmin(admin.ModelAdmin):
 
 @admin.register(Advertisement)
 class AdvertisementAdmin(admin.ModelAdmin):
-    list_display = ['title', 'institution', 'is_active', 'order', 'created_at']
+    list_display = ['title', 'institution', 'link_url', 'is_active', 'order', 'created_at']
     list_filter = ['is_active', 'created_at']
     search_fields = ['title', 'description']
     list_editable = ['is_active', 'order']
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('title', 'description', 'image', 'institution')
+        }),
+        ('Havolalar', {
+            'fields': ('link', 'link_url')
+        }),
+        ('Sozlamalar', {
+            'fields': ('is_active', 'order')
+        }),
+    )
 
 
 @admin.register(Statistic)

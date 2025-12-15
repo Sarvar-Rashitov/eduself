@@ -4,17 +4,18 @@ from .models import User, PasswordResetToken
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ['username', 'email', 'is_active', 'is_staff', 'created_at']
+    list_display = ['username', 'email', 'total_points', 'is_active', 'is_staff', 'created_at']
     list_filter = ['is_active', 'is_staff', 'created_at']
     search_fields = ['username', 'email']
     ordering = ['-created_at']
     
     fieldsets = UserAdmin.fieldsets + (
-        ('Qo\'shimcha', {'fields': ('bio', 'profile_image')}),
+        ('Qo\'shimcha', {'fields': ('bio', 'profile_image', 'total_points')}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
         ('Qo\'shimcha', {'fields': ('email', 'bio', 'profile_image')}),
     )
+    readonly_fields = ['total_points']
 
 
 @admin.register(PasswordResetToken)

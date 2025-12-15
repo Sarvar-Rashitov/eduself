@@ -22,13 +22,27 @@
 
 {% if tests %}
     {% for test in tests %}
-    <div class="test-card">
+    <div class="test-card {% if not test.is_unlocked %}locked{% endif %}">
         <div class="test-icon">
-            <i class="bi bi-file-text"></i>
+            {% if test.is_unlocked %}
+                <i class="bi bi-file-text"></i>
+            {% else %}
+                <i class="bi bi-lock-fill"></i>
+            {% endif %}
         </div>
         <div class="test-info flex-grow-1">
-            <div class="test-name">{{ test.title }}</div>
+            <div class="test-name">
+                {{ test.title }}
+                {% if not test.is_unlocked %}
+                    <i class="bi bi-lock-fill text-muted ms-2"></i>
+                {% endif %}
+            </div>
             <div class="test-meta">{{ test.get_questions_count }} savol | {{ test.time_limit }} daqiqa</div>
+            {% if not test.is_unlocked %}
+                <div class="mt-1">
+                    <small class="text-muted">Ochish uchun: {{ test.unlock_score }}% ball kerak</small>
+                </div>
+            {% endif %}
             {% if test.id in user_results %}
             <div class="mt-2">
                 <span class="badge {% if user_results|get_item:test.id|get_item:'passed' %}badge-success{% else %}badge-danger{% endif %}">
@@ -37,9 +51,15 @@
             </div>
             {% endif %}
         </div>
-        <a href="{% url 'core:test_leaderboard' test.pk %}" class="btn btn-primary btn-sm">
-            <i class="bi bi-trophy"></i> Boshlash
-        </a>
+        {% if test.is_unlocked %}
+            <a href="{% url 'core:test_leaderboard' test.pk %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-trophy"></i> Boshlash
+            </a>
+        {% else %}
+            <button class="btn btn-secondary btn-sm" disabled>
+                <i class="bi bi-lock"></i> Yopiq
+            </button>
+        {% endif %}
     </div>
     {% endfor %}
 {% else %}
@@ -48,4 +68,27 @@
         <p>Testlar hali qo'shilmagan</p>
     </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.test-card.locked {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+    border: 1px dashed #dee2e6;
+}
+
+.test-card.locked .test-icon {
+    color: #6c757d;
+}
+
+.test-card.locked .test-name {
+    color: #6c757d;
+}
+
+.test-card.locked:hover {
+    transform: none;
+    box-shadow: none;
+}
+</style>
 {% endblock %}

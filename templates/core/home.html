@@ -46,7 +46,11 @@
     <div class="carousel-inner">
         {% for ad in advertisements %}
         <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            {% if ad.link_url %}
+            <div class="ad-slide clickable-slide" style="background-image: url('{{ ad.image.url }}');" data-url="{{ ad.link_url }}">
+            {% else %}
             <div class="ad-slide" style="background-image: url('{{ ad.image.url }}');">
+            {% endif %}
                 <div class="ad-overlay">
                     <h5>{{ ad.title }}</h5>
                     {% if ad.description %}
@@ -182,6 +186,192 @@
 </a>
 {% endfor %}
 {% endif %}
+
+
+
+<!-- Global Leaderboard Section -->
+{% if top_users %}
+<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+    <div class="section-title mb-0">
+        <i class="bi bi-trophy me-2 text-warning"></i>Top Reyting
+    </div>
+    <a href="{% url 'core:global_leaderboard' %}" class="text-primary text-decoration-none small">Barchasi <i class="bi bi-arrow-right"></i></a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-3">
+        {% for user_item in top_users|slice:":5" %}
+        <div class="d-flex align-items-center justify-content-between py-2 {% if not forloop.last %}border-bottom{% endif %}">
+            <div class="d-flex align-items-center">
+                <div class="position-badge me-3">
+                    {% if forloop.counter <= 3 %}
+                        <span class="badge 
+                            {% if forloop.counter == 1 %}bg-warning text-dark{% elif forloop.counter == 2 %}bg-secondary{% else %}bg-dark{% endif %} 
+                            rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                            {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-light text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                            {{ forloop.counter }}
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="user-avatar me-3">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <h6 class="mb-0 small">{{ user_item.get_full_name|default:user_item.username }}</h6>
+                    <small class="text-muted">@{{ user_item.username }}</small>
+                </div>
+            </div>
+            <div class="user-points">
+                <span class="badge bg-success">{{ user_item.total_points }} ball</span>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% if user.is_authenticated and user_position and user_position > 5 %}
+        <div class="text-center mt-3 pt-2 border-top">
+            <small class="text-muted">
+                Sizning pozitsiyangiz: <strong>#{{ user_position }}</strong> ({{ user.total_points }} ball)
+            </small>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- AI Assistant Section -->
+{% if user.is_authenticated %}
+<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+    <div class="section-title mb-0">
+        <i class="bi bi-robot me-2 text-primary"></i>AI Hamroh
+    </div>
+    <a href="{% url 'ai_assistant:chat_redirect' %}" class="text-primary text-decoration-none small">Suhbat <i class="bi bi-arrow-right"></i></a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="card-body text-white p-4">
+        <div class="d-flex align-items-center mb-3">
+            <div class="ai-icon me-3">
+                <i class="bi bi-robot display-6"></i>
+            </div>
+            <div>
+                <h5 class="mb-1">AI Hamroh bilan suhbatlashing</h5>
+                <p class="mb-0 opacity-75">Savollaringizga darhol javob oling</p>
+            </div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'ai_assistant:chat_redirect' %}" class="btn btn-light btn-sm">
+                <i class="bi bi-chat-dots me-1"></i>Suhbat boshlash
+            </a>
+            <a href="{% url 'ai_assistant:help_center' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-question-circle me-1"></i>Yordam
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.position-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-info h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.user-info small {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.user-points .badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+}
+
+.ai-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Leaderboard specific styles */
+.leaderboard-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.leaderboard-item {
+    transition: background-color 0.2s ease;
+}
+
+.leaderboard-item:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Animation for score updates */
+@keyframes scoreUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.score-update {
+    animation: scoreUpdate 0.3s ease;
+}
+
+
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle advertisement slide clicks
+    const clickableSlides = document.querySelectorAll('.clickable-slide');
+    
+    clickableSlides.forEach(function(slide) {
+        slide.addEventListener('click', function(e) {
+            // Don't trigger if clicking on carousel controls
+            if (e.target.closest('.carousel-control-prev') || e.target.closest('.carousel-control-next')) {
+                return;
+            }
+            
+            const url = this.getAttribute('data-url');
+            if (url) {
+                window.open(url, '_blank');
+            }
+        });
+        
+        // Add cursor pointer style for clickable slides
+        slide.style.cursor = 'pointer';
+    });
+});
+</script>
 {% endblock %}
 
 {% block footer %}

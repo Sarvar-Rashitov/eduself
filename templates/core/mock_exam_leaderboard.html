@@ -20,7 +20,7 @@
         <h6 class="mb-3"><i class="bi bi-person-circle me-2"></i>Sizning eng yaxshi natijangiz</h6>
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <div class="fs-4 fw-bold text-warning">{{ user_best.score }}%</div>
+                <div class="fs-4 fw-bold text-warning">{{ user_best.earned_points }} ball</div>
                 <small class="text-muted">{{ user_best.correct_answers }} / {{ user_best.total_questions }} to'g'ri</small>
             </div>
             <span class="badge {% if user_best.passed %}bg-success{% else %}bg-danger{% endif %} fs-6">
@@ -76,8 +76,8 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <span class="badge {% if result.score >= 90 %}bg-success{% elif result.score >= 70 %}bg-warning{% else %}bg-secondary{% endif %} fs-6">
-                                {{ result.score }}%
+                            <span class="badge bg-warning fs-6">
+                                {{ result.earned_points }} ball
                             </span>
                         </td>
                         <td class="text-center">

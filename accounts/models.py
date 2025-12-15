@@ -8,6 +8,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
     bio = models.TextField(blank=True)
+    total_points = models.PositiveIntegerField(default=0, verbose_name="Umumiy ball")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -29,6 +30,13 @@ class User(AbstractUser):
     def get_passed_tests(self):
         from core.models import TestResult
         return TestResult.objects.filter(user=self, passed=True).count()
+    
+    def get_total_points(self):
+        """
+        Get the total points earned by the user across all test types.
+        This method returns the current value of total_points field.
+        """
+        return self.total_points
 
 
 class PasswordResetToken(models.Model):
