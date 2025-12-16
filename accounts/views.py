@@ -4,8 +4,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
+import json
+import requests
+import hashlib
+import hmac
+import time
 from .forms import RegisterForm, LoginForm, ForgotPasswordForm, ResetPasswordForm, ProfileForm
-from .models import User, PasswordResetToken
+from .models import User, PasswordResetToken, EmailVerificationToken
+
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -14,14 +23,50 @@ def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.email_verified = False
+            user.save()
+            
+            # Email verification token yaratish
+            token = EmailVerificationToken.objects.create(user=user)
+            
+            # Verification email yuborish
+            verify_url = request.build_absolute_uri(
+                reverse('accounts:verify_email', kwargs={'token': token.token})
+            )
+            try:
+                send_mail(
+                    subject='EduSelf - Emailni tasdiqlash',
+                    message=f'''Assalomu alaykum, {user.username}!
+
+EduSelf platformasiga xush kelibsiz!
+
+Emailingizni tasdiqlash uchun quyidagi havolaga o'ting:
+{verify_url}
+
+Havola 48 soat ichida amal qiladi.
+
+Hurmat bilan,
+EduSelf jamoasi''',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=True,
+                )
+                messages.success(request, "Ro'yxatdan o'tdingiz! Emailingizga tasdiqlash havolasi yuborildi.")
+            except Exception:
+                messages.success(request, "Ro'yxatdan o'tdingiz!")
+            
             login(request, user)
-            messages.success(request, "Ro'yxatdan o'tdingiz!")
             return redirect('core:home')
     else:
         form = RegisterForm()
     
-    return render(request, 'accounts/register.html', {'form': form})
+    context = {
+        'form': form,
+        'google_client_id': settings.GOOGLE_CLIENT_ID,
+        'telegram_bot_username': settings.TELEGRAM_BOT_USERNAME,
+    }
+    return render(request, 'accounts/register.html', context)
 
 
 def login_view(request):
@@ -41,13 +86,80 @@ def login_view(request):
     else:
         form = LoginForm()
     
-    return render(request, 'accounts/login.html', {'form': form})
+    context = {
+        'form': form,
+        'google_client_id': settings.GOOGLE_CLIENT_ID,
+        'telegram_bot_username': settings.TELEGRAM_BOT_USERNAME,
+    }
+    return render(request, 'accounts/login.html', context)
 
 
 def logout_view(request):
     logout(request)
     messages.success(request, "Tizimdan chiqdingiz!")
     return redirect('core:home')
+
+
+def verify_email_view(request, token):
+    """Email tasdiqlash"""
+    try:
+        verification = EmailVerificationToken.objects.get(token=token)
+    except EmailVerificationToken.DoesNotExist:
+        messages.error(request, "Noto'g'ri yoki eskirgan havola.")
+        return redirect('core:home')
+    
+    if not verification.is_valid():
+        messages.error(request, "Bu havola eskirgan yoki allaqachon ishlatilgan.")
+        return redirect('core:home')
+    
+    user = verification.user
+    user.email_verified = True
+    user.save()
+    
+    verification.used = True
+    verification.save()
+    
+    messages.success(request, "Emailingiz muvaffaqiyatli tasdiqlandi!")
+    return redirect('core:home')
+
+
+@login_required
+def resend_verification_view(request):
+    """Tasdiqlash emailini qayta yuborish"""
+    user = request.user
+    
+    if user.email_verified:
+        messages.info(request, "Emailingiz allaqachon tasdiqlangan.")
+        return redirect('accounts:profile')
+    
+    # Yangi token yaratish
+    token = EmailVerificationToken.objects.create(user=user)
+    
+    verify_url = request.build_absolute_uri(
+        reverse('accounts:verify_email', kwargs={'token': token.token})
+    )
+    
+    try:
+        send_mail(
+            subject='EduSelf - Emailni tasdiqlash',
+            message=f'''Assalomu alaykum, {user.username}!
+
+Emailingizni tasdiqlash uchun quyidagi havolaga o'ting:
+{verify_url}
+
+Havola 48 soat ichida amal qiladi.
+
+Hurmat bilan,
+EduSelf jamoasi''',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+        messages.success(request, "Tasdiqlash havolasi emailingizga yuborildi!")
+    except Exception:
+        messages.error(request, "Email yuborishda xatolik yuz berdi. Keyinroq urinib ko'ring.")
+    
+    return redirect('accounts:profile')
 
 
 def forgot_password_view(request):
@@ -59,11 +171,23 @@ def forgot_password_view(request):
             try:
                 user = User.objects.get(email=email)
                 token = PasswordResetToken.objects.create(user=user)
-                reset_link = request.build_absolute_uri(f'/accounts/reset-password/{token.token}/')
+                reset_link = request.build_absolute_uri(
+                    reverse('accounts:reset_password', kwargs={'token': token.token})
+                )
                 send_mail(
                     subject='EduSelf - Parolni tiklash',
-                    message=f'Parolni tiklash uchun quyidagi havolaga o\'ting:\n\n{reset_link}\n\nHavola 24 soat ichida amal qiladi.',
-                    from_email=settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@eduself.uz',
+                    message=f'''Assalomu alaykum, {user.username}!
+
+Parolni tiklash uchun quyidagi havolaga o'ting:
+{reset_link}
+
+Havola 24 soat ichida amal qiladi.
+
+Agar siz bu so'rovni yubormagan bo'lsangiz, bu xabarni e'tiborsiz qoldiring.
+
+Hurmat bilan,
+EduSelf jamoasi''',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[email],
                     fail_silently=True,
                 )
@@ -102,6 +226,171 @@ def reset_password_view(request, token):
     return render(request, 'accounts/reset_password.html', {'form': form})
 
 
+# Google OAuth
+@csrf_exempt
+def google_auth_view(request):
+    """Google OAuth callback"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            credential = data.get('credential')
+            
+            if not credential:
+                return JsonResponse({'success': False, 'error': 'Token topilmadi'})
+            
+            # Google token'ni tekshirish
+            google_url = f'https://oauth2.googleapis.com/tokeninfo?id_token={credential}'
+            response = requests.get(google_url)
+            
+            if response.status_code != 200:
+                return JsonResponse({'success': False, 'error': 'Token noto\'g\'ri'})
+            
+            google_data = response.json()
+            
+            # Client ID tekshirish
+            if google_data.get('aud') != settings.GOOGLE_CLIENT_ID:
+                return JsonResponse({'success': False, 'error': 'Client ID mos kelmadi'})
+            
+            email = google_data.get('email')
+            google_id = google_data.get('sub')
+            name = google_data.get('name', '')
+            picture = google_data.get('picture', '')
+            
+            # Foydalanuvchini topish yoki yaratish
+            user = None
+            
+            # Google ID bo'yicha qidirish
+            try:
+                user = User.objects.get(google_id=google_id)
+            except User.DoesNotExist:
+                pass
+            
+            # Email bo'yicha qidirish
+            if not user:
+                try:
+                    user = User.objects.get(email=email)
+                    user.google_id = google_id
+                    user.save()
+                except User.DoesNotExist:
+                    pass
+            
+            # Yangi foydalanuvchi yaratish
+            if not user:
+                username = email.split('@')[0]
+                base_username = username
+                counter = 1
+                while User.objects.filter(username=username).exists():
+                    username = f"{base_username}{counter}"
+                    counter += 1
+                
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    google_id=google_id,
+                    email_verified=True,
+                    auth_provider='google'
+                )
+                user.first_name = name.split()[0] if name else ''
+                user.last_name = ' '.join(name.split()[1:]) if len(name.split()) > 1 else ''
+                user.save()
+            
+            login(request, user)
+            return JsonResponse({'success': True, 'redirect': '/'})
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'POST so\'rov kerak'})
+
+
+# Telegram Auth
+def telegram_auth_view(request):
+    """Telegram OAuth callback"""
+    # Telegram ma'lumotlarini olish
+    telegram_data = {
+        'id': request.GET.get('id'),
+        'first_name': request.GET.get('first_name', ''),
+        'last_name': request.GET.get('last_name', ''),
+        'username': request.GET.get('username', ''),
+        'photo_url': request.GET.get('photo_url', ''),
+        'auth_date': request.GET.get('auth_date'),
+        'hash': request.GET.get('hash'),
+    }
+    
+    if not telegram_data['id'] or not telegram_data['hash']:
+        messages.error(request, "Telegram ma'lumotlari noto'g'ri")
+        return redirect('accounts:login')
+    
+    # Hash tekshirish
+    if not verify_telegram_auth(telegram_data):
+        messages.error(request, "Telegram autentifikatsiya xatosi")
+        return redirect('accounts:login')
+    
+    telegram_id = telegram_data['id']
+    
+    # Foydalanuvchini topish yoki yaratish
+    try:
+        user = User.objects.get(telegram_id=telegram_id)
+    except User.DoesNotExist:
+        # Yangi foydalanuvchi yaratish
+        username = telegram_data['username'] or f"tg_{telegram_id}"
+        base_username = username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+        
+        user = User.objects.create_user(
+            username=username,
+            email=f"{telegram_id}@telegram.eduself.uz",
+            telegram_id=telegram_id,
+            email_verified=True,
+            auth_provider='telegram'
+        )
+        user.first_name = telegram_data['first_name']
+        user.last_name = telegram_data['last_name']
+        user.save()
+    
+    login(request, user)
+    messages.success(request, "Telegram orqali kirdingiz!")
+    return redirect('core:home')
+
+
+def verify_telegram_auth(data):
+    """Telegram auth hash'ni tekshirish"""
+    bot_token = settings.TELEGRAM_BOT_TOKEN
+    if not bot_token:
+        return False
+    
+    check_hash = data.pop('hash', None)
+    if not check_hash:
+        return False
+    
+    # Auth date tekshirish (24 soatdan eski bo'lmasligi kerak)
+    auth_date = int(data.get('auth_date', 0))
+    if time.time() - auth_date > 86400:
+        return False
+    
+    # Data string yaratish
+    data_check_arr = []
+    for key, value in sorted(data.items()):
+        if value:
+            data_check_arr.append(f"{key}={value}")
+    data_check_string = '\n'.join(data_check_arr)
+    
+    # Secret key
+    secret_key = hashlib.sha256(bot_token.encode()).digest()
+    
+    # Hash hisoblash
+    calculated_hash = hmac.new(
+        secret_key,
+        data_check_string.encode(),
+        hashlib.sha256
+    ).hexdigest()
+    
+    return calculated_hash == check_hash
+
+
 @login_required
 def profile_view(request):
     if request.method == 'POST':
@@ -113,11 +402,10 @@ def profile_view(request):
     else:
         form = ProfileForm(instance=request.user)
     
-    # Fanlar bo'yicha progress - FAQAT foydalanuvchi ishlagan fanlar
+    # Fanlar bo'yicha progress
     from core.models import Subject, TestResult, Test
     subjects_progress = []
     
-    # Foydalanuvchi ishlagan testlarning fanlarini topish
     user_test_ids = TestResult.objects.filter(user=request.user).values_list('test_id', flat=True).distinct()
     user_subjects = Subject.objects.filter(
         topics__tests__id__in=user_test_ids,
@@ -125,7 +413,6 @@ def profile_view(request):
     ).distinct().prefetch_related('topics__tests')
     
     for subject in user_subjects:
-        # Bu fan bo'yicha barcha testlar
         all_tests = Test.objects.filter(
             topic__subject=subject,
             topic__is_active=True,
@@ -133,7 +420,6 @@ def profile_view(request):
         )
         total_tests = all_tests.count()
         
-        # Foydalanuvchi ishlagan testlar
         user_results = TestResult.objects.filter(
             user=request.user,
             test__topic__subject=subject
@@ -142,10 +428,7 @@ def profile_view(request):
         completed_tests = user_results.values('test').distinct().count()
         passed_tests = user_results.filter(passed=True).values('test').distinct().count()
         
-        if total_tests > 0:
-            progress_percentage = int((passed_tests / total_tests) * 100)
-        else:
-            progress_percentage = 0
+        progress_percentage = int((passed_tests / total_tests) * 100) if total_tests > 0 else 0
         
         subjects_progress.append({
             'subject': subject,
@@ -155,11 +438,10 @@ def profile_view(request):
             'progress_percentage': progress_percentage,
         })
     
-    # Sertifikatlar bo'yicha progress - FAQAT foydalanuvchi ishlagan sertifikatlar
+    # Sertifikatlar bo'yicha progress
     from core.models import Certificate, CertificateResult, CertificateTest
     certificates_progress = []
     
-    # Foydalanuvchi ishlagan sertifikat testlarini topish
     user_cert_test_ids = CertificateResult.objects.filter(user=request.user).values_list('test_id', flat=True).distinct()
     user_certificates = Certificate.objects.filter(
         cert_topics__cert_tests__id__in=user_cert_test_ids,
@@ -167,7 +449,6 @@ def profile_view(request):
     ).distinct().prefetch_related('cert_topics__cert_tests')
     
     for certificate in user_certificates:
-        # Bu sertifikat bo'yicha barcha testlar
         all_tests = CertificateTest.objects.filter(
             topic__certificate=certificate,
             topic__is_active=True,
@@ -175,7 +456,6 @@ def profile_view(request):
         )
         total_tests = all_tests.count()
         
-        # Foydalanuvchi ishlagan testlar
         user_results = CertificateResult.objects.filter(
             user=request.user,
             test__topic__certificate=certificate
@@ -184,10 +464,7 @@ def profile_view(request):
         completed_tests = user_results.values('test').distinct().count()
         passed_tests = user_results.filter(passed=True).values('test').distinct().count()
         
-        if total_tests > 0:
-            progress_percentage = int((passed_tests / total_tests) * 100)
-        else:
-            progress_percentage = 0
+        progress_percentage = int((passed_tests / total_tests) * 100) if total_tests > 0 else 0
         
         certificates_progress.append({
             'certificate': certificate,
@@ -197,31 +474,21 @@ def profile_view(request):
             'progress_percentage': progress_percentage,
         })
     
-    # Mock examlar bo'yicha progress - FAQAT foydalanuvchi ishlagan mock examlar
+    # Mock examlar bo'yicha progress
     from core.models import MockExam, MockExamResult
     mock_exams_progress = []
     
-    # Foydalanuvchi ishlagan mock examlarni topish
     user_mock_exam_ids = MockExamResult.objects.filter(user=request.user).values_list('exam_id', flat=True).distinct()
     user_mock_exams = MockExam.objects.filter(id__in=user_mock_exam_ids, is_active=True)
     
     for exam in user_mock_exams:
-        # Foydalanuvchi ishlagan imtihonlar
-        user_results = MockExamResult.objects.filter(
-            user=request.user,
-            exam=exam
-        )
+        user_results = MockExamResult.objects.filter(user=request.user, exam=exam)
         
         completed_exams = user_results.count()
         passed_exams = user_results.filter(passed=True).count()
         
-        # Har bir mock exam uchun progress - o'tgan yoki o'tmagan
-        if completed_exams > 0:
-            progress_percentage = int((passed_exams / completed_exams) * 100) if completed_exams > 0 else 0
-        else:
-            progress_percentage = 0
+        progress_percentage = int((passed_exams / completed_exams) * 100) if completed_exams > 0 else 0
         
-        # Eng yaxshi natija
         best_result = user_results.order_by('-score').first()
         best_score = best_result.score if best_result else 0
         

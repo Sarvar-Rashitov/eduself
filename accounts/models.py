@@ -9,6 +9,16 @@ class User(AbstractUser):
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
     bio = models.TextField(blank=True)
     total_points = models.PositiveIntegerField(default=0, verbose_name="Umumiy ball")
+    
+    # Email verification
+    email_verified = models.BooleanField(default=False)
+    email_verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    
+    # Social auth
+    google_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    telegram_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    auth_provider = models.CharField(max_length=50, default='email')  # email, google, telegram
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -62,6 +72,34 @@ class PasswordResetToken(models.Model):
     
     def __str__(self):
         return f"Reset token for {self.user.username}"
+    
+    class Meta:
+        ordering = ['-created_at']
+
+
+class EmailVerificationToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used = models.BooleanField(default=False)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(hours=48)
+        super().save(*args, **kwargs)
+    
+    def is_valid(self):
+        if self.used:
+            return False
+        if not self.expires_at:
+            return False
+        if timezone.now() > self.expires_at:
+            return False
+        return True
+    
+    def __str__(self):
+        return f"Email verification for {self.user.username}"
     
     class Meta:
         ordering = ['-created_at']

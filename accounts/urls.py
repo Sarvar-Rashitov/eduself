@@ -10,4 +10,8 @@ urlpatterns = [
     path('forgot-password/', views.forgot_password_view, name='forgot_password'),
     path('reset-password/<uuid:token>/', views.reset_password_view, name='reset_password'),
     path('profile/', views.profile_view, name='profile'),
+    path('verify-email/<uuid:token>/', views.verify_email_view, name='verify_email'),
+    path('resend-verification/', views.resend_verification_view, name='resend_verification'),
+    path('auth/google/', views.google_auth_view, name='google_auth'),
+    path('auth/telegram/', views.telegram_auth_view, name='telegram_auth'),
 ]

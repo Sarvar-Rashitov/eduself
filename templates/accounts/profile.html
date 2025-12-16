@@ -15,7 +15,32 @@
         </div>
         {% endif %}
         <h5 class="mb-1">{{ user.username }}</h5>
-        <p class="text-muted mb-0">{{ user.email }}</p>
+        <p class="text-muted mb-1">{{ user.email }}</p>
+        
+        <!-- Email verification status -->
+        {% if user.email_verified %}
+        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Email tasdiqlangan</span>
+        {% else %}
+        <div class="mt-2">
+            <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle"></i> Email tasdiqlanmagan</span>
+            <div class="mt-2">
+                <a href="{% url 'accounts:resend_verification' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-envelope"></i> Tasdiqlash havolasini yuborish
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Auth provider badge -->
+        {% if user.auth_provider == 'google' %}
+        <div class="mt-2">
+            <span class="badge bg-light text-dark border"><i class="bi bi-google"></i> Google orqali</span>
+        </div>
+        {% elif user.auth_provider == 'telegram' %}
+        <div class="mt-2">
+            <span class="badge bg-info text-white"><i class="bi bi-telegram"></i> Telegram orqali</span>
+        </div>
+        {% endif %}
     </div>
 </div>
 
