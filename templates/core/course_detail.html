@@ -125,9 +125,9 @@
                 {% elif forloop.counter == 1 %}
                 <span class="badge bg-success">Bepul dars</span>
                 {% else %}
-                <span class="badge bg-secondary">
-                    <i class="bi bi-lock"></i> Pullik dars
-                </span>
+                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                    <i class="bi bi-lock"></i> To'lov kerak
+                </button>
                 {% endif %}
             </div>
         </div>
@@ -140,6 +140,44 @@
     </div>
 {% endif %}
 
-
+<!-- To'lov Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">
+                    <i class="bi bi-lock-fill text-warning me-2"></i>Pullik kurs
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Yopish"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="bi bi-credit-card-2-front display-1 text-primary"></i>
+                    <h5 class="mt-3">{{ course.title }}</h5>
+                    <p class="text-muted">Bu darsni ko'rish uchun kursga to'lov qilishingiz kerak.</p>
+                    {% if course.price %}
+                    <h4 class="text-success">{{ course.price|floatformat:0 }} so'm</h4>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer d-flex flex-column gap-2">
+                {% if course.payment_url %}
+                <a href="{{ course.payment_url }}" target="_blank" class="btn btn-warning btn-lg w-100">
+                    <i class="bi bi-credit-card me-2"></i>To'lov
+                </a>
+                {% elif not user.is_authenticated %}
+                <a href="{% url 'accounts:login' %}" class="btn btn-primary w-100">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Avval tizimga kiring
+                </a>
+                {% else %}
+                <div class="alert alert-warning w-100 mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>To'lov havolasi hali qo'shilmagan
+                </div>
+                {% endif %}
+                <button type="button" class="btn btn-light w-100" data-bs-dismiss="modal">Yopish</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
