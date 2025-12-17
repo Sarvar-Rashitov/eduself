@@ -176,13 +176,13 @@ class Answer(models.Model):
 class TestResult(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='test_results')
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='results')
-    score = models.PositiveIntegerField(default=0)
+    score = models.FloatField(default=0, verbose_name="Ball (%)")
     total_questions = models.PositiveIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
-    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
+    earned_points = models.FloatField(default=0, verbose_name="Olingan ball")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -320,13 +320,13 @@ class CertificateAnswer(models.Model):
 class CertificateResult(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='certificate_results')
     test = models.ForeignKey(CertificateTest, on_delete=models.CASCADE, related_name='cert_results')
-    score = models.PositiveIntegerField(default=0)
+    score = models.FloatField(default=0, verbose_name="Ball (%)")
     total_questions = models.PositiveIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
-    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
+    earned_points = models.FloatField(default=0, verbose_name="Olingan ball")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -468,13 +468,13 @@ class MockExamAnswer(models.Model):
 class MockExamResult(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='mock_results')
     exam = models.ForeignKey(MockExam, on_delete=models.CASCADE, related_name='mock_results')
-    score = models.PositiveIntegerField(default=0)
+    score = models.FloatField(default=0, verbose_name="Ball (%)")
     total_questions = models.PositiveIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
-    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
+    earned_points = models.FloatField(default=0, verbose_name="Olingan ball")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

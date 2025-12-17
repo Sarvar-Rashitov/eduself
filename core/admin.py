@@ -86,7 +86,21 @@ class TestResultAdmin(admin.ModelAdmin):
     list_display = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
     list_filter = ['passed', 'completed_at', 'test__topic__subject']
     search_fields = ['user__username', 'test__title']
-    readonly_fields = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
+    list_editable = ['score', 'earned_points']
+    readonly_fields = ['user', 'test', 'correct_answers', 'total_questions', 'passed', 'completed_at']
+    
+    fieldsets = (
+        ('Test ma\'lumotlari', {
+            'fields': ('user', 'test', 'completed_at')
+        }),
+        ('Natijalar', {
+            'fields': ('correct_answers', 'total_questions', 'passed')
+        }),
+        ('Ballar (tahrirlash mumkin)', {
+            'fields': ('score', 'earned_points'),
+            'description': 'Bu maydonlarni o\'zgartirishingiz mumkin. Haqiqiy sonlarni kiriting (masalan: 85.5, 92.3)'
+        }),
+    )
 
 
 class CertAnswerInline(admin.TabularInline):
@@ -152,7 +166,21 @@ class CertificateQuestionAdmin(admin.ModelAdmin):
 class CertificateResultAdmin(admin.ModelAdmin):
     list_display = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
     list_filter = ['passed', 'completed_at']
-    readonly_fields = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
+    list_editable = ['score', 'earned_points']
+    readonly_fields = ['user', 'test', 'correct_answers', 'total_questions', 'passed', 'completed_at']
+    
+    fieldsets = (
+        ('Test ma\'lumotlari', {
+            'fields': ('user', 'test', 'completed_at')
+        }),
+        ('Natijalar', {
+            'fields': ('correct_answers', 'total_questions', 'passed')
+        }),
+        ('Ballar (tahrirlash mumkin)', {
+            'fields': ('score', 'earned_points'),
+            'description': 'Bu maydonlarni o\'zgartirishingiz mumkin. Haqiqiy sonlarni kiriting (masalan: 85.5, 92.3)'
+        }),
+    )
 
 
 class MockAnswerInline(admin.TabularInline):
@@ -197,7 +225,21 @@ class MockExamQuestionAdmin(admin.ModelAdmin):
 class MockExamResultAdmin(admin.ModelAdmin):
     list_display = ['user', 'exam', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
     list_filter = ['passed', 'completed_at', 'exam']
-    readonly_fields = ['user', 'exam', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
+    list_editable = ['score', 'earned_points']
+    readonly_fields = ['user', 'exam', 'correct_answers', 'total_questions', 'passed', 'completed_at']
+    
+    fieldsets = (
+        ('Imtihon ma\'lumotlari', {
+            'fields': ('user', 'exam', 'completed_at')
+        }),
+        ('Natijalar', {
+            'fields': ('correct_answers', 'total_questions', 'passed')
+        }),
+        ('Ballar (tahrirlash mumkin)', {
+            'fields': ('score', 'earned_points'),
+            'description': 'Bu maydonlarni o\'zgartirishingiz mumkin. Haqiqiy sonlarni kiriting (masalan: 85.5, 92.3)'
+        }),
+    )
 
 
 @admin.register(InstitutionCategory)

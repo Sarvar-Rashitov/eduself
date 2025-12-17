@@ -215,7 +215,7 @@ def take_test_view(request, pk):
                     'is_correct': False
                 }
         
-        score = int((correct / total) * 100) if total > 0 else 0
+        score = round((correct / total) * 100, 2) if total > 0 else 0
         passed = score >= test.passing_score
         
         # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
@@ -446,7 +446,7 @@ def take_cert_test_view(request, pk):
                     'is_correct': False
                 }
         
-        score = int((correct / total) * 100) if total > 0 else 0
+        score = round((correct / total) * 100, 2) if total > 0 else 0
         passed = score >= test.passing_score
         
         # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
@@ -683,7 +683,7 @@ def take_mock_exam_view(request, pk):
                     'is_correct': False
                 }
         
-        score = int((correct / total) * 100) if total > 0 else 0
+        score = round((correct / total) * 100, 2) if total > 0 else 0
         passed = score >= exam.passing_score
         
         # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
