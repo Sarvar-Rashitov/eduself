@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}EduSelf - Bosh sahifa{% endblock %}
+{% block title %}EduSelf - O'zbekiston uchun zamonaviy onlayn ta'lim platformasi{% endblock %}
+
+{% block meta_description %}EduSelf - O'zbekistonda onlayn ta'lim olish, testlar yechish, sertifikat olish va mock imtihonlarga tayyorlanish platformasi. 1000+ test, 50+ fan, AI yordamchi va bepul kurslar.{% endblock %}
+
+{% block meta_keywords %}eduself, onlayn ta'lim, test yechish, sertifikat olish, mock imtihon, o'zbekiston ta'lim, fanlar, kurslar, AI yordamchi, bepul ta'lim, online test{% endblock %}
+
+{% block og_title %}EduSelf - O'zbekiston uchun zamonaviy onlayn ta'lim platformasi{% endblock %}
+{% block og_description %}1000+ test, 50+ fan, AI yordamchi va bepul kurslar bilan bilimingizni oshiring. Mock imtihonlarga tayyorlaning va sertifikat oling.{% endblock %}
 
 {% block content %}
 {% if not user.is_authenticated %}

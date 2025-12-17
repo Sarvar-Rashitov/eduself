@@ -1,11 +1,24 @@
 from .models import SiteSettings, Notification
+from django.conf import settings as django_settings
 
 def site_settings(request):
     try:
         settings = SiteSettings.objects.first()
     except:
         settings = None
-    return {'site_settings': settings}
+    
+    # SEO uchun asosiy ma'lumotlar
+    seo_data = {
+        'site_name': 'EduSelf',
+        'site_url': django_settings.SITE_URL,
+        'site_description': 'O\'zbekiston uchun zamonaviy onlayn ta\'lim platformasi',
+        'site_keywords': 'eduself, onlayn ta\'lim, test, sertifikat, mock imtihon, o\'zbekiston',
+    }
+    
+    return {
+        'site_settings': settings,
+        'seo_data': seo_data
+    }
 
 
 def notifications(request):

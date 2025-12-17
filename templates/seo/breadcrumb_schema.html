@@ -1,0 +1,21 @@
+{% comment %}
+Breadcrumb Structured Data Template
+Bu template sahifalar uchun breadcrumb structured data yaratadi
+{% endcomment %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {% for item in breadcrumb_items %}
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.counter }},
+      "name": "{{ item.name }}",
+      "item": "https://eduself.uz{{ item.url }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
