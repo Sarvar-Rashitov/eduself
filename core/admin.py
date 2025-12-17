@@ -79,6 +79,11 @@ class QuestionAdmin(admin.ModelAdmin):
     search_fields = ['text']
     list_editable = ['points']
     inlines = [AnswerInline]
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['points'].help_text = 'Butun son kiriting (masalan: 1, 2, 3, 5)'
+        return form
 
 
 @admin.register(TestResult)
@@ -160,6 +165,11 @@ class CertificateQuestionAdmin(admin.ModelAdmin):
     search_fields = ['text']
     list_editable = ['points']
     inlines = [CertAnswerInline]
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['points'].help_text = 'Haqiqiy son kiriting, nuqtadan keyin 2 xona (masalan: 1.50, 2.15, 3.75)'
+        return form
 
 
 @admin.register(CertificateResult)
@@ -219,6 +229,11 @@ class MockExamQuestionAdmin(admin.ModelAdmin):
     search_fields = ['text']
     list_editable = ['points']
     inlines = [MockAnswerInline]
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['points'].help_text = 'Haqiqiy son kiriting, nuqtadan keyin 2 xona (masalan: 1.50, 2.15, 3.75)'
+        return form
 
 
 @admin.register(MockExamResult)

@@ -1,48 +1,58 @@
-# 📊 Haqiqiy Son (Float) Ball Tizimi - Qo'llanma
+# 📊 Aralash Ball Tizimi - Qo'llanma
 
 ## ✅ Nima O'zgartirildi?
 
-Savollarga ball berish tizimi **butun sondan** (integer) **haqiqiy songa** (float) o'zgartirildi.
+Savollarga ball berish tizimi turli xil test turlari uchun moslashtirildi.
 
-### Oldingi Tizim (Integer)
+### Fanlar (Subjects) - Butun Son
 ```python
 points = models.PositiveIntegerField(default=1)
 # Faqat: 1, 2, 3, 4, 5 ball
 ```
 
-### Yangi Tizim (Float)
+### Sertifikat va Mock Imtihonlar - Haqiqiy Son (2 xona)
 ```python
-points = models.FloatField(default=1.0)
-# Endi: 1.0, 1.5, 2.1, 2.5, 3.3, 4.7 ball
+points = models.DecimalField(max_digits=5, decimal_places=2, default=1.00)
+# Endi: 1.00, 1.50, 2.15, 2.75, 3.25 ball
 ```
 
-## 🎯 Qaysi Modellar O'zgartirildi?
+## 🎯 Qaysi Modellar Qanday?
 
-1. **Question** - Oddiy test savollari
-2. **CertificateQuestion** - Sertifikat test savollari
-3. **MockExamQuestion** - Mock imtihon savollari
+1. **Question** - Fanlar uchun (Butun son: 1, 2, 3, 5)
+2. **CertificateQuestion** - Sertifikat uchun (Haqiqiy: 1.50, 2.15)
+3. **MockExamQuestion** - Mock imtihon uchun (Haqiqiy: 1.50, 2.15)
 
 ## 📝 Qanday Ishlatish?
 
 ### Admin Panelda
 
-1. **Savol Qo'shish**
+1. **Fanlar uchun Savol Qo'shish**
    - Admin panelga kiring: `/nokia/`
    - "Questions" (Savollar) bo'limiga o'ting
    - Yangi savol qo'shing
-   - "Ball" maydoniga haqiqiy son kiriting
+   - "Ball" maydoniga butun son kiriting
 
-2. **Ball Misollar**
+2. **Fanlar uchun Ball Misollar**
    ```
-   ✅ 1.0   - Oson savol
-   ✅ 1.5   - O'rtacha oson
-   ✅ 2.0   - O'rtacha
-   ✅ 2.1   - O'rtacha qiyin
-   ✅ 2.5   - Qiyin
-   ✅ 3.0   - Juda qiyin
-   ✅ 3.3   - Murakkab
-   ✅ 4.5   - Juda murakkab
-   ✅ 5.0   - Eng qiyin
+   ✅ 1   - Oson savol
+   ✅ 2   - O'rtacha savol
+   ✅ 3   - Qiyin savol
+   ✅ 4   - Juda qiyin savol
+   ✅ 5   - Eng qiyin savol
+   ```
+
+3. **Sertifikat/Mock uchun Savol Qo'shish**
+   - "Certificate Questions" yoki "Mock Exam Questions" bo'limiga o'ting
+   - "Ball" maydoniga haqiqiy son kiriting (2 xona)
+
+4. **Sertifikat/Mock uchun Ball Misollar**
+   ```
+   ✅ 1.00   - Oson savol
+   ✅ 1.50   - O'rtacha oson
+   ✅ 2.15   - O'rtacha qiyin
+   ✅ 2.75   - Qiyin savol
+   ✅ 3.25   - Juda qiyin
+   ✅ 4.50   - Eng qiyin
    ```
 
 3. **Mavjud Savollarni Tahrirlash**
@@ -53,19 +63,29 @@ points = models.FloatField(default=1.0)
 ### Kod Orqali
 
 ```python
-from core.models import Question, Test
+from core.models import Question, CertificateQuestion, MockExamQuestion
+from decimal import Decimal
 
-# Yangi savol yaratish
+# Fanlar uchun savol yaratish (butun son)
 question = Question.objects.create(
     test=test,
     text="Bu qanday savol?",
-    points=2.5  # Haqiqiy son
+    points=3  # Butun son
 )
 
-# Mavjud savolni yangilash
-question = Question.objects.get(id=1)
-question.points = 3.3
-question.save()
+# Sertifikat uchun savol yaratish (haqiqiy son)
+cert_question = CertificateQuestion.objects.create(
+    test=cert_test,
+    text="Sertifikat savoli?",
+    points=Decimal('2.15')  # Haqiqiy son (2 xona)
+)
+
+# Mock imtihon uchun savol yaratish (haqiqiy son)
+mock_question = MockExamQuestion.objects.create(
+    exam=mock_exam,
+    text="Mock savoli?",
+    points=Decimal('3.75')  # Haqiqiy son (2 xona)
+)
 ```
 
 ## 🔢 Ball Hisoblash

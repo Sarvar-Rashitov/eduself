@@ -150,7 +150,7 @@ class Question(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    points = models.FloatField(default=1.0, verbose_name="Ball")
+    points = models.PositiveIntegerField(default=1, verbose_name="Ball")
     
     class Meta:
         ordering = ['order']
@@ -294,7 +294,7 @@ class CertificateQuestion(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='cert_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    points = models.FloatField(default=1.0, verbose_name="Ball")
+    points = models.DecimalField(max_digits=5, decimal_places=2, default=1.00, verbose_name="Ball")
     
     class Meta:
         ordering = ['order']
@@ -442,7 +442,7 @@ class MockExamQuestion(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='mock_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    points = models.FloatField(default=1.0, verbose_name="Ball")
+    points = models.DecimalField(max_digits=5, decimal_places=2, default=1.00, verbose_name="Ball")
     
     class Meta:
         ordering = ['order']
