@@ -1,0 +1,757 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}AI Yordamchi - EduSelf{% endblock %}
+
+{% block content %}
+<section class="ai-chat-section">
+    <div class="ai-chat-layout">
+        <!-- Sidebar -->
+        <div class="ai-sidebar">
+            <div class="ai-sidebar-header">
+                <h3><i class="fas fa-robot"></i> AI Yordamchi</h3>
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i> Yangi suhbat
+                </button>
+            </div>
+            
+            <div class="ai-sidebar-content">
+                <div class="chat-history">
+                    <h4>So'nggi suhbatlar</h4>
+                    {% for session in chat_sessions %}
+                    <a href="{% url 'ai_assistant:chat_session' session.id %}" class="chat-history-item {% if session.id == current_session.id %}active{% endif %}">
+                        <i class="fas fa-comment"></i>
+                        <span>{{ session.title|default:"Yangi suhbat" }}</span>
+                        <small>{{ session.created_at|date:"d.m" }}</small>
+                    </a>
+                    {% empty %}
+                    <p class="no-history">Suhbat tarixi yo'q</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="ai-sidebar-footer">
+                <a href="{% url 'ai_assistant:help_center' %}" class="sidebar-link">
+                    <i class="fas fa-question-circle"></i> Yordam markazi
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="sidebar-link">
+                    <i class="fas fa-user"></i> Profilim
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Chat Area -->
+        <div class="ai-main-chat">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title">
+                    <div class="ai-avatar-header">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <h2>AI Yordamchi</h2>
+                        <span class="ai-status-text"><span class="status-dot"></span> Online</span>
+                    </div>
+                </div>
+                <div class="ai-chat-actions">
+                    <button class="action-btn" title="Suhbatni tozalash" id="clearChatBtn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="action-btn" title="Sozlamalar">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="ai-messages-container" id="messagesContainer">
+                {% if messages_list %}
+                    {% for msg in messages_list %}
+                    <div class="ai-message {% if msg.is_user %}user{% else %}bot{% endif %}">
+                        <div class="message-avatar">
+                            {% if msg.is_user %}
+                            <span>{{ user.username|slice:":1"|upper }}</span>
+                            {% else %}
+                            <i class="fas fa-robot"></i>
+                            {% endif %}
+                        </div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-sender">{% if msg.is_user %}Siz{% else %}AI Yordamchi{% endif %}</span>
+                                <span class="message-time">{{ msg.created_at|date:"H:i" }}</span>
+                            </div>
+                            <div class="message-text">{{ msg.content|linebreaks }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Welcome Message -->
+                    <div class="ai-welcome">
+                        <div class="welcome-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h2>Salom, {{ user.first_name|default:user.username }}! 👋</h2>
+                        <p>Men sizning shaxsiy AI yordamchingizman. Qanday yordam bera olaman?</p>
+                        
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" data-question="Matematika bo'yicha qanday testlar bor?">
+                                <i class="fas fa-calculator"></i>
+                                <span>Matematika testlari</span>
+                            </button>
+                            <button class="quick-action-btn" data-question="Qanday qilib sertifikat olish mumkin?">
+                                <i class="fas fa-award"></i>
+                                <span>Sertifikat olish</span>
+                            </button>
+                            <button class="quick-action-btn" data-question="Eng yaxshi universitetlar haqida ma'lumot bering">
+                                <i class="fas fa-university"></i>
+                                <span>Top universitetlar</span>
+                            </button>
+                            <button class="quick-action-btn" data-question="Ingliz tilini qayerdan o'rganishim mumkin?">
+                                <i class="fas fa-language"></i>
+                                <span>Ingliz tili kurslari</span>
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="ai-input-container">
+                <form id="chatForm" class="ai-input-form">
+                    {% csrf_token %}
+                    <div class="input-wrapper">
+                        <button type="button" class="attach-btn" title="Fayl biriktirish">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <textarea id="messageInput" name="message" placeholder="Savolingizni yozing..." rows="1"></textarea>
+                        <button type="submit" class="send-btn" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <p class="input-hint">Enter - yuborish, Shift+Enter - yangi qator</p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.ai-chat-section {
+    height: calc(100vh - 70px);
+    overflow: hidden;
+}
+
+.ai-chat-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    height: 100%;
+}
+
+/* Sidebar */
+.ai-sidebar {
+    background: var(--white);
+    border-right: 1px solid var(--light-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.ai-sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--light-color);
+}
+
+.ai-sidebar-header h3 {
+    font-size: 1.1rem;
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ai-sidebar-header h3 i {
+    color: var(--primary-color);
+}
+
+.new-chat-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--gradient);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.new-chat-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.ai-sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.chat-history h4 {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.chat-history-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.chat-history-item:hover,
+.chat-history-item.active {
+    background: var(--light-color);
+    color: var(--primary-color);
+}
+
+.chat-history-item i {
+    font-size: 0.9rem;
+}
+
+.chat-history-item span {
+    flex: 1;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-history-item small {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.no-history {
+    text-align: center;
+    color: var(--text-color);
+    opacity: 0.5;
+    font-size: 0.9rem;
+}
+
+.ai-sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--light-color);
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.sidebar-link:hover {
+    background: var(--light-color);
+    color: var(--primary-color);
+}
+
+/* Main Chat */
+.ai-main-chat {
+    display: flex;
+    flex-direction: column;
+    background: var(--light-color);
+}
+
+.ai-chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: var(--white);
+    border-bottom: 1px solid var(--light-color);
+}
+
+.ai-chat-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ai-avatar-header {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: var(--gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1.25rem;
+}
+
+.ai-chat-title h2 {
+    font-size: 1.1rem;
+    color: var(--dark-color);
+    margin-bottom: 0.25rem;
+}
+
+.ai-status-text {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.ai-chat-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    background: var(--light-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+/* Messages Container */
+.ai-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+}
+
+.ai-welcome {
+    text-align: center;
+    padding: 3rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.welcome-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--gradient);
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.welcome-icon i {
+    font-size: 3rem;
+    color: var(--white);
+}
+
+.ai-welcome h2 {
+    font-size: 1.75rem;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.ai-welcome p {
+    color: var(--text-color);
+    margin-bottom: 2rem;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--white);
+    border: 2px solid var(--light-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.quick-action-btn:hover {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+}
+
+.quick-action-btn i {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.quick-action-btn span {
+    font-size: 0.9rem;
+    color: var(--dark-color);
+}
+
+/* Messages */
+.ai-message {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    max-width: 80%;
+}
+
+.ai-message.user {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.ai-message.user .message-avatar {
+    background: var(--primary-color);
+}
+
+.message-content {
+    background: var(--white);
+    padding: 1rem 1.25rem;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ai-message.user .message-content {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.message-sender {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.ai-message.user .message-sender {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.message-time {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.message-text {
+    line-height: 1.6;
+}
+
+.message-text p {
+    margin: 0;
+}
+
+/* Input Container */
+.ai-input-container {
+    padding: 1.5rem 2rem;
+    background: var(--white);
+    border-top: 1px solid var(--light-color);
+}
+
+.ai-input-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    background: var(--light-color);
+    border-radius: 16px;
+    padding: 0.5rem;
+}
+
+.attach-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.attach-btn:hover {
+    background: var(--white);
+    color: var(--primary-color);
+}
+
+.input-wrapper textarea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.75rem;
+    font-size: 1rem;
+    resize: none;
+    max-height: 150px;
+    line-height: 1.5;
+}
+
+.input-wrapper textarea:focus {
+    outline: none;
+}
+
+.send-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    border: none;
+    background: var(--gradient);
+    color: var(--white);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.send-btn:hover {
+    transform: scale(1.05);
+}
+
+.input-hint {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-color);
+    opacity: 0.5;
+    margin-top: 0.5rem;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@media (max-width: 968px) {
+    .ai-chat-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .ai-sidebar {
+        display: none;
+    }
+    
+    .ai-messages-container {
+        padding: 1rem;
+    }
+    
+    .ai-message {
+        max-width: 90%;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const messagesContainer = document.getElementById('messagesContainer');
+const chatForm = document.getElementById('chatForm');
+const messageInput = document.getElementById('messageInput');
+
+// Auto-resize textarea
+messageInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+});
+
+// Handle Enter key
+messageInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        chatForm.dispatchEvent(new Event('submit'));
+    }
+});
+
+// Quick action buttons
+document.querySelectorAll('.quick-action-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const question = this.dataset.question;
+        messageInput.value = question;
+        chatForm.dispatchEvent(new Event('submit'));
+    });
+});
+
+// Form submit
+chatForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const message = messageInput.value.trim();
+    if (!message) return;
+    
+    // Add user message
+    addMessage(message, true);
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    
+    // Hide welcome if visible
+    const welcome = document.querySelector('.ai-welcome');
+    if (welcome) welcome.style.display = 'none';
+    
+    // Show typing indicator
+    showTyping();
+    
+    try {
+        const response = await fetch('{% url "ai_assistant:send_message" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ message: message })
+        });
+        
+        const data = await response.json();
+        hideTyping();
+        
+        if (data.response) {
+            addMessage(data.response, false);
+        }
+    } catch (error) {
+        hideTyping();
+        addMessage('Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.', false);
+    }
+});
+
+function addMessage(text, isUser) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `ai-message ${isUser ? 'user' : 'bot'}`;
+    
+    const now = new Date();
+    const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">
+            ${isUser ? '{{ user.username|slice:":1"|upper }}' : '<i class="fas fa-robot"></i>'}
+        </div>
+        <div class="message-content">
+            <div class="message-header">
+                <span class="message-sender">${isUser ? 'Siz' : 'AI Yordamchi'}</span>
+                <span class="message-time">${time}</span>
+            </div>
+            <div class="message-text">${text.replace(/\n/g, '<br>')}</div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showTyping() {
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'ai-message bot typing-indicator';
+    typingDiv.innerHTML = `
+        <div class="message-avatar"><i class="fas fa-robot"></i></div>
+        <div class="message-content">
+            <div class="typing-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    `;
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTyping() {
+    const typing = document.querySelector('.typing-indicator');
+    if (typing) typing.remove();
+}
+
+// New chat button
+document.getElementById('newChatBtn').addEventListener('click', function() {
+    window.location.href = '{% url "ai_assistant:chat_redirect" %}';
+});
+
+// Clear chat button
+document.getElementById('clearChatBtn').addEventListener('click', function() {
+    if (confirm('Suhbatni tozalashni xohlaysizmi?')) {
+        messagesContainer.innerHTML = '';
+        const welcome = document.querySelector('.ai-welcome');
+        if (welcome) welcome.style.display = 'block';
+    }
+});
+</script>
+
+<style>
+.typing-dots {
+    display: flex;
+    gap: 4px;
+    padding: 0.5rem 0;
+}
+
+.typing-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    animation: typing 1.4s ease-in-out infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+}
+</style>
+{% endblock %}

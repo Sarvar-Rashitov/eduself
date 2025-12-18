@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edu - Ta'lim Platformasi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Edu</span>
+                </div>
+                
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <nav class="nav-menu" id="navMenu">
+                    <a href="#tests" class="nav-link">Testlar</a>
+                    <a href="#games" class="nav-link">O'yinlar</a>
+                    <a href="#resources" class="nav-link">Resurslar</a>
+                    <a href="#certificate" class="nav-link">Milliy Sertifikat</a>
+                    <a href="#schools" class="nav-link">Maktablar</a>
+                    <a href="#universities" class="nav-link">OTM</a>
+                    <a href="#centers" class="nav-link">O'quv Markazlar</a>
+                    <a href="#ai-assistant" class="nav-link">AI Yordamchi</a>
+                    <button class="btn-login" id="loginBtn">Kirish</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Zamonaviy Ta'lim Platformasi</h1>
+                <p class="hero-subtitle">O'zbekistonning eng katta online ta'lim tizimi</p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" id="heroLoginBtn">Kirish</button>
+                    <button class="btn btn-secondary">Batafsil</button>
+                </div>
+            </div>
+        </div>
+        <div class="hero-animation"></div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3>500K+</h3>
+                    <p>Foydalanuvchilar</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-book"></i>
+                    <h3>1000+</h3>
+                    <p>Kurslar</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-trophy"></i>
+                    <h3>50K+</h3>
+                    <p>Sertifikatlar</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-star"></i>
+                    <h3>4.9</h3>
+                    <p>Reyting</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tests Section -->
+    <section id="tests" class="section tests-section">
+        <div class="container">
+            <h2 class="section-title">Testlar</h2>
+            <p class="section-subtitle">Bilimingizni sinab ko'ring</p>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3>Matematika</h3>
+                    <p>1000+ test savollari</p>
+                    <button class="btn btn-outline">Boshlash</button>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3>Kimyo</h3>
+                    <p>800+ test savollari</p>
+                    <button class="btn btn-outline">Boshlash</button>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-atom"></i>
+                    </div>
+                    <h3>Fizika</h3>
+                    <p>900+ test savollari</p>
+                    <button class="btn btn-outline">Boshlash</button>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <h3>Ingliz tili</h3>
+                    <p>1200+ test savollari</p>
+                    <button class="btn btn-outline">Boshlash</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Section -->
+    <section id="games" class="section games-section">
+        <div class="container">
+            <h2 class="section-title">O'yinlar</h2>
+            <p class="section-subtitle">O'yin orqali o'rganing</p>
+            <div class="cards-grid">
+                <div class="card game-card">
+                    <div class="card-image">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <h3>Matematik Jumboq</h3>
+                    <p>Mantiqiy topshiriqlar yechish</p>
+                    <button class="btn btn-primary">O'ynash</button>
+                </div>
+                <div class="card game-card">
+                    <div class="card-image">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Xotira O'yini</h3>
+                    <p>Xotirani rivojlantirish</p>
+                    <button class="btn btn-primary">O'ynash</button>
+                </div>
+                <div class="card game-card">
+                    <div class="card-image">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Geografiya Kviz</h3>
+                    <p>Dunyoni o'rganing</p>
+                    <button class="btn btn-primary">O'ynash</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Section -->
+    <section id="resources" class="section resources-section">
+        <div class="container">
+            <h2 class="section-title">Resurslar</h2>
+            <p class="section-subtitle">Foydali materiallar</p>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <i class="fas fa-file-pdf"></i>
+                    <h3>PDF Darsliklar</h3>
+                    <p>500+ darslik yuklab olish</p>
+                </div>
+                <div class="resource-card">
+                    <i class="fas fa-video"></i>
+                    <h3>Video Darslar</h3>
+                    <p>2000+ video kontent</p>
+                </div>
+                <div class="resource-card">
+                    <i class="fas fa-headphones"></i>
+                    <h3>Audio Darslar</h3>
+                    <p>300+ audio material</p>
+                </div>
+                <div class="resource-card">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h3>Online Darslar</h3>
+                    <p>Jonli dars seanslar</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certificate Section -->
+    <section id="certificate" class="section certificate-section">
+        <div class="container">
+            <div class="certificate-content">
+                <div class="certificate-text">
+                    <h2>Milliy Sertifikat</h2>
+                    <p>Umum ta'lim fanlaridan Milliy sertifikat olish imkoniyati</p>
+                    <ul class="certificate-features">
+                        <li><i class="fas fa-check"></i> Davlat tomonidan tan olingan</li>
+                        <li><i class="fas fa-check"></i> Barcha fanlardan</li>
+                        <li><i class="fas fa-check"></i> Online formatda</li>
+                        <li><i class="fas fa-check"></i> Tez natijalar</li>
+                    </ul>
+                    <button class="btn btn-primary">Ro'yxatdan o'tish</button>
+                </div>
+                <div class="certificate-image">
+                    <i class="fas fa-certificate"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Schools Section -->
+    <section id="schools" class="section schools-section">
+        <div class="container">
+            <h2 class="section-title">Maktablar</h2>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="state-schools">Davlat Maktablari</button>
+                <button class="tab-btn" data-tab="private-schools">Nodavlat Maktablari</button>
+            </div>
+            <div class="tab-content active" id="state-schools">
+                <div class="schools-grid">
+                    <div class="school-card">
+                        <h3>Ixtisoslashtirilgan Maktablar</h3>
+                        <p>Chuqur bilim beruvchi davlat maktablari</p>
+                    </div>
+                    <div class="school-card">
+                        <h3>Prezident Maktablari</h3>
+                        <p>Eng yuqori sifatli ta'lim</p>
+                    </div>
+                    <div class="school-card">
+                        <h3>Umumiy O'rta Maktablar</h3>
+                        <p>Barcha hududlarda mavjud</p>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="private-schools">
+                <div class="schools-grid">
+                    <div class="school-card">
+                        <h3>Xalqaro Maktablar</h3>
+                        <p>Xorijiy dasturlar asosida</p>
+                    </div>
+                    <div class="school-card">
+                        <h3>Innovatsion Maktablar</h3>
+                        <p>Zamonaviy ta'lim texnologiyalari</p>
+                    </div>
+                    <div class="school-card">
+                        <h3>Til Maktablari</h3>
+                        <p>Ko'p tillarni o'rgatish</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Universities Section -->
+    <section id="universities" class="section universities-section">
+        <div class="container">
+            <h2 class="section-title">Oliy Ta'lim Muassasalari</h2>
+            <div class="universities-grid">
+                <div class="university-card">
+                    <div class="university-badge">Davlat</div>
+                    <h3>Milliy Universitetlar</h3>
+                    <p>Top 10 davlat universitetlari</p>
+                    <button class="btn btn-outline">Batafsil</button>
+                </div>
+                <div class="university-card">
+                    <div class="university-badge">Nodavlat</div>
+                    <h3>Xususiy Universitetlar</h3>
+                    <p>Zamonaviy ta'lim muassasalari</p>
+                    <button class="btn btn-outline">Batafsil</button>
+                </div>
+                <div class="university-card">
+                    <div class="university-badge">Xalqaro</div>
+                    <h3>Xalqaro Filiallar</h3>
+                    <p>Jahon universitetlarining filiallari</p>
+                    <button class="btn btn-outline">Batafsil</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Centers Section -->
+    <section id="centers" class="section centers-section">
+        <div class="container">
+            <h2 class="section-title">O'quv Markazlar</h2>
+            <p class="section-subtitle">Qo'shimcha ta'lim uchun</p>
+            <div class="centers-grid">
+                <div class="center-card">
+                    <i class="fas fa-code"></i>
+                    <h3>IT Markazlar</h3>
+                    <p>Dasturlash va texnologiyalar</p>
+                    <span class="center-count">150+ markaz</span>
+                </div>
+                <div class="center-card">
+                    <i class="fas fa-language"></i>
+                    <h3>Til O'rgatish</h3>
+                    <p>Xorijiy tillarni o'rganing</p>
+                    <span class="center-count">200+ markaz</span>
+                </div>
+                <div class="center-card">
+                    <i class="fas fa-pencil-alt"></i>
+                    <h3>San'at Maktablari</h3>
+                    <p>Ijodiy yo'nalishlar</p>
+                    <span class="center-count">100+ markaz</span>
+                </div>
+                <div class="center-card">
+                    <i class="fas fa-dumbbell"></i>
+                    <h3>Sport Markazlar</h3>
+                    <p>Sog'lom turmush tarzi</p>
+                    <span class="center-count">120+ markaz</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Assistant Section -->
+    <section id="ai-assistant" class="section ai-section">
+        <div class="container">
+            <h2 class="section-title">🤖 AI Yordamchi</h2>
+            <p class="section-subtitle">Sun'iy intellekt sizning shaxsiy o'qituvchingiz</p>
+            
+            <div class="ai-features-grid">
+                <div class="ai-feature-card">
+                    <i class="fas fa-brain"></i>
+                    <h3>Aqlli Javoblar</h3>
+                    <p>Har qanday savolingizga javob</p>
+                </div>
+                <div class="ai-feature-card">
+                    <i class="fas fa-book-reader"></i>
+                    <h3>Shaxsiy Dars</h3>
+                    <p>Sizning darajangizga moslashadi</p>
+                </div>
+                <div class="ai-feature-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>24/7 Mavjud</h3>
+                    <p>Har doim sizga yordam beradi</p>
+                </div>
+                <div class="ai-feature-card">
+                    <i class="fas fa-language"></i>
+                    <h3>Ko'p Tilli</h3>
+                    <p>O'zbek, Rus, Ingliz tillarida</p>
+                </div>
+            </div>
+
+            <div class="ai-chat-demo">
+                <div class="ai-chat-container">
+                    <div class="ai-chat-header">
+                        <div class="ai-status">
+                            <span class="ai-status-dot"></span>
+                            <span>AI Yordamchi</span>
+                        </div>
+                        <button class="ai-close-btn" id="aiCloseBtn">×</button>
+                    </div>
+                    <div class="ai-chat-messages" id="aiChatMessages">
+                        <div class="ai-message ai-bot">
+                            <div class="ai-avatar">🤖</div>
+                            <div class="ai-message-content">
+                                <p>Salom! Men sizning AI yordamchingizman. Qanday yordam bera olaman?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-chat-input">
+                        <input type="text" id="aiChatInput" placeholder="Savolingizni yozing..." />
+                        <button id="aiSendBtn"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-suggestions">
+                <h3>Tez-tez so'raladigan savollar:</h3>
+                <div class="ai-suggestion-buttons">
+                    <button class="ai-suggestion-btn" data-question="Matematika bo'yicha qanday testlar bor?">📝 Matematika testlari</button>
+                    <button class="ai-suggestion-btn" data-question="Qanday qilib sertifikat olish mumkin?">🎓 Sertifikat olish</button>
+                    <button class="ai-suggestion-btn" data-question="Eng yaxshi universitetlar haqida ma'lumot bering">🎯 Top universitetlar</button>
+                    <button class="ai-suggestion-btn" data-question="Ingliz tilini qayerdan o'rganishim mumkin?">🗣 Ingliz tili kurslari</button>
+                    <button class="ai-suggestion-btn" data-question="Platformadan qanday foydalanish kerak?">❓ Yordam kerak</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Bugun boshlang!</h2>
+                <p>500,000+ o'quvchi bilan birga bilim oling</p>
+                <button class="btn btn-large">Bepul Ro'yxatdan O'tish</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Edu</span>
+                    </div>
+                    <p>O'zbekistonning eng yirik online ta'lim platformasi. 2020-yildan beri faoliyat ko'rsatmoqdamiz.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Xizmatlar</h4>
+                    <ul>
+                        <li><a href="#tests">Testlar</a></li>
+                        <li><a href="#games">O'yinlar</a></li>
+                        <li><a href="#resources">Resurslar</a></li>
+                        <li><a href="#certificate">Sertifikat</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Ta'lim</h4>
+                    <ul>
+                        <li><a href="#schools">Maktablar</a></li>
+                        <li><a href="#universities">Universitetlar</a></li>
+                        <li><a href="#centers">O'quv Markazlar</a></li>
+                        <li><a href="#ai-assistant">AI Yordamchi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Biz Haqimizda</h4>
+                    <p style="opacity: 0.9; line-height: 1.8; margin-bottom: 1rem;">
+                        <strong>Edu</strong> - O'zbekistonning yetakchi ta'lim platformasi. 
+                        500,000+ foydalanuvchi, 1,000+ kurslar va 10+ xalqaro mukofotlar.
+                    </p>
+                    <h4 style="margin-top: 1.5rem;">Aloqa</h4>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> +998 90 123 45 67</li>
+                        <li><i class="fas fa-envelope"></i> info@edu.uz</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Toshkent, O'zbekiston</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Edu. Barcha huquqlar himoyalangan.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating AI Chat Button -->
+    <button class="ai-float-btn" id="aiFloatBtn">
+        <i class="fas fa-robot"></i>
+        <span class="ai-badge">AI</span>
+    </button>
+
+    <!-- AI Chat Window -->
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="ai-status">
+                <span class="ai-status-dot"></span>
+                <span>AI Yordamchi</span>
+            </div>
+            <button class="ai-minimize-btn" id="aiMinimizeBtn">−</button>
+        </div>
+        <div class="ai-chat-messages" id="aiFloatMessages">
+            <div class="ai-message ai-bot">
+                <div class="ai-avatar">🤖</div>
+                <div class="ai-message-content">
+                    <p>Salom! Savolingiz bo'lsa, so'rang! 😊</p>
+                </div>
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" id="aiFloatInput" placeholder="Savolingizni yozing..." />
+            <button id="aiFloatSendBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-box">
+            <button class="login-close" id="loginClose">×</button>
+            <div class="login-header">
+                <h2>Xush kelibsiz!</h2>
+                <p>Edu platformasiga kirish</p>
+            </div>
+            
+            <div class="login-tabs">
+                <button class="login-tab active" data-tab="signin">Kirish</button>
+                <button class="login-tab" data-tab="signup">Ro'yxatdan o'tish</button>
+            </div>
+
+            <!-- Sign In Form -->
+            <form class="login-form active" id="signinForm">
+                <div class="form-group">
+                    <label>Email yoki Telefon</label>
+                    <input type="text" placeholder="email@example.com" required />
+                </div>
+                <div class="form-group">
+                    <label>Parol</label>
+                    <input type="password" placeholder="••••••••" required />
+                </div>
+                <button type="submit" class="form-submit">Kirish</button>
+                
+                <div class="form-divider">yoki</div>
+                
+                <div class="social-login">
+                    <button type="button" class="social-btn">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                    <button type="button" class="social-btn">
+                        <i class="fab fa-telegram"></i> Telegram
+                    </button>
+                </div>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form class="login-form" id="signupForm">
+                <div class="form-group">
+                    <label>To'liq ism</label>
+                    <input type="text" placeholder="Ism Familiya" required />
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="email@example.com" required />
+                </div>
+                <div class="form-group">
+                    <label>Telefon</label>
+                    <input type="tel" placeholder="+998 90 123 45 67" required />
+                </div>
+                <div class="form-group">
+                    <label>Parol</label>
+                    <input type="password" placeholder="••••••••" required />
+                </div>
+                <button type="submit" class="form-submit">Ro'yxatdan o'tish</button>
+                
+                <div class="form-divider">yoki</div>
+                
+                <div class="social-login">
+                    <button type="button" class="social-btn">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                    <button type="button" class="social-btn">
+                        <i class="fab fa-telegram"></i> Telegram
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+        <i class="fas fa-robot"></i>
+        <span class="ai-badge">AI</span>
+    </button>
+
+    <!-- AI Chat Window -->
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="ai-status">
+                <span class="ai-status-dot"></span>
+                <span>AI Yordamchi</span>
+            </div>
+            <button class="ai-minimize-btn" id="aiMinimizeBtn">−</button>
+        </div>
+        <div class="ai-chat-messages" id="aiFloatMessages">
+            <div class="ai-message ai-bot">
+                <div class="ai-avatar">🤖</div>
+                <div class="ai-message-content">
+                    <p>Salom! Savolingiz bo'lsa, so'rang! 😊</p>
+                </div>
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" id="aiFloatInput" placeholder="Savolingizni yozing..." />
+            <button id="aiFloatSendBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

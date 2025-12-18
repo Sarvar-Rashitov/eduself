@@ -16,6 +16,13 @@ from .forms import RegisterForm, LoginForm, ForgotPasswordForm, ResetPasswordFor
 from .models import User, PasswordResetToken, EmailVerificationToken
 
 
+def is_mobile(request):
+    """User-Agent orqali mobil qurilmani aniqlash"""
+    user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+    mobile_keywords = ['mobile', 'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'opera mobi']
+    return any(keyword in user_agent for keyword in mobile_keywords)
+
+
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('core:home')
@@ -57,6 +64,10 @@ EduSelf jamoasi''',
                 messages.success(request, "Ro'yxatdan o'tdingiz!")
             
             login(request, user)
+            # POST yoki GET dan next parametrini olish
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
             return redirect('core:home')
     else:
         form = RegisterForm()
@@ -66,7 +77,11 @@ EduSelf jamoasi''',
         'google_client_id': settings.GOOGLE_CLIENT_ID,
         'telegram_bot_username': settings.TELEGRAM_BOT_USERNAME,
     }
-    return render(request, 'accounts/register.html', context)
+    
+    if is_mobile(request):
+        return render(request, 'accounts/register.html', context)
+    else:
+        return render(request, 'accounts/register_desktop.html', context)
 
 
 def login_view(request):
@@ -79,7 +94,8 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, "Tizimga kirdingiz!")
-            next_url = request.GET.get('next')
+            # POST yoki GET dan next parametrini olish
+            next_url = request.POST.get('next') or request.GET.get('next')
             if next_url:
                 return redirect(next_url)
             return redirect('core:home')
@@ -91,7 +107,11 @@ def login_view(request):
         'google_client_id': settings.GOOGLE_CLIENT_ID,
         'telegram_bot_username': settings.TELEGRAM_BOT_USERNAME,
     }
-    return render(request, 'accounts/login.html', context)
+    
+    if is_mobile(request):
+        return render(request, 'accounts/login.html', context)
+    else:
+        return render(request, 'accounts/login_desktop.html', context)
 
 
 def logout_view(request):
@@ -394,6 +414,37 @@ def verify_telegram_auth(data):
 @login_required
 def profile_view(request):
     if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        # Parolni o'zgartirish
+        if action == 'change_password':
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+            
+            if not request.user.check_password(current_password):
+                messages.error(request, "Joriy parol noto'g'ri!")
+                return redirect('accounts:profile')
+            
+            if new_password != confirm_password:
+                messages.error(request, "Yangi parollar mos kelmayapti!")
+                return redirect('accounts:profile')
+            
+            if len(new_password) < 8:
+                messages.error(request, "Parol kamida 8 ta belgidan iborat bo'lishi kerak!")
+                return redirect('accounts:profile')
+            
+            request.user.set_password(new_password)
+            request.user.save()
+            
+            # Foydalanuvchini qayta login qilish
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(request, request.user)
+            
+            messages.success(request, "Parol muvaffaqiyatli o'zgartirildi!")
+            return redirect('accounts:profile')
+        
+        # Profil ma'lumotlarini yangilash
         form = ProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
@@ -500,11 +551,56 @@ def profile_view(request):
             'best_score': best_score,
         })
     
+    # User stats for profile cards
+    from core.models import TestResult, CertificateResult, MockExamResult
+    total_tests = TestResult.objects.filter(user=request.user).count()
+    total_tests += CertificateResult.objects.filter(user=request.user).count()
+    total_tests += MockExamResult.objects.filter(user=request.user).count()
+    
+    passed_tests = TestResult.objects.filter(user=request.user, passed=True).count()
+    passed_tests += CertificateResult.objects.filter(user=request.user, passed=True).count()
+    passed_tests += MockExamResult.objects.filter(user=request.user, passed=True).count()
+    
+    # Calculate overall progress percentage
+    progress = int((passed_tests / total_tests) * 100) if total_tests > 0 else 0
+    
+    user_stats = {
+        'total_tests': total_tests,
+        'passed_tests': passed_tests,
+        'progress': progress,
+    }
+    
+    # User position in global leaderboard
+    user_position = None
+    if request.user.total_points > 0:
+        higher_users_count = User.objects.filter(total_points__gt=request.user.total_points).count()
+        user_position = higher_users_count + 1
+    
+    # Test results for history tab
+    test_results = TestResult.objects.filter(user=request.user).select_related('test__topic__subject').order_by('-completed_at')[:10]
+    
+    # Notifications
+    from core.models import Notification
+    from django.db.models import Q
+    notifications_qs = Notification.objects.filter(
+        Q(user=request.user) | Q(is_global=True)
+    ).order_by('-created_at')
+    unread_notifications_count = notifications_qs.filter(is_read=False).count()
+    notifications = notifications_qs[:20]
+    
     context = {
         'form': form,
         'subjects_progress': subjects_progress,
         'certificates_progress': certificates_progress,
         'mock_exams_progress': mock_exams_progress,
+        'user_stats': user_stats,
+        'user_position': user_position,
+        'test_results': test_results,
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications_count,
     }
     
-    return render(request, 'accounts/profile.html', context)
+    if is_mobile(request):
+        return render(request, 'accounts/profile.html', context)
+    else:
+        return render(request, 'accounts/profile_desktop.html', context)

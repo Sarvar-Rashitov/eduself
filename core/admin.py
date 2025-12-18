@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    SiteSettings, SubjectCategory, Subject, Topic, Test, Question, Answer, TestResult,
+    SiteSettings, DifficultyLevel, SubjectCategory, Subject, Topic, Test, Question, Answer, TestResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     InstitutionCategory, Institution, InstitutionDirection, Advertisement, Statistic, NewsCategory, News,
@@ -11,6 +11,15 @@ from .models import (
 @admin.register(SiteSettings)
 class SiteSettingsAdmin(admin.ModelAdmin):
     list_display = ['site_name', 'contact_email', 'contact_phone']
+
+
+@admin.register(DifficultyLevel)
+class DifficultyLevelAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'color', 'icon', 'order', 'is_active']
+    list_filter = ['is_active']
+    search_fields = ['name']
+    list_editable = ['color', 'icon', 'order', 'is_active']
+    prepopulated_fields = {'slug': ('name',)}
 
 
 class AnswerInline(admin.TabularInline):
@@ -65,10 +74,10 @@ class TopicAdmin(admin.ModelAdmin):
 
 @admin.register(Test)
 class TestAdmin(admin.ModelAdmin):
-    list_display = ['title', 'topic', 'order', 'time_limit', 'passing_score', 'unlock_score', 'is_active', 'get_questions_count']
-    list_filter = ['topic__subject', 'is_active', 'created_at']
+    list_display = ['title', 'topic', 'difficulty', 'order', 'time_limit', 'passing_score', 'unlock_score', 'is_active', 'get_questions_count']
+    list_filter = ['topic__subject', 'difficulty', 'is_active', 'created_at']
     search_fields = ['title', 'description']
-    list_editable = ['order', 'unlock_score', 'is_active']
+    list_editable = ['difficulty', 'order', 'unlock_score', 'is_active']
     inlines = [QuestionInline]
 
 
@@ -79,11 +88,6 @@ class QuestionAdmin(admin.ModelAdmin):
     search_fields = ['text']
     list_editable = ['points']
     inlines = [AnswerInline]
-    
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        form.base_fields['points'].help_text = 'Butun son kiriting (masalan: 1, 2, 3, 5)'
-        return form
 
 
 @admin.register(TestResult)
@@ -91,21 +95,7 @@ class TestResultAdmin(admin.ModelAdmin):
     list_display = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
     list_filter = ['passed', 'completed_at', 'test__topic__subject']
     search_fields = ['user__username', 'test__title']
-    list_editable = ['score', 'earned_points']
-    readonly_fields = ['user', 'test', 'correct_answers', 'total_questions', 'passed', 'completed_at']
-    
-    fieldsets = (
-        ('Test ma\'lumotlari', {
-            'fields': ('user', 'test', 'completed_at')
-        }),
-        ('Natijalar', {
-            'fields': ('correct_answers', 'total_questions', 'passed')
-        }),
-        ('Ballar (tahrirlash mumkin)', {
-            'fields': ('score', 'earned_points'),
-            'description': 'Bu maydonlarni o\'zgartirishingiz mumkin. Haqiqiy sonlarni kiriting (masalan: 85.5, 92.3)'
-        }),
-    )
+    readonly_fields = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
 
 
 class CertAnswerInline(admin.TabularInline):
@@ -165,32 +155,13 @@ class CertificateQuestionAdmin(admin.ModelAdmin):
     search_fields = ['text']
     list_editable = ['points']
     inlines = [CertAnswerInline]
-    
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        form.base_fields['points'].help_text = 'Haqiqiy son kiriting, nuqtadan keyin 2 xona (masalan: 1.50, 2.15, 3.75)'
-        return form
 
 
 @admin.register(CertificateResult)
 class CertificateResultAdmin(admin.ModelAdmin):
     list_display = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
     list_filter = ['passed', 'completed_at']
-    list_editable = ['score', 'earned_points']
-    readonly_fields = ['user', 'test', 'correct_answers', 'total_questions', 'passed', 'completed_at']
-    
-    fieldsets = (
-        ('Test ma\'lumotlari', {
-            'fields': ('user', 'test', 'completed_at')
-        }),
-        ('Natijalar', {
-            'fields': ('correct_answers', 'total_questions', 'passed')
-        }),
-        ('Ballar (tahrirlash mumkin)', {
-            'fields': ('score', 'earned_points'),
-            'description': 'Bu maydonlarni o\'zgartirishingiz mumkin. Haqiqiy sonlarni kiriting (masalan: 85.5, 92.3)'
-        }),
-    )
+    readonly_fields = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
 
 
 class MockAnswerInline(admin.TabularInline):
@@ -229,32 +200,13 @@ class MockExamQuestionAdmin(admin.ModelAdmin):
     search_fields = ['text']
     list_editable = ['points']
     inlines = [MockAnswerInline]
-    
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        form.base_fields['points'].help_text = 'Haqiqiy son kiriting, nuqtadan keyin 2 xona (masalan: 1.50, 2.15, 3.75)'
-        return form
 
 
 @admin.register(MockExamResult)
 class MockExamResultAdmin(admin.ModelAdmin):
     list_display = ['user', 'exam', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
     list_filter = ['passed', 'completed_at', 'exam']
-    list_editable = ['score', 'earned_points']
-    readonly_fields = ['user', 'exam', 'correct_answers', 'total_questions', 'passed', 'completed_at']
-    
-    fieldsets = (
-        ('Imtihon ma\'lumotlari', {
-            'fields': ('user', 'exam', 'completed_at')
-        }),
-        ('Natijalar', {
-            'fields': ('correct_answers', 'total_questions', 'passed')
-        }),
-        ('Ballar (tahrirlash mumkin)', {
-            'fields': ('score', 'earned_points'),
-            'description': 'Bu maydonlarni o\'zgartirishingiz mumkin. Haqiqiy sonlarni kiriting (masalan: 85.5, 92.3)'
-        }),
-    )
+    readonly_fields = ['user', 'exam', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
 
 
 @admin.register(InstitutionCategory)
@@ -298,6 +250,9 @@ class InstitutionAdmin(admin.ModelAdmin):
         }),
         ('Aloqa ma\'lumotlari', {
             'fields': ('phone', 'email', 'website', 'address', 'address_iframe')
+        }),
+        ('Ijtimoiy tarmoqlar', {
+            'fields': ('telegram', 'instagram', 'youtube', 'facebook')
         }),
         ('Sozlamalar', {
             'fields': ('is_featured', 'is_active', 'order')

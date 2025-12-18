@@ -1,0 +1,444 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduSelf - Ta'lim Platformasi{% endblock %}</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="O'zbekiston uchun zamonaviy ta'lim platformasi">
+    <meta name="theme-color" content="#6366f1">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'icons/icon-192x192.png' %}">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Desktop Styles -->
+    <link rel="stylesheet" href="{% static 'css/desktop.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="{% url 'core:home' %}" class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>EduSelf</span>
+                </a>
+                
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <nav class="nav-menu" id="navMenu">
+                    <a href="{% url 'core:subjects' %}" class="nav-link {% if 'subjects' in request.path %}active{% endif %}">Fanlar</a>
+                    <a href="{% url 'core:certificates' %}" class="nav-link {% if 'certificates' in request.path %}active{% endif %}">Sertifikatlar</a>
+                    <a href="{% url 'core:mock_exams' %}" class="nav-link {% if 'mock' in request.path %}active{% endif %}">Imtihonlar</a>
+                    <a href="{% url 'core:institutions' %}" class="nav-link {% if 'institutions' in request.path %}active{% endif %}">Muassasalar</a>
+                    <a href="{% url 'core:courses' %}" class="nav-link {% if 'courses' in request.path %}active{% endif %}">Kurslar</a>
+                    <a href="{% url 'core:global_leaderboard' %}" class="nav-link {% if 'leaderboard' in request.path %}active{% endif %}">Reyting</a>
+                    <a href="{% url 'core:news_list' %}" class="nav-link {% if 'news' in request.path %}active{% endif %}">Yangiliklar</a>
+                    
+                    {% if user.is_authenticated %}
+                    <div class="user-dropdown">
+                        <button class="user-btn" id="userDropdownBtn">
+                            {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="user-avatar-img">
+                            {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ user.username|default:'User' }}&background=6366f1&color=fff" alt="{{ user.username }}" class="user-avatar-img">
+                            {% endif %}
+                            <span>{{ user.username }}</span>
+                            {% if unread_notifications_count > 0 %}
+                            <span class="user-notification-badge" style="background: #ef4444; color: white; font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center;">{{ unread_notifications_count }}</span>
+                            {% endif %}
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="userDropdown">
+                            <a href="{% url 'accounts:profile' %}" class="dropdown-item">
+                                <i class="fas fa-user"></i> Profilim
+                            </a>
+                            {% if user.is_staff %}
+                            <a href="/nokia/" class="dropdown-item">
+                                <i class="fas fa-cog"></i> Admin Panel
+                            </a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'accounts:logout' %}" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i> Chiqish
+                            </a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <button class="btn-login" id="loginBtn">Kirish</button>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container">
+        <div class="container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible">
+                {{ message }}
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>EduSelf</span>
+                    </div>
+                    <p>O'zbekistonning eng yirik online ta'lim platformasi. Bilimingizni sinang va rivojlaning!</p>
+                    <div class="social-links">
+                        <a href="https://t.me/eduselfuz" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="https://instagram.com/eduself_uz" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Xizmatlar</h4>
+                    <ul>
+                        <li><a href="{% url 'core:subjects' %}">Fanlar</a></li>
+                        <li><a href="{% url 'core:certificates' %}">Sertifikatlar</a></li>
+                        <li><a href="{% url 'core:mock_exams' %}">Imtihonlar</a></li>
+                        <li><a href="{% url 'core:courses' %}">Kurslar</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Ta'lim</h4>
+                    <ul>
+                        <li><a href="{% url 'core:institutions' %}">Muassasalar</a></li>
+                        <li><a href="{% url 'core:global_leaderboard' %}">Reyting</a></li>
+                        <li><a href="{% url 'core:news_list' %}">Yangiliklar</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'ai_assistant:chat_redirect' %}">AI Yordamchi</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Aloqa</h4>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> +998 50 010 43 07</li>
+                        <li><i class="fas fa-envelope"></i> info@eduself.uz</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Toshkent, O'zbekiston</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 EduSelf. Barcha huquqlar himoyalangan.</p>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    {% if user.is_authenticated %}
+    <!-- Floating AI Chat Button -->
+    <button class="ai-float-btn" id="aiFloatBtn">
+        <i class="fas fa-robot"></i>
+        <span class="ai-badge">AI</span>
+    </button>
+
+    <!-- AI Chat Window -->
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="ai-status">
+                <span class="ai-status-dot"></span>
+                <span>AI Yordamchi</span>
+            </div>
+            <button class="ai-minimize-btn" id="aiMinimizeBtn">−</button>
+        </div>
+        <div class="ai-chat-messages" id="aiFloatMessages">
+            <div class="ai-message ai-bot">
+                <div class="ai-avatar">🤖</div>
+                <div class="ai-message-content">
+                    <p>Salom! Savolingiz bo'lsa, so'rang! 😊</p>
+                </div>
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" id="aiFloatInput" placeholder="Savolingizni yozing..." />
+            <button id="aiFloatSendBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not user.is_authenticated %}
+    <!-- Login Modal - Chiroyli dizayn -->
+    <div class="auth-modal-overlay" id="loginModal">
+        <div class="auth-modal-container">
+            <button class="auth-modal-close" id="loginClose">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="auth-modal-left">
+                <div class="auth-modal-brand">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>EduSelf</span>
+                </div>
+                <div class="auth-modal-content" id="authModalContent">
+                    <h1>Xush kelibsiz!</h1>
+                    <p>EduSelf platformasiga kiring va bilimingizni sinang</p>
+                </div>
+                <div class="auth-modal-features">
+                    <div class="auth-modal-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>1000+ testlar</span>
+                    </div>
+                    <div class="auth-modal-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Milliy sertifikatlar</span>
+                    </div>
+                    <div class="auth-modal-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>AI yordamchi</span>
+                    </div>
+                </div>
+                <div class="auth-modal-illustration">
+                    <i class="fas fa-user-graduate" id="authIllustration"></i>
+                </div>
+            </div>
+            
+            <div class="auth-modal-right">
+                <div class="auth-modal-tabs">
+                    <button type="button" class="auth-modal-tab active" data-tab="signin">Kirish</button>
+                    <button type="button" class="auth-modal-tab" data-tab="signup">Ro'yxatdan o'tish</button>
+                </div>
+                
+                <!-- Sign In Form -->
+                <div class="auth-modal-form-container active" id="signinFormContainer">
+                    <h2>Tizimga kirish</h2>
+                    <p>Hisobingizga kiring</p>
+                    
+                    <form class="auth-modal-form" id="signinForm" action="{% url 'accounts:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="auth-form-group">
+                            <label>Foydalanuvchi nomi</label>
+                            <div class="auth-input-icon">
+                                <i class="fas fa-user"></i>
+                                <input type="text" name="username" placeholder="username" required>
+                            </div>
+                        </div>
+                        
+                        <div class="auth-form-group">
+                            <label>Parol</label>
+                            <div class="auth-input-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" name="password" placeholder="••••••••" required>
+                                <button type="button" class="auth-toggle-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="auth-form-options">
+                            <label class="auth-checkbox-label">
+                                <input type="checkbox" name="remember">
+                                <span>Meni eslab qol</span>
+                            </label>
+                            <a href="{% url 'accounts:forgot_password' %}" class="auth-forgot-link">Parolni unutdingizmi?</a>
+                        </div>
+                        
+                        <button type="submit" class="auth-submit-btn">
+                            <i class="fas fa-sign-in-alt"></i> Kirish
+                        </button>
+                    </form>
+                    
+                    {% if google_client_id or telegram_bot_username %}
+                    <div class="auth-divider">
+                        <span>yoki</span>
+                    </div>
+                    
+                    <div class="auth-social-buttons">
+                        {% if google_client_id %}
+                        <button type="button" class="auth-social-btn google" id="googleSigninBtn">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        {% endif %}
+                        {% if telegram_bot_username %}
+                        <a href="https://t.me/{{ telegram_bot_username }}?start=login" class="auth-social-btn telegram">
+                            <i class="fab fa-telegram"></i> Telegram
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Sign Up Form -->
+                <div class="auth-modal-form-container" id="signupFormContainer">
+                    <h2>Ro'yxatdan o'tish</h2>
+                    <p>Yangi hisob yarating</p>
+                    
+                    <form class="auth-modal-form" id="signupForm" action="{% url 'accounts:register' %}" method="post">
+                        {% csrf_token %}
+                        <div class="auth-form-group">
+                            <label>Foydalanuvchi nomi</label>
+                            <div class="auth-input-icon">
+                                <i class="fas fa-user"></i>
+                                <input type="text" name="username" placeholder="username" required>
+                            </div>
+                        </div>
+                        
+                        <div class="auth-form-group">
+                            <label>Email</label>
+                            <div class="auth-input-icon">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" name="email" placeholder="email@example.com" required>
+                            </div>
+                        </div>
+                        
+                        <div class="auth-form-row">
+                            <div class="auth-form-group">
+                                <label>Parol</label>
+                                <div class="auth-input-icon">
+                                    <i class="fas fa-lock"></i>
+                                    <input type="password" name="password1" placeholder="••••••••" required>
+                                </div>
+                            </div>
+                            
+                            <div class="auth-form-group">
+                                <label>Tasdiqlang</label>
+                                <div class="auth-input-icon">
+                                    <i class="fas fa-lock"></i>
+                                    <input type="password" name="password2" placeholder="••••••••" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="auth-form-group">
+                            <label class="auth-checkbox-label">
+                                <input type="checkbox" name="terms" required>
+                                <span><a href="#">Foydalanish shartlari</a>ni qabul qilaman</span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="auth-submit-btn signup">
+                            <i class="fas fa-user-plus"></i> Ro'yxatdan o'tish
+                        </button>
+                    </form>
+                    
+                    {% if google_client_id or telegram_bot_username %}
+                    <div class="auth-divider">
+                        <span>yoki</span>
+                    </div>
+                    
+                    <div class="auth-social-buttons">
+                        {% if google_client_id %}
+                        <button type="button" class="auth-social-btn google" id="googleSignupBtn">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        {% endif %}
+                        {% if telegram_bot_username %}
+                        <a href="https://t.me/{{ telegram_bot_username }}?start=login" class="auth-social-btn telegram">
+                            <i class="fab fa-telegram"></i> Telegram
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Desktop JavaScript -->
+    <script src="{% static 'js/desktop.js' %}"></script>
+    
+    {% if google_client_id and not user.is_authenticated %}
+    <!-- Google Sign-In -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+    function initGoogleAuth() {
+        if (typeof google !== 'undefined' && google.accounts) {
+            google.accounts.id.initialize({
+                client_id: '{{ google_client_id }}',
+                callback: handleGoogleCredential
+            });
+            
+            // Sign in button
+            const signinBtn = document.getElementById('googleSigninBtn');
+            if (signinBtn) {
+                signinBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    google.accounts.id.prompt();
+                });
+            }
+            
+            // Sign up button
+            const signupBtn = document.getElementById('googleSignupBtn');
+            if (signupBtn) {
+                signupBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    google.accounts.id.prompt();
+                });
+            }
+        } else {
+            // Google library hali yuklanmagan, qayta urinish
+            setTimeout(initGoogleAuth, 100);
+        }
+    }
+    
+    // DOM tayyor bo'lganda ishga tushirish
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initGoogleAuth, 500);
+        });
+    } else {
+        setTimeout(initGoogleAuth, 500);
+    }
+
+    function handleGoogleCredential(response) {
+        fetch('{% url "accounts:google_auth" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ credential: response.credential })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect || '/';
+            } else {
+                alert(data.error || 'Xatolik yuz berdi');
+            }
+        })
+        .catch(err => {
+            console.error('Google auth error:', err);
+            alert('Xatolik yuz berdi');
+        });
+    }
+    </script>
+    {% endif %}
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

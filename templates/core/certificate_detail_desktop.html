@@ -1,0 +1,320 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}{{ certificate.name }} - EduSelf{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header cert-detail-header">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="{% url 'core:home' %}">Bosh sahifa</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{% url 'core:certificates' %}">Sertifikatlar</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>{{ certificate.name }}</span>
+        </div>
+        <div class="cert-header-content">
+            <div class="cert-icon-large">
+                <i class="fas fa-award"></i>
+            </div>
+            <div class="cert-info-large">
+                <h1>{{ certificate.name }}</h1>
+                <p>{{ certificate.description|safe }}</p>
+                <div class="cert-stats">
+                    <span><i class="fas fa-folder"></i> {{ certificate.get_topics_count }} fanlar</span>
+                    <span><i class="fas fa-clipboard-list"></i> {{ certificate.get_tests_count }} test</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Topics Section -->
+<section class="section cert-topics-section">
+    <div class="container">
+        <h2 class="section-title-left">Fanlar</h2>
+        <div class="cert-topics-grid">
+            {% for topic in topics %}
+            <a href="{% url 'core:cert_topic_detail' topic.pk %}" class="cert-topic-card">
+                <div class="topic-number">{{ forloop.counter }}</div>
+                <div class="topic-content">
+                    <h3>{{ topic.name }}</h3>
+                    <p>{{ topic.description|truncatewords:12 }}</p>
+                    <div class="topic-meta">
+                        <span><i class="fas fa-clipboard-list"></i> {{ topic.get_tests_count }} test</span>
+                    </div>
+                </div>
+                <div class="topic-progress">
+                    {% if topic.user_progress %}
+                    <div class="progress-circle" data-progress="{{ topic.user_progress }}">
+                        <span>{{ topic.user_progress }}%</span>
+                    </div>
+                    {% else %}
+                    <i class="fas fa-arrow-right"></i>
+                    {% endif %}
+                </div>
+            </a>
+            {% empty %}
+            <div class="empty-state full-width">
+                <i class="fas fa-folder-open"></i>
+                <h3>Mavzular topilmadi</h3>
+                <p>Bu sertifikatda hozircha mavzular mavjud emas</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Certificate Info -->
+<section class="section cert-info-section">
+    <div class="container">
+        <div class="cert-info-grid">
+            <div class="cert-info-card">
+                <i class="fas fa-check-circle"></i>
+                <h3>Davlat tomonidan tan olingan</h3>
+                <p>Sertifikat rasmiy hujjat sifatida qabul qilinadi</p>
+            </div>
+            <div class="cert-info-card">
+                <i class="fas fa-clock"></i>
+                <h3>Vaqt chegarasi</h3>
+                <p>Har bir test uchun belgilangan vaqt mavjud</p>
+            </div>
+            <div class="cert-info-card">
+                <i class="fas fa-redo"></i>
+                <h3>Qayta topshirish</h3>
+                <p>Testlarni qayta topshirish imkoniyati</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.cert-detail-header {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    padding: 40px 0 60px;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+}
+
+.breadcrumb a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: var(--white);
+}
+
+.breadcrumb i {
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+.breadcrumb span {
+    color: var(--white);
+}
+
+.cert-header-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.cert-icon-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cert-icon-large i {
+    font-size: 3.5rem;
+    color: var(--white);
+}
+
+.cert-info-large h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--white);
+}
+
+.cert-info-large p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+    color: var(--white);
+}
+
+.cert-stats {
+    display: flex;
+    gap: 2rem;
+}
+
+.cert-stats span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: var(--white);
+    opacity: 0.9;
+}
+
+.cert-topics-section {
+    padding: 60px 0;
+}
+
+.section-title-left {
+    font-size: 1.75rem;
+    color: var(--dark-color);
+    margin-bottom: 2rem;
+}
+
+.cert-topics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.cert-topic-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    border-left: 4px solid #10b981;
+}
+
+.cert-topic-card:hover {
+    transform: translateX(10px);
+    box-shadow: var(--shadow-lg);
+}
+
+.topic-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.topic-content {
+    flex: 1;
+}
+
+.topic-content h3 {
+    font-size: 1.1rem;
+    color: var(--dark-color);
+    margin-bottom: 0.25rem;
+}
+
+.topic-content p {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+}
+
+.topic-meta span {
+    font-size: 0.85rem;
+    color: #10b981;
+}
+
+.topic-progress {
+    color: #10b981;
+    font-size: 1.25rem;
+}
+
+.progress-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #10b981;
+}
+
+.cert-info-section {
+    background: var(--light-color);
+    padding: 60px 0;
+}
+
+.cert-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.cert-info-card {
+    text-align: center;
+    padding: 2rem;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+.cert-info-card i {
+    font-size: 3rem;
+    color: #10b981;
+    margin-bottom: 1rem;
+}
+
+.cert-info-card h3 {
+    font-size: 1.1rem;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.cert-info-card p {
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.empty-state.full-width {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+    .cert-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .cert-stats {
+        justify-content: center;
+    }
+    
+    .cert-topics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

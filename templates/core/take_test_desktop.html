@@ -1,0 +1,1026 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}{{ test.title }} - EduSelf{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="test-page">
+    <!-- Sidebar - Savollar navigatsiyasi -->
+    <aside class="test-sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-list-ol"></i> Savollar</h3>
+        </div>
+        <div class="questions-nav" id="questionsNav">
+            {% for question in questions %}
+            <button class="question-nav-btn {% if forloop.first %}active{% endif %}" 
+                    data-index="{{ forloop.counter0 }}" 
+                    id="navBtn-{{ forloop.counter0 }}">
+                {{ forloop.counter }}
+            </button>
+            {% endfor %}
+        </div>
+        <div class="sidebar-legend">
+            <div class="legend-item"><span class="legend-dot current"></span> Joriy</div>
+            <div class="legend-item"><span class="legend-dot correct"></span> To'g'ri</div>
+            <div class="legend-item"><span class="legend-dot incorrect"></span> Noto'g'ri</div>
+            <div class="legend-item"><span class="legend-dot unanswered"></span> Javobsiz</div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="test-main">
+        <!-- Header -->
+        <div class="test-header">
+            <div class="test-info">
+                <a href="{% url 'core:topic_detail' test.topic.pk %}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h1>{{ test.title }}</h1>
+                    <p>{{ test.topic.name }} • {{ test.topic.subject.name }}</p>
+                </div>
+            </div>
+            <div class="test-stats">
+                <div class="stat-box score">
+                    <i class="fas fa-trophy"></i>
+                    <div class="stat-content">
+                        <span class="stat-value" id="currentScore">0</span>
+                        <span class="stat-label">/ {{ test.get_max_points }} ball</span>
+                    </div>
+                </div>
+                <div class="stat-box timer" id="timerBox">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-content">
+                        <span class="stat-value" id="timer">{{ test.time_limit }}:00</span>
+                        <span class="stat-label">qoldi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="test-progress">
+            <div class="progress-info">
+                <span>Savol <strong id="currentQuestionNum">1</strong> / {{ questions|length }}</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <!-- Hidden Form -->
+        <form method="post" id="testForm" style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" id="answersData" name="answers_data" value="">
+        </form>
+
+        <!-- Questions Container -->
+        <div class="questions-container" id="questionContainer">
+            {% for question in questions %}
+            <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+                <div class="question-header">
+                    <span class="question-badge">Savol {{ forloop.counter }}</span>
+                    {% if question.points %}
+                    <span class="question-points">{{ question.points }} ball</span>
+                    {% endif %}
+                </div>
+                
+                <div class="question-content">
+                    <div class="question-text">{{ question.text|safe }}</div>
+                    {% if question.image %}
+                    <div class="question-image">
+                        <img src="{{ question.image.url }}" alt="Savol rasmi">
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="answers-grid">
+                    {% for answer in question.answers.all %}
+                    <label class="answer-card" data-answer-id="{{ answer.id }}">
+                        <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" data-question-id="{{ question.id }}">
+                        <span class="answer-marker">{% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}</span>
+                        <span class="answer-text">{{ answer.text|safe }}</span>
+                        <span class="answer-icon"></span>
+                    </label>
+                    {% endfor %}
+                </div>
+                
+                <div class="question-actions">
+                    <button type="button" class="btn-action btn-check-answer" id="checkAnswer-{{ forloop.counter0 }}" 
+                            onclick="checkAnswer({{ forloop.counter0 }}, {{ question.id }})" disabled>
+                        <i class="fas fa-check-circle"></i> Tekshirish
+                    </button>
+                    <div class="after-check-buttons" id="afterCheckButtons-{{ forloop.counter0 }}" style="display: none;">
+                        {% if not forloop.last %}
+                        <button type="button" class="btn-action btn-finish-early" onclick="showFinishConfirmation()">
+                            <i class="fas fa-stop-circle"></i> Tugatish
+                        </button>
+                        {% endif %}
+                        <button type="button" class="btn-action btn-next" id="nextQuestion-{{ forloop.counter0 }}" 
+                                onclick="handleNextQuestion({{ forloop.counter0 }})" data-is-last="{% if forloop.last %}true{% else %}false{% endif %}">
+                            {% if forloop.last %}
+                            <i class="fas fa-flag-checkered"></i> Yakunlash
+                            {% else %}
+                            Keyingi <i class="fas fa-arrow-right"></i>
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+<!-- Finish Modal -->
+<div class="modal-overlay" id="finishModal">
+    <div class="modal-box">
+        <div class="modal-icon warning">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Testni tugatmoqchimisiz?</h3>
+        <div class="modal-stats">
+            <div class="modal-stat">
+                <span class="modal-stat-value" id="answeredCount">0</span>
+                <span class="modal-stat-label">javob berildi</span>
+            </div>
+            <div class="modal-stat">
+                <span class="modal-stat-value" id="modalCurrentScore">0</span>
+                <span class="modal-stat-label">ball to'plandi</span>
+            </div>
+        </div>
+        <p class="modal-warning">Tugatilgandan so'ng qaytib bo'lmaydi!</p>
+        <div class="modal-actions">
+            <button class="btn-modal btn-cancel" onclick="hideFinishConfirmation()">
+                <i class="fas fa-arrow-left"></i> Davom etish
+            </button>
+            <button class="btn-modal btn-confirm" onclick="confirmFinishTest()">
+                <i class="fas fa-check"></i> Tugatish
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Test Page Layout */
+.test-page {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: calc(100vh - 80px);
+    background: var(--light-color);
+}
+
+/* Sidebar */
+.test-sidebar {
+    background: var(--white);
+    border-right: 1px solid #e5e7eb;
+    padding: 24px;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    margin-bottom: 20px;
+}
+
+.sidebar-header h3 {
+    font-size: 1rem;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.questions-nav {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.question-nav-btn {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    background: var(--white);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.question-nav-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.question-nav-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.question-nav-btn.correct {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+.question-nav-btn.incorrect {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: white;
+}
+
+.sidebar-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+}
+
+.legend-dot.current { background: var(--primary-color); }
+.legend-dot.correct { background: #10b981; }
+.legend-dot.incorrect { background: #ef4444; }
+.legend-dot.unanswered { background: #e5e7eb; }
+
+/* Main Content */
+.test-main {
+    padding: 32px 48px;
+    max-width: 900px;
+}
+
+/* Header */
+.test-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.test-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.back-link {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.back-link:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.test-info h1 {
+    font-size: 1.5rem;
+    color: var(--dark-color);
+    margin-bottom: 4px;
+}
+
+.test-info p {
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.test-stats {
+    display: flex;
+    gap: 12px;
+}
+
+.stat-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-radius: 14px;
+    background: var(--white);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.stat-box.score {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: white;
+}
+
+.stat-box.timer {
+    background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+    color: white;
+}
+
+.stat-box.timer.warning {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.stat-box i {
+    font-size: 1.3rem;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    min-width: 60px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+.stat-box {
+    min-width: 140px;
+}
+
+/* Progress */
+.test-progress {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.progress-bar-wrapper {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), #8b5cf6);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    width: 0%;
+}
+
+/* Question Card */
+.question-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.question-badge {
+    background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.question-points {
+    background: #fef3c7;
+    color: #d97706;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.question-content {
+    margin-bottom: 28px;
+}
+
+.question-text {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--dark-color);
+}
+
+.question-text img {
+    max-width: 100%;
+    border-radius: 12px;
+    margin-top: 16px;
+}
+
+.question-image {
+    margin-top: 20px;
+}
+
+.question-image img {
+    max-width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Answers Grid */
+.answers-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.answer-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    background: #f8fafc;
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.answer-card:hover {
+    border-color: var(--primary-color);
+    background: #f0f4ff;
+    transform: translateY(-2px);
+}
+
+.answer-card input {
+    display: none;
+}
+
+.answer-marker {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--white);
+    border: 2px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--text-color);
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.answer-text {
+    flex: 1;
+    font-size: 1rem;
+    color: var(--dark-color);
+    line-height: 1.5;
+}
+
+.answer-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+/* Answer States */
+.answer-card.selected {
+    border-color: var(--primary-color);
+    background: #ede9fe;
+}
+
+.answer-card.selected .answer-marker {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.answer-card.correct {
+    border-color: #10b981;
+    background: #d1fae5;
+}
+
+.answer-card.correct .answer-marker {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+.answer-card.correct .answer-icon {
+    display: flex;
+    background: #10b981;
+    color: white;
+}
+
+.answer-card.correct .answer-icon::before {
+    content: '✓';
+}
+
+.answer-card.incorrect {
+    border-color: #ef4444;
+    background: #fee2e2;
+}
+
+.answer-card.incorrect .answer-marker {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: white;
+}
+
+.answer-card.incorrect .answer-icon {
+    display: flex;
+    background: #ef4444;
+    color: white;
+}
+
+.answer-card.incorrect .answer-icon::before {
+    content: '✗';
+}
+
+/* Question Actions */
+.question-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-check-answer {
+    background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+    color: white;
+}
+
+.btn-check-answer:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-check-answer:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-next {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: white;
+}
+
+.btn-next:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-finish-early {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.btn-finish-early:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.after-check-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-box {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+.modal-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2.5rem;
+}
+
+.modal-icon.warning {
+    background: #fef3c7;
+    color: #f59e0b;
+}
+
+.modal-box h3 {
+    font-size: 1.4rem;
+    color: var(--dark-color);
+    margin-bottom: 20px;
+}
+
+.modal-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 16px;
+}
+
+.modal-stat {
+    text-align: center;
+}
+
+.modal-stat-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.modal-stat-label {
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+.modal-warning {
+    color: #ef4444;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.btn-modal {
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cancel {
+    background: #f3f4f6;
+    color: var(--text-color);
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .test-page {
+        grid-template-columns: 1fr;
+    }
+    
+    .test-sidebar {
+        display: none;
+    }
+    
+    .test-main {
+        padding: 20px;
+        max-width: 100%;
+    }
+    
+    .answers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .test-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .test-stats {
+        width: 100%;
+    }
+    
+    .stat-box {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .question-actions {
+        flex-direction: column;
+    }
+    
+    .btn-action {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .after-check-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentQuestion = 0;
+let totalQuestions = {{ questions|length }};
+let timeLimit = {{ test.time_limit }} * 60;
+let timeRemaining = timeLimit;
+let timerInterval;
+let userAnswers = {};
+let questionResults = {};
+let currentScore = 0;
+let testCompleted = false;
+
+// Score yangilash
+function updateCurrentScore(pointsEarned) {
+    currentScore += pointsEarned;
+    document.getElementById('currentScore').textContent = currentScore;
+}
+
+// Timer
+function startTimer() {
+    timerInterval = setInterval(function() {
+        timeRemaining--;
+        updateTimerDisplay();
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert('Vaqt tugadi!');
+            submitTest();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    let minutes = Math.floor(timeRemaining / 60);
+    let seconds = timeRemaining % 60;
+    document.getElementById('timer').textContent = 
+        minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+    
+    if (timeRemaining < 300) {
+        document.getElementById('timerBox').classList.add('warning');
+    }
+}
+
+// Progress
+function updateProgressBar() {
+    let progress = ((currentQuestion + 1) / totalQuestions) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+    document.getElementById('progressPercent').textContent = Math.round(progress) + '%';
+    document.getElementById('currentQuestionNum').textContent = currentQuestion + 1;
+}
+
+// Nav buttons
+function updateNavButtons() {
+    document.querySelectorAll('.question-nav-btn').forEach((btn, index) => {
+        btn.classList.remove('active');
+        if (index === currentQuestion) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// Javob tanlash
+document.querySelectorAll('.answer-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const input = this.querySelector('input');
+        if (input.disabled) return;
+        
+        const name = input.name;
+        document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
+            inp.closest('.answer-card').classList.remove('selected');
+        });
+        this.classList.add('selected');
+        input.checked = true;
+        document.getElementById(`checkAnswer-${currentQuestion}`).disabled = false;
+    });
+});
+
+// Javobni tekshirish
+function checkAnswer(questionIndex, questionId) {
+    const selectedAnswer = document.querySelector(`input[name="question_${questionId}"]:checked`);
+    if (!selectedAnswer) {
+        alert('Iltimos, javobni tanlang!');
+        return;
+    }
+    
+    const answerId = selectedAnswer.value;
+    userAnswers[questionId] = answerId;
+    
+    fetch(`/check-answer/${questionId}/${answerId}/`, {
+        method: 'GET',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        questionResults[questionId] = data;
+        showAnswerResults(questionIndex, questionId, data);
+        updateCurrentScore(data.points_earned);
+        
+        // Nav button rangini o'zgartirish
+        const navBtn = document.getElementById(`navBtn-${questionIndex}`);
+        navBtn.classList.remove('active');
+        navBtn.classList.add(data.is_correct ? 'correct' : 'incorrect');
+        
+        document.getElementById(`checkAnswer-${questionIndex}`).style.display = 'none';
+        document.getElementById(`afterCheckButtons-${questionIndex}`).style.display = 'flex';
+        
+        document.querySelectorAll(`input[name="question_${questionId}"]`).forEach(input => {
+            input.disabled = true;
+        });
+    })
+    .catch(error => {
+        console.error('Xatolik:', error);
+        alert('Javobni tekshirishda xatolik!');
+    });
+}
+
+function showAnswerResults(questionIndex, questionId, result) {
+    const answerCards = document.querySelectorAll(`input[name="question_${questionId}"]`);
+    const selectedAnswerId = document.querySelector(`input[name="question_${questionId}"]:checked`).value;
+    
+    answerCards.forEach(input => {
+        const card = input.closest('.answer-card');
+        const answerId = input.value;
+        card.classList.remove('selected');
+        
+        if (result.correct_answer_id && answerId == result.correct_answer_id) {
+            card.classList.add('correct');
+        }
+        if (answerId == selectedAnswerId && !result.is_correct) {
+            card.classList.add('incorrect');
+        }
+    });
+}
+
+function handleNextQuestion(questionIndex) {
+    const button = document.getElementById(`nextQuestion-${questionIndex}`);
+    const isLast = button.getAttribute('data-is-last') === 'true';
+    
+    if (isLast) {
+        submitTest();
+    } else {
+        nextQuestion(questionIndex);
+    }
+}
+
+function nextQuestion(questionIndex) {
+    document.getElementById(`question-${questionIndex}`).style.display = 'none';
+    currentQuestion = questionIndex + 1;
+    document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+    updateProgressBar();
+    updateNavButtons();
+}
+
+function submitTest() {
+    testCompleted = true;
+    if (timerInterval) clearInterval(timerInterval);
+    
+    if (Object.keys(userAnswers).length === 0) {
+        alert('Hech qanday javob berilmagan!');
+        testCompleted = false;
+        return;
+    }
+    
+    document.getElementById('answersData').value = JSON.stringify(userAnswers);
+    document.getElementById('testForm').style.display = 'block';
+    document.getElementById('testForm').submit();
+}
+
+function showFinishConfirmation() {
+    document.getElementById('answeredCount').textContent = Object.keys(userAnswers).length;
+    document.getElementById('modalCurrentScore').textContent = currentScore;
+    document.getElementById('finishModal').classList.add('active');
+}
+
+function hideFinishConfirmation() {
+    document.getElementById('finishModal').classList.remove('active');
+}
+
+function confirmFinishTest() {
+    hideFinishConfirmation();
+    submitTest();
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', function() {
+    startTimer();
+    updateProgressBar();
+});
+
+// Sahifadan chiqishda ogohlantirish
+window.addEventListener('beforeunload', function(e) {
+    if (!testCompleted && timeRemaining > 0 && Object.keys(userAnswers).length > 0) {
+        e.preventDefault();
+        e.returnValue = 'Test davom etmoqda!';
+        return e.returnValue;
+    }
+});
+
+// Klaviatura
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        const checkBtn = document.getElementById(`checkAnswer-${currentQuestion}`);
+        const nextBtn = document.getElementById(`nextQuestion-${currentQuestion}`);
+        if (checkBtn && checkBtn.style.display !== 'none' && !checkBtn.disabled) {
+            checkBtn.click();
+        } else if (nextBtn && nextBtn.style.display !== 'none') {
+            nextBtn.click();
+        }
+    }
+    if (e.key >= '1' && e.key <= '4') {
+        const answerIndex = parseInt(e.key) - 1;
+        const answers = document.querySelectorAll(`#question-${currentQuestion} .answer-card`);
+        if (answers[answerIndex]) answers[answerIndex].click();
+    }
+});
+</script>
+{% endblock %}

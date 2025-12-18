@@ -1,0 +1,75 @@
+﻿{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}{{ lesson.title }} - {{ course.title }} - EduSelf{% endblock %}
+
+{% block content %}
+<section class="lesson-detail-section">
+    <div class="container">
+        <div class="lesson-layout">
+            <div class="lesson-main">
+                <a href="{% url 'core:course_detail' course.slug %}" class="back-link"><i class="fas fa-arrow-left"></i> {{ course.title }}</a>
+                <div class="lesson-content-card">
+                    <h1>{{ lesson.title }}</h1>
+                    <p class="lesson-desc">{{ lesson.description|safe }}</p>
+                    {% if lesson.video_url or lesson.video_file %}
+                    <div class="video-container">
+                        {% if lesson.video_url %}
+                        <div class="video-wrapper"><iframe src="{{ lesson.get_embed_url }}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>
+                        {% elif lesson.video_file %}
+                        <video controls class="video-player"><source src="{{ lesson.video_file.url }}" type="video/mp4">Brauzeringiz video ni qo'llab-quvvatlamaydi.</video>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    <div class="lesson-text"><h2>Dars matni</h2>{{ lesson.content|linebreaks }}</div>
+                </div>
+            </div>
+            <div class="lesson-sidebar">
+                <div class="sidebar-card">
+                    <h3>Barcha darslar</h3>
+                    <div class="lessons-list">
+                        {% for l in all_lessons %}
+                        <a href="{% if is_enrolled or l.is_free or course.is_free %}{% url 'core:lesson_detail' course.slug l.id %}{% else %}#{% endif %}" class="lesson-item {% if l.id == lesson.id %}active{% endif %} {% if not is_enrolled and not l.is_free and not course.is_free %}locked{% endif %}">
+                            <span class="lesson-num">{{ forloop.counter }}</span>
+                            <div class="lesson-info"><span class="lesson-name">{{ l.title }}</span>{% if l.duration %}<small>{{ l.duration }}</small>{% endif %}</div>
+                            {% if l.id == lesson.id %}<i class="fas fa-play-circle"></i>{% elif not is_enrolled and not l.is_free and not course.is_free %}<i class="fas fa-lock"></i>{% else %}<i class="far fa-play-circle"></i>{% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.lesson-detail-section { padding: 40px 0 80px; }
+.lesson-layout { display: grid; grid-template-columns: 1fr 350px; gap: 2rem; }
+.back-link { color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+.lesson-content-card { background: var(--white); border-radius: 20px; padding: 2rem; box-shadow: var(--shadow); }
+.lesson-content-card h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+.lesson-desc { color: var(--text-color); margin-bottom: 1.5rem; }
+.video-container { margin-bottom: 2rem; }
+.video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; }
+.video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+.video-player { width: 100%; border-radius: 12px; }
+.lesson-text h2 { font-size: 1.25rem; margin-bottom: 1rem; }
+.sidebar-card { background: var(--white); border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow); position: sticky; top: 100px; }
+.sidebar-card h3 { font-size: 1.1rem; margin-bottom: 1rem; }
+.lessons-list { max-height: 500px; overflow-y: auto; }
+.lesson-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 10px; text-decoration: none; color: inherit; transition: all 0.3s ease; margin-bottom: 0.5rem; }
+.lesson-item:hover { background: var(--light-color); }
+.lesson-item.active { background: rgba(99, 102, 241, 0.1); color: var(--primary-color); }
+.lesson-item.locked { opacity: 0.6; }
+.lesson-num { width: 30px; height: 30px; border-radius: 50%; background: var(--light-color); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; }
+.lesson-item.active .lesson-num { background: var(--primary-color); color: white; }
+.lesson-info { flex: 1; }
+.lesson-name { display: block; font-size: 0.9rem; }
+.lesson-info small { color: var(--text-color); opacity: 0.7; }
+.lesson-item i { color: var(--primary-color); }
+.lesson-item.locked i { color: var(--text-color); }
+@media (max-width: 968px) { .lesson-layout { grid-template-columns: 1fr; } .sidebar-card { position: static; } }
+</style>
+{% endblock %}

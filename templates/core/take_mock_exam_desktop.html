@@ -1,0 +1,331 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}{{ exam.title }} - Mock Imtihon - EduSelf{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="test-page mock-exam">
+    <aside class="test-sidebar">
+        <div class="sidebar-header"><h3><i class="fas fa-list-ol"></i> Savollar</h3></div>
+        <div class="questions-nav" id="questionsNav">
+            {% for question in questions %}
+            <button class="question-nav-btn {% if forloop.first %}active{% endif %}" id="navBtn-{{ forloop.counter0 }}">{{ forloop.counter }}</button>
+            {% endfor %}
+        </div>
+    </aside>
+
+    <main class="test-main">
+        <div class="test-header">
+            <div class="test-info">
+                <a href="{% url 'core:mock_exams' %}" class="back-link"><i class="fas fa-arrow-left"></i></a>
+                <div>
+                    <h1><i class="fas fa-file-alt"></i> {{ exam.title }}</h1>
+                    <p>{{ exam.category.name }}</p>
+                </div>
+            </div>
+            <div class="test-stats">
+                <div class="stat-box score mock"><i class="fas fa-trophy"></i>
+                    <div class="stat-content"><span class="stat-value" id="currentScore">0.00</span><span class="stat-label">/ {{ exam.get_max_points|floatformat:2 }} ball</span></div>
+                </div>
+                <div class="stat-box timer" id="timerBox"><i class="fas fa-clock"></i>
+                    <div class="stat-content"><span class="stat-value" id="timer">{{ exam.time_limit }}:00</span><span class="stat-label">qoldi</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-progress">
+            <div class="progress-info"><span>Savol <strong id="currentQuestionNum">1</strong> / {{ questions|length }}</span><span id="progressPercent">0%</span></div>
+            <div class="progress-bar-wrapper"><div class="progress-bar mock" id="progressBar"></div></div>
+        </div>
+
+        <form method="post" id="examForm" style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" id="answersData" name="answers_data" value="">
+        </form>
+
+        <div class="questions-container" id="questionContainer">
+            {% for question in questions %}
+            <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+                <div class="question-header">
+                    <span class="question-badge mock">Savol {{ forloop.counter }}</span>
+                    <span class="question-points"><i class="fas fa-star"></i> {{ question.points|floatformat:2 }} ball</span>
+                </div>
+                <div class="question-content">
+                    <div class="question-text">{{ question.text|safe }}</div>
+                    {% if question.image %}<div class="question-image"><img src="{{ question.image.url }}" alt="Savol"></div>{% endif %}
+                </div>
+                <div class="answers-grid">
+                    {% for answer in question.mock_answers.all %}
+                    <label class="answer-card">
+                        <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}">
+                        <span class="answer-marker">{% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}</span>
+                        <span class="answer-text">{{ answer.text|safe }}</span>
+                        <span class="answer-icon"></span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <div class="question-actions">
+                    <button type="button" class="btn-action btn-check-answer mock" id="checkAnswer-{{ forloop.counter0 }}" onclick="checkAnswer({{ forloop.counter0 }}, {{ question.id }})" disabled>
+                        <i class="fas fa-check-circle"></i> Tekshirish
+                    </button>
+                    <div class="after-check-buttons" id="afterCheckButtons-{{ forloop.counter0 }}" style="display: none;">
+                        {% if not forloop.last %}
+                        <button type="button" class="btn-action btn-finish-early" onclick="showFinishConfirmation()">
+                            <i class="fas fa-stop-circle"></i> Tugatish
+                        </button>
+                        {% endif %}
+                        <button type="button" class="btn-action btn-next mock" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" data-is-last="{% if forloop.last %}true{% else %}false{% endif %}">
+                            {% if forloop.last %}<i class="fas fa-flag-checkered"></i> Yakunlash{% else %}Keyingi <i class="fas fa-arrow-right"></i>{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+<div class="modal-overlay" id="finishModal">
+    <div class="modal-box">
+        <div class="modal-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+        <h3>Imtihonni tugatmoqchimisiz?</h3>
+        <div class="modal-stats">
+            <div class="modal-stat"><span class="modal-stat-value" id="answeredCount">0</span><span class="modal-stat-label">javob berildi</span></div>
+            <div class="modal-stat"><span class="modal-stat-value" id="modalCurrentScore">0</span><span class="modal-stat-label">ball</span></div>
+        </div>
+        <p class="modal-warning">Tugatilgandan so'ng qaytib bo'lmaydi!</p>
+        <div class="modal-actions">
+            <button class="btn-modal btn-cancel" onclick="hideFinishConfirmation()"><i class="fas fa-arrow-left"></i> Davom etish</button>
+            <button class="btn-modal btn-confirm" onclick="confirmFinishExam()"><i class="fas fa-check"></i> Tugatish</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.test-page{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px);background:var(--light-color)}
+.mock-exam .stat-box.score.mock{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.mock-exam .progress-bar.mock{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.mock-exam .question-badge.mock{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.mock-exam .btn-check-answer.mock{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.mock-exam .btn-next.mock{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+.mock-exam .question-nav-btn.active{background:#f59e0b;border-color:#f59e0b;color:#fff}
+.test-sidebar{background:var(--white);border-right:1px solid #e5e7eb;padding:24px;position:sticky;top:80px;height:calc(100vh - 80px);overflow-y:auto}
+.sidebar-header h3{font-size:1rem;display:flex;align-items:center;gap:8px}
+.questions-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:20px 0}
+.question-nav-btn{width:44px;height:44px;border:2px solid #e5e7eb;border-radius:10px;background:var(--white);font-weight:600;cursor:pointer}
+.question-nav-btn.correct{background:#10b981;border-color:#10b981;color:#fff}
+.question-nav-btn.incorrect{background:#ef4444;border-color:#ef4444;color:#fff}
+.test-main{padding:32px 48px;max-width:900px}
+.test-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px;min-height:60px;flex-wrap:nowrap}
+.test-info{display:flex;align-items:center;gap:16px;flex-shrink:0;min-width:0}
+.back-link{width:44px;height:44px;border-radius:12px;background:var(--white);display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--text-color)}
+.back-link:hover{background:#f59e0b;color:#fff}
+.test-info h1{font-size:1.5rem;margin-bottom:4px}
+.test-info p{font-size:.9rem;color:var(--text-color)}
+.test-stats{display:flex;gap:12px;flex-shrink:0;flex-wrap:nowrap}
+.stat-box{display:flex;align-items:center;gap:12px;padding:12px 20px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08);min-width:160px;flex-shrink:0}
+.stat-box.timer{background:linear-gradient(135deg,var(--primary-color),#8b5cf6);color:#fff}
+.stat-box.timer.warning{background:linear-gradient(135deg,#ef4444,#f87171)}
+.stat-content{display:flex;flex-direction:column;align-items:center}
+.stat-value{font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums;min-width:70px;text-align:center}
+.stat-label{font-size:.75rem;opacity:.9}
+.test-progress{background:var(--white);border-radius:14px;padding:16px 20px;margin-bottom:24px}
+.progress-info{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.9rem}
+.progress-bar-wrapper{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden}
+.progress-bar{height:100%;border-radius:4px;transition:width .5s;width:0}
+.question-card{background:var(--white);border-radius:20px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.question-header{margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.question-badge{color:#fff;padding:6px 16px;border-radius:20px;font-size:.85rem;font-weight:600}
+.question-points{background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:6px 14px;border-radius:20px;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:6px}
+.question-content{margin-bottom:28px}
+.question-text{font-size:1.15rem;line-height:1.8}
+.question-image img{max-width:100%;border-radius:12px;margin-top:16px}
+.answers-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:28px}
+.answer-card{display:flex;align-items:center;gap:14px;padding:18px 20px;background:#f8fafc;border:2px solid #e5e7eb;border-radius:14px;cursor:pointer;transition:all .3s}
+.answer-card:hover{border-color:#f59e0b;background:#fffbeb;transform:translateY(-2px)}
+.answer-card input{display:none}
+.answer-marker{width:36px;height:36px;border-radius:10px;background:var(--white);border:2px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:700}
+.answer-text{flex:1;font-size:1rem;line-height:1.5}
+.answer-icon{width:24px;height:24px;border-radius:50%;display:none}
+.answer-card.selected{border-color:#f59e0b;background:#fef3c7}
+.answer-card.selected .answer-marker{background:#f59e0b;border-color:#f59e0b;color:#fff}
+.answer-card.correct{border-color:#10b981;background:#d1fae5}
+.answer-card.correct .answer-marker{background:#10b981;color:#fff}
+.answer-card.correct .answer-icon{display:flex;background:#10b981;color:#fff;align-items:center;justify-content:center}
+.answer-card.correct .answer-icon::before{content:'✓'}
+.answer-card.incorrect{border-color:#ef4444;background:#fee2e2}
+.answer-card.incorrect .answer-marker{background:#ef4444;color:#fff}
+.answer-card.incorrect .answer-icon{display:flex;background:#ef4444;color:#fff;align-items:center;justify-content:center}
+.answer-card.incorrect .answer-icon::before{content:'✗'}
+.question-actions{display:flex;justify-content:flex-end;gap:12px;padding-top:24px;border-top:1px solid #e5e7eb}
+.btn-action{display:flex;align-items:center;gap:8px;padding:14px 28px;border-radius:12px;font-weight:600;cursor:pointer;border:none}
+.btn-action:disabled{opacity:.5;cursor:not-allowed}
+.btn-finish-early{background:#fee2e2;color:#ef4444}
+.btn-finish-early:hover{background:#ef4444;color:#fff}
+.after-check-buttons{display:flex;gap:12px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-overlay.active{display:flex}
+.modal-box{background:var(--white);border-radius:24px;padding:40px;max-width:420px;width:90%;text-align:center}
+.modal-icon{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2.5rem}
+.modal-icon.warning{background:#fef3c7;color:#f59e0b}
+.modal-box h3{font-size:1.4rem;margin-bottom:20px}
+.modal-stats{display:flex;justify-content:center;gap:32px;margin-bottom:16px}
+.modal-stat-value{display:block;font-size:2rem;font-weight:700;color:#f59e0b}
+.modal-stat-label{font-size:.85rem}
+.modal-warning{color:#ef4444;font-size:.9rem;margin-bottom:24px}
+.modal-actions{display:flex;gap:12px;justify-content:center}
+.btn-modal{padding:14px 28px;border-radius:12px;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;gap:8px}
+.btn-cancel{background:#f3f4f6}
+.btn-confirm{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
+@media(max-width:1024px){.test-page{grid-template-columns:1fr}.test-sidebar{display:none}.test-main{padding:20px;max-width:100%}.answers-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentQuestion = 0;
+let totalQuestions = {{ questions|length }};
+let timeLimit = {{ exam.time_limit }} * 60;
+let timeRemaining = timeLimit;
+let timerInterval;
+let userAnswers = {};
+let currentScore = 0.0;
+let testCompleted = false;
+
+function updateCurrentScore(p) {
+    var points = Number(p);
+    if (!isNaN(points)) {
+        currentScore += points;
+    }
+    document.getElementById('currentScore').textContent = currentScore.toFixed(2);
+}
+
+function startTimer() {
+    timerInterval = setInterval(function() {
+        timeRemaining--;
+        updateTimerDisplay();
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert('Vaqt tugadi!');
+            submitExam();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    let m = Math.floor(timeRemaining / 60);
+    let s = timeRemaining % 60;
+    document.getElementById('timer').textContent = m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+    if (timeRemaining < 300) document.getElementById('timerBox').classList.add('warning');
+}
+
+function updateProgressBar() {
+    let p = ((currentQuestion + 1) / totalQuestions) * 100;
+    document.getElementById('progressBar').style.width = p + '%';
+    document.getElementById('progressPercent').textContent = Math.round(p) + '%';
+    document.getElementById('currentQuestionNum').textContent = currentQuestion + 1;
+}
+
+function updateNavButtons() {
+    document.querySelectorAll('.question-nav-btn').forEach(function(b, i) {
+        b.classList.remove('active');
+        if (i === currentQuestion) b.classList.add('active');
+    });
+}
+
+document.querySelectorAll('.answer-card').forEach(function(c) {
+    c.addEventListener('click', function() {
+        var inp = this.querySelector('input');
+        if (inp.disabled) return;
+        var n = inp.name;
+        document.querySelectorAll('input[name="' + n + '"]').forEach(function(x) {
+            x.closest('.answer-card').classList.remove('selected');
+        });
+        this.classList.add('selected');
+        inp.checked = true;
+        document.getElementById('checkAnswer-' + currentQuestion).disabled = false;
+    });
+});
+
+function checkAnswer(qi, qid) {
+    var s = document.querySelector('input[name="question_' + qid + '"]:checked');
+    if (!s) { alert('Iltimos, javobni tanlang!'); return; }
+    var aid = s.value;
+    userAnswers[qid] = aid;
+    
+    fetch('/check-mock-answer/' + qid + '/' + aid + '/', {
+        method: 'GET',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        showAnswerResults(qi, qid, d);
+        updateCurrentScore(d.points_earned);
+        var nb = document.getElementById('navBtn-' + qi);
+        nb.classList.remove('active');
+        nb.classList.add(d.is_correct ? 'correct' : 'incorrect');
+        document.getElementById('checkAnswer-' + qi).style.display = 'none';
+        document.getElementById('afterCheckButtons-' + qi).style.display = 'flex';
+        document.querySelectorAll('input[name="question_' + qid + '"]').forEach(function(x) { x.disabled = true; });
+    })
+    .catch(function(e) { console.error(e); alert('Xatolik!'); });
+}
+
+function showAnswerResults(qi, qid, r) {
+    var cs = document.querySelectorAll('input[name="question_' + qid + '"]');
+    var sid = document.querySelector('input[name="question_' + qid + '"]:checked').value;
+    cs.forEach(function(i) {
+        var c = i.closest('.answer-card');
+        var aid = i.value;
+        c.classList.remove('selected');
+        if (r.correct_answer_id && aid == r.correct_answer_id) c.classList.add('correct');
+        if (aid == sid && !r.is_correct) c.classList.add('incorrect');
+    });
+}
+
+function handleNextQuestion(qi) {
+    var b = document.getElementById('nextQuestion-' + qi);
+    if (b.getAttribute('data-is-last') === 'true') submitExam();
+    else nextQuestion(qi);
+}
+
+function nextQuestion(qi) {
+    document.getElementById('question-' + qi).style.display = 'none';
+    currentQuestion = qi + 1;
+    document.getElementById('question-' + currentQuestion).style.display = 'block';
+    updateProgressBar();
+    updateNavButtons();
+}
+
+function submitExam() {
+    testCompleted = true;
+    if (timerInterval) clearInterval(timerInterval);
+    if (Object.keys(userAnswers).length === 0) { alert('Hech qanday javob berilmagan!'); testCompleted = false; return; }
+    document.getElementById('answersData').value = JSON.stringify(userAnswers);
+    document.getElementById('examForm').style.display = 'block';
+    document.getElementById('examForm').submit();
+}
+
+function showFinishConfirmation() {
+    document.getElementById('answeredCount').textContent = Object.keys(userAnswers).length;
+    document.getElementById('modalCurrentScore').textContent = currentScore.toFixed(2);
+    document.getElementById('finishModal').classList.add('active');
+}
+
+function hideFinishConfirmation() { document.getElementById('finishModal').classList.remove('active'); }
+function confirmFinishExam() { hideFinishConfirmation(); submitExam(); }
+
+document.addEventListener('DOMContentLoaded', function() { startTimer(); updateProgressBar(); });
+
+window.addEventListener('beforeunload', function(e) {
+    if (!testCompleted && timeRemaining > 0 && Object.keys(userAnswers).length > 0) {
+        e.preventDefault();
+        e.returnValue = 'Imtihon davom etmoqda!';
+        return e.returnValue;
+    }
+});
+</script>
+{% endblock %}

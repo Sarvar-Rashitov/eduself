@@ -1,0 +1,514 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}Fanlar - EduSelf{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header subjects-header">
+    <div class="header-decorations">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-icon icon-1"><i class="fas fa-book"></i></div>
+        <div class="floating-icon icon-2"><i class="fas fa-graduation-cap"></i></div>
+        <div class="floating-icon icon-3"><i class="fas fa-lightbulb"></i></div>
+        <div class="floating-icon icon-4"><i class="fas fa-brain"></i></div>
+    </div>
+    <div class="container">
+        <h1 class="page-title">{% if current_category %}{{ current_category.name }}{% else %}{{ title|default:"Fanlar" }}{% endif %}</h1>
+        <p class="page-subtitle">{% if current_category and current_category.description %}{{ current_category.description|safe }}{% else %}Bilimingizni sinab ko'ring va rivojlaning{% endif %}</p>
+    </div>
+</section>
+
+<!-- Filter Section -->
+<section class="filter-section">
+    <div class="container">
+        <div class="filter-tabs">
+            <a href="{% url 'core:subjects' %}" class="filter-tab {% if not current_category %}active{% endif %}">
+                Barchasi
+            </a>
+            {% for cat in categories %}
+            <a href="{% url 'core:subjects' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.slug == cat.slug %}active{% endif %}">
+                {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Subjects Grid -->
+<section class="section subjects-grid-section">
+    <div class="container">
+        <div class="subjects-grid">
+            {% for subject in subjects %}
+            <a href="{% url 'core:subject_detail' subject.pk %}" class="subject-card-large">
+                <div class="subject-card-icon">
+                    <i class="{{ subject.icon|default:'fas fa-book' }}"></i>
+                </div>
+                <div class="subject-card-content">
+                    <h3>{{ subject.name }}</h3>
+                    <p>{{ subject.description|truncatewords:15|safe }}</p>
+                    <div class="subject-card-meta">
+                        <span><i class="fas fa-folder"></i> {{ subject.get_topics_count }} mavzu</span>
+                        <span><i class="fas fa-clipboard-list"></i> {{ subject.get_tests_count }} test</span>
+                    </div>
+                </div>
+                <div class="subject-card-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+            {% empty %}
+            <div class="empty-state full-width">
+                <i class="fas fa-book-open"></i>
+                <h3>Fanlar topilmadi</h3>
+                <p>Hozircha bu kategoriyada fanlar mavjud emas</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Animated Subjects Header */
+.subjects-header {
+    background: linear-gradient(-45deg, #6366f1, #8b5cf6, #a855f7, #7c3aed);
+    background-size: 400% 400%;
+    animation: subjectGradient 12s ease infinite;
+    color: var(--white);
+    padding: 60px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.subjects-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    animation: patternMove 25s linear infinite;
+}
+
+.subjects-header::after {
+    content: '';
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    top: -150px;
+    right: -100px;
+    animation: glowFloat 10s ease-in-out infinite;
+}
+
+.subjects-header .container {
+    position: relative;
+    z-index: 2;
+}
+
+.subjects-header .page-title {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    animation: titleBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+.subjects-header .page-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    animation: subtitleFade 0.8s ease 0.3s both;
+}
+
+@keyframes subjectGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes patternMove {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(60px) translateY(60px); }
+}
+
+@keyframes glowFloat {
+    0%, 100% { transform: scale(1) translateY(0); opacity: 0.5; }
+    50% { transform: scale(1.2) translateY(20px); opacity: 0.8; }
+}
+
+@keyframes titleBounce {
+    0% { opacity: 0; transform: translateY(-40px) scale(0.9); }
+    60% { transform: translateY(5px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes subtitleFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 0.9; transform: translateY(0); }
+}
+
+/* Header Decorations */
+.header-decorations {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: shapeFloat 12s ease-in-out infinite;
+}
+
+.floating-shape.shape-1 {
+    width: 120px;
+    height: 120px;
+    top: -40px;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.floating-shape.shape-2 {
+    width: 80px;
+    height: 80px;
+    bottom: -20px;
+    right: 15%;
+    animation-delay: 3s;
+}
+
+.floating-shape.shape-3 {
+    width: 60px;
+    height: 60px;
+    top: 50%;
+    right: 5%;
+    animation-delay: 6s;
+}
+
+@keyframes shapeFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-25px) scale(1.1); }
+}
+
+/* Floating Icons */
+.floating-icon {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.15);
+    animation: iconFloat 10s ease-in-out infinite;
+}
+
+.floating-icon i {
+    font-size: 2rem;
+}
+
+.floating-icon.icon-1 { left: 8%; top: 25%; animation-delay: 0s; }
+.floating-icon.icon-2 { right: 12%; top: 20%; animation-delay: 2s; }
+.floating-icon.icon-3 { left: 20%; bottom: 25%; animation-delay: 4s; }
+.floating-icon.icon-4 { right: 25%; bottom: 20%; animation-delay: 6s; }
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.15; }
+    25% { transform: translateY(-12px) rotate(8deg); opacity: 0.25; }
+    50% { transform: translateY(-20px) rotate(-5deg); opacity: 0.2; }
+    75% { transform: translateY(-8px) rotate(5deg); opacity: 0.25; }
+}
+
+/* Filter Section */
+.filter-section {
+    background: var(--white);
+    padding: 20px 0;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 70px;
+    z-index: 100;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filter-tab {
+    padding: 10px 24px;
+    border-radius: 50px;
+    background: var(--light-color);
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.filter-tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: var(--gradient);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.filter-tab:hover::after,
+.filter-tab.active::after {
+    width: 70%;
+}
+
+.filter-tab:hover,
+.filter-tab.active {
+    background: var(--gradient);
+    color: var(--white);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25);
+}
+
+.subjects-grid-section {
+    padding: 60px 0;
+}
+
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+/* Subject Card Animations */
+.subject-card-large {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: cardSlideIn 0.6s ease both;
+    position: relative;
+    overflow: hidden;
+}
+
+.subject-card-large::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: var(--gradient);
+    transform: scaleY(0);
+    transition: transform 0.4s ease;
+    transform-origin: bottom;
+}
+
+.subject-card-large:hover::before {
+    transform: scaleY(1);
+}
+
+.subject-card-large::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.08), transparent);
+    transition: left 0.6s;
+}
+
+.subject-card-large:hover::after {
+    left: 100%;
+}
+
+.subjects-grid .subject-card-large:nth-child(1) { animation-delay: 0.05s; }
+.subjects-grid .subject-card-large:nth-child(2) { animation-delay: 0.1s; }
+.subjects-grid .subject-card-large:nth-child(3) { animation-delay: 0.15s; }
+.subjects-grid .subject-card-large:nth-child(4) { animation-delay: 0.2s; }
+.subjects-grid .subject-card-large:nth-child(5) { animation-delay: 0.25s; }
+.subjects-grid .subject-card-large:nth-child(6) { animation-delay: 0.3s; }
+.subjects-grid .subject-card-large:nth-child(7) { animation-delay: 0.35s; }
+.subjects-grid .subject-card-large:nth-child(8) { animation-delay: 0.4s; }
+
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.subject-card-large:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(99, 102, 241, 0.15);
+}
+
+.subject-card-large:hover .subject-card-arrow {
+    transform: translateX(8px);
+    color: #6366f1;
+}
+
+.subject-card-icon {
+    width: 85px;
+    height: 85px;
+    border-radius: 22px;
+    background: var(--gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.subject-card-icon::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 26px;
+    background: var(--gradient);
+    z-index: -1;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.subject-card-large:hover .subject-card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.subject-card-large:hover .subject-card-icon::before {
+    opacity: 0.3;
+    inset: -10px;
+}
+
+.subject-card-icon i {
+    font-size: 2.2rem;
+    color: var(--white);
+    transition: all 0.3s ease;
+}
+
+.subject-card-large:hover .subject-card-icon i {
+    transform: scale(1.1);
+}
+
+.subject-card-content {
+    flex: 1;
+}
+
+.subject-card-content h3 {
+    font-size: 1.3rem;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.subject-card-large:hover .subject-card-content h3 {
+    color: #6366f1;
+}
+
+.subject-card-content p {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.subject-card-meta {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.subject-card-meta span {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.subject-card-large:hover .subject-card-meta span {
+    transform: translateX(5px);
+}
+
+.subject-card-meta span i {
+    transition: all 0.3s ease;
+}
+
+.subject-card-large:hover .subject-card-meta span i {
+    animation: metaPop 0.5s ease;
+}
+
+@keyframes metaPop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+.subject-card-arrow {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.5;
+}
+
+.subject-card-large:hover .subject-card-arrow {
+    opacity: 1;
+}
+
+/* Empty State */
+.empty-state.full-width {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--white);
+    border-radius: 24px;
+    animation: emptyFadeIn 0.8s ease;
+}
+
+.empty-state.full-width i {
+    font-size: 4rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    animation: emptyFloat 3s ease-in-out infinite;
+}
+
+@keyframes emptyFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes emptyFadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.empty-state.full-width h3 {
+    font-size: 1.25rem;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state.full-width p {
+    color: var(--text-color);
+}
+</style>
+{% endblock %}

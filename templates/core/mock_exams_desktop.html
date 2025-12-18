@@ -1,0 +1,750 @@
+﻿{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}Mock Imtihonlar - EduSelf{% endblock %}
+
+{% block content %}
+<section class="page-header exam-header">
+    <div class="exam-particles">
+        <span class="particle p1"></span>
+        <span class="particle p2"></span>
+        <span class="particle p3"></span>
+        <span class="particle p4"></span>
+        <span class="particle p5"></span>
+        <span class="particle p6"></span>
+    </div>
+    <div class="exam-shapes">
+        <div class="shape-ring ring-1"></div>
+        <div class="shape-ring ring-2"></div>
+    </div>
+    <div class="container">
+        <h1 class="page-title">{% if current_category %}{{ current_category.name }}{% else %}Mock Imtihonlar{% endif %}</h1>
+        <p class="page-subtitle">{% if current_category and current_category.description %}{{ current_category.description|safe }}{% else %}Haqiqiy imtihonga tayyorlaning{% endif %}</p>
+    </div>
+</section>
+
+<section class="filter-section">
+    <div class="container">
+        <div class="filter-tabs">
+            <a href="{% url 'core:mock_exams' %}" class="filter-tab {% if not current_category %}active{% endif %}">
+                <i class="fas fa-th-large"></i> Barchasi
+            </a>
+            {% for cat in categories %}
+            <a href="{% url 'core:mock_exams' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.slug == cat.slug %}active{% endif %}">
+                <i class="{{ cat.icon|default:'fas fa-file-alt' }}"></i> {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section exams-grid-section">
+    <div class="container">
+        <div class="exams-grid">
+            {% for exam in mock_exams %}
+            <div class="exam-card-large">
+                <div class="exam-card-header">
+                    <div class="exam-icon-box">
+                        <i class="{{ exam.icon|default:'fas fa-file-alt' }}"></i>
+                    </div>
+                    <div class="exam-type-badge">{{ exam.category.name|default:'Imtihon' }}</div>
+                </div>
+                <div class="exam-card-content">
+                    <h3>{{ exam.title }}</h3>
+                    <p>{{ exam.description|truncatewords:15|safe }}</p>
+                    <div class="exam-meta">
+                        <span><i class="fas fa-question-circle"></i> {{ exam.mock_questions.count }} savol</span>
+                        <span><i class="fas fa-clock"></i> {{ exam.time_limit }} daqiqa</span>
+                    </div>
+                </div>
+                <div class="exam-card-actions">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-primary btn-block">
+                        <i class="fas fa-play"></i> Boshlash
+                    </a>
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}?next={% url 'core:take_mock_exam' exam.pk %}" class="btn btn-primary btn-block">
+                        <i class="fas fa-play"></i> Boshlash
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'core:mock_exam_leaderboard' exam.pk %}" class="btn btn-outline btn-block">
+                        <i class="fas fa-trophy"></i> Reyting
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state full-width">
+                <i class="fas fa-file-alt"></i>
+                <h3>Imtihonlar topilmadi</h3>
+                <p>Hozircha bu kategoriyada imtihonlar mavjud emas</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section exam-info-section">
+    <div class="container">
+        <h2 class="section-title">Imtihon turlari</h2>
+        <p class="section-subtitle">Haqiqiy imtihonga tayyorlaning</p>
+        <div class="cards-grid">
+            <div class="card exam-card">
+                <div class="card-icon exam-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h3>DTM Imtihoni</h3>
+                <p>Davlat test markazi formatida</p>
+                <a href="{% url 'core:mock_exams' %}" class="btn btn-primary">Boshlash</a>
+            </div>
+            <div class="card exam-card">
+                <div class="card-icon exam-icon secondary">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h3>AVTO TEST</h3>
+                <p>Haydovchilik guvohnomasi uchun</p>
+                <a href="{% url 'core:mock_exams' %}" class="btn btn-primary">Boshlash</a>
+            </div>
+            <div class="card exam-card">
+                <div class="card-icon exam-icon accent">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h3>Atestatsiya</h3>
+                <p>O'qituvchilar uchun atestatsiya</p>
+                <a href="{% url 'core:mock_exams' %}" class="btn btn-primary">Boshlash</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Animated Exam Header */
+.exam-header {
+    background: linear-gradient(-45deg, #8b5cf6, #a78bfa, #7c3aed, #6d28d9);
+    background-size: 400% 400%;
+    animation: examGradient 12s ease infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.exam-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10zm10 8c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm40 40c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    animation: patternSlide 25s linear infinite;
+}
+
+.exam-header .container {
+    position: relative;
+    z-index: 3;
+}
+
+.exam-header .page-title {
+    animation: titleBounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+.exam-header .page-subtitle {
+    animation: subtitleFadeIn 0.8s ease 0.3s both;
+}
+
+@keyframes examGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes patternSlide {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(80px) translateY(80px); }
+}
+
+@keyframes titleBounceIn {
+    0% { opacity: 0; transform: translateY(-50px) scale(0.9); }
+    60% { transform: translateY(10px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes subtitleFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating Particles */
+.exam-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.exam-particles .particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    animation: particleDrift 15s ease-in-out infinite;
+}
+
+.particle.p1 { width: 20px; height: 20px; left: 5%; top: 20%; animation-delay: 0s; }
+.particle.p2 { width: 15px; height: 15px; left: 25%; top: 70%; animation-delay: 2s; }
+.particle.p3 { width: 25px; height: 25px; right: 15%; top: 30%; animation-delay: 4s; }
+.particle.p4 { width: 12px; height: 12px; right: 30%; top: 60%; animation-delay: 6s; }
+.particle.p5 { width: 18px; height: 18px; left: 50%; top: 15%; animation-delay: 8s; }
+.particle.p6 { width: 10px; height: 10px; left: 70%; top: 80%; animation-delay: 10s; }
+
+@keyframes particleDrift {
+    0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.2; }
+    25% { transform: translateY(-30px) translateX(20px) scale(1.2); opacity: 0.4; }
+    50% { transform: translateY(-50px) translateX(-10px) scale(0.8); opacity: 0.3; }
+    75% { transform: translateY(-20px) translateX(15px) scale(1.1); opacity: 0.5; }
+}
+
+/* Shape Rings */
+.exam-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.shape-ring {
+    position: absolute;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: ringPulse 8s ease-in-out infinite;
+}
+
+.ring-1 {
+    width: 200px;
+    height: 200px;
+    top: -50px;
+    right: -50px;
+    animation-delay: 0s;
+}
+
+.ring-2 {
+    width: 150px;
+    height: 150px;
+    bottom: -30px;
+    left: 10%;
+    animation-delay: 4s;
+}
+
+@keyframes ringPulse {
+    0%, 100% { transform: scale(1); opacity: 0.1; }
+    50% { transform: scale(1.3); opacity: 0.3; }
+}
+
+/* Filter Section Animation */
+.filter-section .filter-tab {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.filter-section .filter-tab::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.filter-section .filter-tab:hover::after,
+.filter-section .filter-tab.active::after {
+    width: 70%;
+}
+
+.filter-section .filter-tab:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.25);
+}
+
+.exams-grid-section { padding: 60px 0; }
+.exams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; }
+
+/* Exam Card Animations */
+.exam-card-large {
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: cardReveal 0.6s ease both;
+    position: relative;
+}
+
+.exam-card-large::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+    transition: left 0.6s;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.exam-card-large:hover::before {
+    left: 100%;
+}
+
+.exam-card-large:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(139, 92, 246, 0.2);
+}
+
+.exams-grid .exam-card-large:nth-child(1) { animation-delay: 0.1s; }
+.exams-grid .exam-card-large:nth-child(2) { animation-delay: 0.2s; }
+.exams-grid .exam-card-large:nth-child(3) { animation-delay: 0.3s; }
+.exams-grid .exam-card-large:nth-child(4) { animation-delay: 0.4s; }
+.exams-grid .exam-card-large:nth-child(5) { animation-delay: 0.5s; }
+.exams-grid .exam-card-large:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes cardReveal {
+    from {
+        opacity: 0;
+        transform: translateY(40px) rotateX(10deg);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+    }
+}
+.exam-card-header {
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(167, 139, 250, 0.1));
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+}
+
+.exam-card-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    transition: all 0.5s ease;
+}
+
+.exam-card-large:hover .exam-card-header::before {
+    transform: scale(1.5);
+}
+
+.exam-icon-box {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.exam-icon-box::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 23px;
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    z-index: -1;
+    opacity: 0;
+    transition: all 0.3s ease;
+    animation: iconGlow 3s ease-in-out infinite;
+}
+
+.exam-card-large:hover .exam-icon-box {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.exam-card-large:hover .exam-icon-box::after {
+    opacity: 0.5;
+    inset: -8px;
+}
+
+@keyframes iconGlow {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.3; }
+}
+
+.exam-icon-box i {
+    font-size: 2rem;
+    color: var(--white);
+    transition: all 0.3s ease;
+}
+
+.exam-card-large:hover .exam-icon-box i {
+    transform: scale(1.1);
+}
+
+.exam-type-badge {
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    color: var(--white);
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    animation: badgeFloat 3s ease-in-out infinite;
+}
+
+.exam-card-large:hover .exam-type-badge {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+}
+
+@keyframes badgeFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+.exam-card-content { padding: 1.5rem 2rem; }
+
+.exam-card-content h3 {
+    font-size: 1.25rem;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.exam-card-large:hover .exam-card-content h3 {
+    color: #8b5cf6;
+}
+
+.exam-card-content p {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.exam-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.exam-meta span {
+    font-size: 0.85rem;
+    color: #8b5cf6;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.exam-meta span i {
+    transition: all 0.3s ease;
+}
+
+.exam-card-large:hover .exam-meta span {
+    transform: translateX(5px);
+}
+
+.exam-card-large:hover .exam-meta span i {
+    animation: iconPop 0.5s ease;
+}
+
+@keyframes iconPop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+.exam-card-actions {
+    padding: 1rem 2rem;
+    border-top: 1px solid var(--light-color);
+    display: flex;
+    gap: 1rem;
+}
+
+.exam-card-actions .btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.exam-card-actions .btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+}
+
+.exam-card-actions .btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.exam-card-actions .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+}
+
+.exam-card-actions .btn-primary {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+}
+
+.exam-card-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+}
+
+.btn-block { flex: 1; text-align: center; }
+/* Exam Info Section */
+.exam-info-section {
+    background: linear-gradient(180deg, var(--light-color) 0%, #f8fafc 100%);
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.exam-info-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
+}
+
+.exam-info-section .section-title {
+    animation: sectionTitleIn 0.8s ease both;
+}
+
+.exam-info-section .section-subtitle {
+    animation: sectionTitleIn 0.8s ease 0.2s both;
+}
+
+@keyframes sectionTitleIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.card.exam-card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: examCardIn 0.7s ease both;
+    position: relative;
+    overflow: hidden;
+}
+
+.card.exam-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.card.exam-card:hover::before {
+    transform: scaleX(1);
+}
+
+.card.exam-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.card.exam-card:hover::after {
+    opacity: 1;
+}
+
+.cards-grid .card.exam-card:nth-child(1) { animation-delay: 0.1s; }
+.cards-grid .card.exam-card:nth-child(2) { animation-delay: 0.2s; }
+.cards-grid .card.exam-card:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes examCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.card.exam-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 30px 60px rgba(139, 92, 246, 0.15);
+}
+
+.card-icon.exam-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.card-icon.exam-icon::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    background: inherit;
+    z-index: -1;
+    opacity: 0.3;
+    animation: iconRipple 2s ease-in-out infinite;
+}
+
+@keyframes iconRipple {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.15); opacity: 0; }
+}
+
+.card-icon.exam-icon.secondary {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+}
+
+.card-icon.exam-icon.accent {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+}
+
+.card-icon.exam-icon i {
+    font-size: 2.5rem;
+    color: var(--white);
+    transition: all 0.4s ease;
+}
+
+.card.exam-card:hover .card-icon.exam-icon {
+    transform: scale(1.15) rotate(10deg);
+    box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
+}
+
+.card.exam-card:hover .card-icon.exam-icon i {
+    transform: scale(1.1);
+}
+
+.card.exam-card h3 {
+    font-size: 1.25rem;
+    color: var(--dark-color);
+    margin-bottom: 0.75rem;
+    transition: color 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.card.exam-card:hover h3 {
+    color: #8b5cf6;
+}
+
+.card.exam-card p {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    position: relative;
+    z-index: 1;
+}
+
+.card.exam-card .btn {
+    padding: 12px 28px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.card.exam-card .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.card.exam-card .btn:hover::before {
+    left: 100%;
+}
+
+.card.exam-card .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+
+/* Empty State */
+.empty-state.full-width {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--white);
+    border-radius: 20px;
+    animation: fadeIn 0.8s ease;
+}
+
+.empty-state.full-width i {
+    font-size: 4rem;
+    color: #8b5cf6;
+    opacity: 0.3;
+    margin-bottom: 1rem;
+    animation: emptyFloat 3s ease-in-out infinite;
+}
+
+@keyframes emptyFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
+{% endblock %}

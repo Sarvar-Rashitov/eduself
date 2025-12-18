@@ -4,18 +4,21 @@ from .models import User, PasswordResetToken
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ['username', 'email', 'total_points', 'is_active', 'is_staff', 'created_at']
-    list_filter = ['is_active', 'is_staff', 'created_at']
-    search_fields = ['username', 'email']
+    list_display = ['username', 'email', 'phone', 'total_points', 'is_active', 'is_staff', 'created_at']
+    list_filter = ['is_active', 'is_staff', 'auth_provider', 'email_verified', 'created_at']
+    search_fields = ['username', 'email', 'phone', 'first_name', 'last_name']
     ordering = ['-created_at']
     
     fieldsets = UserAdmin.fieldsets + (
-        ('Qo\'shimcha', {'fields': ('bio', 'profile_image', 'total_points')}),
+        ('Shaxsiy ma\'lumotlar', {'fields': ('phone', 'bio', 'profile_image')}),
+        ('Statistika', {'fields': ('total_points',)}),
+        ('Ijtimoiy tarmoqlar', {'fields': ('auth_provider', 'google_id', 'telegram_id')}),
+        ('Email tasdiqlash', {'fields': ('email_verified',)}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ('Qo\'shimcha', {'fields': ('email', 'bio', 'profile_image')}),
+        ('Qo\'shimcha', {'fields': ('email', 'phone', 'bio', 'profile_image')}),
     )
-    readonly_fields = ['total_points']
+    readonly_fields = ['total_points', 'google_id', 'telegram_id', 'created_at', 'updated_at']
 
 
 @admin.register(PasswordResetToken)

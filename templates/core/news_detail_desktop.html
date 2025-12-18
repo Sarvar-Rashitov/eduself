@@ -1,0 +1,335 @@
+﻿{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}{{ news.title }} - EduSelf{% endblock %}
+
+{% block content %}
+<section class="section news-detail-section">
+    <div class="container">
+        <div class="news-detail-wrapper">
+            <div class="news-detail-main">
+                <a href="{% url 'core:news_list' %}" class="back-link-news">
+                    <i class="fas fa-arrow-left"></i> Yangiliklarga qaytish
+                </a>
+
+                <article class="news-article">
+                    {% if news.image %}
+                    <div class="news-article-image">
+                        <img src="{{ news.image.url }}" alt="{{ news.title }}">
+                    </div>
+                    {% endif %}
+
+                    <div class="news-article-header">
+                        <span class="news-badge">{{ news.category.name }}</span>
+                        <h1>{{ news.title }}</h1>
+                        
+                        <div class="news-article-meta">
+                            {% if news.author %}
+                            <span class="author">
+                                <i class="fas fa-user-circle"></i> {{ news.author.username }}
+                            </span>
+                            {% endif %}
+                            <span><i class="fas fa-calendar"></i> {{ news.published_at|date:"d F Y" }}</span>
+                            <span><i class="fas fa-eye"></i> {{ news.views_count }} ko'rilgan</span>
+                        </div>
+                    </div>
+
+                    <div class="news-article-content">
+                        {{ news.content|linebreaks }}
+                    </div>
+
+                    <div class="news-article-share">
+                        <span>Ulashish:</span>
+                        <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}&text={{ news.title }}" target="_blank" class="share-btn telegram">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="share-btn facebook">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ news.title }}" target="_blank" class="share-btn twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            {% if related_news %}
+            <aside class="news-detail-sidebar">
+                <h3><i class="fas fa-newspaper"></i> O'xshash yangiliklar</h3>
+                <div class="related-news-list">
+                    {% for related in related_news %}
+                    <a href="{% url 'core:news_detail' related.slug %}" class="related-news-item">
+                        {% if related.image %}
+                        <div class="related-news-image">
+                            <img src="{{ related.image.url }}" alt="{{ related.title }}">
+                        </div>
+                        {% endif %}
+                        <div class="related-news-content">
+                            <span class="news-badge small">{{ related.category.name }}</span>
+                            <h4>{{ related.title }}</h4>
+                            <span class="related-news-date">
+                                <i class="fas fa-calendar"></i> {{ related.published_at|date:"d.m.Y" }}
+                            </span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </aside>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.news-detail-section {
+    padding: 40px 0 80px;
+}
+
+.news-detail-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 40px;
+    align-items: start;
+}
+
+.back-link-news {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-color);
+    text-decoration: none;
+    margin-bottom: 24px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.back-link-news:hover {
+    color: var(--primary-color);
+}
+
+.news-article {
+    background: var(--white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.news-article-image {
+    width: 100%;
+    max-height: 450px;
+    overflow: hidden;
+}
+
+.news-article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.news-article-header {
+    padding: 32px 32px 0;
+}
+
+.news-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--primary-color);
+    color: var(--white);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.news-badge.small {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+}
+
+.news-article-header h1 {
+    font-size: 2rem;
+    color: var(--dark-color);
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+.news-article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--light-color);
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.news-article-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.news-article-meta .author {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.news-article-content {
+    padding: 32px;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--text-color);
+}
+
+.news-article-content p {
+    margin-bottom: 1.5rem;
+}
+
+.news-article-share {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 32px;
+    border-top: 1px solid var(--light-color);
+    background: var(--light-color);
+}
+
+.news-article-share span {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.share-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.share-btn:hover {
+    transform: scale(1.1);
+}
+
+.share-btn.telegram {
+    background: #0088cc;
+}
+
+.share-btn.facebook {
+    background: #1877f2;
+}
+
+.share-btn.twitter {
+    background: #1da1f2;
+}
+
+.news-detail-sidebar {
+    position: sticky;
+    top: 100px;
+}
+
+.news-detail-sidebar h3 {
+    font-size: 1.25rem;
+    color: var(--dark-color);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.news-detail-sidebar h3 i {
+    color: var(--primary-color);
+}
+
+.related-news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.related-news-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: var(--white);
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.related-news-item:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.related-news-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.related-news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.related-news-content {
+    flex: 1;
+}
+
+.related-news-content h4 {
+    font-size: 0.95rem;
+    color: var(--dark-color);
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.related-news-date {
+    font-size: 0.8rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+@media (max-width: 1024px) {
+    .news-detail-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .news-detail-sidebar {
+        position: static;
+    }
+    
+    .related-news-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .news-article-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .news-article-header,
+    .news-article-content {
+        padding: 20px;
+    }
+}
+</style>
+{% endblock %}

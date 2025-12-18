@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from django.utils.text import slugify
 import json
 
 class SiteSettings(models.Model):
@@ -18,6 +17,25 @@ class SiteSettings(models.Model):
     
     def __str__(self):
         return self.site_name
+
+
+class DifficultyLevel(models.Model):
+    """Test qiyinlik darajasi"""
+    name = models.CharField(max_length=100, verbose_name="Qiyinlik nomi")
+    slug = models.SlugField(max_length=100, unique=True, verbose_name="Slug")
+    color = models.CharField(max_length=20, default='#6366f1', verbose_name="Rang (HEX)")
+    bg_color = models.CharField(max_length=20, default='rgba(99, 102, 241, 0.1)', verbose_name="Fon rangi")
+    icon = models.CharField(max_length=50, default='fas fa-signal', verbose_name="Icon")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = "Qiyinlik darajasi"
+        verbose_name_plural = "Qiyinlik darajalari"
+    
+    def __str__(self):
+        return self.name
 
 
 class SubjectCategory(models.Model):
@@ -85,6 +103,7 @@ class Test(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='tests', verbose_name="Mavzu")
     title = models.CharField(max_length=200, verbose_name="Test nomi")
     description = models.TextField(blank=True, verbose_name="Tavsif")
+    difficulty = models.ForeignKey(DifficultyLevel, on_delete=models.SET_NULL, null=True, blank=True, related_name='tests', verbose_name="Qiyinlik darajasi")
     time_limit = models.PositiveIntegerField(default=30, verbose_name="Vaqt limiti (daqiqa)")
     passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish balli (%)")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
@@ -177,13 +196,13 @@ class Answer(models.Model):
 class TestResult(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='test_results')
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='results')
-    score = models.FloatField(default=0, verbose_name="Ball (%)")
+    score = models.PositiveIntegerField(default=0)
     total_questions = models.PositiveIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
-    earned_points = models.FloatField(default=0, verbose_name="Olingan ball")
+    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -294,7 +313,7 @@ class CertificateQuestion(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='cert_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    points = models.DecimalField(max_digits=5, decimal_places=2, default=1.00, verbose_name="Ball")
+    points = models.PositiveIntegerField(default=1, verbose_name="Ball")
     
     class Meta:
         ordering = ['order']
@@ -321,13 +340,13 @@ class CertificateAnswer(models.Model):
 class CertificateResult(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='certificate_results')
     test = models.ForeignKey(CertificateTest, on_delete=models.CASCADE, related_name='cert_results')
-    score = models.FloatField(default=0, verbose_name="Ball (%)")
+    score = models.PositiveIntegerField(default=0)
     total_questions = models.PositiveIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
-    earned_points = models.FloatField(default=0, verbose_name="Olingan ball")
+    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -442,7 +461,7 @@ class MockExamQuestion(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='mock_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    points = models.DecimalField(max_digits=5, decimal_places=2, default=1.00, verbose_name="Ball")
+    points = models.FloatField(default=1.0, verbose_name="Ball")
     
     class Meta:
         ordering = ['order']
@@ -469,13 +488,13 @@ class MockExamAnswer(models.Model):
 class MockExamResult(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='mock_results')
     exam = models.ForeignKey(MockExam, on_delete=models.CASCADE, related_name='mock_results')
-    score = models.FloatField(default=0, verbose_name="Ball (%)")
+    score = models.PositiveIntegerField(default=0)
     total_questions = models.PositiveIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
-    earned_points = models.FloatField(default=0, verbose_name="Olingan ball")
+    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -535,6 +554,10 @@ class Institution(models.Model):
     admission_end_date = models.DateField(null=True, blank=True, verbose_name="Qabul tugash sanasi")
     license_file = models.FileField(upload_to='institutions/licenses/', blank=True, null=True, verbose_name="Litsenziya fayli")
     video_url = models.URLField(max_length=500, blank=True, verbose_name="Video URL (YouTube)")
+    telegram = models.URLField(max_length=300, blank=True, verbose_name="Telegram")
+    instagram = models.URLField(max_length=300, blank=True, verbose_name="Instagram")
+    youtube = models.URLField(max_length=300, blank=True, verbose_name="YouTube")
+    facebook = models.URLField(max_length=300, blank=True, verbose_name="Facebook")
     is_featured = models.BooleanField(default=False, verbose_name="Reklama")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")

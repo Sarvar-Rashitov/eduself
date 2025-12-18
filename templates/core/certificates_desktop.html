@@ -1,0 +1,543 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}Sertifikatlar - EduSelf{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header cert-header">
+    <div class="cert-decorations">
+        <div class="cert-shape shape-1"></div>
+        <div class="cert-shape shape-2"></div>
+        <div class="cert-shape shape-3"></div>
+        <div class="floating-badge badge-1"><i class="fas fa-award"></i></div>
+        <div class="floating-badge badge-2"><i class="fas fa-certificate"></i></div>
+        <div class="floating-badge badge-3"><i class="fas fa-medal"></i></div>
+    </div>
+    <div class="container">
+        <h1 class="page-title">Milliy Sertifikatlar</h1>
+        <p class="page-subtitle">Bilimingizni tasdiqlang va sertifikat oling</p>
+    </div>
+</section>
+
+<!-- Certificates Grid -->
+<section class="section certificates-grid-section">
+    <div class="container">
+        <div class="certificates-grid">
+            {% for cert in certificates %}
+            <a href="{% url 'core:certificate_detail' cert.pk %}" class="certificate-card-large">
+                <div class="cert-card-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div class="cert-card-content">
+                    <h3>{{ cert.name }}</h3>
+                    <p>{{ cert.description|truncatewords:20|safe }}</p>
+                    <div class="cert-card-meta">
+                        <span><i class="fas fa-folder"></i> {{ cert.get_topics_count }} mavzu</span>
+                        <span><i class="fas fa-clipboard-list"></i> {{ cert.get_tests_count }} test</span>
+                    </div>
+                </div>
+                <div class="cert-card-badge">
+                    <i class="fas fa-certificate"></i>
+                </div>
+            </a>
+            {% empty %}
+            <div class="empty-state full-width">
+                <i class="fas fa-award"></i>
+                <h3>Sertifikatlar topilmadi</h3>
+                <p>Hozircha sertifikatlar mavjud emas</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Info Section -->
+<section class="section cert-info-section">
+    <div class="container">
+        <div class="cert-info-grid">
+            <div class="cert-info-card">
+                <i class="fas fa-check-circle"></i>
+                <h3>Davlat tomonidan tan olingan</h3>
+                <p>Barcha sertifikatlar rasmiy hujjat sifatida qabul qilinadi</p>
+            </div>
+            <div class="cert-info-card">
+                <i class="fas fa-globe"></i>
+                <h3>Online formatda</h3>
+                <p>Istalgan joydan imtihon topshiring</p>
+            </div>
+            <div class="cert-info-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Tez natijalar</h3>
+                <p>Natijalarni darhol bilib oling</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Animated Certificate Header */
+.cert-header {
+    background: linear-gradient(-45deg, #10b981, #34d399, #059669, #047857);
+    background-size: 400% 400%;
+    animation: certGradient 15s ease infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.cert-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.07'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    animation: patternDrift 20s linear infinite;
+}
+
+.cert-header .container {
+    position: relative;
+    z-index: 2;
+}
+
+.cert-header .page-title {
+    animation: certTitleIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+.cert-header .page-subtitle {
+    animation: certSubtitleIn 0.8s ease 0.3s both;
+}
+
+@keyframes certGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes patternDrift {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(60px) translateY(60px); }
+}
+
+@keyframes certTitleIn {
+    0% { opacity: 0; transform: translateY(-40px) scale(0.9); }
+    60% { transform: translateY(5px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes certSubtitleIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Decorative Elements */
+.cert-decorations {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.cert-shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: shapeFloat 12s ease-in-out infinite;
+}
+
+.cert-shape.shape-1 {
+    width: 150px;
+    height: 150px;
+    top: -50px;
+    right: 10%;
+    animation-delay: 0s;
+}
+
+.cert-shape.shape-2 {
+    width: 100px;
+    height: 100px;
+    bottom: -30px;
+    left: 15%;
+    animation-delay: 3s;
+}
+
+.cert-shape.shape-3 {
+    width: 80px;
+    height: 80px;
+    top: 30%;
+    left: 5%;
+    animation-delay: 6s;
+}
+
+@keyframes shapeFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-20px) scale(1.1); }
+}
+
+/* Floating Badges */
+.floating-badge {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.2);
+    animation: badgeFloat 8s ease-in-out infinite;
+}
+
+.floating-badge i {
+    font-size: 2.5rem;
+}
+
+.floating-badge.badge-1 {
+    top: 15%;
+    left: 8%;
+    animation-delay: 0s;
+}
+
+.floating-badge.badge-2 {
+    top: 60%;
+    right: 12%;
+    animation-delay: 2s;
+}
+
+.floating-badge.badge-3 {
+    bottom: 20%;
+    left: 25%;
+    animation-delay: 4s;
+}
+
+@keyframes badgeFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.2; }
+    25% { transform: translateY(-15px) rotate(10deg); opacity: 0.35; }
+    50% { transform: translateY(-25px) rotate(-5deg); opacity: 0.25; }
+    75% { transform: translateY(-10px) rotate(5deg); opacity: 0.3; }
+}
+
+.certificates-grid-section {
+    padding: 60px 0;
+}
+
+.certificates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+/* Certificate Card Animations */
+.certificate-card-large {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    animation: cardSlideIn 0.6s ease both;
+}
+
+.certificate-card-large::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #10b981, #34d399, #10b981);
+    background-size: 200% 100%;
+    animation: borderShimmer 3s linear infinite;
+}
+
+.certificate-card-large::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+    transition: left 0.6s;
+}
+
+.certificate-card-large:hover::after {
+    left: 100%;
+}
+
+@keyframes borderShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.certificates-grid .certificate-card-large:nth-child(1) { animation-delay: 0.1s; }
+.certificates-grid .certificate-card-large:nth-child(2) { animation-delay: 0.2s; }
+.certificates-grid .certificate-card-large:nth-child(3) { animation-delay: 0.3s; }
+.certificates-grid .certificate-card-large:nth-child(4) { animation-delay: 0.4s; }
+.certificates-grid .certificate-card-large:nth-child(5) { animation-delay: 0.5s; }
+.certificates-grid .certificate-card-large:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.certificate-card-large:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(16, 185, 129, 0.2);
+}
+
+.cert-card-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #10b981, #34d399);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.cert-card-icon::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #10b981, #34d399);
+    z-index: -1;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.certificate-card-large:hover .cert-card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.certificate-card-large:hover .cert-card-icon::before {
+    opacity: 0.3;
+    inset: -8px;
+}
+
+.cert-card-icon i {
+    font-size: 2rem;
+    color: var(--white);
+    transition: all 0.3s ease;
+}
+
+.certificate-card-large:hover .cert-card-icon i {
+    transform: scale(1.1);
+    animation: iconShine 0.6s ease;
+}
+
+@keyframes iconShine {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.3); }
+}
+
+.cert-card-content h3 {
+    font-size: 1.25rem;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.certificate-card-large:hover .cert-card-content h3 {
+    color: #10b981;
+}
+
+.cert-card-content p {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.cert-card-meta {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.cert-card-meta span {
+    font-size: 0.85rem;
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.certificate-card-large:hover .cert-card-meta span {
+    transform: translateX(5px);
+}
+
+.cert-card-meta span i {
+    transition: all 0.3s ease;
+}
+
+.certificate-card-large:hover .cert-card-meta span i {
+    animation: metaIconPop 0.5s ease;
+}
+
+@keyframes metaIconPop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+.cert-card-badge {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    color: #10b981;
+    font-size: 2.5rem;
+    opacity: 0.15;
+    transition: all 0.4s ease;
+}
+
+.certificate-card-large:hover .cert-card-badge {
+    opacity: 0.3;
+    transform: scale(1.2) rotate(15deg);
+}
+
+/* Info Section */
+.cert-info-section {
+    background: linear-gradient(180deg, var(--light-color) 0%, #ecfdf5 100%);
+    padding: 80px 0;
+    position: relative;
+}
+
+.cert-info-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
+}
+
+.cert-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.cert-info-card {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: infoCardIn 0.7s ease both;
+    position: relative;
+    overflow: hidden;
+}
+
+.cert-info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.cert-info-card:hover::before {
+    transform: scaleX(1);
+}
+
+.cert-info-grid .cert-info-card:nth-child(1) { animation-delay: 0.1s; }
+.cert-info-grid .cert-info-card:nth-child(2) { animation-delay: 0.2s; }
+.cert-info-grid .cert-info-card:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes infoCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cert-info-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 50px rgba(16, 185, 129, 0.15);
+}
+
+.cert-info-card i {
+    font-size: 3.5rem;
+    background: linear-gradient(135deg, #10b981, #34d399);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    transition: all 0.4s ease;
+}
+
+.cert-info-card:hover i {
+    transform: scale(1.15) rotate(5deg);
+}
+
+.cert-info-card h3 {
+    font-size: 1.15rem;
+    color: var(--dark-color);
+    margin-bottom: 0.75rem;
+    transition: color 0.3s ease;
+}
+
+.cert-info-card:hover h3 {
+    color: #10b981;
+}
+
+.cert-info-card p {
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+/* Empty State */
+.empty-state.full-width {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--white);
+    border-radius: 24px;
+    animation: fadeIn 0.8s ease;
+}
+
+.empty-state.full-width i {
+    font-size: 4rem;
+    color: #10b981;
+    opacity: 0.3;
+    margin-bottom: 1rem;
+    animation: emptyBounce 3s ease-in-out infinite;
+}
+
+@keyframes emptyBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
+{% endblock %}

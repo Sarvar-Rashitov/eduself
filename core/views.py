@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
 import json
 from .models import (
@@ -10,21 +10,44 @@ from .models import (
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     InstitutionCategory, Institution, InstitutionDirection, InstitutionType, Advertisement, Statistic, SiteSettings,
     NewsCategory, News,
-    CourseCategory, Course, Lesson, CourseEnrollment
+    CourseCategory, Course, Lesson, CourseEnrollment,
+    Notification
 )
 
+def is_mobile(request):
+    """User-Agent orqali mobil qurilmani aniqlash"""
+    user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+    mobile_keywords = ['mobile', 'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'opera mobi']
+    return any(keyword in user_agent for keyword in mobile_keywords)
+
+
 def home_view(request):
-    subjects = Subject.objects.filter(is_active=True)[:3]
+    subjects = Subject.objects.filter(is_active=True)[:3]  # 3 ta fan ko'rsatish
     certificates = Certificate.objects.filter(is_active=True)[:3]
     institutions = Institution.objects.filter(is_featured=True, is_active=True)[:4]
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
-    statistics = Statistic.objects.all()
     
-    # Top 5 foydalanuvchilarni olish
+    # Dinamik statistikalar
     from accounts.models import User
+    total_users = User.objects.count()
+    total_tests = Test.objects.count() + CertificateTest.objects.count() + MockExam.objects.count()
+    total_certificates = Certificate.objects.filter(is_active=True).count()
+    
+    # Reyting hisoblash (o'rtacha ball)
+    avg_rating = 4.8  # Hozircha statik, keyinchalik dinamik qilish mumkin
+    
+    # Dinamik statistikalar ro'yxati
+    dynamic_statistics = [
+        {'title': 'Foydalanuvchilar', 'value': f'{total_users:,}', 'icon': 'users'},
+        {'title': 'Testlar', 'value': f'{total_tests:,}', 'icon': 'book'},
+        {'title': 'Sertifikatlar', 'value': f'{total_certificates:,}', 'icon': 'trophy'},
+        {'title': 'Reyting', 'value': f'{avg_rating}', 'icon': 'star'},
+    ]
+    
+    # Top 3 foydalanuvchilarni olish
     top_users = User.objects.filter(
         total_points__gt=0
-    ).select_related().order_by('-total_points')[:5]
+    ).select_related().order_by('-total_points')[:3]
     
     user_stats = {}
     user_position = None
@@ -45,12 +68,17 @@ def home_view(request):
         'certificates': certificates,
         'institutions': institutions,
         'advertisements': advertisements,
-        'statistics': statistics,
+        'statistics': dynamic_statistics,
         'user_stats': user_stats,
         'top_users': top_users,
         'user_position': user_position,
     }
-    return render(request, 'core/home.html', context)
+    
+    # Mobil yoki Desktop shablonni tanlash
+    if is_mobile(request):
+        return render(request, 'core/home.html', context)
+    else:
+        return render(request, 'core/home_desktop.html', context)
 
 
 def subjects_view(request):
@@ -76,13 +104,23 @@ def subjects_view(request):
         'current_category': current_category,
         'title': title,
     }
-    return render(request, 'core/subjects.html', context)
+    
+    if is_mobile(request):
+        return render(request, 'core/subjects.html', context)
+    else:
+        return render(request, 'core/subjects_desktop.html', context)
 
 
 def subject_detail_view(request, pk):
     subject = get_object_or_404(Subject, pk=pk, is_active=True)
     topics = subject.topics.filter(is_active=True)
-    return render(request, 'core/subject_detail.html', {'subject': subject, 'topics': topics})
+    
+    context = {'subject': subject, 'topics': topics}
+    
+    if is_mobile(request):
+        return render(request, 'core/subject_detail.html', context)
+    else:
+        return render(request, 'core/subject_detail_desktop.html', context)
 
 
 def topic_detail_view(request, pk):
@@ -98,10 +136,16 @@ def topic_detail_view(request, pk):
             # Test ochilganligini tekshirish
             test.is_unlocked = test.is_unlocked_for_user(request.user)
     else:
+        # Mehmonlar uchun ham testlar ochiq ko'rinadi
         for test in tests:
-            test.is_unlocked = False
+            test.is_unlocked = True
     
-    return render(request, 'core/topic_detail.html', {'topic': topic, 'tests': tests, 'user_results': user_results})
+    context = {'topic': topic, 'tests': tests, 'user_results': user_results}
+    
+    if is_mobile(request):
+        return render(request, 'core/topic_detail.html', context)
+    else:
+        return render(request, 'core/topic_detail_desktop.html', context)
 
 
 @login_required
@@ -136,7 +180,10 @@ def test_leaderboard_view(request, pk):
         'top_results': top_results,
         'user_best': user_best,
     }
-    return render(request, 'core/test_leaderboard.html', context)
+    if is_mobile(request):
+        return render(request, 'core/test_leaderboard.html', context)
+    else:
+        return render(request, 'core/test_leaderboard_desktop.html', context)
 
 
 @login_required
@@ -215,7 +262,7 @@ def take_test_view(request, pk):
                     'is_correct': False
                 }
         
-        score = round((correct / total) * 100, 2) if total > 0 else 0
+        score = int((correct / total) * 100) if total > 0 else 0
         passed = score >= test.passing_score
         
         # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
@@ -241,7 +288,11 @@ def take_test_view(request, pk):
         
         return redirect('core:test_result', pk=test.pk)
     
-    return render(request, 'core/take_test.html', {'test': test, 'questions': questions})
+    context = {'test': test, 'questions': questions}
+    if is_mobile(request):
+        return render(request, 'core/take_test.html', context)
+    else:
+        return render(request, 'core/take_test_desktop.html', context)
 
 
 @login_required
@@ -261,7 +312,10 @@ def test_result_view(request, pk):
         'result': result,
         'next_test': next_test
     }
-    return render(request, 'core/test_result.html', context)
+    if is_mobile(request):
+        return render(request, 'core/test_result.html', context)
+    else:
+        return render(request, 'core/test_result_desktop.html', context)
 
 
 @login_required
@@ -303,18 +357,32 @@ def test_analysis_view(request, pk):
         'result': result,
         'analysis_data': analysis_data,
     }
-    return render(request, 'core/test_analysis.html', context)
+    if is_mobile(request):
+        return render(request, 'core/test_analysis.html', context)
+    else:
+        return render(request, 'core/test_analysis_desktop.html', context)
 
 
 def certificates_view(request):
     certificates = Certificate.objects.filter(is_active=True)
-    return render(request, 'core/certificates.html', {'certificates': certificates})
+    context = {'certificates': certificates}
+    
+    if is_mobile(request):
+        return render(request, 'core/certificates.html', context)
+    else:
+        return render(request, 'core/certificates_desktop.html', context)
 
 
 def certificate_detail_view(request, pk):
     certificate = get_object_or_404(Certificate, pk=pk, is_active=True)
     topics = certificate.cert_topics.filter(is_active=True)
-    return render(request, 'core/certificate_detail.html', {'certificate': certificate, 'topics': topics})
+    
+    context = {'certificate': certificate, 'topics': topics}
+    
+    if is_mobile(request):
+        return render(request, 'core/certificate_detail.html', context)
+    else:
+        return render(request, 'core/certificate_detail_desktop.html', context)
 
 
 def cert_topic_detail_view(request, pk):
@@ -330,10 +398,15 @@ def cert_topic_detail_view(request, pk):
             # Test ochilganligini tekshirish
             test.is_unlocked = test.is_unlocked_for_user(request.user)
     else:
+        # Mehmonlar uchun ham testlar ochiq ko'rinadi
         for test in tests:
-            test.is_unlocked = False
+            test.is_unlocked = True
     
-    return render(request, 'core/cert_topic_detail.html', {'topic': topic, 'tests': tests, 'user_results': user_results})
+    context = {'topic': topic, 'tests': tests, 'user_results': user_results}
+    if is_mobile(request):
+        return render(request, 'core/cert_topic_detail.html', context)
+    else:
+        return render(request, 'core/cert_topic_detail_desktop.html', context)
 
 
 @login_required
@@ -368,7 +441,10 @@ def cert_test_leaderboard_view(request, pk):
         'top_results': top_results,
         'user_best': user_best,
     }
-    return render(request, 'core/cert_test_leaderboard.html', context)
+    if is_mobile(request):
+        return render(request, 'core/cert_test_leaderboard.html', context)
+    else:
+        return render(request, 'core/cert_test_leaderboard_desktop.html', context)
 
 
 @login_required
@@ -380,8 +456,8 @@ def check_cert_answer_view(request, question_id, answer_id):
             selected_answer = get_object_or_404(CertificateAnswer, id=answer_id, question=question)
             correct_answer = question.cert_answers.filter(is_correct=True).first()
             
-            # Ball ma'lumotini qo'shish
-            points_earned = question.points if selected_answer.is_correct else 0
+            # Ball ma'lumotini qo'shish (float sifatida)
+            points_earned = float(question.points) if selected_answer.is_correct else 0.0
             
             return JsonResponse({
                 'is_correct': selected_answer.is_correct,
@@ -389,7 +465,7 @@ def check_cert_answer_view(request, question_id, answer_id):
                 'correct_answer_id': correct_answer.id if correct_answer else None,
                 'selected_answer': selected_answer.text,
                 'points_earned': points_earned,
-                'question_points': question.points
+                'question_points': float(question.points)
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -446,7 +522,7 @@ def take_cert_test_view(request, pk):
                     'is_correct': False
                 }
         
-        score = round((correct / total) * 100, 2) if total > 0 else 0
+        score = int((correct / total) * 100) if total > 0 else 0
         passed = score >= test.passing_score
         
         # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
@@ -472,7 +548,11 @@ def take_cert_test_view(request, pk):
         
         return redirect('core:cert_test_result', pk=test.pk)
     
-    return render(request, 'core/take_cert_test.html', {'test': test, 'questions': questions})
+    context = {'test': test, 'questions': questions}
+    if is_mobile(request):
+        return render(request, 'core/take_cert_test.html', context)
+    else:
+        return render(request, 'core/take_cert_test_desktop.html', context)
 
 
 @login_required
@@ -492,7 +572,10 @@ def cert_test_result_view(request, pk):
         'result': result,
         'next_test': next_test
     }
-    return render(request, 'core/cert_test_result.html', context)
+    if is_mobile(request):
+        return render(request, 'core/cert_test_result.html', context)
+    else:
+        return render(request, 'core/cert_test_result_desktop.html', context)
 
 
 @login_required
@@ -534,7 +617,10 @@ def cert_test_analysis_view(request, pk):
         'result': result,
         'analysis_data': analysis_data,
     }
-    return render(request, 'core/cert_test_analysis.html', context)
+    if is_mobile(request):
+        return render(request, 'core/cert_test_analysis.html', context)
+    else:
+        return render(request, 'core/cert_test_analysis_desktop.html', context)
 
 
 def mock_exams_view(request):
@@ -560,17 +646,23 @@ def mock_exams_view(request):
             # Imtihon ochilganligini tekshirish
             exam.is_unlocked = exam.is_unlocked_for_user(request.user)
     else:
+        # Mehmonlar uchun ham imtihonlar ochiq ko'rinadi
         for exam in exams:
-            exam.is_unlocked = False
+            exam.is_unlocked = True
     
     context = {
         'exams': exams,
+        'mock_exams': exams,
         'categories': categories,
         'current_category': category,
         'title': title,
         'user_results': user_results,
     }
-    return render(request, 'core/mock_exams.html', context)
+    
+    if is_mobile(request):
+        return render(request, 'core/mock_exams.html', context)
+    else:
+        return render(request, 'core/mock_exams_desktop.html', context)
 
 
 @login_required
@@ -605,7 +697,10 @@ def mock_exam_leaderboard_view(request, pk):
         'top_results': top_results,
         'user_best': user_best,
     }
-    return render(request, 'core/mock_exam_leaderboard.html', context)
+    if is_mobile(request):
+        return render(request, 'core/mock_exam_leaderboard.html', context)
+    else:
+        return render(request, 'core/mock_exam_leaderboard_desktop.html', context)
 
 
 @login_required
@@ -617,8 +712,8 @@ def check_mock_answer_view(request, question_id, answer_id):
             selected_answer = get_object_or_404(MockExamAnswer, id=answer_id, question=question)
             correct_answer = question.mock_answers.filter(is_correct=True).first()
             
-            # Ball ma'lumotini qo'shish
-            points_earned = question.points if selected_answer.is_correct else 0
+            # Ball ma'lumotini qo'shish (float sifatida)
+            points_earned = float(question.points) if selected_answer.is_correct else 0.0
             
             return JsonResponse({
                 'is_correct': selected_answer.is_correct,
@@ -626,7 +721,7 @@ def check_mock_answer_view(request, question_id, answer_id):
                 'correct_answer_id': correct_answer.id if correct_answer else None,
                 'selected_answer': selected_answer.text,
                 'points_earned': points_earned,
-                'question_points': question.points
+                'question_points': float(question.points)
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -683,7 +778,7 @@ def take_mock_exam_view(request, pk):
                     'is_correct': False
                 }
         
-        score = round((correct / total) * 100, 2) if total > 0 else 0
+        score = int((correct / total) * 100) if total > 0 else 0
         passed = score >= exam.passing_score
         
         # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
@@ -709,14 +804,22 @@ def take_mock_exam_view(request, pk):
         
         return redirect('core:mock_exam_result', pk=exam.pk)
     
-    return render(request, 'core/take_mock_exam.html', {'exam': exam, 'questions': questions})
+    context = {'exam': exam, 'questions': questions}
+    if is_mobile(request):
+        return render(request, 'core/take_mock_exam.html', context)
+    else:
+        return render(request, 'core/take_mock_exam_desktop.html', context)
 
 
 @login_required
 def mock_exam_result_view(request, pk):
     exam = get_object_or_404(MockExam, pk=pk)
     result = MockExamResult.objects.filter(user=request.user, exam=exam).order_by('-completed_at').first()
-    return render(request, 'core/mock_exam_result.html', {'exam': exam, 'result': result})
+    context = {'exam': exam, 'result': result}
+    if is_mobile(request):
+        return render(request, 'core/mock_exam_result.html', context)
+    else:
+        return render(request, 'core/mock_exam_result_desktop.html', context)
 
 
 @login_required
@@ -758,7 +861,10 @@ def mock_exam_analysis_view(request, pk):
         'result': result,
         'analysis_data': analysis_data,
     }
-    return render(request, 'core/mock_exam_analysis.html', context)
+    if is_mobile(request):
+        return render(request, 'core/mock_exam_analysis.html', context)
+    else:
+        return render(request, 'core/mock_exam_analysis_desktop.html', context)
 
 
 def institutions_view(request):
@@ -784,22 +890,36 @@ def institutions_view(request):
         'current_category': current_category,
         'title': title,
     }
-    return render(request, 'core/institutions.html', context)
+    
+    if is_mobile(request):
+        return render(request, 'core/institutions.html', context)
+    else:
+        return render(request, 'core/institutions_desktop.html', context)
 
 
 def institution_detail_view(request, pk):
     institution = get_object_or_404(Institution, pk=pk, is_active=True)
     directions = institution.directions.filter(is_active=True)
-    return render(request, 'core/institution_detail.html', {
+    
+    context = {
         'institution': institution,
         'directions': directions
-    })
+    }
+    
+    if is_mobile(request):
+        return render(request, 'core/institution_detail.html', context)
+    else:
+        return render(request, 'core/institution_detail_desktop.html', context)
 
 
 def direction_detail_view(request, pk):
     """Yo'nalish batafsil sahifasi"""
     direction = get_object_or_404(InstitutionDirection, pk=pk, is_active=True)
-    return render(request, 'core/direction_detail.html', {'direction': direction})
+    context = {'direction': direction}
+    if is_mobile(request):
+        return render(request, 'core/direction_detail.html', context)
+    else:
+        return render(request, 'core/direction_detail_desktop.html', context)
 
 
 def news_list_view(request):
@@ -824,7 +944,11 @@ def news_list_view(request):
         'current_category': category,
         'title': title,
     }
-    return render(request, 'core/news_list.html', context)
+    
+    if is_mobile(request):
+        return render(request, 'core/news_list.html', context)
+    else:
+        return render(request, 'core/news_list_desktop.html', context)
 
 
 def news_detail_view(request, slug):
@@ -841,7 +965,10 @@ def news_detail_view(request, slug):
         'news': news,
         'related_news': related_news,
     }
-    return render(request, 'core/news_detail.html', context)
+    if is_mobile(request):
+        return render(request, 'core/news_detail.html', context)
+    else:
+        return render(request, 'core/news_detail_desktop.html', context)
 
 
 def courses_view(request):
@@ -866,7 +993,11 @@ def courses_view(request):
         'current_category': category,
         'title': title,
     }
-    return render(request, 'core/courses.html', context)
+    
+    if is_mobile(request):
+        return render(request, 'core/courses.html', context)
+    else:
+        return render(request, 'core/courses_desktop.html', context)
 
 
 def course_detail_view(request, slug):
@@ -891,7 +1022,10 @@ def course_detail_view(request, slug):
         'is_enrolled': is_enrolled,
         'payment_confirmed': payment_confirmed,
     }
-    return render(request, 'core/course_detail.html', context)
+    if is_mobile(request):
+        return render(request, 'core/course_detail.html', context)
+    else:
+        return render(request, 'core/course_detail_desktop.html', context)
 
 
 @login_required
@@ -936,7 +1070,10 @@ def lesson_detail_view(request, course_slug, lesson_id):
         'payment_confirmed': payment_confirmed,
         'is_first_lesson': lesson == first_lesson,
     }
-    return render(request, 'core/lesson_detail.html', context)
+    if is_mobile(request):
+        return render(request, 'core/lesson_detail.html', context)
+    else:
+        return render(request, 'core/lesson_detail_desktop.html', context)
 
 
 @login_required
@@ -1017,11 +1154,16 @@ def global_leaderboard_view(request):
     
     context = {
         'top_users': top_users,
+        'users': top_users,
         'user_position': user_position,
         'user_points': user_points,
         'title': 'Global Leaderboard'
     }
-    return render(request, 'core/global_leaderboard.html', context)
+    
+    if is_mobile(request):
+        return render(request, 'core/global_leaderboard.html', context)
+    else:
+        return render(request, 'core/global_leaderboard_desktop.html', context)
 
 
 @login_required
@@ -1030,12 +1172,27 @@ def mark_notification_read(request, notification_id):
     
     # Bildirishnomani o'qilgan deb belgilash
     if notification.is_global or notification.user == request.user:
-        if not notification.is_global:
-            notification.is_read = True
-            notification.save()
+        notification.is_read = True
+        notification.save()
+    
+    # AJAX so'rov bo'lsa JSON qaytarish
+    if request.headers.get('Content-Type') == 'application/json':
+        return JsonResponse({'success': True})
     
     # Agar havola bo'lsa, u yerga yo'naltirish
     if notification.link:
         return redirect(notification.link)
     
     return redirect('core:home')
+
+
+@login_required
+def mark_all_notifications_read(request):
+    """Barcha bildirishnomalarni o'qilgan deb belgilash"""
+    if request.method == 'POST':
+        Notification.objects.filter(
+            Q(user=request.user) | Q(is_global=True),
+            is_read=False
+        ).update(is_read=True)
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})

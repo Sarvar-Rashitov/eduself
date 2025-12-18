@@ -1,0 +1,339 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}{{ topic.name }} - EduSelf{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header topic-header">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="{% url 'core:home' %}">Bosh sahifa</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{% url 'core:subjects' %}">Fanlar</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{% url 'core:subject_detail' topic.subject.pk %}">{{ topic.subject.name }}</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>{{ topic.name }}</span>
+        </div>
+        <div class="topic-header-content">
+            <div class="topic-icon-large">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div class="topic-info-large">
+                <h1>{{ topic.name }}</h1>
+                <p>{{ topic.description|safe }}</p>
+                <div class="topic-stats">
+                    <span><i class="fas fa-clipboard-list"></i> {{ tests|length }} test</span>
+                    <span><i class="fas fa-book"></i> {{ topic.subject.name }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tests Section -->
+<section class="section tests-section">
+    <div class="container">
+        <h2 class="section-title-left">Testlar</h2>
+        <div class="tests-grid">
+            {% for test in tests %}
+            <div class="test-card-large {% if not test.is_unlocked and not forloop.first %}locked{% endif %}">
+                <div class="test-card-header">
+                    <div class="test-icon">
+                        {% if test.is_unlocked or forloop.first %}
+                        <i class="fas fa-clipboard-check"></i>
+                        {% else %}
+                        <i class="fas fa-lock"></i>
+                        {% endif %}
+                    </div>
+                        {% if test.difficulty %}
+                    <div class="test-difficulty" style="background: {{ test.difficulty.bg_color }}; color: {{ test.difficulty.color }};">
+                        <i class="{{ test.difficulty.icon }}"></i> {{ test.difficulty.name }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="test-card-content">
+                    <h3>{{ test.title }}</h3>
+                    <p>{{ test.description|truncatewords:15|safe }}</p>
+                    <div class="test-meta">
+                        <span><i class="fas fa-question-circle"></i> {{ test.questions_count|default:test.get_questions_count }} savol</span>
+                        <span><i class="fas fa-clock"></i> {{ test.time_limit }} daqiqa</span>
+                    </div>
+                    {% if not test.is_unlocked and not forloop.first %}
+                    <div class="unlock-info"><i class="fas fa-info-circle"></i> Ochish uchun: {{ test.unlock_score }}% ball kerak</div>
+                    {% endif %}
+                </div>
+                <div class="test-card-actions">
+                    {% if test.is_unlocked or forloop.first %}
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary btn-block">
+                            <i class="fas fa-play"></i> Boshlash
+                        </a>
+                        <a href="{% url 'core:test_leaderboard' test.pk %}" class="btn btn-outline btn-block">
+                            <i class="fas fa-trophy"></i> Reyting
+                        </a>
+                        {% else %}
+                        <a href="{% url 'accounts:login' %}?next={% url 'core:take_test' test.pk %}" class="btn btn-primary btn-block">
+                            <i class="fas fa-play"></i> Boshlash
+                        </a>
+                        <a href="{% url 'core:test_leaderboard' test.pk %}" class="btn btn-outline btn-block">
+                            <i class="fas fa-trophy"></i> Reyting
+                        </a>
+                        {% endif %}
+                    {% else %}
+                    <button class="btn btn-secondary btn-block" disabled>
+                        <i class="fas fa-lock"></i> Yopiq
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state full-width">
+                <i class="fas fa-clipboard-list"></i>
+                <h3>Testlar topilmadi</h3>
+                <p>Bu mavzuda hozircha testlar mavjud emas</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.topic-header {
+    padding: 40px 0 60px;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+}
+
+.breadcrumb a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: var(--white);
+}
+
+.breadcrumb i {
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+.breadcrumb span {
+    color: var(--white);
+}
+
+.topic-header-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.topic-icon-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.topic-icon-large i {
+    font-size: 3rem;
+    color: var(--white);
+}
+
+.topic-info-large h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.topic-info-large p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+}
+
+.topic-stats {
+    display: flex;
+    gap: 2rem;
+}
+
+.topic-stats span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.tests-section {
+    padding: 60px 0;
+}
+
+.section-title-left {
+    font-size: 1.75rem;
+    color: var(--dark-color);
+    margin-bottom: 2rem;
+}
+
+.tests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+.test-card-large {
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.test-card-large:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.test-card-large.locked {
+    opacity: 0.7;
+}
+
+.test-card-large.locked .test-card-header {
+    background: #e9ecef;
+}
+
+.test-card-large.locked .test-icon {
+    background: #6c757d;
+}
+
+.test-card-header {
+    padding: 1.5rem;
+    background: var(--light-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.test-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: var(--gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.test-icon i {
+    font-size: 1.5rem;
+    color: var(--white);
+}
+
+.test-difficulty {
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.test-difficulty i {
+    font-size: 0.75rem;
+}
+
+.test-card-content {
+    padding: 1.5rem;
+}
+
+.test-card-content h3 {
+    font-size: 1.1rem;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.test-card-content p {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.test-meta {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.test-meta span {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.unlock-info {
+    font-size: 0.85rem;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: var(--white);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.test-card-actions {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--light-color);
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-block {
+    flex: 1;
+    text-align: center;
+}
+
+.empty-state.full-width {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+    .topic-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .topic-stats {
+        justify-content: center;
+    }
+    
+    .tests-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

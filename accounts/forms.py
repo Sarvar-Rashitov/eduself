@@ -114,16 +114,20 @@ class ResetPasswordForm(forms.Form):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email', 'bio', 'profile_image']
+        fields = ['first_name', 'last_name', 'email', 'phone', 'bio', 'profile_image']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ismingiz'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Familiyangiz'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'email@example.com'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+998 90 123 45 67'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': "O'zingiz haqingizda..."}),
             'profile_image': forms.FileInput(attrs={'class': 'form-control'}),
         }
         labels = {
-            'username': 'Foydalanuvchi nomi',
+            'first_name': 'Ism',
+            'last_name': 'Familiya',
             'email': 'Email',
+            'phone': 'Telefon',
             'bio': 'Bio',
             'profile_image': 'Profil rasmi',
         }

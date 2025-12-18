@@ -6,8 +6,9 @@ import uuid
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
-    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
-    bio = models.TextField(blank=True)
+    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True, verbose_name="Profil rasmi")
+    phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Telefon")
+    bio = models.TextField(blank=True, verbose_name="Bio")
     total_points = models.PositiveIntegerField(default=0, verbose_name="Umumiy ball")
     
     # Email verification
@@ -26,20 +27,30 @@ class User(AbstractUser):
         return self.username
     
     def get_progress_percentage(self):
-        from core.models import TestResult
+        from core.models import TestResult, CertificateResult, MockExamResult
         total_tests = TestResult.objects.filter(user=self).count()
+        total_tests += CertificateResult.objects.filter(user=self).count()
+        total_tests += MockExamResult.objects.filter(user=self).count()
         if total_tests == 0:
             return 0
         passed_tests = TestResult.objects.filter(user=self, passed=True).count()
+        passed_tests += CertificateResult.objects.filter(user=self, passed=True).count()
+        passed_tests += MockExamResult.objects.filter(user=self, passed=True).count()
         return int((passed_tests / total_tests) * 100)
     
     def get_total_tests_taken(self):
-        from core.models import TestResult
-        return TestResult.objects.filter(user=self).count()
+        from core.models import TestResult, CertificateResult, MockExamResult
+        total = TestResult.objects.filter(user=self).count()
+        total += CertificateResult.objects.filter(user=self).count()
+        total += MockExamResult.objects.filter(user=self).count()
+        return total
     
     def get_passed_tests(self):
-        from core.models import TestResult
-        return TestResult.objects.filter(user=self, passed=True).count()
+        from core.models import TestResult, CertificateResult, MockExamResult
+        passed = TestResult.objects.filter(user=self, passed=True).count()
+        passed += CertificateResult.objects.filter(user=self, passed=True).count()
+        passed += MockExamResult.objects.filter(user=self, passed=True).count()
+        return passed
     
     def get_total_points(self):
         """

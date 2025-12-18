@@ -1,0 +1,509 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - EduSelf{% endblock %}
+
+{% block content %}
+<!-- Course Header -->
+<section class="page-header course-detail-header">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="{% url 'core:home' %}">Bosh sahifa</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{% url 'core:courses' %}">Kurslar</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>{{ course.title }}</span>
+        </div>
+        <div class="course-header-content">
+            <div class="course-header-info">
+                <span class="course-category-badge">{{ course.category.name }}</span>
+                {% if course.is_free %}
+                <span class="course-price-badge free">Bepul</span>
+                {% else %}
+                <span class="course-price-badge paid">{{ course.price|floatformat:0 }} so'm</span>
+                {% endif %}
+                <h1>{{ course.title }}</h1>
+                <p>{{ course.description|safe }}</p>
+                <div class="course-meta-header">
+                    <span><i class="fas fa-user"></i> {{ course.instructor }}</span>
+                    <span><i class="fas fa-play-circle"></i> {{ lessons|length }} dars</span>
+                    <span><i class="fas fa-clock"></i> {{ course.duration|default:'10+ soat' }}</span>
+                </div>
+            </div>
+            <div class="course-header-image">
+                {% if course.image %}
+                <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                {% else %}
+                <div class="course-placeholder-large">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Course Content -->
+<section class="section course-content-section">
+    <div class="container">
+        <div class="course-content-grid">
+            <!-- Main Content -->
+            <div class="course-main-content">
+                <!-- About -->
+                <div class="content-card">
+                    <h2><i class="fas fa-info-circle"></i> Kurs haqida</h2>
+                    <div class="content-text">
+                        {{ course.full_description|default:course.description|safe }}
+                    </div>
+                </div>
+                
+                <!-- Lessons -->
+                <div class="content-card">
+                    <h2><i class="fas fa-list"></i> Darslar ({{ lessons|length }})</h2>
+                    <div class="lessons-list">
+                        {% for lesson in lessons %}
+                        <div class="lesson-item {% if not course.is_free and not lesson.is_free and not payment_confirmed and not forloop.first %}locked{% endif %}">
+                            <div class="lesson-number">{{ forloop.counter }}</div>
+                            <div class="lesson-info">
+                                <h4>{{ lesson.title }}</h4>
+                                <p>{{ lesson.description|truncatewords:15|safe }}</p>
+                                <div class="lesson-meta">
+                                    {% if lesson.duration %}
+                                    <span><i class="fas fa-clock"></i> {{ lesson.duration }} daqiqa</span>
+                                    {% endif %}
+                                    {% if lesson.is_free %}
+                                    <span class="free-badge"><i class="fas fa-unlock"></i> Bepul</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="lesson-action">
+                                {% if course.is_free or lesson.is_free or payment_confirmed or forloop.first %}
+                                <a href="{% url 'core:lesson_detail' course.slug lesson.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-play"></i> Ko'rish
+                                </a>
+                                {% else %}
+                                <span class="locked-badge"><i class="fas fa-lock"></i></span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-state">
+                            <i class="fas fa-play-circle"></i>
+                            <p>Hozircha darslar mavjud emas</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="course-sidebar">
+                <!-- Enroll Card -->
+                <div class="sidebar-card enroll-card">
+                    {% if course.is_free %}
+                    <div class="price-display free">Bepul</div>
+                    {% else %}
+                    <div class="price-display">{{ course.price|floatformat:0 }} so'm</div>
+                    {% endif %}
+                    
+                    {% if is_enrolled %}
+                        {% if payment_confirmed or course.is_free %}
+                        <div class="enrolled-badge">
+                            <i class="fas fa-check-circle"></i> Siz yozilgansiz
+                        </div>
+                        <a href="{% url 'core:lesson_detail' course.slug lessons.0.id %}" class="btn btn-primary btn-full">
+                            <i class="fas fa-play"></i> Davom etish
+                        </a>
+                        {% else %}
+                        <div class="pending-badge">
+                            <i class="fas fa-clock"></i> To'lov kutilmoqda
+                        </div>
+                        {% if course.payment_url %}
+                        <a href="{{ course.payment_url }}" target="_blank" class="btn btn-success btn-full">
+                            <i class="fas fa-credit-card"></i> To'lov qilish
+                        </a>
+                        {% endif %}
+                        {% endif %}
+                    {% else %}
+                        {% if course.is_free %}
+                        <a href="{% url 'core:enroll_course' course.id %}" class="btn btn-primary btn-full">
+                            <i class="fas fa-plus-circle"></i> Bepul yozilish
+                        </a>
+                        {% else %}
+                        <a href="{% url 'core:enroll_paid_course' course.id %}" class="btn btn-primary btn-full">
+                            <i class="fas fa-shopping-cart"></i> Sotib olish
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <!-- Course Info -->
+                <div class="sidebar-card">
+                    <h3>Kurs ma'lumotlari</h3>
+                    <ul class="course-info-list">
+                        <li>
+                            <i class="fas fa-play-circle"></i>
+                            <span>{{ lessons|length }} dars</span>
+                        </li>
+                        {% if course.duration %}
+                        <li>
+                            <i class="fas fa-clock"></i>
+                            <span>{{ course.duration }}</span>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <i class="fas fa-signal"></i>
+                            <span>{{ course.level|default:'Barcha darajalar' }}</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-certificate"></i>
+                            <span>Sertifikat beriladi</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-infinity"></i>
+                            <span>Cheksiz kirish</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Instructor -->
+                <div class="sidebar-card">
+                    <h3>O'qituvchi</h3>
+                    <div class="instructor-info">
+                        <div class="instructor-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="instructor-details">
+                            <h4>{{ course.instructor }}</h4>
+                            <p>{{ course.instructor_bio|default:'Professional o\'qituvchi' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.course-detail-header {
+    background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+    padding: 30px 0 40px;
+}
+
+.course-header-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 3rem;
+    align-items: center;
+}
+
+.course-category-badge,
+.course-price-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.course-category-badge {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.course-price-badge.free {
+    background: #10b981;
+}
+
+.course-price-badge.paid {
+    background: #f59e0b;
+}
+
+.course-header-info h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.course-header-info p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+.course-meta-header {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.course-meta-header span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.9;
+}
+
+.course-header-image {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.course-header-image img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.course-placeholder-large {
+    width: 100%;
+    height: 250px;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.course-placeholder-large i {
+    font-size: 5rem;
+    opacity: 0.5;
+}
+
+.course-content-section {
+    padding: 40px 0;
+}
+
+.course-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+}
+
+.content-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+.content-card h2 {
+    font-size: 1.25rem;
+    color: var(--dark-color);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.content-card h2 i {
+    color: #ec4899;
+}
+
+.lessons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.lesson-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: var(--light-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.lesson-item:hover {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(244, 114, 182, 0.1));
+}
+
+.lesson-item.locked {
+    opacity: 0.6;
+}
+
+.lesson-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ec4899, #f472b6);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.lesson-info {
+    flex: 1;
+}
+
+.lesson-info h4 {
+    font-size: 1rem;
+    color: var(--dark-color);
+    margin-bottom: 0.25rem;
+}
+
+.lesson-info p {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+}
+
+.lesson-meta {
+    display: flex;
+    gap: 1rem;
+}
+
+.lesson-meta span {
+    font-size: 0.8rem;
+    color: var(--text-color);
+}
+
+.free-badge {
+    color: #10b981 !important;
+}
+
+.locked-badge {
+    color: var(--text-color);
+    opacity: 0.5;
+    font-size: 1.25rem;
+}
+
+.sidebar-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+}
+
+.enroll-card {
+    text-align: center;
+}
+
+.price-display {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+}
+
+.price-display.free {
+    color: #10b981;
+}
+
+.enrolled-badge,
+.pending-badge {
+    padding: 0.75rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.enrolled-badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.pending-badge {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: var(--white);
+}
+
+.sidebar-card h3 {
+    font-size: 1.1rem;
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--light-color);
+}
+
+.course-info-list {
+    list-style: none;
+}
+
+.course-info-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--light-color);
+}
+
+.course-info-list li:last-child {
+    border-bottom: none;
+}
+
+.course-info-list li i {
+    color: #ec4899;
+    width: 20px;
+}
+
+.instructor-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.instructor-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ec4899, #f472b6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1.5rem;
+}
+
+.instructor-details h4 {
+    font-size: 1rem;
+    color: var(--dark-color);
+    margin-bottom: 0.25rem;
+}
+
+.instructor-details p {
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+@media (max-width: 968px) {
+    .course-content-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .course-sidebar {
+        order: -1;
+    }
+    
+    .course-header-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .course-header-image {
+        order: -1;
+    }
+}
+</style>
+{% endblock %}

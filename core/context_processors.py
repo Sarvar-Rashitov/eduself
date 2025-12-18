@@ -1,23 +1,19 @@
-from .models import SiteSettings, Notification
 from django.conf import settings as django_settings
+from .models import SiteSettings, Notification
 
 def site_settings(request):
     try:
         settings = SiteSettings.objects.first()
     except:
         settings = None
-    
-    # SEO uchun asosiy ma'lumotlar
-    seo_data = {
-        'site_name': 'EduSelf',
-        'site_url': django_settings.SITE_URL,
-        'site_description': 'O\'zbekiston uchun zamonaviy onlayn ta\'lim platformasi',
-        'site_keywords': 'eduself, onlayn ta\'lim, test, sertifikat, mock imtihon, o\'zbekiston',
-    }
-    
+    return {'site_settings': settings}
+
+
+def auth_settings(request):
+    """Google va Telegram auth sozlamalari"""
     return {
-        'site_settings': settings,
-        'seo_data': seo_data
+        'google_client_id': getattr(django_settings, 'GOOGLE_CLIENT_ID', ''),
+        'telegram_bot_username': getattr(django_settings, 'TELEGRAM_BOT_USERNAME', ''),
     }
 
 

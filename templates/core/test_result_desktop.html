@@ -1,0 +1,61 @@
+﻿{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}Natija - {{ test.title }} - EduSelf{% endblock %}
+
+{% block content %}
+<section class="result-section">
+    <div class="container">
+        <div class="result-wrapper">
+            {% if result %}
+            <div class="result-card-desktop">
+                <div class="result-icon-large {% if result.passed %}success{% else %}fail{% endif %}">
+                    <i class="fas {% if result.passed %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                </div>
+                <h2>{% if result.passed %}Tabriklaymiz!{% else %}Afsuski...{% endif %}</h2>
+                <div class="result-score-large">{{ result.score }}%</div>
+                <p class="result-details">{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri javob</p>
+                {% if result.earned_points is not None %}
+                <p class="result-points"><strong>{{ result.earned_points }}</strong> / {{ test.get_max_points }} ball</p>
+                {% endif %}
+                <div class="result-progress">
+                    <div class="progress-bar {% if result.passed %}success{% else %}fail{% endif %}" style="width: {{ result.score }}%"></div>
+                </div>
+                <p class="passing-score">O'tish balli: {{ test.passing_score }}%</p>
+                <div class="result-actions">
+                    <a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary"><i class="fas fa-redo"></i> Qayta urinish</a>
+                    <a href="{% url 'core:test_analysis' test.pk %}" class="btn btn-info"><i class="fas fa-chart-bar"></i> Tahlil</a>
+                    <a href="{% url 'core:test_leaderboard' test.pk %}" class="btn btn-warning"><i class="fas fa-trophy"></i> Reyting</a>
+                    {% if next_test %}<a href="{% url 'core:take_test' next_test.pk %}" class="btn btn-success"><i class="fas fa-arrow-right"></i> Keyingi</a>{% endif %}
+                    <a href="{% url 'core:topic_detail' test.topic.pk %}" class="btn btn-outline">Ortga</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state"><i class="fas fa-file-alt"></i><h3>Natija topilmadi</h3>{% if user.is_authenticated %}<a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary">Testni boshlash</a>{% else %}<button type="button" class="btn btn-primary auth-required-btn" data-redirect="{% url 'core:take_test' test.pk %}">Testni boshlash</button>{% endif %}</div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.result-section { padding: 60px 0; min-height: calc(100vh - 200px); display: flex; align-items: center; }
+.result-wrapper { max-width: 600px; margin: 0 auto; }
+.result-card-desktop { background: var(--white); border-radius: 24px; padding: 3rem; text-align: center; box-shadow: var(--shadow-lg); }
+.result-icon-large { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; }
+.result-icon-large.success { background: linear-gradient(135deg, #10b981, #34d399); }
+.result-icon-large.fail { background: linear-gradient(135deg, #ef4444, #f87171); }
+.result-icon-large i { font-size: 3rem; color: var(--white); }
+.result-card-desktop h2 { font-size: 1.75rem; color: var(--dark-color); margin-bottom: 1rem; }
+.result-score-large { font-size: 4rem; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.result-details, .result-points { color: var(--text-color); margin: 0.5rem 0; }
+.result-progress { height: 12px; background: var(--light-color); border-radius: 6px; margin: 1.5rem 0; overflow: hidden; }
+.result-progress .progress-bar { height: 100%; border-radius: 6px; transition: width 1s ease; }
+.result-progress .progress-bar.success { background: linear-gradient(135deg, #10b981, #34d399); }
+.result-progress .progress-bar.fail { background: linear-gradient(135deg, #ef4444, #f87171); }
+.passing-score { font-size: 0.9rem; color: var(--text-color); opacity: 0.7; }
+.result-actions { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 2rem; }
+.result-actions .btn { padding: 12px 20px; }
+</style>
+{% endblock %}

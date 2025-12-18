@@ -1,0 +1,1077 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}EduSelf - O'zbekiston Ta'lim Platformasi{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">Zamonaviy Ta'lim Platformasi</h1>
+            <p class="hero-subtitle">O'zbekistonning eng katta online ta'lim tizimi</p>
+            <div class="hero-buttons">
+                {% if user.is_authenticated %}
+                <a href="{% url 'core:subjects' %}" class="btn btn-primary">Fanlarni ko'rish</a>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-secondary">Profilim</a>
+                {% else %}
+                <button class="btn btn-primary" id="heroLoginBtn">Kirish</button>
+                <a href="{% url 'core:subjects' %}" class="btn btn-secondary">Batafsil</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="hero-animation"></div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats">
+    <div class="container">
+        <div class="stats-grid">
+            {% if statistics %}
+                {% for stat in statistics %}
+                <div class="stat-card">
+                    <i class="fas fa-{{ stat.icon|default:'star' }}"></i>
+                    <h3>{{ stat.value }}</h3>
+                    <p>{{ stat.title }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3>500K+</h3>
+                <p>Foydalanuvchilar</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-book"></i>
+                <h3>1000+</h3>
+                <p>Testlar</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-trophy"></i>
+                <h3>50K+</h3>
+                <p>Sertifikatlar</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-star"></i>
+                <h3>4.9</h3>
+                <p>Reyting</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% if user.is_authenticated and user_stats %}
+<!-- User Stats Section -->
+<section class="section user-stats-section">
+    <div class="container">
+        <h2 class="section-title">Sizning statistikangiz</h2>
+        <div class="user-stats-grid">
+            <div class="user-stat-card">
+                <div class="user-stat-icon">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="user-stat-info">
+                    <h3>{{ user_stats.total_tests }}</h3>
+                    <p>Jami testlar</p>
+                </div>
+            </div>
+            <div class="user-stat-card success">
+                <div class="user-stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="user-stat-info">
+                    <h3>{{ user_stats.passed_tests }}</h3>
+                    <p>Muvaffaqiyatli</p>
+                </div>
+            </div>
+            <div class="user-stat-card accent">
+                <div class="user-stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="user-stat-info">
+                    <h3>{{ user_stats.progress }}%</h3>
+                    <p>Progress</p>
+                </div>
+            </div>
+            <div class="user-stat-card primary">
+                <div class="user-stat-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="user-stat-info">
+                    <h3>{{ user.total_points }}</h3>
+                    <p>Jami ball</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Subjects Section -->
+<section id="subjects" class="section subjects-section">
+    <div class="container">
+        <h2 class="section-title">Fanlar</h2>
+        <p class="section-subtitle">Bilimingizni sinab ko'ring</p>
+        <div class="cards-grid">
+            {% for subject in subjects %}
+            <a href="{% url 'core:subject_detail' subject.pk %}" class="card subject-card-desktop">
+                <div class="card-icon">
+                    <i class="{{ subject.icon|default:'fas fa-book' }}"></i>
+                </div>
+                <h3>{{ subject.name }}</h3>
+                <p>{{ subject.get_topics_count }} mavzu | {{ subject.get_tests_count }} test</p>
+                <span class="btn btn-outline">Boshlash</span>
+            </a>
+            {% empty %}
+            <div class="empty-state">
+                <i class="fas fa-book-open"></i>
+                <p>Hozircha fanlar mavjud emas</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="section-footer">
+            <a href="{% url 'core:subjects' %}" class="btn btn-primary">Barcha fanlar <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- Certificates Section -->
+<section id="certificates" class="section certificate-section">
+    <div class="container">
+        <div class="certificate-content">
+            <div class="certificate-text">
+                <h2>Sertifikatlar</h2>
+                <p>Milliy sertifikat va xalqaro imtihonlarga tayyorlanish imkoniyati</p>
+                <ul class="certificate-features">
+                    <li><i class="fas fa-check"></i> Milliy sertifikat - Davlat tomonidan tan olingan</li>
+                    <li><i class="fas fa-check"></i> SAT - Xalqaro universitetlarga kirish imtihoni</li>
+                    <li><i class="fas fa-check"></i> GRE - Magistratura va doktorantura uchun</li>
+                    <li><i class="fas fa-check"></i> Amaliy tayyorgarlik va tez natijalar</li>
+                </ul>
+                <a href="{% url 'core:certificates' %}" class="btn btn-primary">Sertifikatlarni ko'rish</a>
+            </div>
+            <div class="certificate-image">
+                <i class="fas fa-certificate"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mock Exams Section -->
+<section id="exams" class="section exams-section">
+    <div class="container">
+        <h2 class="section-title">Mock Imtihonlar</h2>
+        <p class="section-subtitle">Haqiqiy imtihonga tayyorlaning</p>
+        <div class="cards-grid">
+            <div class="card exam-card">
+                <div class="card-icon exam-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h3>DTM Imtihoni</h3>
+                <p>Davlat test markazi formatida</p>
+                <a href="{% url 'core:mock_exams' %}" class="btn btn-primary">Boshlash</a>
+            </div>
+            <div class="card exam-card">
+                <div class="card-icon exam-icon secondary">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h3>AVTO TEST</h3>
+                <p>Haydovchilik guvohnomasi uchun</p>
+                <a href="{% url 'core:mock_exams' %}" class="btn btn-primary">Boshlash</a>
+            </div>
+            <div class="card exam-card">
+                <div class="card-icon exam-icon accent">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h3>Atestatsiya</h3>
+                <p>O'qituvchilar uchun atestatsiya</p>
+                <a href="{% url 'core:mock_exams' %}" class="btn btn-primary">Boshlash</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Institutions Section -->
+<section id="institutions" class="section institutions-section">
+    <div class="container">
+        <h2 class="section-title">Ta'lim Muassasalari</h2>
+        <p class="section-subtitle">Eng yaxshi universitetlar va maktablar</p>
+        <div class="universities-grid">
+            {% for inst in institutions %}
+            <a href="{% url 'core:institution_detail' inst.pk %}" class="university-card">
+                {% if inst.image %}
+                <div class="university-image">
+                    <img src="{{ inst.image.url }}" alt="{{ inst.name }}">
+                    <div class="university-image-overlay"></div>
+                </div>
+                {% else %}
+                <div class="university-image university-placeholder">
+                    <i class="fas fa-university"></i>
+                    <div class="university-image-overlay"></div>
+                </div>
+                {% endif %}
+                <div class="university-content">
+                    <h3>{{ inst.name }}</h3>
+                    <p>{{ inst.short_description|default:inst.description|truncatewords:10|safe }}</p>
+                    <span class="btn btn-outline">Batafsil</span>
+                </div>
+            </a>
+            {% empty %}
+            <div class="university-card">
+                <div class="university-image university-placeholder">
+                    <i class="fas fa-university"></i>
+                    <div class="university-image-overlay"></div>
+                </div>
+                <div class="university-content">
+                    <h3>Milliy Universitetlar</h3>
+                    <p>Top davlat universitetlari</p>
+                    <a href="{% url 'core:institutions' %}" class="btn btn-outline">Batafsil</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="section-footer">
+            <a href="{% url 'core:institutions' %}" class="btn btn-primary">Barcha muassasalar <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- Leaderboard Section -->
+{% if top_users %}
+<section id="leaderboard" class="section leaderboard-section">
+    <div class="container">
+        <h2 class="section-title">🏆 Top Reyting</h2>
+        <p class="section-subtitle">Eng faol foydalanuvchilar</p>
+        <div class="leaderboard-container">
+            <div class="leaderboard-list">
+                {% for user_item in top_users %}
+                <div class="leaderboard-item {% if forloop.counter <= 3 %}top-{{ forloop.counter }}{% endif %}">
+                    <div class="leaderboard-rank">
+                        {% if forloop.counter == 1 %}
+                        <span class="rank-badge gold">🥇</span>
+                        {% elif forloop.counter == 2 %}
+                        <span class="rank-badge silver">🥈</span>
+                        {% elif forloop.counter == 3 %}
+                        <span class="rank-badge bronze">🥉</span>
+                        {% else %}
+                        <span class="rank-number">{{ forloop.counter }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="leaderboard-user">
+                        <div class="user-avatar-circle">
+                            {{ user_item.username|slice:":1"|upper }}
+                        </div>
+                        <div class="user-details">
+                            <h4>{{ user_item.get_full_name|default:user_item.username }}</h4>
+                            <span>@{{ user_item.username }}</span>
+                        </div>
+                    </div>
+                    <div class="leaderboard-points">
+                        <span class="points-value">{{ user_item.total_points }}</span>
+                        <span class="points-label">ball</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% if user.is_authenticated and user_position and user_position > 5 %}
+            <div class="user-position">
+                <p>Sizning pozitsiyangiz: <strong>#{{ user_position }}</strong> ({{ user.total_points }} ball)</p>
+            </div>
+            {% endif %}
+        </div>
+        <div class="section-footer">
+            <a href="{% url 'core:global_leaderboard' %}" class="btn btn-primary">To'liq reyting <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- AI Assistant Section -->
+{% if user.is_authenticated %}
+<section id="ai-assistant" class="section ai-section">
+    <div class="container">
+        <h2 class="section-title">🤖 AI Yordamchi</h2>
+        <p class="section-subtitle">Sun'iy intellekt sizning shaxsiy o'qituvchingiz</p>
+        
+        <div class="ai-features-grid">
+            <div class="ai-feature-card">
+                <i class="fas fa-brain"></i>
+                <h3>Aqlli Javoblar</h3>
+                <p>Har qanday savolingizga javob</p>
+            </div>
+            <div class="ai-feature-card">
+                <i class="fas fa-book-reader"></i>
+                <h3>Shaxsiy Dars</h3>
+                <p>Sizning darajangizga moslashadi</p>
+            </div>
+            <div class="ai-feature-card">
+                <i class="fas fa-clock"></i>
+                <h3>24/7 Mavjud</h3>
+                <p>Har doim sizga yordam beradi</p>
+            </div>
+            <div class="ai-feature-card">
+                <i class="fas fa-language"></i>
+                <h3>Ko'p Tilli</h3>
+                <p>O'zbek, Rus, Ingliz tillarida</p>
+            </div>
+        </div>
+
+        <div class="ai-chat-demo">
+            <div class="ai-chat-container">
+                <div class="ai-chat-header">
+                    <div class="ai-status">
+                        <span class="ai-status-dot"></span>
+                        <span>AI Yordamchi</span>
+                    </div>
+                </div>
+                <div class="ai-chat-messages" id="aiChatMessages">
+                    <div class="ai-message ai-bot">
+                        <div class="ai-avatar">🤖</div>
+                        <div class="ai-message-content">
+                            <p>Salom! Men sizning AI yordamchingizman. Qanday yordam bera olaman?</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="ai-chat-input">
+                    <input type="text" id="aiChatInput" placeholder="Savolingizni yozing..." />
+                    <button id="aiSendBtn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="ai-suggestions">
+            <h3>Tez-tez so'raladigan savollar:</h3>
+            <div class="ai-suggestion-buttons">
+                <button class="ai-suggestion-btn" data-question="Matematika bo'yicha qanday testlar bor?">📝 Matematika testlari</button>
+                <button class="ai-suggestion-btn" data-question="Qanday qilib sertifikat olish mumkin?">🎓 Sertifikat olish</button>
+                <button class="ai-suggestion-btn" data-question="Eng yaxshi universitetlar haqida ma'lumot bering">🎯 Top universitetlar</button>
+                <button class="ai-suggestion-btn" data-question="Ingliz tilini qayerdan o'rganishim mumkin?">🗣 Ingliz tili kurslari</button>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Bugun boshlang!</h2>
+            <p>Minglab o'quvchi bilan birga bilim oling</p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'core:subjects' %}" class="btn btn-large">Fanlarni ko'rish</a>
+            {% else %}
+            <button class="btn btn-large" id="ctaLoginBtn">Bepul Ro'yxatdan O'tish</button>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ===== HERO SECTION ANIMATIONS ===== */
+.hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    animation: heroPatternMove 25s linear infinite;
+    z-index: 0;
+}
+
+@keyframes heroPatternMove {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(60px) translateY(60px); }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title {
+    animation: heroTitleBounce 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+.hero-subtitle {
+    animation: heroSubtitleFade 0.8s ease 0.3s both;
+}
+
+.hero-buttons {
+    animation: heroButtonsFade 0.8s ease 0.5s both;
+}
+
+.hero-buttons .btn {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-buttons .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.hero-buttons .btn:hover::before {
+    left: 100%;
+}
+
+.hero-buttons .btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes heroTitleBounce {
+    0% { opacity: 0; transform: translateY(-50px) scale(0.9); }
+    60% { transform: translateY(8px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes heroSubtitleFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroButtonsFade {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== STATS SECTION ANIMATIONS ===== */
+.stats {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card {
+    animation: statCardPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.stat-card:hover::before {
+    left: 100%;
+}
+
+.stats-grid .stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stats-grid .stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stats-grid .stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stats-grid .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes statCardPop {
+    0% { opacity: 0; transform: translateY(40px) scale(0.9); }
+    60% { transform: translateY(-5px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.stat-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+}
+
+.stat-card:hover i {
+    animation: statIconBounce 0.6s ease;
+}
+
+@keyframes statIconBounce {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.3) rotate(10deg); }
+}
+
+/* ===== USER STATS SECTION ANIMATIONS ===== */
+.user-stats-section {
+    position: relative;
+}
+
+.user-stats-section .section-title {
+    animation: sectionTitleFade 0.7s ease both;
+}
+
+@keyframes sectionTitleFade {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-stat-card {
+    animation: userStatSlide 0.6s ease both;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.user-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.user-stat-card:hover::before {
+    left: 100%;
+}
+
+.user-stats-grid .user-stat-card:nth-child(1) { animation-delay: 0.1s; }
+.user-stats-grid .user-stat-card:nth-child(2) { animation-delay: 0.2s; }
+.user-stats-grid .user-stat-card:nth-child(3) { animation-delay: 0.3s; }
+.user-stats-grid .user-stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes userStatSlide {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.user-stat-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.user-stat-card:hover .user-stat-icon {
+    transform: scale(1.15) rotate(5deg);
+}
+
+.user-stat-icon {
+    transition: all 0.4s ease;
+}
+
+/* ===== SUBJECTS SECTION ANIMATIONS ===== */
+.subjects-section {
+    position: relative;
+}
+
+.subjects-section .section-title,
+.subjects-section .section-subtitle {
+    animation: sectionTitleFade 0.7s ease both;
+}
+
+.subjects-section .section-subtitle {
+    animation-delay: 0.2s;
+}
+
+.subject-card-desktop {
+    animation: subjectCardRise 0.6s ease both;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.subject-card-desktop::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.08), transparent);
+    transition: left 0.5s;
+}
+
+.subject-card-desktop:hover::before {
+    left: 100%;
+}
+
+.cards-grid .subject-card-desktop:nth-child(1) { animation-delay: 0.1s; }
+.cards-grid .subject-card-desktop:nth-child(2) { animation-delay: 0.15s; }
+.cards-grid .subject-card-desktop:nth-child(3) { animation-delay: 0.2s; }
+.cards-grid .subject-card-desktop:nth-child(4) { animation-delay: 0.25s; }
+.cards-grid .subject-card-desktop:nth-child(5) { animation-delay: 0.3s; }
+.cards-grid .subject-card-desktop:nth-child(6) { animation-delay: 0.35s; }
+
+@keyframes subjectCardRise {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.subject-card-desktop:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 25px 50px rgba(99, 102, 241, 0.2);
+}
+
+.subject-card-desktop:hover .card-icon {
+    transform: scale(1.2) rotate(10deg);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+}
+
+.subject-card-desktop .card-icon {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== CERTIFICATES SECTION ANIMATIONS ===== */
+.certificate-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.certificate-text {
+    animation: certTextSlide 0.8s ease both;
+}
+
+.certificate-image {
+    animation: certImagePop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s both;
+}
+
+@keyframes certTextSlide {
+    from { opacity: 0; transform: translateX(-50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes certImagePop {
+    0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+    60% { transform: scale(1.1) rotate(5deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.certificate-features li {
+    animation: certFeatureFade 0.5s ease both;
+}
+
+.certificate-features li:nth-child(1) { animation-delay: 0.2s; }
+.certificate-features li:nth-child(2) { animation-delay: 0.3s; }
+.certificate-features li:nth-child(3) { animation-delay: 0.4s; }
+.certificate-features li:nth-child(4) { animation-delay: 0.5s; }
+
+@keyframes certFeatureFade {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.certificate-image i {
+    animation: certIconFloat 4s ease-in-out infinite;
+}
+
+@keyframes certIconFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+/* ===== MOCK EXAMS SECTION ANIMATIONS ===== */
+.exams-section {
+    position: relative;
+}
+
+.exams-section .section-title,
+.exams-section .section-subtitle {
+    animation: sectionTitleFade 0.7s ease both;
+}
+
+.exam-card {
+    animation: examCardRise 0.6s ease both;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.exam-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.08), transparent);
+    transition: left 0.5s;
+}
+
+.exam-card:hover::before {
+    left: 100%;
+}
+
+.exams-section .cards-grid .exam-card:nth-child(1) { animation-delay: 0.1s; }
+.exams-section .cards-grid .exam-card:nth-child(2) { animation-delay: 0.2s; }
+.exams-section .cards-grid .exam-card:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes examCardRise {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.exam-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 25px 50px rgba(99, 102, 241, 0.2);
+}
+
+.exam-card:hover .card-icon {
+    transform: scale(1.2) rotate(-10deg);
+}
+
+.exam-card .card-icon {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== INSTITUTIONS SECTION ANIMATIONS ===== */
+.institutions-section {
+    position: relative;
+}
+
+.institutions-section .section-title,
+.institutions-section .section-subtitle {
+    animation: sectionTitleFade 0.7s ease both;
+}
+
+.university-card {
+    animation: uniCardRise 0.6s ease both;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.universities-grid .university-card:nth-child(1) { animation-delay: 0.1s; }
+.universities-grid .university-card:nth-child(2) { animation-delay: 0.15s; }
+.universities-grid .university-card:nth-child(3) { animation-delay: 0.2s; }
+.universities-grid .university-card:nth-child(4) { animation-delay: 0.25s; }
+
+@keyframes uniCardRise {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.university-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.university-card:hover .university-image img {
+    transform: scale(1.1);
+}
+
+.university-image img {
+    transition: transform 0.5s ease;
+}
+
+/* ===== LEADERBOARD SECTION ANIMATIONS ===== */
+.leaderboard-section {
+    position: relative;
+}
+
+.leaderboard-section .section-title {
+    animation: leaderTitleBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+@keyframes leaderTitleBounce {
+    0% { opacity: 0; transform: translateY(-30px) scale(0.9); }
+    60% { transform: translateY(5px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.leaderboard-item {
+    animation: leaderItemSlide 0.5s ease both;
+    transition: all 0.3s ease;
+}
+
+.leaderboard-list .leaderboard-item:nth-child(1) { animation-delay: 0.1s; }
+.leaderboard-list .leaderboard-item:nth-child(2) { animation-delay: 0.15s; }
+.leaderboard-list .leaderboard-item:nth-child(3) { animation-delay: 0.2s; }
+.leaderboard-list .leaderboard-item:nth-child(4) { animation-delay: 0.25s; }
+.leaderboard-list .leaderboard-item:nth-child(5) { animation-delay: 0.3s; }
+
+@keyframes leaderItemSlide {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.leaderboard-item:hover {
+    transform: translateX(10px);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
+}
+
+.leaderboard-item:hover .rank-badge {
+    animation: rankBadgeWiggle 0.5s ease;
+}
+
+@keyframes rankBadgeWiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+}
+
+.leaderboard-item:hover .points-value {
+    transform: scale(1.1);
+}
+
+.points-value {
+    transition: transform 0.3s ease;
+}
+
+/* ===== AI SECTION ANIMATIONS ===== */
+.ai-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-section .section-title {
+    animation: aiTitlePop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+@keyframes aiTitlePop {
+    0% { opacity: 0; transform: scale(0.8); }
+    60% { transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.ai-feature-card {
+    animation: aiFeatureRise 0.6s ease both;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.ai-feature-card:hover::before {
+    left: 100%;
+}
+
+.ai-features-grid .ai-feature-card:nth-child(1) { animation-delay: 0.1s; }
+.ai-features-grid .ai-feature-card:nth-child(2) { animation-delay: 0.2s; }
+.ai-features-grid .ai-feature-card:nth-child(3) { animation-delay: 0.3s; }
+.ai-features-grid .ai-feature-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes aiFeatureRise {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ai-feature-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+}
+
+.ai-feature-card:hover i {
+    animation: aiIconSpin 0.6s ease;
+}
+
+@keyframes aiIconSpin {
+    0% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.3) rotate(180deg); }
+    100% { transform: scale(1) rotate(360deg); }
+}
+
+.ai-chat-demo {
+    animation: aiChatFade 0.8s ease 0.5s both;
+}
+
+@keyframes aiChatFade {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-status-dot {
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.ai-suggestion-btn {
+    animation: suggestionFade 0.5s ease both;
+    transition: all 0.3s ease;
+}
+
+.ai-suggestion-buttons .ai-suggestion-btn:nth-child(1) { animation-delay: 0.6s; }
+.ai-suggestion-buttons .ai-suggestion-btn:nth-child(2) { animation-delay: 0.7s; }
+.ai-suggestion-buttons .ai-suggestion-btn:nth-child(3) { animation-delay: 0.8s; }
+.ai-suggestion-buttons .ai-suggestion-btn:nth-child(4) { animation-delay: 0.9s; }
+
+@keyframes suggestionFade {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-suggestion-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+}
+
+/* ===== CTA SECTION ANIMATIONS ===== */
+.cta-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    animation: ctaPatternMove 20s linear infinite;
+}
+
+@keyframes ctaPatternMove {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-60px) translateY(-60px); }
+}
+
+.cta-content {
+    position: relative;
+    z-index: 2;
+}
+
+.cta-content h2 {
+    animation: ctaTitleBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+.cta-content p {
+    animation: ctaSubtitleFade 0.6s ease 0.2s both;
+}
+
+.cta-content .btn {
+    animation: ctaBtnPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.4s both;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-content .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.cta-content .btn:hover::before {
+    left: 100%;
+}
+
+.cta-content .btn:hover {
+    transform: translateY(-5px) scale(1.08);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes ctaTitleBounce {
+    0% { opacity: 0; transform: translateY(-30px) scale(0.9); }
+    60% { transform: translateY(5px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ctaSubtitleFade {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ctaBtnPop {
+    0% { opacity: 0; transform: scale(0.8); }
+    60% { transform: scale(1.1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* ===== SECTION FOOTER ANIMATIONS ===== */
+.section-footer {
+    animation: footerFade 0.6s ease 0.5s both;
+}
+
+@keyframes footerFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.section-footer .btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.section-footer .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.section-footer .btn:hover::before {
+    left: 100%;
+}
+
+.section-footer .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+}
+
+.section-footer .btn:hover i {
+    animation: arrowMove 0.5s ease infinite;
+}
+
+@keyframes arrowMove {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(5px); }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Hero login button
+const heroLoginBtn = document.getElementById('heroLoginBtn');
+const ctaLoginBtn = document.getElementById('ctaLoginBtn');
+
+if (heroLoginBtn) {
+    heroLoginBtn.addEventListener('click', () => {
+        document.getElementById('loginModal').classList.add('active');
+    });
+}
+
+if (ctaLoginBtn) {
+    ctaLoginBtn.addEventListener('click', () => {
+        document.getElementById('loginModal').classList.add('active');
+        // Switch to signup tab
+        document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+        document.querySelector('[data-tab="signup"]').classList.add('active');
+        document.getElementById('signupForm').classList.add('active');
+    });
+}
+</script>
+{% endblock %}

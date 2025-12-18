@@ -1,13 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}EduSelf - O'zbekiston uchun zamonaviy onlayn ta'lim platformasi{% endblock %}
-
-{% block meta_description %}EduSelf - O'zbekistonda onlayn ta'lim olish, testlar yechish, sertifikat olish va mock imtihonlarga tayyorlanish platformasi. 1000+ test, 50+ fan, AI yordamchi va bepul kurslar.{% endblock %}
-
-{% block meta_keywords %}eduself, onlayn ta'lim, test yechish, sertifikat olish, mock imtihon, o'zbekiston ta'lim, fanlar, kurslar, AI yordamchi, bepul ta'lim, online test{% endblock %}
-
-{% block og_title %}EduSelf - O'zbekiston uchun zamonaviy onlayn ta'lim platformasi{% endblock %}
-{% block og_description %}1000+ test, 50+ fan, AI yordamchi va bepul kurslar bilan bilimingizni oshiring. Mock imtihonlarga tayyorlaning va sertifikat oling.{% endblock %}
+{% block title %}EduSelf - Bosh sahifa{% endblock %}
 
 {% block content %}
 {% if not user.is_authenticated %}
@@ -32,18 +25,6 @@
         <div class="stat-value">{{ user_stats.progress }}%</div>
         <div class="stat-label">Progress</div>
     </div>
-</div>
-{% endif %}
-
-{% if statistics %}
-<div class="section-title">Platforma statistikasi</div>
-<div class="stats-grid">
-    {% for stat in statistics %}
-    <div class="stat-card {% cycle '' 'secondary' 'accent' %}">
-        <div class="stat-value">{{ stat.value }}</div>
-        <div class="stat-label">{{ stat.title }}</div>
-    </div>
-    {% endfor %}
 </div>
 {% endif %}
 

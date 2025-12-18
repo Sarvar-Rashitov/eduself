@@ -11,6 +11,13 @@ from .services import ChatService, InstitutionRecommendationService
 from core.models import Subject, Institution, Certificate
 
 
+def is_mobile(request):
+    """User-Agent orqali mobil qurilmani aniqlash"""
+    user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+    mobile_keywords = ['mobile', 'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'opera mobi']
+    return any(keyword in user_agent for keyword in mobile_keywords)
+
+
 @login_required
 def ai_chat_view(request):
     """AI Chat asosiy sahifasi"""
@@ -33,11 +40,16 @@ def ai_chat_view(request):
     
     context = {
         'sessions': sessions,
+        'chat_sessions': sessions,
         'current_session': current_session,
         'messages': messages_list,
+        'messages_list': messages_list,
     }
     
-    return render(request, 'ai_assistant/chat.html', context)
+    if is_mobile(request):
+        return render(request, 'ai_assistant/chat.html', context)
+    else:
+        return render(request, 'ai_assistant/chat_desktop.html', context)
 
 
 
