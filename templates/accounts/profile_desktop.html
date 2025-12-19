@@ -229,12 +229,17 @@
                                     <i class="fas {% if result.passed %}fa-check{% else %}fa-times{% endif %}"></i>
                                 </div>
                                 <div class="history-info">
-                                    <h4>{{ result.test.title }}</h4>
-                                    <p>{{ result.test.topic.subject.name }} - {{ result.test.topic.name }}</p>
+                                    <h4>{{ result.title }}</h4>
+                                    <p>{{ result.subtitle }}</p>
+                                    {% if result.type == 'certificate' %}
+                                    <span class="history-badge cert"><i class="fas fa-award"></i> Sertifikat</span>
+                                    {% elif result.type == 'mock' %}
+                                    <span class="history-badge mock"><i class="fas fa-clipboard-check"></i> Mock Exam</span>
+                                    {% endif %}
                                 </div>
                                 <div class="history-score">
                                     <span class="score {% if result.passed %}success{% else %}failed{% endif %}">{{ result.score }}%</span>
-                                    <small>{{ result.completed_at|date:"d.m.Y" }}</small>
+                                    <small>{{ result.completed_at|date:"d.m.Y H:i" }}</small>
                                 </div>
                             </div>
                             {% empty %}
@@ -1129,6 +1134,27 @@
 .history-info p {
     font-size: 0.85rem;
     color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.history-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.history-badge.cert {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.history-badge.mock {
+    background: rgba(99, 102, 241, 0.15);
+    color: #6366f1;
 }
 
 .history-score {

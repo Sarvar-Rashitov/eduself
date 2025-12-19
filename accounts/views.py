@@ -576,8 +576,55 @@ def profile_view(request):
         higher_users_count = User.objects.filter(total_points__gt=request.user.total_points).count()
         user_position = higher_users_count + 1
     
-    # Test results for history tab
-    test_results = TestResult.objects.filter(user=request.user).select_related('test__topic__subject').order_by('-completed_at')[:10]
+    # Test results for history tab - barcha turdagi testlarni birlashtirish
+    from itertools import chain
+    from operator import attrgetter
+    
+    # Oddiy testlar
+    regular_tests = TestResult.objects.filter(user=request.user).select_related('test__topic__subject').order_by('-completed_at')[:20]
+    
+    # Sertifikat testlari
+    cert_tests = CertificateResult.objects.filter(user=request.user).select_related('test__topic__certificate').order_by('-completed_at')[:20]
+    
+    # Mock examlar
+    mock_tests = MockExamResult.objects.filter(user=request.user).select_related('exam').order_by('-completed_at')[:20]
+    
+    # Barcha natijalarni birlashtirish va saralash
+    all_results = []
+    
+    for result in regular_tests:
+        all_results.append({
+            'type': 'test',
+            'title': result.test.title,
+            'subtitle': f"{result.test.topic.subject.name} - {result.test.topic.name}",
+            'score': result.score,
+            'passed': result.passed,
+            'completed_at': result.completed_at,
+        })
+    
+    for result in cert_tests:
+        all_results.append({
+            'type': 'certificate',
+            'title': result.test.title,
+            'subtitle': f"{result.test.topic.certificate.name} - {result.test.topic.name}",
+            'score': result.score,
+            'passed': result.passed,
+            'completed_at': result.completed_at,
+        })
+    
+    for result in mock_tests:
+        all_results.append({
+            'type': 'mock',
+            'title': result.exam.title,
+            'subtitle': f"Mock Exam - {result.exam.category.name if result.exam.category else 'Umumiy'}",
+            'score': result.score,
+            'passed': result.passed,
+            'completed_at': result.completed_at,
+        })
+    
+    # Sanasi bo'yicha saralash
+    all_results.sort(key=lambda x: x['completed_at'], reverse=True)
+    test_results = all_results[:15]
     
     # Notifications
     from core.models import Notification
