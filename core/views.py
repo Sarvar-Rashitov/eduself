@@ -19,10 +19,7 @@ def is_mobile(request):
     """User-Agent orqali mobil qurilmani aniqlash"""
     user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
     mobile_keywords = ['mobile', 'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'opera mobi']
-    result = any(keyword in user_agent for keyword in mobile_keywords)
-    # Debug: console'da ko'rish uchun
-    print(f"[DEBUG] User-Agent: {user_agent[:50]}... | is_mobile: {result}")
-    return result
+    return any(keyword in user_agent for keyword in mobile_keywords)
 
 
 def home_view(request):
@@ -1294,7 +1291,9 @@ def take_direction_exam_view(request, pk):
         
         max_points = exam.get_max_points()
         score = (earned_points / max_points * 100) if max_points > 0 else 0
-        passed = score >= exam.passing_score
+        
+        # O'tish balli ball asosida tekshiriladi
+        passed = earned_points >= exam.passing_score
         
         result = DirectionExamResult.objects.create(
             user=request.user,

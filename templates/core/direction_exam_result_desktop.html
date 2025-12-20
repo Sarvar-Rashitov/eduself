@@ -74,12 +74,12 @@
             <!-- Passing Info -->
             <div class="passing-info">
                 <div class="passing-bar">
-                    <div class="passing-progress" style="width: {{ result.score|floatformat:0 }}%"></div>
-                    <div class="passing-marker" style="left: {{ exam.passing_score|floatformat:0 }}%">
-                        <span>{{ exam.passing_score|floatformat:0 }}%</span>
+                    <div class="passing-progress" style="width: {% widthratio result.earned_points exam.get_max_points 100 %}%"></div>
+                    <div class="passing-marker" style="left: {% widthratio exam.passing_score exam.get_max_points 100 %}%">
+                        <span>{{ exam.passing_score|floatformat:0 }}</span>
                     </div>
                 </div>
-                <p>O'tish balli: <strong>{{ exam.passing_score|floatformat:1 }}%</strong></p>
+                <p>O'tish balli: <strong>{{ exam.passing_score|floatformat:1 }} ball</strong> (maksimum: {{ exam.get_max_points }} ball)</p>
             </div>
             
             <!-- Action Buttons -->

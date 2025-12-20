@@ -903,7 +903,7 @@ class DirectionExam(models.Model):
     description = models.TextField(blank=True, verbose_name="Tavsif")
     subjects = models.CharField(max_length=500, verbose_name="Fanlar (vergul bilan ajratilgan)")
     time_limit = models.PositiveIntegerField(default=120, verbose_name="Vaqt limiti (daqiqa)")
-    passing_score = models.FloatField(default=60.0, verbose_name="O'tish balli (%)")
+    passing_score = models.FloatField(default=60.0, verbose_name="O'tish balli (ball)")
     application_url = models.URLField(blank=True, verbose_name="Ariza qoldirish URL")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
