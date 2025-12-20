@@ -288,7 +288,10 @@ def take_test_view(request, pk):
         
         return redirect('core:test_result', pk=test.pk)
     
-    context = {'test': test, 'questions': questions}
+    # Reklamalarni olish
+    advertisements = Advertisement.objects.filter(is_active=True)[:5]
+    
+    context = {'test': test, 'questions': questions, 'advertisements': advertisements}
     if is_mobile(request):
         return render(request, 'core/take_test.html', context)
     else:
@@ -548,7 +551,10 @@ def take_cert_test_view(request, pk):
         
         return redirect('core:cert_test_result', pk=test.pk)
     
-    context = {'test': test, 'questions': questions}
+    # Reklamalarni olish
+    advertisements = Advertisement.objects.filter(is_active=True)[:5]
+    
+    context = {'test': test, 'questions': questions, 'advertisements': advertisements}
     if is_mobile(request):
         return render(request, 'core/take_cert_test.html', context)
     else:
@@ -804,7 +810,10 @@ def take_mock_exam_view(request, pk):
         
         return redirect('core:mock_exam_result', pk=exam.pk)
     
-    context = {'exam': exam, 'questions': questions}
+    # Reklamalarni olish
+    advertisements = Advertisement.objects.filter(is_active=True)[:5]
+    
+    context = {'exam': exam, 'questions': questions, 'advertisements': advertisements}
     if is_mobile(request):
         return render(request, 'core/take_mock_exam.html', context)
     else:

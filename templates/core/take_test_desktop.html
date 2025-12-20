@@ -133,6 +133,33 @@
             {% endfor %}
         </div>
     </main>
+
+    <!-- Reklama Sidebar -->
+    <aside class="ads-sidebar">
+        <div class="ads-container">
+            {% for ad in advertisements %}
+            <a href="{% if ad.link_url %}{{ ad.link_url }}{% elif ad.link %}{{ ad.link }}{% elif ad.institution %}{% url 'core:institution_detail' ad.institution.pk %}{% else %}#{% endif %}" 
+               class="ad-card" target="_blank" rel="noopener">
+                {% if ad.image %}
+                <div class="ad-image">
+                    <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+                </div>
+                {% endif %}
+                <div class="ad-content">
+                    <h4>{{ ad.title }}</h4>
+                    {% if ad.description %}
+                    <p>{{ ad.description|truncatewords:15 }}</p>
+                    {% endif %}
+                </div>
+            </a>
+            {% empty %}
+            <div class="no-ads">
+                <i class="fas fa-ad"></i>
+                <p>Hozircha reklamalar yo'q</p>
+            </div>
+            {% endfor %}
+        </div>
+    </aside>
 </div>
 
 <!-- Finish Modal -->
@@ -170,7 +197,7 @@
 /* Test Page Layout */
 .test-page {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 280px 1fr 300px;
     min-height: calc(100vh - 80px);
     background: var(--light-color);
 }
@@ -267,6 +294,92 @@
 .legend-dot.correct { background: #10b981; }
 .legend-dot.incorrect { background: #ef4444; }
 .legend-dot.unanswered { background: #e5e7eb; }
+
+/* Ads Sidebar */
+.ads-sidebar {
+    background: var(--white);
+    border-left: 1px solid #e5e7eb;
+    padding: 24px;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+.ads-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ad-card {
+    display: block;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.ad-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+    transform: translateY(-2px);
+}
+
+.ad-image {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+}
+
+.ad-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.ad-card:hover .ad-image img {
+    transform: scale(1.05);
+}
+
+.ad-content {
+    padding: 12px;
+}
+
+.ad-content h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.ad-content p {
+    font-size: 0.8rem;
+    color: var(--text-color);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.no-ads {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-color);
+}
+
+.no-ads i {
+    font-size: 2.5rem;
+    color: #e5e7eb;
+    margin-bottom: 12px;
+}
+
+.no-ads p {
+    font-size: 0.9rem;
+    margin: 0;
+}
 
 /* Main Content */
 .test-main {
@@ -757,12 +870,26 @@
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+    .test-page {
+        grid-template-columns: 280px 1fr;
+    }
+    
+    .ads-sidebar {
+        display: none;
+    }
+}
+
 @media (max-width: 1024px) {
     .test-page {
         grid-template-columns: 1fr;
     }
     
     .test-sidebar {
+        display: none;
+    }
+    
+    .ads-sidebar {
         display: none;
     }
     
