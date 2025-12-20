@@ -132,6 +132,12 @@
 
 {% block extra_css %}
 <style>
+/* Main content override for test page */
+.main-content {
+    padding: 0 !important;
+    max-width: none !important;
+}
+
 .test-page{display:grid;grid-template-columns:280px 1fr 300px;min-height:calc(100vh - 80px);background:var(--light-color)}
 .mock-exam .stat-box.score.mock{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
 .mock-exam .progress-bar.mock{background:linear-gradient(90deg,#f59e0b,#fbbf24)}

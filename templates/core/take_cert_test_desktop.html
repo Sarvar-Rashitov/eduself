@@ -119,6 +119,12 @@
 
 {% block extra_css %}
 <style>
+/* Main content override for test page */
+.main-content {
+    padding: 0 !important;
+    max-width: none !important;
+}
+
 .test-page{display:grid;grid-template-columns:280px 1fr 300px;min-height:calc(100vh - 80px);background:var(--light-color)}
 .cert-test .stat-box.score.cert{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
 .cert-test .progress-bar.cert{background:linear-gradient(90deg,#10b981,#34d399)}

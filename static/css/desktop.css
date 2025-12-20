@@ -2148,3 +2148,72 @@ body {
         white-space: nowrap;
     }
 }
+
+
+/* ================================
+   TEST PAGE STYLES - Desktop
+   ================================ */
+
+.main-content {
+    min-height: calc(100vh - 80px);
+}
+
+/* Test page - main-content ichida grid ishlashi uchun */
+.main-content:has(.test-page) {
+    display: contents;
+}
+
+/* Test page grid layout fix */
+.test-page {
+    display: grid !important;
+    grid-template-columns: 280px 1fr 300px !important;
+    min-height: calc(100vh - 80px);
+    background: var(--light-color);
+}
+
+.test-page .test-sidebar {
+    background: var(--white);
+    border-right: 1px solid #e5e7eb;
+    padding: 24px;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+.test-page .test-main {
+    padding: 32px 48px;
+    max-width: 900px;
+}
+
+.test-page .ads-sidebar {
+    background: var(--white);
+    border-left: 1px solid #e5e7eb;
+    padding: 24px;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+@media (max-width: 1200px) {
+    .test-page {
+        grid-template-columns: 280px 1fr !important;
+    }
+    .test-page .ads-sidebar {
+        display: none;
+    }
+}
+
+@media (max-width: 1024px) {
+    .test-page {
+        grid-template-columns: 1fr !important;
+    }
+    .test-page .test-sidebar {
+        display: none;
+    }
+    .test-page .test-main {
+        padding: 20px;
+        max-width: 100%;
+    }
+}

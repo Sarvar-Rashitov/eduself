@@ -1,0 +1,470 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}{{ exam.title }} - Imtihon - EduSelf{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="test-page direction-exam">
+    <!-- Sidebar - Savollar navigatsiyasi -->
+    <aside class="test-sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-list-ol"></i> Savollar</h3>
+        </div>
+        <div class="questions-nav" id="questionsNav">
+            {% for question in questions %}
+            <button class="question-nav-btn {% if forloop.first %}active{% endif %}" 
+                    data-index="{{ forloop.counter0 }}" 
+                    id="navBtn-{{ forloop.counter0 }}"
+                    onclick="goToQuestion({{ forloop.counter0 }})">
+                {{ forloop.counter }}
+            </button>
+            {% endfor %}
+        </div>
+        <div class="sidebar-legend">
+            <div class="legend-item"><span class="legend-dot current"></span> Joriy</div>
+            <div class="legend-item"><span class="legend-dot answered"></span> Javob berilgan</div>
+            <div class="legend-item"><span class="legend-dot unanswered"></span> Javobsiz</div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="test-main">
+        <!-- Header -->
+        <div class="test-header">
+            <div class="test-info">
+                <a href="{% url 'core:direction_exam_intro' exam.pk %}" class="back-link" onclick="return confirmExit()">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h1>{{ exam.title }}</h1>
+                    <p>{{ exam.direction.name }}</p>
+                </div>
+            </div>
+            <div class="test-stats">
+                <div class="stat-box progress-stat">
+                    <i class="fas fa-tasks"></i>
+                    <div class="stat-content">
+                        <span class="stat-value"><span id="answeredCount">0</span>/{{ questions|length }}</span>
+                        <span class="stat-label">javob berildi</span>
+                    </div>
+                </div>
+                <div class="stat-box timer" id="timerBox">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-content">
+                        <span class="stat-value" id="timer">{{ exam.time_limit }}:00</span>
+                        <span class="stat-label">qoldi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="test-progress">
+            <div class="progress-info">
+                <span>Savol <strong id="currentQuestionNum">1</strong> / {{ questions|length }}</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <!-- Hidden Form -->
+        <form method="post" id="examForm" style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" id="answersData" name="answers_data" value="">
+            <input type="hidden" id="timeTaken" name="time_taken" value="0">
+        </form>
+
+        <!-- Questions Container -->
+        <div class="questions-container" id="questionContainer">
+            {% for question in questions %}
+            <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+                <div class="question-header">
+                    <span class="question-badge">Savol {{ forloop.counter }}</span>
+                    <span class="question-points"><i class="fas fa-star"></i> {{ question.points|floatformat:1 }} ball</span>
+                </div>
+                
+                <div class="question-content">
+                    <div class="question-text">{{ question.text|safe }}</div>
+                    {% if question.image %}
+                    <div class="question-image">
+                        <img src="{{ question.image.url }}" alt="Savol rasmi">
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="answers-grid">
+                    {% for answer in question.direction_answers.all %}
+                    <label class="answer-card" data-answer-id="{{ answer.id }}">
+                        <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" 
+                               data-question-id="{{ question.id }}" data-question-index="{{ forloop.parentloop.counter0 }}"
+                               onchange="selectAnswer({{ forloop.parentloop.counter0 }}, {{ question.id }}, {{ answer.id }})">
+                        <span class="answer-marker">{% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}</span>
+                        <span class="answer-text">{{ answer.text|safe }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                
+                <div class="question-actions">
+                    {% if not forloop.first %}
+                    <button type="button" class="btn-action btn-prev" onclick="prevQuestion({{ forloop.counter0 }})">
+                        <i class="fas fa-arrow-left"></i> Oldingi
+                    </button>
+                    {% endif %}
+                    
+                    {% if forloop.last %}
+                    <button type="button" class="btn-action btn-finish" onclick="showFinishConfirmation()">
+                        <i class="fas fa-flag-checkered"></i> Imtihonni yakunlash
+                    </button>
+                    {% else %}
+                    <button type="button" class="btn-action btn-next" onclick="nextQuestion({{ forloop.counter0 }})">
+                        Keyingi <i class="fas fa-arrow-right"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- Reklama Sidebar -->
+    <aside class="ads-sidebar">
+        <div class="ads-container">
+            {% for ad in advertisements %}
+            <a href="{% if ad.link_url %}{{ ad.link_url }}{% elif ad.link %}{{ ad.link }}{% elif ad.institution %}{% url 'core:institution_detail' ad.institution.pk %}{% else %}#{% endif %}" 
+               class="ad-card" target="_blank" rel="noopener">
+                {% if ad.image %}
+                <div class="ad-image">
+                    <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+                </div>
+                {% endif %}
+                <div class="ad-content">
+                    <h4>{{ ad.title }}</h4>
+                    {% if ad.description %}
+                    <p>{{ ad.description|truncatewords:15 }}</p>
+                    {% endif %}
+                </div>
+            </a>
+            {% empty %}
+            <div class="no-ads">
+                <i class="fas fa-ad"></i>
+                <p>Hozircha reklamalar yo'q</p>
+            </div>
+            {% endfor %}
+        </div>
+    </aside>
+</div>
+
+<!-- Finish Modal -->
+<div class="modal-overlay" id="finishModal">
+    <div class="modal-box">
+        <div class="modal-icon warning">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Imtihonni yakunlashni xohlaysizmi?</h3>
+        <div class="modal-stats">
+            <div class="modal-stat">
+                <span class="modal-stat-value" id="modalAnsweredCount">0</span>
+                <span class="modal-stat-label">javob berildi</span>
+            </div>
+            <div class="modal-stat">
+                <span class="modal-stat-value" id="modalUnansweredCount">0</span>
+                <span class="modal-stat-label">javobsiz</span>
+            </div>
+        </div>
+        <p class="modal-warning">Yakunlangandan so'ng javoblarni o'zgartira olmaysiz!</p>
+        <div class="modal-actions">
+            <button class="btn-modal btn-cancel" onclick="hideFinishConfirmation()">
+                <i class="fas fa-arrow-left"></i> Davom etish
+            </button>
+            <button class="btn-modal btn-confirm" onclick="submitExam()">
+                <i class="fas fa-check"></i> Yakunlash
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Main content override for test page */
+.main-content {
+    padding: 0 !important;
+    max-width: none !important;
+}
+
+.test-page{display:grid!important;grid-template-columns:280px 1fr 300px!important;min-height:calc(100vh - 80px);background:var(--light-color)}
+.direction-exam .question-badge{background:linear-gradient(135deg,#667eea,#764ba2)}
+.direction-exam .progress-bar{background:linear-gradient(90deg,#667eea,#764ba2)}
+.direction-exam .question-nav-btn.active{background:#667eea;border-color:#667eea;color:#fff}
+.direction-exam .question-nav-btn.answered{background:#10b981;border-color:#10b981;color:#fff}
+.direction-exam .stat-box.progress-stat{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+
+.test-sidebar{background:var(--white);border-right:1px solid #e5e7eb;padding:24px;position:sticky;top:80px;height:calc(100vh - 80px);overflow-y:auto}
+.sidebar-header h3{font-size:1rem;display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.questions-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:24px}
+.question-nav-btn{width:44px;height:44px;border:2px solid #e5e7eb;border-radius:10px;background:var(--white);font-weight:600;cursor:pointer;transition:all .3s}
+.question-nav-btn:hover{border-color:#667eea;color:#667eea}
+.sidebar-legend{display:flex;flex-direction:column;gap:8px;padding-top:16px;border-top:1px solid #e5e7eb}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--text-color)}
+.legend-dot{width:12px;height:12px;border-radius:4px}
+.legend-dot.current{background:#667eea}
+.legend-dot.answered{background:#10b981}
+.legend-dot.unanswered{background:#e5e7eb}
+
+.test-main{padding:32px 48px;max-width:900px}
+.test-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.test-info{display:flex;align-items:center;gap:16px}
+.back-link{width:44px;height:44px;border-radius:12px;background:var(--white);display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--text-color);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.back-link:hover{background:#667eea;color:#fff}
+.test-info h1{font-size:1.5rem;margin-bottom:4px}
+.test-info p{font-size:.9rem;color:var(--text-color)}
+.test-stats{display:flex;gap:12px}
+.stat-box{display:flex;align-items:center;gap:12px;padding:12px 20px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08);min-width:140px}
+.stat-box.timer{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.stat-box.timer.warning{background:linear-gradient(135deg,#ef4444,#f87171);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.8}}
+.stat-content{display:flex;flex-direction:column}
+.stat-value{font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums}
+.stat-label{font-size:.75rem;opacity:.9}
+
+.test-progress{background:var(--white);border-radius:14px;padding:16px 20px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.progress-info{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.9rem}
+.progress-bar-wrapper{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden}
+.progress-bar{height:100%;border-radius:4px;transition:width .5s;width:0}
+
+.question-card{background:var(--white);border-radius:20px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.question-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.question-badge{color:#fff;padding:6px 16px;border-radius:20px;font-size:.85rem;font-weight:600}
+.question-points{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:6px 14px;border-radius:20px;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:6px}
+.question-content{margin-bottom:28px}
+.question-text{font-size:1.15rem;line-height:1.8}
+.question-text img{max-width:100%;border-radius:12px;margin-top:16px}
+.question-image img{max-width:100%;border-radius:12px;margin-top:16px;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+
+.answers-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:28px}
+.answer-card{display:flex;align-items:center;gap:14px;padding:18px 20px;background:#f8fafc;border:2px solid #e5e7eb;border-radius:14px;cursor:pointer;transition:all .3s}
+.answer-card:hover{border-color:#667eea;background:#f0f4ff;transform:translateY(-2px)}
+.answer-card input{display:none}
+.answer-marker{width:36px;height:36px;border-radius:10px;background:var(--white);border:2px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;transition:all .3s}
+.answer-text{flex:1;font-size:1rem;line-height:1.5}
+.answer-card.selected{border-color:#667eea;background:#ede9fe}
+.answer-card.selected .answer-marker{background:#667eea;border-color:#667eea;color:#fff}
+
+.question-actions{display:flex;justify-content:space-between;gap:12px;padding-top:24px;border-top:1px solid #e5e7eb}
+.btn-action{display:flex;align-items:center;gap:8px;padding:14px 28px;border-radius:12px;font-weight:600;cursor:pointer;border:none;transition:all .3s}
+.btn-prev{background:#f3f4f6;color:var(--text-color)}
+.btn-prev:hover{background:#e5e7eb}
+.btn-next{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;margin-left:auto}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,.4)}
+.btn-finish{background:linear-gradient(135deg,#10b981,#059669);color:#fff;margin-left:auto}
+.btn-finish:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(16,185,129,.4)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-overlay.active{display:flex}
+.modal-box{background:var(--white);border-radius:24px;padding:40px;max-width:420px;width:90%;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,.25)}
+.modal-icon{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2.5rem}
+.modal-icon.warning{background:#fef3c7;color:#f59e0b}
+.modal-box h3{font-size:1.4rem;margin-bottom:20px}
+.modal-stats{display:flex;justify-content:center;gap:32px;margin-bottom:16px}
+.modal-stat{text-align:center}
+.modal-stat-value{display:block;font-size:2rem;font-weight:700;color:#667eea}
+.modal-stat-label{font-size:.85rem;color:var(--text-color)}
+.modal-warning{color:#ef4444;font-size:.9rem;margin-bottom:24px}
+.modal-actions{display:flex;gap:12px;justify-content:center}
+.btn-modal{padding:14px 28px;border-radius:12px;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;gap:8px;transition:all .3s}
+.btn-cancel{background:#f3f4f6;color:var(--text-color)}
+.btn-confirm{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+
+/* Ads Sidebar */
+.ads-sidebar{background:var(--white);border-left:1px solid #e5e7eb;padding:24px;position:sticky;top:80px;height:calc(100vh - 80px);overflow-y:auto}
+.ads-container{display:flex;flex-direction:column;gap:16px}
+.ad-card{display:block;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;text-decoration:none;transition:all .3s}
+.ad-card:hover{border-color:#667eea;box-shadow:0 4px 12px rgba(102,126,234,.15);transform:translateY(-2px)}
+.ad-image{width:100%;height:120px;overflow:hidden}
+.ad-image img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.ad-card:hover .ad-image img{transform:scale(1.05)}
+.ad-content{padding:12px}
+.ad-content h4{font-size:.9rem;font-weight:600;color:var(--dark-color);margin-bottom:6px;line-height:1.4}
+.ad-content p{font-size:.8rem;color:var(--text-color);margin:0;line-height:1.5}
+.no-ads{text-align:center;padding:40px 20px;color:var(--text-color)}
+.no-ads i{font-size:2.5rem;color:#e5e7eb;margin-bottom:12px}
+.no-ads p{font-size:.9rem;margin:0}
+
+@media(max-width:1200px){.test-page{grid-template-columns:280px 1fr!important}.ads-sidebar{display:none}}
+@media(max-width:1024px){.test-page{grid-template-columns:1fr!important}.test-sidebar{display:none}.test-main{padding:20px;max-width:100%}.answers-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentQuestion = 0;
+let totalQuestions = {{ questions|length }};
+let timeLimit = {{ exam.time_limit }} * 60;
+let timeRemaining = timeLimit;
+let timerInterval;
+let userAnswers = {};
+let examCompleted = false;
+let startTime = Date.now();
+
+// Timer
+function startTimer() {
+    timerInterval = setInterval(function() {
+        timeRemaining--;
+        updateTimerDisplay();
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert('Vaqt tugadi! Imtihon avtomatik yakunlanadi.');
+            submitExam();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    let minutes = Math.floor(timeRemaining / 60);
+    let seconds = timeRemaining % 60;
+    document.getElementById('timer').textContent = 
+        minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+    
+    if (timeRemaining < 300) {
+        document.getElementById('timerBox').classList.add('warning');
+    }
+}
+
+// Progress
+function updateProgressBar() {
+    let progress = ((currentQuestion + 1) / totalQuestions) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+    document.getElementById('progressPercent').textContent = Math.round(progress) + '%';
+    document.getElementById('currentQuestionNum').textContent = currentQuestion + 1;
+}
+
+function updateAnsweredCount() {
+    let count = Object.keys(userAnswers).length;
+    document.getElementById('answeredCount').textContent = count;
+}
+
+// Navigation
+function updateNavButtons() {
+    document.querySelectorAll('.question-nav-btn').forEach((btn, index) => {
+        btn.classList.remove('active');
+        if (index === currentQuestion) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+function goToQuestion(index) {
+    document.getElementById('question-' + currentQuestion).style.display = 'none';
+    currentQuestion = index;
+    document.getElementById('question-' + currentQuestion).style.display = 'block';
+    updateProgressBar();
+    updateNavButtons();
+}
+
+function nextQuestion(index) {
+    if (index < totalQuestions - 1) {
+        goToQuestion(index + 1);
+    }
+}
+
+function prevQuestion(index) {
+    if (index > 0) {
+        goToQuestion(index - 1);
+    }
+}
+
+// Answer selection
+function selectAnswer(questionIndex, questionId, answerId) {
+    userAnswers[questionId] = answerId;
+    
+    // Update UI
+    document.querySelectorAll('input[name="question_' + questionId + '"]').forEach(input => {
+        input.closest('.answer-card').classList.remove('selected');
+    });
+    document.querySelector('input[value="' + answerId + '"]').closest('.answer-card').classList.add('selected');
+    
+    // Update nav button
+    document.getElementById('navBtn-' + questionIndex).classList.add('answered');
+    
+    updateAnsweredCount();
+}
+
+// Finish confirmation
+function showFinishConfirmation() {
+    let answered = Object.keys(userAnswers).length;
+    let unanswered = totalQuestions - answered;
+    
+    document.getElementById('modalAnsweredCount').textContent = answered;
+    document.getElementById('modalUnansweredCount').textContent = unanswered;
+    document.getElementById('finishModal').classList.add('active');
+}
+
+function hideFinishConfirmation() {
+    document.getElementById('finishModal').classList.remove('active');
+}
+
+function submitExam() {
+    examCompleted = true;
+    if (timerInterval) clearInterval(timerInterval);
+    
+    let timeTaken = Math.floor((Date.now() - startTime) / 1000);
+    
+    document.getElementById('answersData').value = JSON.stringify(userAnswers);
+    document.getElementById('timeTaken').value = timeTaken;
+    document.getElementById('examForm').style.display = 'block';
+    document.getElementById('examForm').submit();
+}
+
+function confirmExit() {
+    if (Object.keys(userAnswers).length > 0 && !examCompleted) {
+        return confirm('Imtihon davom etmoqda. Chiqishni xohlaysizmi?');
+    }
+    return true;
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', function() {
+    startTimer();
+    updateProgressBar();
+    
+    // Restore answers if any
+    document.querySelectorAll('.answer-card').forEach(card => {
+        card.addEventListener('click', function() {
+            let input = this.querySelector('input');
+            if (input) {
+                input.checked = true;
+                let event = new Event('change');
+                input.dispatchEvent(event);
+            }
+        });
+    });
+});
+
+// Prevent accidental exit
+window.addEventListener('beforeunload', function(e) {
+    if (!examCompleted && Object.keys(userAnswers).length > 0) {
+        e.preventDefault();
+        e.returnValue = 'Imtihon davom etmoqda!';
+        return e.returnValue;
+    }
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' && currentQuestion < totalQuestions - 1) {
+        nextQuestion(currentQuestion);
+    }
+    if (e.key === 'ArrowLeft' && currentQuestion > 0) {
+        prevQuestion(currentQuestion);
+    }
+    if (e.key >= '1' && e.key <= '4') {
+        let answerIndex = parseInt(e.key) - 1;
+        let answers = document.querySelectorAll('#question-' + currentQuestion + ' .answer-card');
+        if (answers[answerIndex]) answers[answerIndex].click();
+    }
+});
+</script>
+{% endblock %}

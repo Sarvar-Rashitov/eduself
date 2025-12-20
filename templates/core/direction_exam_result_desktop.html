@@ -45,7 +45,7 @@
                         <i class="fas fa-times"></i>
                     </div>
                     <div class="stat-info">
-                        <span class="stat-value">{{ result.total_questions|add:"-"|add:result.correct_answers|abs }}</span>
+                        <span class="stat-value">{{ result.incorrect_answers }}</span>
                         <span class="stat-label">Noto'g'ri javob</span>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                         <i class="fas fa-clock"></i>
                     </div>
                     <div class="stat-info">
-                        <span class="stat-value">{% widthratio result.time_taken 60 1 %}:{{ result.time_taken|divisibleby:60|yesno:"00,"|default_if_none:"" }}{{ result.time_taken|mod:60|stringformat:"02d" }}</span>
+                        <span class="stat-value">{{ result.formatted_time }}</span>
                         <span class="stat-label">Sarflangan vaqt</span>
                     </div>
                 </div>

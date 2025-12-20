@@ -19,7 +19,10 @@ def is_mobile(request):
     """User-Agent orqali mobil qurilmani aniqlash"""
     user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
     mobile_keywords = ['mobile', 'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'opera mobi']
-    return any(keyword in user_agent for keyword in mobile_keywords)
+    result = any(keyword in user_agent for keyword in mobile_keywords)
+    # Debug: console'da ko'rish uchun
+    print(f"[DEBUG] User-Agent: {user_agent[:50]}... | is_mobile: {result}")
+    return result
 
 
 def home_view(request):

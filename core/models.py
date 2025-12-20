@@ -980,5 +980,17 @@ class DirectionExamResult(models.Model):
         verbose_name = "Yo'nalish imtihon natijasi"
         verbose_name_plural = "Yo'nalish imtihon natijalari"
     
+    @property
+    def incorrect_answers(self):
+        """Noto'g'ri javoblar soni"""
+        return self.total_questions - self.correct_answers
+    
+    @property
+    def formatted_time(self):
+        """Sarflangan vaqtni formatlash (MM:SS)"""
+        minutes = self.time_taken // 60
+        seconds = self.time_taken % 60
+        return f"{minutes}:{seconds:02d}"
+    
     def __str__(self):
         return f"{self.user.username} - {self.exam.title} - {self.score:.1f}%"
