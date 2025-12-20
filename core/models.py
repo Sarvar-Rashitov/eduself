@@ -648,7 +648,6 @@ class InstitutionDirection(models.Model):
     education_language = models.CharField(max_length=20, choices=EducationLanguage.choices, default=EducationLanguage.UZBEK, verbose_name="Ta'lim tili")
     education_form = models.CharField(max_length=20, choices=EducationForm.choices, default=EducationForm.FULL_TIME, verbose_name="Ta'lim shakli")
     passing_score = models.PositiveIntegerField(null=True, blank=True, verbose_name="O'tish bali")
-    exam_url = models.URLField(blank=True, verbose_name="Imtihon URL manzili")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -893,3 +892,93 @@ class Notification(models.Model):
     
     def __str__(self):
         return f"{self.title} - {self.get_notification_type_display()}"
+
+
+# ==================== Yo'nalish Imtihon Modellari ====================
+
+class DirectionExam(models.Model):
+    """Yo'nalish imtihoni"""
+    direction = models.ForeignKey(InstitutionDirection, on_delete=models.CASCADE, related_name='exams', verbose_name="Yo'nalish")
+    title = models.CharField(max_length=300, verbose_name="Imtihon nomi")
+    description = models.TextField(blank=True, verbose_name="Tavsif")
+    subjects = models.CharField(max_length=500, verbose_name="Fanlar (vergul bilan ajratilgan)")
+    time_limit = models.PositiveIntegerField(default=120, verbose_name="Vaqt limiti (daqiqa)")
+    passing_score = models.FloatField(default=60.0, verbose_name="O'tish balli (%)")
+    application_url = models.URLField(blank=True, verbose_name="Ariza qoldirish URL")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = "Yo'nalish imtihoni"
+        verbose_name_plural = "Yo'nalish imtihonlari"
+    
+    def __str__(self):
+        return f"{self.direction.name} - {self.title}"
+    
+    def get_subjects_list(self):
+        """Fanlar ro'yxatini qaytarish"""
+        return [s.strip() for s in self.subjects.split(',') if s.strip()]
+    
+    def get_max_points(self):
+        """Imtihondagi barcha savollar ballarining yig'indisini qaytarish"""
+        return self.direction_questions.aggregate(
+            total_points=models.Sum('points')
+        )['total_points'] or 0
+    
+    def get_questions_count(self):
+        return self.direction_questions.count()
+
+
+class DirectionExamQuestion(models.Model):
+    """Yo'nalish imtihon savoli"""
+    exam = models.ForeignKey(DirectionExam, on_delete=models.CASCADE, related_name='direction_questions', verbose_name="Imtihon")
+    text = models.TextField(verbose_name="Savol matni")
+    image = models.ImageField(upload_to='direction_questions/', blank=True, null=True, verbose_name="Rasm")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    points = models.FloatField(default=1.1, verbose_name="Ball")
+    
+    class Meta:
+        ordering = ['order']
+        verbose_name = "Yo'nalish imtihon savoli"
+        verbose_name_plural = "Yo'nalish imtihon savollari"
+    
+    def __str__(self):
+        return self.text[:50]
+
+
+class DirectionExamAnswer(models.Model):
+    """Yo'nalish imtihon javobi"""
+    question = models.ForeignKey(DirectionExamQuestion, on_delete=models.CASCADE, related_name='direction_answers', verbose_name="Savol")
+    text = models.CharField(max_length=500, verbose_name="Javob matni")
+    is_correct = models.BooleanField(default=False, verbose_name="To'g'ri javob")
+    
+    class Meta:
+        verbose_name = "Yo'nalish imtihon javobi"
+        verbose_name_plural = "Yo'nalish imtihon javoblari"
+    
+    def __str__(self):
+        return self.text[:50]
+
+
+class DirectionExamResult(models.Model):
+    """Yo'nalish imtihon natijasi"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='direction_exam_results')
+    exam = models.ForeignKey(DirectionExam, on_delete=models.CASCADE, related_name='direction_results')
+    score = models.FloatField(default=0, verbose_name="Foiz (%)")
+    total_questions = models.PositiveIntegerField(default=0)
+    correct_answers = models.PositiveIntegerField(default=0)
+    passed = models.BooleanField(default=False)
+    time_taken = models.PositiveIntegerField(default=0, verbose_name="Sarflangan vaqt (soniya)")
+    user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
+    earned_points = models.FloatField(default=0, verbose_name="Olingan ball")
+    completed_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-completed_at']
+        verbose_name = "Yo'nalish imtihon natijasi"
+        verbose_name_plural = "Yo'nalish imtihon natijalari"
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.exam.title} - {self.score:.1f}%"

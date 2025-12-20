@@ -37,6 +37,12 @@ urlpatterns = [
     path('institutions/<int:pk>/', views.institution_detail_view, name='institution_detail'),
     path('directions/<int:pk>/', views.direction_detail_view, name='direction_detail'),
     
+    # Yo'nalish imtihonlari
+    path('direction-exam/<int:pk>/intro/', views.direction_exam_intro_view, name='direction_exam_intro'),
+    path('direction-exam/<int:pk>/', views.take_direction_exam_view, name='take_direction_exam'),
+    path('direction-exam/<int:pk>/result/', views.direction_exam_result_view, name='direction_exam_result'),
+    path('direction-exam/<int:pk>/analysis/', views.direction_exam_analysis_view, name='direction_exam_analysis'),
+    
     path('news/', views.news_list_view, name='news_list'),
     path('news/<slug:slug>/', views.news_detail_view, name='news_detail'),
     

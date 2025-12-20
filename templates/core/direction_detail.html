@@ -42,9 +42,9 @@
         {% endif %}
         
         <!-- Imtihon topshirish tugmasi -->
-        {% if direction.exam_url %}
+        {% if direction.exams.exists %}
         <div class="text-center mb-4">
-            <a href="{{ direction.exam_url }}" class="btn btn-primary" target="_blank">
+            <a href="{% url 'core:direction_exam_intro' direction.exams.first.pk %}" class="btn btn-primary">
                 <i class="bi bi-pencil-square me-2"></i>
                 Imtihon topshirish
             </a>

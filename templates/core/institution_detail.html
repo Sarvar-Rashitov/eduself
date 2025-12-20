@@ -110,8 +110,8 @@
                         <a href="{% url 'core:direction_detail' direction.pk %}" class="btn btn-outline-primary btn-sm me-2">
                             <i class="bi bi-info-circle me-1"></i>Batafsil
                         </a>
-                        {% if direction.exam_url %}
-                        <a href="{{ direction.exam_url }}" class="btn btn-primary btn-sm" target="_blank">
+                        {% if direction.exams.exists %}
+                        <a href="{% url 'core:direction_exam_intro' direction.exams.first.pk %}" class="btn btn-primary btn-sm">
                             <i class="bi bi-pencil-square me-1"></i>Imtihon topshirish
                         </a>
                         {% endif %}

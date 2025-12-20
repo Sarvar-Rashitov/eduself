@@ -4,7 +4,8 @@ from .models import (
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     InstitutionCategory, Institution, InstitutionDirection, Advertisement, Statistic, NewsCategory, News,
-    CourseCategory, Course, Lesson, CourseEnrollment, Notification
+    CourseCategory, Course, Lesson, CourseEnrollment, Notification,
+    DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult
 )
 
 
@@ -224,6 +225,12 @@ class InstitutionDirectionInline(admin.TabularInline):
     show_change_link = True
 
 
+class DirectionExamInline(admin.TabularInline):
+    model = DirectionExam
+    extra = 1
+    show_change_link = True
+
+
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):
     list_display = ['name', 'category', 'institution_type', 'is_featured', 'is_active', 'order']
@@ -266,6 +273,7 @@ class InstitutionDirectionAdmin(admin.ModelAdmin):
     list_filter = ['institution', 'is_active', 'created_at']
     search_fields = ['name', 'description', 'institution__name']
     list_editable = ['order', 'is_active']
+    inlines = [DirectionExamInline]
     
     fieldsets = (
         ('Asosiy ma\'lumotlar', {
@@ -276,9 +284,6 @@ class InstitutionDirectionAdmin(admin.ModelAdmin):
         }),
         ('Kontrakt ma\'lumotlari', {
             'fields': ('contract_price',)
-        }),
-        ('Imtihon', {
-            'fields': ('exam_url',)
         }),
         ('Sozlamalar', {
             'fields': ('order', 'is_active')
@@ -441,3 +446,58 @@ class NotificationAdmin(admin.ModelAdmin):
             'fields': ('is_read', 'created_at')
         }),
     )
+
+
+# ==================== Yo'nalish Imtihon Admin ====================
+
+class DirectionExamAnswerInline(admin.TabularInline):
+    model = DirectionExamAnswer
+    extra = 4
+
+
+class DirectionExamQuestionInline(admin.TabularInline):
+    model = DirectionExamQuestion
+    extra = 1
+    show_change_link = True
+
+
+@admin.register(DirectionExam)
+class DirectionExamAdmin(admin.ModelAdmin):
+    list_display = ['title', 'direction', 'subjects', 'time_limit', 'passing_score', 'get_questions_count', 'is_active', 'order']
+    list_filter = ['direction__institution', 'is_active', 'created_at']
+    search_fields = ['title', 'description', 'subjects', 'direction__name']
+    list_editable = ['passing_score', 'order', 'is_active']
+    inlines = [DirectionExamQuestionInline]
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('direction', 'title', 'description')
+        }),
+        ('Imtihon sozlamalari', {
+            'fields': ('subjects', 'time_limit', 'passing_score')
+        }),
+        ('Ariza', {
+            'fields': ('application_url',),
+            'description': 'O\'tgan foydalanuvchilar uchun ariza qoldirish havolasi'
+        }),
+        ('Sozlamalar', {
+            'fields': ('order', 'is_active')
+        }),
+    )
+
+
+@admin.register(DirectionExamQuestion)
+class DirectionExamQuestionAdmin(admin.ModelAdmin):
+    list_display = ['text', 'exam', 'order', 'points']
+    list_filter = ['exam__direction__institution', 'exam']
+    search_fields = ['text']
+    list_editable = ['order', 'points']
+    inlines = [DirectionExamAnswerInline]
+
+
+@admin.register(DirectionExamResult)
+class DirectionExamResultAdmin(admin.ModelAdmin):
+    list_display = ['user', 'exam', 'score', 'earned_points', 'correct_answers', 'total_questions', 'passed', 'completed_at']
+    list_filter = ['passed', 'completed_at', 'exam__direction__institution']
+    search_fields = ['user__username', 'exam__title']
+    readonly_fields = ['user', 'exam', 'score', 'earned_points', 'correct_answers', 'total_questions', 'passed', 'time_taken', 'user_answers', 'completed_at']

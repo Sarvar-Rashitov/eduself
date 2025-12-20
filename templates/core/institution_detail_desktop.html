@@ -158,8 +158,8 @@
                                 <a href="{% url 'core:direction_detail' direction.pk %}" class="btn btn-outline">
                                     <i class="fas fa-info-circle"></i> Batafsil
                                 </a>
-                                {% if direction.exam_url %}
-                                <a href="{{ direction.exam_url }}" target="_blank" class="btn btn-primary">
+                                {% if direction.exams.exists %}
+                                <a href="{% url 'core:direction_exam_intro' direction.exams.first.pk %}" class="btn btn-primary">
                                     <i class="fas fa-pencil-alt"></i> Imtihon topshirish
                                 </a>
                                 {% endif %}

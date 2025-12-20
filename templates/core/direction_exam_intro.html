@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ exam.title }} - Imtihon{% endblock %}
+
+{% block content %}
+<div class="exam-intro">
+    <div class="exam-intro-header">
+        <div class="exam-icon"><i class="fas fa-file-alt"></i></div>
+        <h1>{{ exam.title }}</h1>
+        <p>{{ exam.direction.name }}</p>
+    </div>
+    
+    <div class="exam-intro-body">
+        {% if exam.description %}
+        <p class="exam-desc">{{ exam.description }}</p>
+        {% endif %}
+        
+        <div class="exam-info-list">
+            <div class="info-item">
+                <i class="fas fa-book"></i>
+                <div>
+                    <span class="label">Fanlar</span>
+                    <span class="value">{{ exam.subjects }}</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-clock"></i>
+                <div>
+                    <span class="label">Vaqt</span>
+                    <span class="value">{{ exam.time_limit }} daqiqa</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-question-circle"></i>
+                <div>
+                    <span class="label">Savollar</span>
+                    <span class="value">{{ questions_count }} ta</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <span class="label">O'tish balli</span>
+                    <span class="value">{{ exam.passing_score|floatformat:1 }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="exam-intro-footer">
+        <a href="{% url 'core:direction_detail' exam.direction.pk %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Orqaga
+        </a>
+        <a href="{% url 'core:take_direction_exam' exam.pk %}" class="btn btn-primary">
+            <i class="fas fa-play"></i> Boshlash
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.exam-intro { padding: 20px; }
+.exam-intro-header { text-align: center; padding: 30px 0; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 16px; margin-bottom: 20px; }
+.exam-icon { width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.5rem; }
+.exam-intro-header h1 { font-size: 1.3rem; margin-bottom: 5px; }
+.exam-intro-header p { opacity: 0.9; font-size: 0.9rem; }
+.exam-desc { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 20px; color: #64748b; }
+.exam-info-list { display: flex; flex-direction: column; gap: 12px; }
+.info-item { display: flex; align-items: center; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 12px; }
+.info-item i { width: 40px; height: 40px; background: #667eea; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.info-item .label { display: block; font-size: 0.8rem; color: #64748b; }
+.info-item .value { font-weight: 600; color: #1e293b; }
+.exam-intro-footer { display: flex; gap: 12px; margin-top: 30px; }
+.exam-intro-footer .btn { flex: 1; padding: 14px; border-radius: 12px; text-align: center; text-decoration: none; font-weight: 600; }
+.btn-secondary { background: #f3f4f6; color: #64748b; }
+.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+</style>
+{% endblock %}

@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ exam.title }} - Imtihon{% endblock %}
+
+{% block content %}
+<div class="exam-page">
+    <div class="exam-header">
+        <div class="exam-progress">
+            <span id="currentQ">1</span>/{{ questions|length }}
+        </div>
+        <div class="exam-timer" id="timerBox">
+            <i class="fas fa-clock"></i>
+            <span id="timer">{{ exam.time_limit }}:00</span>
+        </div>
+    </div>
+    
+    <div class="progress-bar-wrapper">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <form method="post" id="examForm" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" id="answersData" name="answers_data" value="">
+        <input type="hidden" id="timeTaken" name="time_taken" value="0">
+    </form>
+    
+    <div id="questionContainer">
+        {% for question in questions %}
+        <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+            <div class="question-header">
+                <span class="q-num">Savol {{ forloop.counter }}</span>
+                <span class="q-points">{{ question.points|floatformat:1 }} ball</span>
+            </div>
+            <div class="question-text">{{ question.text|safe }}</div>
+            {% if question.image %}
+            <img src="{{ question.image.url }}" class="question-img" alt="">
+            {% endif %}
+            <div class="answers">
+                {% for answer in question.direction_answers.all %}
+                <label class="answer-option" data-id="{{ answer.id }}">
+                    <input type="radio" name="q_{{ question.id }}" value="{{ answer.id }}" 
+                           onchange="selectAnswer({{ forloop.parentloop.counter0 }}, {{ question.id }}, {{ answer.id }})">
+                    <span class="marker">{% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}</span>
+                    <span class="text">{{ answer.text|safe }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <div class="question-nav">
+                {% if not forloop.first %}
+                <button type="button" class="btn-nav prev" onclick="prevQ({{ forloop.counter0 }})">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                {% endif %}
+                {% if forloop.last %}
+                <button type="button" class="btn-nav finish" onclick="showFinish()">
+                    <i class="fas fa-flag-checkered"></i> Yakunlash
+                </button>
+                {% else %}
+                <button type="button" class="btn-nav next" onclick="nextQ({{ forloop.counter0 }})">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Questions Nav -->
+    <div class="questions-dots">
+        {% for question in questions %}
+        <button class="dot {% if forloop.first %}active{% endif %}" id="dot-{{ forloop.counter0 }}" onclick="goToQ({{ forloop.counter0 }})">{{ forloop.counter }}</button>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Finish Modal -->
+<div class="modal-overlay" id="finishModal">
+    <div class="modal-box">
+        <h3>Yakunlashni xohlaysizmi?</h3>
+        <p><span id="answeredCount">0</span>/{{ questions|length }} savolga javob berildi</p>
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="hideFinish()">Davom etish</button>
+            <button class="btn-confirm" onclick="submitExam()">Yakunlash</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.exam-page { padding: 15px; }
+.exam-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.exam-progress { font-weight: 600; font-size: 1.1rem; }
+.exam-timer { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.exam-timer.warning { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.progress-bar-wrapper { height: 6px; background: #e5e7eb; border-radius: 3px; margin-bottom: 20px; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 3px; transition: width 0.3s; width: 0; }
+.question-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.question-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+.q-num { background: #667eea; color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; }
+.q-points { background: #fef3c7; color: #d97706; padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; }
+.question-text { font-size: 1rem; line-height: 1.6; margin-bottom: 15px; }
+.question-img { max-width: 100%; border-radius: 12px; margin-bottom: 15px; }
+.answers { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.answer-option { display: flex; align-items: center; gap: 12px; padding: 14px; background: #f8fafc; border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer; transition: all 0.3s; }
+.answer-option input { display: none; }
+.answer-option .marker { width: 32px; height: 32px; background: white; border: 2px solid #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; }
+.answer-option .text { flex: 1; font-size: 0.95rem; }
+.answer-option.selected { border-color: #667eea; background: #ede9fe; }
+.answer-option.selected .marker { background: #667eea; border-color: #667eea; color: white; }
+.question-nav { display: flex; justify-content: space-between; gap: 12px; }
+.btn-nav { padding: 12px 24px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.btn-nav.prev { background: #f3f4f6; color: #64748b; }
+.btn-nav.next { background: linear-gradient(135deg, #667eea, #764ba2); color: white; margin-left: auto; }
+.btn-nav.finish { background: linear-gradient(135deg, #10b981, #059669); color: white; margin-left: auto; }
+.questions-dots { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 20px; padding: 15px; background: white; border-radius: 12px; }
+.dot { width: 36px; height: 36px; border: 2px solid #e5e7eb; border-radius: 8px; background: white; font-weight: 600; cursor: pointer; }
+.dot.active { background: #667eea; border-color: #667eea; color: white; }
+.dot.answered { background: #10b981; border-color: #10b981; color: white; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal-overlay.active { display: flex; }
+.modal-box { background: white; border-radius: 20px; padding: 30px; text-align: center; max-width: 320px; width: 100%; }
+.modal-box h3 { margin-bottom: 10px; }
+.modal-box p { color: #64748b; margin-bottom: 20px; }
+.modal-btns { display: flex; gap: 12px; }
+.modal-btns button { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; }
+.btn-cancel { background: #f3f4f6; color: #64748b; }
+.btn-confirm { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentQ = 0;
+let totalQ = {{ questions|length }};
+let timeLimit = {{ exam.time_limit }} * 60;
+let timeRemaining = timeLimit;
+let timerInterval;
+let userAnswers = {};
+let examDone = false;
+let startTime = Date.now();
+
+function startTimer() {
+    timerInterval = setInterval(function() {
+        timeRemaining--;
+        updateTimer();
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert('Vaqt tugadi!');
+            submitExam();
+        }
+    }, 1000);
+}
+
+function updateTimer() {
+    let m = Math.floor(timeRemaining / 60);
+    let s = timeRemaining % 60;
+    document.getElementById('timer').textContent = m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+    if (timeRemaining < 300) document.getElementById('timerBox').classList.add('warning');
+}
+
+function updateProgress() {
+    let p = ((currentQ + 1) / totalQ) * 100;
+    document.getElementById('progressBar').style.width = p + '%';
+    document.getElementById('currentQ').textContent = currentQ + 1;
+}
+
+function updateDots() {
+    document.querySelectorAll('.dot').forEach((d, i) => {
+        d.classList.remove('active');
+        if (i === currentQ) d.classList.add('active');
+    });
+}
+
+function goToQ(i) {
+    document.getElementById('question-' + currentQ).style.display = 'none';
+    currentQ = i;
+    document.getElementById('question-' + currentQ).style.display = 'block';
+    updateProgress();
+    updateDots();
+}
+
+function nextQ(i) { if (i < totalQ - 1) goToQ(i + 1); }
+function prevQ(i) { if (i > 0) goToQ(i - 1); }
+
+function selectAnswer(qi, qid, aid) {
+    userAnswers[qid] = aid;
+    document.querySelectorAll('input[name="q_' + qid + '"]').forEach(inp => {
+        inp.closest('.answer-option').classList.remove('selected');
+    });
+    document.querySelector('input[value="' + aid + '"]').closest('.answer-option').classList.add('selected');
+    document.getElementById('dot-' + qi).classList.add('answered');
+}
+
+function showFinish() {
+    document.getElementById('answeredCount').textContent = Object.keys(userAnswers).length;
+    document.getElementById('finishModal').classList.add('active');
+}
+
+function hideFinish() { document.getElementById('finishModal').classList.remove('active'); }
+
+function submitExam() {
+    examDone = true;
+    if (timerInterval) clearInterval(timerInterval);
+    let timeTaken = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById('answersData').value = JSON.stringify(userAnswers);
+    document.getElementById('timeTaken').value = timeTaken;
+    document.getElementById('examForm').style.display = 'block';
+    document.getElementById('examForm').submit();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    startTimer();
+    updateProgress();
+    document.querySelectorAll('.answer-option').forEach(opt => {
+        opt.addEventListener('click', function() {
+            let inp = this.querySelector('input');
+            if (inp) { inp.checked = true; inp.dispatchEvent(new Event('change')); }
+        });
+    });
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (!examDone && Object.keys(userAnswers).length > 0) {
+        e.preventDefault();
+        e.returnValue = 'Imtihon davom etmoqda!';
+        return e.returnValue;
+    }
+});
+</script>
+{% endblock %}

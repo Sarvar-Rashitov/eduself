@@ -1,0 +1,387 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}Natija - {{ exam.title }} - EduSelf{% endblock %}
+
+{% block content %}
+<div class="result-page">
+    <div class="result-container">
+        <div class="result-card">
+            <!-- Result Header -->
+            <div class="result-header {% if result.passed %}passed{% else %}failed{% endif %}">
+                <div class="result-icon">
+                    {% if result.passed %}
+                    <i class="fas fa-trophy"></i>
+                    {% else %}
+                    <i class="fas fa-times-circle"></i>
+                    {% endif %}
+                </div>
+                <h1>{% if result.passed %}Tabriklaymiz!{% else %}Afsuski...{% endif %}</h1>
+                <p>{% if result.passed %}Siz imtihondan muvaffaqiyatli o'tdingiz!{% else %}O'tish balliga yetmadingiz{% endif %}</p>
+            </div>
+            
+            <!-- Score Display -->
+            <div class="score-display">
+                <div class="score-circle {% if result.passed %}passed{% else %}failed{% endif %}">
+                    <span class="score-value">{{ result.score|floatformat:1 }}%</span>
+                    <span class="score-label">natija</span>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-icon correct">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ result.correct_answers }}</span>
+                        <span class="stat-label">To'g'ri javob</span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon wrong">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ result.total_questions|add:"-"|add:result.correct_answers|abs }}</span>
+                        <span class="stat-label">Noto'g'ri javob</span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon points">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ result.earned_points|floatformat:1 }}</span>
+                        <span class="stat-label">Ball to'plandi</span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon time">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{% widthratio result.time_taken 60 1 %}:{{ result.time_taken|divisibleby:60|yesno:"00,"|default_if_none:"" }}{{ result.time_taken|mod:60|stringformat:"02d" }}</span>
+                        <span class="stat-label">Sarflangan vaqt</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Passing Info -->
+            <div class="passing-info">
+                <div class="passing-bar">
+                    <div class="passing-progress" style="width: {{ result.score|floatformat:0 }}%"></div>
+                    <div class="passing-marker" style="left: {{ exam.passing_score|floatformat:0 }}%">
+                        <span>{{ exam.passing_score|floatformat:0 }}%</span>
+                    </div>
+                </div>
+                <p>O'tish balli: <strong>{{ exam.passing_score|floatformat:1 }}%</strong></p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="result-actions">
+                {% if result.passed and exam.application_url %}
+                <a href="{{ exam.application_url }}" target="_blank" class="btn-action btn-apply">
+                    <i class="fas fa-paper-plane"></i> Ariza qoldirish
+                </a>
+                {% endif %}
+                
+                <a href="{% url 'core:direction_exam_analysis' exam.pk %}" class="btn-action btn-analysis">
+                    <i class="fas fa-chart-bar"></i> Tahlil
+                </a>
+                
+                {% if not result.passed %}
+                <a href="{% url 'core:direction_exam_intro' exam.pk %}" class="btn-action btn-retry">
+                    <i class="fas fa-redo"></i> Qayta urinish
+                </a>
+                {% endif %}
+                
+                <a href="{% url 'core:direction_detail' exam.direction.pk %}" class="btn-action btn-back">
+                    <i class="fas fa-arrow-left"></i> Yo'nalishga qaytish
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.result-page {
+    min-height: calc(100vh - 80px);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.result-container {
+    max-width: 600px;
+    width: 100%;
+}
+
+.result-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+.result-header {
+    padding: 40px;
+    text-align: center;
+    color: white;
+}
+
+.result-header.passed {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.result-header.failed {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.result-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2.5rem;
+}
+
+.result-header h1 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.result-header p {
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.score-display {
+    display: flex;
+    justify-content: center;
+    margin: -40px 0 30px;
+}
+
+.score-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 6px solid;
+}
+
+.score-circle.passed {
+    border-color: #10b981;
+}
+
+.score-circle.failed {
+    border-color: #ef4444;
+}
+
+.score-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.score-label {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 0 40px;
+    margin-bottom: 30px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.stat-icon.correct { background: #d1fae5; color: #059669; }
+.stat-icon.wrong { background: #fee2e2; color: #dc2626; }
+.stat-icon.points { background: #fef3c7; color: #d97706; }
+.stat-icon.time { background: #dbeafe; color: #2563eb; }
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-info .stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.stat-info .stat-label {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.passing-info {
+    padding: 0 40px;
+    margin-bottom: 30px;
+}
+
+.passing-bar {
+    height: 12px;
+    background: #e5e7eb;
+    border-radius: 6px;
+    position: relative;
+    overflow: visible;
+    margin-bottom: 12px;
+}
+
+.passing-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 6px;
+    transition: width 1s ease;
+}
+
+.passing-marker {
+    position: absolute;
+    top: -8px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.passing-marker::before {
+    content: '';
+    width: 4px;
+    height: 28px;
+    background: #ef4444;
+    border-radius: 2px;
+}
+
+.passing-marker span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ef4444;
+    margin-top: 4px;
+}
+
+.passing-info p {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 24px 40px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    justify-content: center;
+}
+
+.btn-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.btn-apply {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.btn-apply:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-analysis {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-analysis:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-retry {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.btn-retry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.btn-back {
+    background: white;
+    color: #64748b;
+    border: 2px solid #e2e8f0;
+}
+
+.btn-back:hover {
+    border-color: #94a3b8;
+    color: #475569;
+}
+
+@media (max-width: 640px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        padding: 0 20px;
+    }
+    
+    .result-actions {
+        flex-direction: column;
+        padding: 20px;
+    }
+    
+    .btn-action {
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

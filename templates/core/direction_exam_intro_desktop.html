@@ -1,0 +1,313 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}{{ exam.title }} - Imtihon - EduSelf{% endblock %}
+
+{% block content %}
+<div class="exam-intro-page">
+    <div class="exam-intro-container">
+        <div class="exam-intro-card">
+            <div class="exam-intro-header">
+                <div class="exam-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h1>{{ exam.title }}</h1>
+                <p class="exam-direction">{{ exam.direction.name }} - {{ exam.direction.institution.name }}</p>
+            </div>
+            
+            <div class="exam-intro-body">
+                {% if exam.description %}
+                <div class="exam-description">
+                    <p>{{ exam.description }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="exam-info-grid">
+                    <div class="exam-info-item">
+                        <div class="info-icon subjects">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Fanlar</span>
+                            <div class="subjects-list">
+                                {% for subject in subjects_list %}
+                                <span class="subject-tag">{{ subject }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="exam-info-item">
+                        <div class="info-icon time">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Vaqt limiti</span>
+                            <span class="info-value">{{ exam.time_limit }} daqiqa</span>
+                        </div>
+                    </div>
+                    
+                    <div class="exam-info-item">
+                        <div class="info-icon questions">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Savollar soni</span>
+                            <span class="info-value">{{ questions_count }} ta</span>
+                        </div>
+                    </div>
+                    
+                    <div class="exam-info-item">
+                        <div class="info-icon passing">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">O'tish balli</span>
+                            <span class="info-value">{{ exam.passing_score|floatformat:1 }}%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="exam-rules">
+                    <h3><i class="fas fa-info-circle"></i> Muhim ma'lumotlar</h3>
+                    <ul>
+                        <li>Imtihon davomida savollar orasida erkin harakatlanishingiz mumkin</li>
+                        <li>Javobingizni o'zgartirishingiz mumkin</li>
+                        <li>Natijalar imtihon yakunlangandan so'ng ko'rsatiladi</li>
+                        <li>Vaqt tugashi bilan imtihon avtomatik yakunlanadi</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="exam-intro-footer">
+                <a href="{% url 'core:direction_detail' exam.direction.pk %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Orqaga
+                </a>
+                <a href="{% url 'core:take_direction_exam' exam.pk %}" class="btn-start">
+                    <i class="fas fa-play"></i> Imtihonni boshlash
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.exam-intro-page {
+    min-height: calc(100vh - 80px);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.exam-intro-container {
+    max-width: 700px;
+    width: 100%;
+}
+
+.exam-intro-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+.exam-intro-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    text-align: center;
+}
+
+.exam-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+}
+
+.exam-intro-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.exam-direction {
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+.exam-intro-body {
+    padding: 40px;
+}
+
+.exam-description {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.exam-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.exam-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.info-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.info-icon.subjects { background: #dbeafe; color: #2563eb; }
+.info-icon.time { background: #fef3c7; color: #d97706; }
+.info-icon.questions { background: #d1fae5; color: #059669; }
+.info-icon.passing { background: #ede9fe; color: #7c3aed; }
+
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.subjects-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.subject-tag {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.exam-rules {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.exam-rules h3 {
+    font-size: 1rem;
+    color: #92400e;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.exam-rules ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #78350f;
+}
+
+.exam-rules li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.exam-rules li:last-child {
+    margin-bottom: 0;
+}
+
+.exam-intro-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 24px 40px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-back, .btn-start {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-back {
+    background: white;
+    color: #64748b;
+    border: 2px solid #e2e8f0;
+}
+
+.btn-back:hover {
+    border-color: #94a3b8;
+    color: #475569;
+}
+
+.btn-start {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.btn-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 640px) {
+    .exam-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .exam-intro-footer {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .btn-back, .btn-start {
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.conf import settings as django_settings
+from django.db import models
 from .models import SiteSettings, Notification
 
 def site_settings(request):
@@ -19,20 +20,13 @@ def auth_settings(request):
 
 def notifications(request):
     if request.user.is_authenticated:
-        # Foydalanuvchiga tegishli o'qilmagan bildirishnomalar
-        user_notifications = Notification.objects.filter(
-            user=request.user,
+        # Bitta so'rov bilan barcha bildirishnomalarni olish
+        all_notifications = Notification.objects.filter(
             is_read=False
-        )
+        ).filter(
+            models.Q(user=request.user) | models.Q(is_global=True)
+        ).select_related('user').order_by('-created_at')[:10]
         
-        # Global o'qilmagan bildirishnomalar
-        global_notifications = Notification.objects.filter(
-            is_global=True,
-            is_read=False
-        )
-        
-        # Barcha o'qilmagan bildirishnomalar
-        all_notifications = (user_notifications | global_notifications).distinct().order_by('-created_at')[:10]
         unread_count = all_notifications.count()
     else:
         all_notifications = []

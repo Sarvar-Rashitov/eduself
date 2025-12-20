@@ -11,7 +11,8 @@ from .models import (
     InstitutionCategory, Institution, InstitutionDirection, InstitutionType, Advertisement, Statistic, SiteSettings,
     NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment,
-    Notification
+    Notification,
+    DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult
 )
 
 def is_mobile(request):
@@ -1205,3 +1206,184 @@ def mark_all_notifications_read(request):
         ).update(is_read=True)
         return JsonResponse({'success': True})
     return JsonResponse({'success': False})
+
+
+# ==================== Yo'nalish Imtihon View'lari ====================
+
+def direction_exam_intro_view(request, pk):
+    """Imtihon boshlash sahifasi - fanlar va vaqt ko'rsatiladi"""
+    exam = get_object_or_404(DirectionExam, pk=pk, is_active=True)
+    
+    context = {
+        'exam': exam,
+        'subjects_list': exam.get_subjects_list(),
+        'questions_count': exam.get_questions_count(),
+    }
+    
+    if is_mobile(request):
+        return render(request, 'core/direction_exam_intro.html', context)
+    else:
+        return render(request, 'core/direction_exam_intro_desktop.html', context)
+
+
+@login_required
+def take_direction_exam_view(request, pk):
+    """Yo'nalish imtihonini yechish"""
+    exam = get_object_or_404(DirectionExam, pk=pk, is_active=True)
+    questions = exam.direction_questions.all().prefetch_related('direction_answers')
+    
+    if request.method == 'POST':
+        answers_data = request.POST.get('answers_data')
+        time_taken = request.POST.get('time_taken', 0)
+        
+        if answers_data:
+            try:
+                user_answers_dict = json.loads(answers_data)
+            except json.JSONDecodeError:
+                user_answers_dict = {}
+        else:
+            user_answers_dict = {}
+        
+        correct = 0
+        total = questions.count()
+        user_answers = {}
+        earned_points = 0.0
+        
+        for question in questions:
+            question_id_str = str(question.id)
+            correct_answer = question.direction_answers.filter(is_correct=True).first()
+            
+            if question_id_str in user_answers_dict:
+                selected_answer_id = user_answers_dict[question_id_str]
+                try:
+                    answer = DirectionExamAnswer.objects.filter(id=selected_answer_id, question=question).first()
+                    if answer:
+                        is_correct = answer.is_correct
+                        user_answers[question_id_str] = {
+                            'selected_answer_id': selected_answer_id,
+                            'selected_answer_text': answer.text,
+                            'is_correct': is_correct,
+                            'correct_answer_id': correct_answer.id if correct_answer else None,
+                            'correct_answer_text': correct_answer.text if correct_answer else None,
+                            'points': question.points
+                        }
+                        if is_correct:
+                            correct += 1
+                            earned_points += question.points
+                except (ValueError, TypeError):
+                    user_answers[question_id_str] = {
+                        'selected_answer_id': None,
+                        'selected_answer_text': None,
+                        'is_correct': False,
+                        'correct_answer_id': correct_answer.id if correct_answer else None,
+                        'correct_answer_text': correct_answer.text if correct_answer else None,
+                        'points': question.points
+                    }
+            else:
+                user_answers[question_id_str] = {
+                    'selected_answer_id': None,
+                    'selected_answer_text': None,
+                    'is_correct': False,
+                    'correct_answer_id': correct_answer.id if correct_answer else None,
+                    'correct_answer_text': correct_answer.text if correct_answer else None,
+                    'points': question.points
+                }
+        
+        max_points = exam.get_max_points()
+        score = (earned_points / max_points * 100) if max_points > 0 else 0
+        passed = score >= exam.passing_score
+        
+        result = DirectionExamResult.objects.create(
+            user=request.user,
+            exam=exam,
+            score=score,
+            total_questions=total,
+            correct_answers=correct,
+            passed=passed,
+            time_taken=int(time_taken),
+            user_answers=user_answers,
+            earned_points=earned_points
+        )
+        
+        return redirect('core:direction_exam_result', pk=exam.pk)
+    
+    # Reklamalarni olish
+    advertisements = Advertisement.objects.filter(is_active=True)[:5]
+    
+    context = {
+        'exam': exam,
+        'questions': questions,
+        'advertisements': advertisements,
+    }
+    
+    if is_mobile(request):
+        return render(request, 'core/take_direction_exam.html', context)
+    else:
+        return render(request, 'core/take_direction_exam_desktop.html', context)
+
+
+@login_required
+def direction_exam_result_view(request, pk):
+    """Yo'nalish imtihon natijasi"""
+    exam = get_object_or_404(DirectionExam, pk=pk)
+    result = DirectionExamResult.objects.filter(user=request.user, exam=exam).order_by('-completed_at').first()
+    
+    if not result:
+        messages.error(request, "Natija topilmadi.")
+        return redirect('core:direction_detail', pk=exam.direction.pk)
+    
+    context = {
+        'exam': exam,
+        'result': result,
+    }
+    
+    if is_mobile(request):
+        return render(request, 'core/direction_exam_result.html', context)
+    else:
+        return render(request, 'core/direction_exam_result_desktop.html', context)
+
+
+@login_required
+def direction_exam_analysis_view(request, pk):
+    """Yo'nalish imtihon tahlili"""
+    exam = get_object_or_404(DirectionExam, pk=pk)
+    result = DirectionExamResult.objects.filter(user=request.user, exam=exam).order_by('-completed_at').first()
+    
+    if not result:
+        messages.error(request, "Natija topilmadi.")
+        return redirect('core:direction_exam_result', pk=exam.pk)
+    
+    questions = exam.direction_questions.all().prefetch_related('direction_answers')
+    analysis_data = []
+    
+    for question in questions:
+        question_data = {
+            'question': question,
+            'all_answers': question.direction_answers.all(),
+            'user_answer': None,
+            'correct_answer': None,
+            'is_correct': False,
+            'points': question.points
+        }
+        
+        user_answer_data = result.user_answers.get(str(question.id))
+        if user_answer_data:
+            question_data['user_answer'] = user_answer_data
+            question_data['is_correct'] = user_answer_data.get('is_correct', False)
+        
+        correct_answer = question.direction_answers.filter(is_correct=True).first()
+        if correct_answer:
+            question_data['correct_answer'] = correct_answer
+        
+        analysis_data.append(question_data)
+    
+    context = {
+        'exam': exam,
+        'result': result,
+        'analysis_data': analysis_data,
+    }
+    
+    if is_mobile(request):
+        return render(request, 'core/direction_exam_analysis.html', context)
+    else:
+        return render(request, 'core/direction_exam_analysis_desktop.html', context)

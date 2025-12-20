@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tahlil - {{ exam.title }}{% endblock %}
+
+{% block content %}
+<div class="analysis-page">
+    <div class="analysis-header">
+        <a href="{% url 'core:direction_exam_result' exam.pk %}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1>Tahlil</h1>
+            <p>{{ result.score|floatformat:1 }}% - {{ result.correct_answers }}/{{ result.total_questions }} to'g'ri</p>
+        </div>
+    </div>
+    
+    <div class="questions-list">
+        {% for item in analysis_data %}
+        <div class="question-item {% if item.is_correct %}correct{% else %}incorrect{% endif %}">
+            <div class="q-header">
+                <span class="q-num">{{ forloop.counter }}</span>
+                {% if item.is_correct %}
+                <i class="fas fa-check-circle text-success"></i>
+                {% else %}
+                <i class="fas fa-times-circle text-danger"></i>
+                {% endif %}
+                <span class="q-points">{{ item.points|floatformat:1 }} ball</span>
+            </div>
+            
+            <div class="q-text">{{ item.question.text|safe }}</div>
+            
+            <div class="answers-list">
+                {% for answer in item.all_answers %}
+                <div class="answer {% if answer.is_correct %}correct{% endif %} {% if item.user_answer.selected_answer_id == answer.id and not answer.is_correct %}wrong{% endif %}">
+                    <span class="marker">{% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}</span>
+                    <span class="text">{{ answer.text|safe }}</span>
+                    {% if answer.is_correct %}
+                    <span class="badge correct"><i class="fas fa-check"></i></span>
+                    {% elif item.user_answer.selected_answer_id == answer.id %}
+                    <span class="badge wrong"><i class="fas fa-times"></i></span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if not item.user_answer.selected_answer_id %}
+            <div class="no-answer"><i class="fas fa-exclamation-triangle"></i> Javob berilmagan</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="analysis-actions">
+        <a href="{% url 'core:direction_exam_result' exam.pk %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Natijaga
+        </a>
+        {% if not result.passed %}
+        <a href="{% url 'core:direction_exam_intro' exam.pk %}" class="btn btn-primary">
+            <i class="fas fa-redo"></i> Qayta urinish
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.analysis-page { padding: 15px; }
+.analysis-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: white; border-radius: 12px; }
+.back-btn { width: 40px; height: 40px; background: #f3f4f6; border-radius: 10px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #64748b; }
+.analysis-header h1 { font-size: 1.2rem; margin-bottom: 2px; }
+.analysis-header p { font-size: 0.85rem; color: #64748b; }
+.questions-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+.question-item { background: white; border-radius: 12px; padding: 15px; border-left: 4px solid; }
+.question-item.correct { border-left-color: #10b981; }
+.question-item.incorrect { border-left-color: #ef4444; }
+.q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.q-num { width: 28px; height: 28px; background: #f3f4f6; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; }
+.q-points { margin-left: auto; background: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+.text-success { color: #10b981; }
+.text-danger { color: #ef4444; }
+.q-text { font-size: 0.95rem; line-height: 1.6; margin-bottom: 12px; }
+.answers-list { display: flex; flex-direction: column; gap: 8px; }
+.answer { display: flex; align-items: center; gap: 10px; padding: 12px; background: #f8fafc; border: 2px solid #e5e7eb; border-radius: 10px; }
+.answer.correct { background: #d1fae5; border-color: #10b981; }
+.answer.wrong { background: #fee2e2; border-color: #ef4444; }
+.answer .marker { width: 28px; height: 28px; background: white; border: 2px solid #e5e7eb; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; flex-shrink: 0; }
+.answer.correct .marker { background: #10b981; border-color: #10b981; color: white; }
+.answer.wrong .marker { background: #ef4444; border-color: #ef4444; color: white; }
+.answer .text { flex: 1; font-size: 0.9rem; }
+.badge { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+.badge.correct { background: #10b981; color: white; }
+.badge.wrong { background: #ef4444; color: white; }
+.no-answer { margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 8px; color: #92400e; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
+.analysis-actions { display: flex; gap: 12px; }
+.btn { flex: 1; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-secondary { background: #f3f4f6; color: #64748b; }
+.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+</style>
+{% endblock %}

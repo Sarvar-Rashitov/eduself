@@ -21,8 +21,30 @@
                 {% if direction.description %}
                 <div class="content-card"><h2>Yo'nalish haqida</h2><div class="content-text">{{ direction.description|safe }}</div></div>
                 {% endif %}
-                {% if direction.exam_url %}
-                <a href="{{ direction.exam_url }}" target="_blank" class="btn btn-primary btn-lg"><i class="fas fa-pencil-alt"></i> Imtihon topshirish</a>
+                
+                {% if direction.exams.exists %}
+                <div class="exams-section">
+                    <h2><i class="fas fa-file-alt"></i> Imtihonlar</h2>
+                    <div class="exams-list">
+                        {% for exam in direction.exams.all %}
+                        {% if exam.is_active %}
+                        <div class="exam-card">
+                            <div class="exam-info">
+                                <h3>{{ exam.title }}</h3>
+                                <div class="exam-meta">
+                                    <span><i class="fas fa-book"></i> {{ exam.subjects }}</span>
+                                    <span><i class="fas fa-clock"></i> {{ exam.time_limit }} daqiqa</span>
+                                    <span><i class="fas fa-question-circle"></i> {{ exam.get_questions_count }} ta savol</span>
+                                </div>
+                            </div>
+                            <a href="{% url 'core:direction_exam_intro' exam.pk %}" class="btn btn-primary">
+                                <i class="fas fa-pencil-alt"></i> Imtihon topshirish
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
                 {% endif %}
             </div>
             <div class="direction-sidebar">
@@ -64,6 +86,19 @@
 .contact-list i { color: #f59e0b; width: 20px; }
 .contact-list a { color: var(--primary-color); text-decoration: none; }
 .btn-block { width: 100%; margin-top: 1rem; }
-@media (max-width: 968px) { .direction-content { grid-template-columns: 1fr; } }
+
+/* Exams Section */
+.exams-section { background: var(--white); border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+.exams-section h2 { font-size: 1.25rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.exams-section h2 i { color: #667eea; }
+.exams-list { display: flex; flex-direction: column; gap: 1rem; }
+.exam-card { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e5e7eb; transition: all 0.3s; }
+.exam-card:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15); }
+.exam-info h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: #1e293b; }
+.exam-meta { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: var(--text-color); }
+.exam-meta span { display: flex; align-items: center; gap: 0.35rem; }
+.exam-meta i { color: #667eea; }
+
+@media (max-width: 968px) { .direction-content { grid-template-columns: 1fr; } .exam-card { flex-direction: column; gap: 1rem; align-items: flex-start; } }
 </style>
 {% endblock %}
