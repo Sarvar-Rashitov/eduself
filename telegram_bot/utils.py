@@ -5,16 +5,20 @@ from telegram import Bot, User as TelegramUser
 from telegram.error import TelegramError
 from accounts.models import User
 
-# Kanal username
-CHANNEL_USERNAME = os.getenv('TELEGRAM_CHANNEL_USERNAME', '@eduself_channel')
+
+def get_channel_username():
+    """Kanal username ni olish"""
+    return os.getenv('TELEGRAM_CHANNEL_USERNAME', '@eduself_channel')
 
 
 async def check_channel_subscription(bot: Bot, user_id: int) -> bool:
     """Foydalanuvchi kanalga obuna bo'lganligini tekshirish"""
     try:
-        member = await bot.get_chat_member(chat_id=CHANNEL_USERNAME, user_id=user_id)
+        channel = get_channel_username()
+        member = await bot.get_chat_member(chat_id=channel, user_id=user_id)
         return member.status in ['member', 'administrator', 'creator']
-    except TelegramError:
+    except TelegramError as e:
+        print(f"Kanal obunasini tekshirishda xatolik: {e}")
         return False
 
 
