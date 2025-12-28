@@ -14,4 +14,6 @@ urlpatterns = [
     path('resend-verification/', views.resend_verification_view, name='resend_verification'),
     path('auth/google/', views.google_auth_view, name='google_auth'),
     path('auth/telegram/', views.telegram_auth_view, name='telegram_auth'),
+    path('telegram-callback/', views.telegram_callback_view, name='telegram_callback'),
+    path('auth/telegram-miniapp/', views.telegram_miniapp_auth_view, name='telegram_miniapp_auth'),
 ]

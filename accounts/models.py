@@ -20,6 +20,9 @@ class User(AbstractUser):
     telegram_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
     auth_provider = models.CharField(max_length=50, default='email')  # email, google, telegram
     
+    # Certificate file
+    certificate_file = models.FileField(upload_to='user_certificates/', blank=True, null=True, verbose_name="Sertifikat fayli")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

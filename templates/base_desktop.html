@@ -347,6 +347,48 @@
     </div>
     {% endif %}
 
+    <!-- Telegram Mini App Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Telegram Mini App Auto Login -->
+    <script>
+        (function() {
+            // Telegram Mini App ichida ekanligini tekshirish
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+                const tg = window.Telegram.WebApp;
+                const initData = tg.initData;
+                
+                // Faqat login qilinmagan bo'lsa
+                {% if not user.is_authenticated %}
+                if (initData && initData.length > 0) {
+                    // Avtomatik login qilish
+                    fetch('/accounts/auth/telegram-miniapp/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ initData: initData })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Sahifani yangilash
+                            window.location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Mini App login xatosi:', error);
+                    });
+                }
+                {% endif %}
+                
+                // Mini App UI sozlamalari
+                tg.ready();
+                tg.expand();
+            }
+        })();
+    </script>
+
     <!-- Desktop JavaScript -->
     <script src="{% static 'js/desktop.js' %}"></script>
     

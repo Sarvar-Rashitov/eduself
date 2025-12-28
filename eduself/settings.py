@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'core',
     'accounts',
     'ai_assistant',
+    'telegram_bot',
 ]
 
 # Jazzmin Admin Theme Configuration

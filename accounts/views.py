@@ -411,6 +411,138 @@ def verify_telegram_auth(data):
     return calculated_hash == check_hash
 
 
+def telegram_callback_view(request):
+    """Telegram bot orqali login - bot start bosilganda ro'yxatdan o'tgan foydalanuvchi uchun"""
+    telegram_id = request.GET.get('telegram_id')
+    
+    if not telegram_id:
+        messages.error(request, "Telegram ID topilmadi. Iltimos, botdan qayta urinib ko'ring.")
+        return redirect('accounts:login')
+    
+    try:
+        user = User.objects.get(telegram_id=telegram_id)
+        login(request, user)
+        messages.success(request, f"Xush kelibsiz, {user.first_name or user.username}!")
+        return redirect('core:home')
+    except User.DoesNotExist:
+        messages.error(request, "Foydalanuvchi topilmadi. Iltimos, avval botda /start buyrug'ini bosing.")
+        return redirect('accounts:login')
+
+
+def verify_telegram_webapp_data(init_data: str) -> dict | None:
+    """Telegram Mini App initData ni tekshirish"""
+    from urllib.parse import parse_qs, unquote
+    
+    bot_token = settings.TELEGRAM_BOT_TOKEN
+    if not bot_token:
+        return None
+    
+    # initData ni parse qilish
+    parsed_data = parse_qs(init_data)
+    
+    # hash ni olish
+    received_hash = parsed_data.get('hash', [None])[0]
+    if not received_hash:
+        return None
+    
+    # Data check string yaratish (hash dan tashqari)
+    data_check_arr = []
+    for key in sorted(parsed_data.keys()):
+        if key != 'hash':
+            value = parsed_data[key][0]
+            data_check_arr.append(f"{key}={value}")
+    data_check_string = '\n'.join(data_check_arr)
+    
+    # Secret key - WebAppData uchun
+    secret_key = hmac.new(
+        b'WebAppData',
+        bot_token.encode(),
+        hashlib.sha256
+    ).digest()
+    
+    # Hash hisoblash
+    calculated_hash = hmac.new(
+        secret_key,
+        data_check_string.encode(),
+        hashlib.sha256
+    ).hexdigest()
+    
+    if calculated_hash != received_hash:
+        return None
+    
+    # auth_date tekshirish (24 soatdan eski bo'lmasligi kerak)
+    auth_date = int(parsed_data.get('auth_date', [0])[0])
+    if time.time() - auth_date > 86400:
+        return None
+    
+    # User ma'lumotlarini olish
+    user_data = parsed_data.get('user', [None])[0]
+    if user_data:
+        return json.loads(unquote(user_data))
+    
+    return None
+
+
+@csrf_exempt
+def telegram_miniapp_auth_view(request):
+    """Telegram Mini App orqali avtomatik login/ro'yxatdan o'tish"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            init_data = data.get('initData')
+            
+            if not init_data:
+                return JsonResponse({'success': False, 'error': 'initData topilmadi'})
+            
+            # initData ni tekshirish
+            tg_user = verify_telegram_webapp_data(init_data)
+            
+            if not tg_user:
+                return JsonResponse({'success': False, 'error': 'initData noto\'g\'ri yoki eskirgan'})
+            
+            telegram_id = str(tg_user.get('id'))
+            
+            # Foydalanuvchini topish yoki yaratish
+            try:
+                user = User.objects.get(telegram_id=telegram_id)
+            except User.DoesNotExist:
+                # Yangi foydalanuvchi yaratish
+                username = tg_user.get('username') or f"tg_{telegram_id}"
+                base_username = username
+                counter = 1
+                while User.objects.filter(username=username).exists():
+                    username = f"{base_username}_{counter}"
+                    counter += 1
+                
+                user = User.objects.create_user(
+                    username=username,
+                    email=f"{telegram_id}@telegram.eduself.uz",
+                    telegram_id=telegram_id,
+                    email_verified=True,
+                    auth_provider='telegram'
+                )
+                user.first_name = tg_user.get('first_name', '')
+                user.last_name = tg_user.get('last_name', '')
+                user.set_unusable_password()
+                user.save()
+            
+            login(request, user)
+            return JsonResponse({
+                'success': True, 
+                'redirect': '/',
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'first_name': user.first_name,
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'POST so\'rov kerak'})
+
+
 @login_required
 def profile_view(request):
     if request.method == 'POST':
