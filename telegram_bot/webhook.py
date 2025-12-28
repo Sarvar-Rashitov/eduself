@@ -8,13 +8,26 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from telegram import Update, Bot
 from telegram.ext import Application
-from asgiref.sync import async_to_sync, sync_to_async
 
 logger = logging.getLogger(__name__)
 
 # Global application instance
 _application = None
 _initialized = False
+_lock = asyncio.Lock() if hasattr(asyncio, 'Lock') else None
+
+
+def get_or_create_event_loop():
+    """Event loop olish yoki yaratish"""
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_closed():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop
 
 
 async def get_application():
@@ -112,16 +125,16 @@ def register_all_handlers(app):
 def webhook_handler(request):
     """Telegram webhook endpoint"""
     try:
-        # Update ni parse qilish
         data = json.loads(request.body.decode('utf-8'))
         
-        # Async process
+        loop = get_or_create_event_loop()
+        
         async def process():
             app = await get_application()
             update = Update.de_json(data, app.bot)
             await app.process_update(update)
         
-        asyncio.run(process())
+        loop.run_until_complete(process())
         
         return HttpResponse('OK')
     except Exception as e:
@@ -132,7 +145,7 @@ def webhook_handler(request):
 
 
 def set_webhook_view(request):
-    """Webhook ni o'rnatish (bir marta chaqiriladi)"""
+    """Webhook ni o'rnatish"""
     SITE_URL = os.getenv('SITE_URL', '').rstrip('/')
     BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
     
@@ -141,13 +154,15 @@ def set_webhook_view(request):
     
     webhook_url = f"{SITE_URL}/telegram/webhook/"
     
+    loop = get_or_create_event_loop()
+    
     async def set_webhook():
         app = await get_application()
         await app.bot.set_webhook(url=webhook_url)
         return await app.bot.get_webhook_info()
     
     try:
-        info = asyncio.run(set_webhook())
+        info = loop.run_until_complete(set_webhook())
         return JsonResponse({
             'success': True,
             'webhook_url': info.url,
@@ -159,13 +174,15 @@ def set_webhook_view(request):
 
 def delete_webhook_view(request):
     """Webhook ni o'chirish"""
+    loop = get_or_create_event_loop()
+    
     async def delete_webhook():
         app = await get_application()
         await app.bot.delete_webhook()
         return True
     
     try:
-        asyncio.run(delete_webhook())
+        loop.run_until_complete(delete_webhook())
         return JsonResponse({'success': True, 'message': 'Webhook o\'chirildi'})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
