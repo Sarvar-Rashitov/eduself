@@ -2,6 +2,11 @@ import os
 import json
 import time
 from typing import List, Dict, Optional
+from dotenv import load_dotenv
+
+# .env faylini yuklash
+load_dotenv()
+
 from openai import OpenAI
 from django.conf import settings
 from django.db.models import Q
@@ -18,9 +23,6 @@ class DeepSeekAIService:
         self.max_tokens = 2000
         self.temperature = 0.7
         
-        # API kalitini tekshirish
-        print(f"DeepSeek API kalit: {self.api_key[:10]}..." if self.api_key else "API kalit topilmadi")
-        
         # API client yaratish
         if self.api_key and self.api_key.startswith('sk-'):
             try:
@@ -29,13 +31,10 @@ class DeepSeekAIService:
                     base_url="https://api.deepseek.com"
                 )
                 self.use_api = True
-                print("DeepSeek client muvaffaqiyatli yaratildi")
             except Exception as e:
-                print(f"DeepSeek client yaratishda xatolik: {str(e)}")
                 self.client = None
                 self.use_api = False
         else:
-            print("DeepSeek API kalit noto'g'ri yoki yo'q")
             self.client = None
             self.use_api = False
     
@@ -69,15 +68,13 @@ QOIDALAR:
 
 Javoblaringiz qisqa, aniq va foydali bo'lsin."""
 
-    def generate_response(self, user_message: str, chat_history: List[Dict], context_data: Dict = None) -> Dict:
+    def generate_response(self, user_message: str, chat_history: List[Dict], context_data: Dict = None, attachment_url: str = None) -> Dict:
         """AI javob generatsiya qilish"""
         start_time = time.time()
         
         # Avval DeepSeek API'ni sinab ko'rish
         if self.use_api and self.client:
             try:
-                print(f"DeepSeek API'ga so'rov yuborilmoqda: {user_message[:50]}...")
-                
                 # Chat tarixini tayyorlash
                 messages = [{"role": "system", "content": self.get_system_prompt()}]
                 
@@ -94,10 +91,19 @@ Javoblaringiz qisqa, aniq va foydali bo'lsin."""
                         "content": msg["content"]
                     })
                 
-                # Foydalanuvchi xabarini qo'shish
-                messages.append({"role": "user", "content": user_message})
-                
-                print(f"Yuborilayotgan xabarlar soni: {len(messages)}")
+                # Foydalanuvchi xabarini qo'shish (rasm bilan yoki rasmsiz)
+                if attachment_url and attachment_url.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+                    # Rasm bilan xabar (DeepSeek Vision)
+                    messages.append({
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": user_message or "Bu rasmni tahlil qiling"},
+                            {"type": "image_url", "image_url": {"url": attachment_url}}
+                        ]
+                    })
+                else:
+                    # Oddiy matn xabari
+                    messages.append({"role": "user", "content": user_message})
                 
                 # API ga so'rov yuborish
                 response = self.client.chat.completions.create(
@@ -112,21 +118,17 @@ Javoblaringiz qisqa, aniq va foydali bo'lsin."""
                 
                 # DeepSeek javobini qaytarish
                 ai_content = response.choices[0].message.content
-                print(f"DeepSeek javob olindi: {ai_content[:100]}...")
                 
                 if ai_content and len(ai_content.strip()) > 0:
                     return {
                         'success': True,
                         'content': ai_content,
                         'tokens_used': response.usage.total_tokens if response.usage else 0,
-                        'response_time': response_time
+                        'response_time': response_time,
+                        'source': 'deepseek'
                     }
                 
             except Exception as e:
-                # API xatolik bo'lsa, xatolik haqida ma'lumot berish
-                error_msg = f"DeepSeek API xatoligi: {str(e)}"
-                print(error_msg)
-                
                 # Fallback javobga o'tish
                 pass
         
@@ -246,7 +248,8 @@ Qaysi birini tanlaysiz? Yoki boshqa savol bering!"""
             'success': True,
             'content': response,
             'tokens_used': 0,
-            'response_time': time.time() - start_time
+            'response_time': time.time() - start_time,
+            'source': 'fallback'  # Fallback javob ekanini bildirish
         }
     
     def _build_context_message(self, context_data: Dict) -> str:
@@ -395,15 +398,35 @@ Qanday yordam kerak?"""
         
         return session
     
-    def send_message(self, session: ChatSession, user_message: str) -> ChatMessage:
-        """Xabar yuborish va AI javobini olish"""
+    def send_message(self, session: ChatSession, user_message: str, attachment=None) -> tuple:
+        """Xabar yuborish va AI javobini olish. Returns (ChatMessage, source)"""
         try:
             # Foydalanuvchi xabarini saqlash
             user_msg = ChatMessage.objects.create(
                 session=session,
                 message_type=MessageType.USER,
-                content=user_message
+                content=user_message,
+                attachment=attachment
             )
+            
+            # Attachment URL olish (rasm uchun)
+            attachment_url = None
+            if attachment and user_msg.attachment:
+                try:
+                    # To'liq URL yaratish
+                    from django.conf import settings
+                    attachment_url = user_msg.attachment.url
+                    # Agar local bo'lsa, to'liq URL kerak emas, DeepSeek base64 qabul qiladi
+                    if attachment_url.startswith('/'):
+                        # Local file - base64 ga o'girish
+                        import base64
+                        with open(user_msg.attachment.path, 'rb') as f:
+                            file_data = base64.b64encode(f.read()).decode('utf-8')
+                            file_ext = user_msg.attachment.name.split('.')[-1].lower()
+                            mime_type = 'image/jpeg' if file_ext in ['jpg', 'jpeg'] else f'image/{file_ext}'
+                            attachment_url = f"data:{mime_type};base64,{file_data}"
+                except Exception:
+                    attachment_url = None
             
             # Chat tarixini olish
             chat_history = []
@@ -424,18 +447,22 @@ Qanday yordam kerak?"""
                 context_data = {}
             
             # AI javobini olish
+            source = 'fallback'
             try:
                 ai_response = self.ai_service.generate_response(
                     user_message=user_message,
                     chat_history=chat_history[:-1] if chat_history else [],
-                    context_data=context_data
+                    context_data=context_data,
+                    attachment_url=attachment_url
                 )
+                source = ai_response.get('source', 'fallback')
             except Exception:
                 ai_response = {
                     'success': True,
                     'content': 'Salom! Men AI Hamrohman. Sizga qanday yordam bera olaman?',
                     'tokens_used': 0,
-                    'response_time': 0.0
+                    'response_time': 0.0,
+                    'source': 'fallback'
                 }
             
             # AI javobini saqlash
@@ -450,7 +477,7 @@ Qanday yordam kerak?"""
             # Sessiya vaqtini yangilash
             session.save()
             
-            return ai_msg
+            return ai_msg, source
             
         except Exception as e:
             # Agar hamma narsa xato bo'lsa, standart javob
@@ -461,7 +488,7 @@ Qanday yordam kerak?"""
                 tokens_used=0,
                 response_time=0.0
             )
-            return ai_msg
+            return ai_msg, 'error'
     
     def get_user_sessions(self, user) -> List[ChatSession]:
         """Foydalanuvchi sessiyalarini olish"""

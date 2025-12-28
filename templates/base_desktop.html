@@ -87,6 +87,7 @@
     </header>
 
     <!-- Messages -->
+    {% block messages %}
     {% if messages %}
     <div class="messages-container">
         <div class="container">
@@ -99,6 +100,7 @@
         </div>
     </div>
     {% endif %}
+    {% endblock %}
 
     <!-- Main Content -->
     <main class="main-content">
@@ -160,34 +162,11 @@
     {% endblock %}
 
     {% if user.is_authenticated %}
-    <!-- Floating AI Chat Button -->
-    <button class="ai-float-btn" id="aiFloatBtn">
+    <!-- Floating AI Chat Button - AI Hamroh sahifasiga yo'naltiradi -->
+    <a href="{% url 'ai_assistant:chat_redirect' %}" class="ai-float-btn" id="aiFloatBtn" title="AI Yordamchi">
         <i class="fas fa-robot"></i>
         <span class="ai-badge">AI</span>
-    </button>
-
-    <!-- AI Chat Window -->
-    <div class="ai-chat-window" id="aiChatWindow">
-        <div class="ai-chat-header">
-            <div class="ai-status">
-                <span class="ai-status-dot"></span>
-                <span>AI Yordamchi</span>
-            </div>
-            <button class="ai-minimize-btn" id="aiMinimizeBtn">−</button>
-        </div>
-        <div class="ai-chat-messages" id="aiFloatMessages">
-            <div class="ai-message ai-bot">
-                <div class="ai-avatar">🤖</div>
-                <div class="ai-message-content">
-                    <p>Salom! Savolingiz bo'lsa, so'rang! 😊</p>
-                </div>
-            </div>
-        </div>
-        <div class="ai-chat-input">
-            <input type="text" id="aiFloatInput" placeholder="Savolingizni yozing..." />
-            <button id="aiFloatSendBtn"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
+    </a>
     {% endif %}
 
     {% if not user.is_authenticated %}

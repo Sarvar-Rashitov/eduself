@@ -8,11 +8,13 @@ urlpatterns = [
     path('', views.ai_chat_redirect, name='chat_redirect'),
     path('chat/', views.ai_chat_view, name='chat'),
     path('chat/<int:session_id>/', views.ai_chat_view, name='chat_session'),
+    path('new-session/', views.create_new_session, name='new_session'),
     
     # API endpoints
     path('api/send-message/', views.send_message, name='send_message'),
     path('api/session/<int:session_id>/messages/', views.get_session_messages, name='session_messages'),
     path('api/session/<int:session_id>/delete/', views.delete_session, name='delete_session'),
+    path('api/session/<int:session_id>/clear/', views.clear_session_messages, name='clear_session'),
     
     # Yordam sahifalari
     path('help/', views.ai_help_center, name='help_center'),

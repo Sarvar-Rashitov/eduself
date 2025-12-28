@@ -34,6 +34,7 @@ class ChatMessage(models.Model):
     session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name='messages')
     message_type = models.CharField(max_length=10, choices=MessageType.choices, default=MessageType.USER)
     content = models.TextField(verbose_name="Xabar matni")
+    attachment = models.FileField(upload_to='chat_attachments/', blank=True, null=True, verbose_name="Fayl")
     created_at = models.DateTimeField(auto_now_add=True)
     
     # AI javob uchun qo'shimcha ma'lumotlar
@@ -47,6 +48,20 @@ class ChatMessage(models.Model):
     
     def __str__(self):
         return f"{self.get_message_type_display()}: {self.content[:50]}"
+    
+    @property
+    def is_image(self):
+        """Fayl rasm ekanligini tekshirish"""
+        if self.attachment:
+            return self.attachment.name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))
+        return False
+    
+    @property
+    def file_name(self):
+        """Fayl nomini olish"""
+        if self.attachment:
+            return self.attachment.name.split('/')[-1]
+        return None
 
 
 class AIPromptTemplate(models.Model):

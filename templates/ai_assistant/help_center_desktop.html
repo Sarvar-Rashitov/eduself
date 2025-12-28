@@ -1,0 +1,468 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}AI Yordam Markazi - EduSelf{% endblock %}
+
+{% block content %}
+<section class="help-center-section">
+    <div class="help-container">
+        <!-- Hero Section -->
+        <div class="help-hero">
+            <div class="hero-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h1>AI Yordam Markazi</h1>
+            <p>AI Hamroh bilan tanishing va barcha imkoniyatlardan foydalaning. Sizning shaxsiy ta'lim yordamchingiz har doim yordamga tayyor!</p>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="stat-number">{{ stats.subjects }}</div>
+                <div class="stat-label">Fanlar</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="stat-number">{{ stats.institutions }}</div>
+                <div class="stat-label">Ta'lim muassasalari</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div class="stat-number">{{ stats.certificates }}</div>
+                <div class="stat-label">Sertifikatlar</div>
+            </div>
+        </div>
+        
+        <!-- Quick Start -->
+        <div class="quick-start-card">
+            <h3><i class="fas fa-bolt"></i> Tezkor Savol</h3>
+            <p>AI Hamrohdan biror narsa so'rashni xohlaysizmi? Savolingizni yozing va darhol javob oling!</p>
+            
+            <form class="quick-start-form" method="post" action="{% url 'ai_assistant:quick_question' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Savolingiz:</label>
+                    <textarea class="form-control" name="question" rows="3" placeholder="Masalan: Matematika fanini qanday o'rganish kerak?" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kategoriya:</label>
+                    <select class="form-control" name="category">
+                        <option value="general">Umumiy</option>
+                        <option value="subject_help">Fan bo'yicha yordam</option>
+                        <option value="institution_advice">Muassasa tanlash</option>
+                        <option value="certificate_guide">Sertifikat yo'riqnomasi</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-gradient">
+                    <i class="fas fa-paper-plane"></i> Savol yuborish
+                </button>
+            </form>
+        </div>
+
+        <!-- Features -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h4>Fanlar bo'yicha yordam</h4>
+                <p>Matematika, fizika, kimyo va boshqa fanlar bo'yicha savollaringizga batafsil javoblar olish</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h4>Muassasa tanlash</h4>
+                <p>Sizning ehtiyojlaringizga mos ta'lim muassasalarini topish va taqqoslash</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h4>Sertifikat yo'riqnomasi</h4>
+                <p>Turli sertifikatlar haqida ma'lumot va ularni qanday olish bo'yicha maslahatlar</p>
+            </div>
+        </div>
+        
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2><i class="fas fa-question-circle"></i> Tez-tez so'raladigan savollar</h2>
+            
+            {% for category in faq_data %}
+            <div class="faq-category">
+                <div class="faq-category-header">
+                    <i class="fas fa-folder-open"></i> {{ category.category }}
+                </div>
+                <div class="faq-questions">
+                    {% for question in category.questions %}
+                    <div class="faq-question" onclick="askFAQQuestion('{{ question }}')">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>{{ question }}</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="cta-section">
+            <h3>AI Hamroh bilan suhbatni boshlang!</h3>
+            <a href="{% url 'ai_assistant:chat_redirect' %}" class="btn-gradient btn-large">
+                <i class="fas fa-robot"></i> Suhbatni boshlash
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.help-center-section {
+    padding: 2rem 0;
+    min-height: calc(100vh - 70px);
+    background: var(--light-color);
+}
+
+.help-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Hero */
+.help-hero {
+    background: var(--gradient);
+    color: var(--white);
+    padding: 3rem;
+    text-align: center;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+}
+
+.hero-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2.5rem;
+}
+
+.help-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.help-hero p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+/* Quick Start */
+.quick-start-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.quick-start-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quick-start-card > p {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.quick-start-form {
+    max-width: 600px;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--light-color);
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.btn-gradient {
+    background: var(--gradient);
+    color: var(--white);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+}
+
+.btn-large {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+}
+
+/* Features */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.feature-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card .feature-icon {
+    width: 70px;
+    height: 70px;
+    background: var(--gradient);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    margin: 0 auto 1.5rem;
+}
+
+.feature-card h4 {
+    font-size: 1.2rem;
+    color: var(--dark-color);
+    margin-bottom: 0.75rem;
+}
+
+.feature-card p {
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* FAQ */
+.faq-section {
+    margin-bottom: 2rem;
+}
+
+.faq-section > h2 {
+    color: var(--dark-color);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.faq-category {
+    background: var(--white);
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.faq-category-header {
+    background: var(--gradient);
+    color: var(--white);
+    padding: 1.25rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.faq-questions {
+    padding: 1rem;
+}
+
+.faq-question {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+    background: var(--light-color);
+}
+
+.faq-question:last-child {
+    margin-bottom: 0;
+}
+
+.faq-question:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    transform: translateX(5px);
+}
+
+.faq-question span {
+    flex: 1;
+}
+
+.faq-question .fa-arrow-right {
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.faq-question:hover .fa-arrow-right {
+    opacity: 1;
+}
+
+/* CTA */
+.cta-section {
+    text-align: center;
+    padding: 3rem;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.cta-section h3 {
+    color: var(--dark-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+@media (max-width: 968px) {
+    .stats-grid,
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .help-hero h1 {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function askFAQQuestion(question) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "ai_assistant:quick_question" %}';
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = '{{ csrf_token }}';
+    form.appendChild(csrfInput);
+    
+    const questionInput = document.createElement('input');
+    questionInput.type = 'hidden';
+    questionInput.name = 'question';
+    questionInput.value = question;
+    form.appendChild(questionInput);
+    
+    const categoryInput = document.createElement('input');
+    categoryInput.type = 'hidden';
+    categoryInput.name = 'category';
+    categoryInput.value = 'general';
+    form.appendChild(categoryInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}

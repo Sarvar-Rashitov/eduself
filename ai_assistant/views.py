@@ -60,33 +60,68 @@ def ai_chat_view(request):
 def send_message(request):
     """Xabar yuborish"""
     try:
-        data = json.loads(request.body)
-        session_id = data.get('session_id')
-        message_content = data.get('message', '').strip()
+        # FormData yoki JSON qabul qilish
+        content_type = request.content_type
         
-        if not message_content:
+        if 'multipart/form-data' in content_type:
+            # FormData (rasm bilan)
+            session_id = request.POST.get('session_id')
+            message_content = request.POST.get('message', '').strip()
+            attachment = request.FILES.get('attachment')
+        else:
+            # JSON
+            data = json.loads(request.body)
+            session_id = data.get('session_id')
+            message_content = data.get('message', '').strip()
+            attachment = None
+        
+        if not message_content and not attachment:
             return JsonResponse({
                 'success': False,
                 'error': 'Xabar bo\'sh bo\'lishi mumkin emas'
             }, status=400)
         
-        # Sessiyani olish
-        session = get_object_or_404(ChatSession, id=session_id, user=request.user)
-        
         # Chat service yaratish
         chat_service = ChatService()
         
+        # Agar session_id yo'q bo'lsa, yangi sessiya yaratish
+        if not session_id:
+            session = chat_service.create_chat_session(request.user, "AI Hamroh suhbati")
+        else:
+            # Sessiyani olish
+            session = get_object_or_404(ChatSession, id=session_id, user=request.user)
+        
+        # Agar fayl yuborilgan bo'lsa, xabarga qo'shish
+        if attachment:
+            file_name = attachment.name
+            if not message_content:
+                # Fayl turi bo'yicha xabar
+                if file_name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+                    message_content = f"📷 Rasm yuborildi: {file_name}"
+                elif file_name.lower().endswith('.pdf'):
+                    message_content = f"📄 PDF fayl yuborildi: {file_name}"
+                elif file_name.lower().endswith(('.doc', '.docx')):
+                    message_content = f"📝 Word hujjat yuborildi: {file_name}"
+                elif file_name.lower().endswith(('.xls', '.xlsx')):
+                    message_content = f"📊 Excel fayl yuborildi: {file_name}"
+                elif file_name.lower().endswith(('.ppt', '.pptx')):
+                    message_content = f"📽️ PowerPoint yuborildi: {file_name}"
+                else:
+                    message_content = f"📎 Fayl yuborildi: {file_name}"
+        
         # Xabar yuborish va AI javobini olish
-        ai_response = chat_service.send_message(session, message_content)
+        ai_response, source = chat_service.send_message(session, message_content, attachment)
         
         return JsonResponse({
             'success': True,
+            'session_id': session.id,
             'ai_response': {
                 'id': ai_response.id,
                 'content': ai_response.content,
                 'created_at': ai_response.created_at.strftime('%H:%M'),
                 'tokens_used': ai_response.tokens_used,
-                'response_time': round(ai_response.response_time, 2)
+                'response_time': round(ai_response.response_time, 2),
+                'source': source  # 'deepseek' yoki 'fallback'
             }
         })
     
@@ -139,6 +174,27 @@ def delete_session(request, session_id):
         return JsonResponse({
             'success': True,
             'message': 'Suhbat o\'chirildi'
+        })
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def clear_session_messages(request, session_id):
+    """Sessiya xabarlarini tozalash (o'chirish)"""
+    try:
+        session = get_object_or_404(ChatSession, id=session_id, user=request.user)
+        # Barcha xabarlarni o'chirish
+        session.messages.all().delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Suhbat tozalandi'
         })
     
     except Exception as e:
@@ -243,7 +299,10 @@ def ai_help_center(request):
         }
     }
     
-    return render(request, 'ai_assistant/help_center.html', context)
+    if is_mobile(request):
+        return render(request, 'ai_assistant/help_center.html', context)
+    else:
+        return render(request, 'ai_assistant/help_center_desktop.html', context)
 
 
 @login_required
@@ -271,7 +330,7 @@ def quick_question(request):
                 )
             
             # Savolni yuborish
-            chat_service.send_message(session, question)
+            chat_service.send_message(session, question)  # tuple qaytaradi, lekin bu yerda kerak emas
             
             return redirect(reverse('ai_assistant:chat') + f'?session={session.id}')
         
@@ -297,3 +356,11 @@ def ai_chat_redirect(request):
         # Avtomatik yangi sessiya yaratish
         session = chat_service.create_chat_session(request.user, "AI Hamroh suhbati")
         return redirect(reverse('ai_assistant:chat') + f'?session={session.id}')
+
+
+@login_required
+def create_new_session(request):
+    """Yangi chat sessiyasi yaratish"""
+    chat_service = ChatService()
+    session = chat_service.create_chat_session(request.user, "Yangi suhbat")
+    return redirect(reverse('ai_assistant:chat') + f'?session={session.id}')
