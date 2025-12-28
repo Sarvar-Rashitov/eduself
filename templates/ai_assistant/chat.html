@@ -319,3 +319,494 @@
     font-size: 0.8rem;
     color: var(--primary-color, #667eea);
 }
+/* Typing */
+.typing-indicator {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+    padding: 8px 0;
+}
+
+.typing-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary-color, #667eea);
+    animation: typingAnim 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingAnim {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+/* Input Area */
+.ai-input-area {
+    position: fixed;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    padding: 10px 12px;
+    background: linear-gradient(to top, var(--bg-color, #f8f9fa) 80%, transparent);
+    z-index: 100;
+}
+
+.file-preview-mobile {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--card-bg, #fff);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border: 1px solid var(--primary-color, #667eea);
+}
+
+.file-preview-mobile.active {
+    display: flex;
+}
+
+.file-preview-mobile img {
+    max-width: 60px;
+    max-height: 50px;
+    border-radius: 6px;
+}
+
+.file-preview-mobile .file-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+}
+
+.remove-file-mobile {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ef4444;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.input-wrapper-mobile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-bg, #fff);
+    border-radius: 24px;
+    padding: 4px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.attach-btn-mobile {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-muted, #666);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.input-wrapper-mobile input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 8px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.send-btn-mobile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Confirm Modal -->
+<div class="confirm-modal" id="confirmModal">
+    <div class="confirm-modal-content">
+        <div class="confirm-modal-icon">
+            <i class="bi bi-trash"></i>
+        </div>
+        <h3 id="confirmTitle">Suhbatni tozalash</h3>
+        <p id="confirmMessage">Suhbatni tozalashni xohlaysizmi?</p>
+        <div class="confirm-modal-buttons">
+            <button class="confirm-btn cancel" id="confirmCancel">Bekor qilish</button>
+            <button class="confirm-btn confirm" id="confirmOk">Ha, tozalash</button>
+        </div>
+    </div>
+</div>
+
+<div class="ai-chat-page">
+    <!-- Header -->
+    <div class="ai-mobile-header">
+        <div class="ai-header-left">
+            <div class="ai-header-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="ai-header-info">
+                <h2>AI Hamroh</h2>
+                <p><span style="color: #10b981;">●</span> Online</p>
+            </div>
+        </div>
+        <div class="ai-header-actions">
+            <button class="header-action-btn" id="clearChatBtn" title="Tozalash">
+                <i class="bi bi-trash"></i>
+            </button>
+            <a href="{% url 'ai_assistant:new_session' %}" class="header-action-btn" title="Yangi suhbat">
+                <i class="bi bi-plus-lg"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Messages -->
+    <div class="ai-messages-area" id="messagesContainer">
+        {% if messages_list %}
+            {% for msg in messages_list %}
+            <div class="ai-msg {% if msg.is_user %}user{% else %}bot{% endif %}">
+                <div class="msg-avatar">
+                    {% if msg.is_user %}
+                    <i class="bi bi-person-fill"></i>
+                    {% else %}
+                    <i class="bi bi-robot"></i>
+                    {% endif %}
+                </div>
+                <div class="msg-bubble">
+                    <p class="msg-text">{{ msg.content|linebreaks }}</p>
+                    <div class="msg-meta">
+                        <span class="msg-time">{{ msg.created_at|date:"H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="ai-welcome-mobile" id="welcomeSection">
+                <div class="welcome-icon-mobile">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <h3>Salom, {{ user.first_name|default:user.username }}! 👋</h3>
+                <p>Men sizning shaxsiy AI yordamchingizman</p>
+                <div class="quick-actions-mobile">
+                    <button class="quick-action-mobile" data-question="Matematika bo'yicha qanday testlar bor?">
+                        <i class="bi bi-calculator"></i>
+                        <span>Matematika testlari</span>
+                    </button>
+                    <button class="quick-action-mobile" data-question="Qanday qilib sertifikat olish mumkin?">
+                        <i class="bi bi-award"></i>
+                        <span>Sertifikat olish</span>
+                    </button>
+                    <button class="quick-action-mobile" data-question="Eng yaxshi universitetlar haqida ma'lumot bering">
+                        <i class="bi bi-building"></i>
+                        <span>Top universitetlar</span>
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Input Area -->
+    <div class="ai-input-area">
+        <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display:none;">
+        <div class="file-preview-mobile" id="filePreview">
+            <img id="previewImg" src="" alt="">
+            <div class="file-info" id="fileInfo">
+                <i class="bi bi-file-earmark" id="fileIcon"></i>
+                <span id="fileName"></span>
+            </div>
+            <button class="remove-file-mobile" id="removeFile">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        <form id="chatForm" class="input-wrapper-mobile">
+            <button type="button" class="attach-btn-mobile" id="attachBtn">
+                <i class="bi bi-paperclip"></i>
+            </button>
+            <input type="text" id="messageInput" placeholder="Xabar yozing...">
+            <button type="submit" class="send-btn-mobile">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const messagesContainer = document.getElementById('messagesContainer');
+const chatForm = document.getElementById('chatForm');
+const messageInput = document.getElementById('messageInput');
+const fileInput = document.getElementById('fileInput');
+const attachBtn = document.getElementById('attachBtn');
+const filePreview = document.getElementById('filePreview');
+const previewImg = document.getElementById('previewImg');
+const fileInfo = document.getElementById('fileInfo');
+const fileIcon = document.getElementById('fileIcon');
+const fileName = document.getElementById('fileName');
+const removeFileBtn = document.getElementById('removeFile');
+const confirmModal = document.getElementById('confirmModal');
+const confirmOkBtn = document.getElementById('confirmOk');
+const confirmCancelBtn = document.getElementById('confirmCancel');
+
+let currentSessionId = {% if current_session %}{{ current_session.id }}{% else %}null{% endif %};
+let selectedFile = null;
+let confirmCallback = null;
+
+// File icons
+const fileIcons = {
+    'pdf': 'bi-file-earmark-pdf',
+    'doc': 'bi-file-earmark-word',
+    'docx': 'bi-file-earmark-word',
+    'txt': 'bi-file-earmark-text',
+    'default': 'bi-file-earmark'
+};
+
+function getFileIcon(name) {
+    const ext = name.split('.').pop().toLowerCase();
+    return fileIcons[ext] || fileIcons['default'];
+}
+
+function isImageFile(file) {
+    return file.type.startsWith('image/');
+}
+
+// Confirm modal
+function showConfirm(title, message, callback) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    confirmCallback = callback;
+    confirmModal.classList.add('active');
+}
+
+function hideConfirm() {
+    confirmModal.classList.remove('active');
+    confirmCallback = null;
+}
+
+confirmOkBtn.addEventListener('click', function() {
+    if (confirmCallback) confirmCallback();
+    hideConfirm();
+});
+
+confirmCancelBtn.addEventListener('click', hideConfirm);
+confirmModal.addEventListener('click', function(e) {
+    if (e.target === confirmModal) hideConfirm();
+});
+
+// File attachment
+attachBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    if (file.size > 10 * 1024 * 1024) {
+        alert('Fayl hajmi 10MB dan oshmasligi kerak');
+        return;
+    }
+    
+    selectedFile = file;
+    filePreview.classList.add('active');
+    
+    if (isImageFile(file)) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImg.src = e.target.result;
+            previewImg.style.display = 'block';
+            fileInfo.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        previewImg.style.display = 'none';
+        fileInfo.style.display = 'flex';
+        fileIcon.className = 'bi ' + getFileIcon(file.name);
+        fileName.textContent = file.name;
+    }
+});
+
+removeFileBtn.addEventListener('click', function() {
+    selectedFile = null;
+    fileInput.value = '';
+    filePreview.classList.remove('active');
+});
+
+// Quick actions
+document.querySelectorAll('.quick-action-mobile').forEach(btn => {
+    btn.addEventListener('click', function() {
+        messageInput.value = this.dataset.question;
+        chatForm.dispatchEvent(new Event('submit'));
+    });
+});
+
+// Form submit
+chatForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const message = messageInput.value.trim();
+    if (!message && !selectedFile) return;
+    
+    // Add user message
+    let attachmentInfo = null;
+    if (selectedFile) {
+        attachmentInfo = {
+            isImage: isImageFile(selectedFile),
+            url: isImageFile(selectedFile) ? previewImg.src : null,
+            name: selectedFile.name,
+            icon: getFileIcon(selectedFile.name)
+        };
+    }
+    
+    addMessage(message || '📎 ' + (selectedFile ? selectedFile.name : ''), true, '', attachmentInfo);
+    messageInput.value = '';
+    
+    // Hide welcome
+    const welcome = document.getElementById('welcomeSection');
+    if (welcome) welcome.style.display = 'none';
+    
+    showTyping();
+    
+    try {
+        const formData = new FormData();
+        formData.append('message', message);
+        formData.append('session_id', currentSessionId || '');
+        if (selectedFile) formData.append('attachment', selectedFile);
+        
+        const response = await fetch('{% url "ai_assistant:send_message" %}', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            body: formData
+        });
+        
+        // Clear file
+        selectedFile = null;
+        fileInput.value = '';
+        filePreview.classList.remove('active');
+        
+        const data = await response.json();
+        hideTyping();
+        
+        if (data.success && data.ai_response) {
+            if (data.session_id) currentSessionId = data.session_id;
+            const source = data.ai_response.source;
+            const sourceLabel = source === 'deepseek' ? '🤖 DeepSeek' : '📴 Offline';
+            addMessage(data.ai_response.content, false, sourceLabel);
+        } else {
+            addMessage('Xatolik yuz berdi. Qayta urinib ko\'ring.', false, '❌');
+        }
+    } catch (error) {
+        hideTyping();
+        addMessage('Xatolik yuz berdi. Qayta urinib ko\'ring.', false, '❌');
+    }
+});
+
+function addMessage(text, isUser, sourceLabel = '', attachmentInfo = null) {
+    const div = document.createElement('div');
+    div.className = `ai-msg ${isUser ? 'user' : 'bot'}`;
+    
+    const time = new Date().toTimeString().slice(0, 5);
+    
+    let attachmentHtml = '';
+    if (attachmentInfo) {
+        if (attachmentInfo.isImage && attachmentInfo.url) {
+            attachmentHtml = `<img src="${attachmentInfo.url}" class="msg-image">`;
+        } else if (attachmentInfo.name) {
+            attachmentHtml = `<div class="msg-file"><i class="bi ${attachmentInfo.icon}"></i>${attachmentInfo.name}</div>`;
+        }
+    }
+    
+    const sourceBadge = !isUser && sourceLabel ? `<span class="msg-source">${sourceLabel}</span>` : '';
+    
+    div.innerHTML = `
+        <div class="msg-avatar">
+            <i class="bi ${isUser ? 'bi-person-fill' : 'bi-robot'}"></i>
+        </div>
+        <div class="msg-bubble">
+            ${attachmentHtml}
+            <p class="msg-text">${text.replace(/\n/g, '<br>')}</p>
+            <div class="msg-meta">
+                <span class="msg-time">${time}</span>
+                ${sourceBadge}
+            </div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(div);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showTyping() {
+    const div = document.createElement('div');
+    div.className = 'typing-indicator';
+    div.id = 'typingIndicator';
+    div.innerHTML = `
+        <div class="msg-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="bi bi-robot" style="color: white;"></i>
+        </div>
+        <div class="msg-bubble" style="background: var(--card-bg, #fff); border: 1px solid var(--border-color, #e5e7eb);">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+    `;
+    messagesContainer.appendChild(div);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTyping() {
+    const typing = document.getElementById('typingIndicator');
+    if (typing) typing.remove();
+}
+
+// Clear chat
+document.getElementById('clearChatBtn').addEventListener('click', function() {
+    if (!currentSessionId) return;
+    
+    showConfirm('Suhbatni tozalash', 'Suhbatni tozalashni xohlaysizmi?', async function() {
+        try {
+            const response = await fetch(`/ai-hamroh/api/session/${currentSessionId}/clear/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            });
+            
+            if ((await response.json()).success) {
+                messagesContainer.innerHTML = `
+                    <div class="ai-welcome-mobile" id="welcomeSection">
+                        <div class="welcome-icon-mobile"><i class="bi bi-robot"></i></div>
+                        <h3>Salom! 👋</h3>
+                        <p>Men sizning shaxsiy AI yordamchingizman</p>
+                    </div>
+                `;
+            }
+        } catch (e) {}
+    });
+});
+
+// Scroll to bottom on load
+messagesContainer.scrollTop = messagesContainer.scrollHeight;
+</script>
+{% endblock %}
