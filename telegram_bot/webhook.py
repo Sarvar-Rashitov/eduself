@@ -2,22 +2,24 @@
 import os
 import json
 import logging
+import asyncio
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from telegram import Update
+from telegram import Update, Bot
 from telegram.ext import Application
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 
 logger = logging.getLogger(__name__)
 
 # Global application instance
 _application = None
+_initialized = False
 
 
-def get_application():
+async def get_application():
     """Bot application olish yoki yaratish"""
-    global _application
+    global _application, _initialized
     
     if _application is None:
         from dotenv import load_dotenv
@@ -34,6 +36,11 @@ def get_application():
         register_all_handlers(_application)
         
         logger.info("Bot application yaratildi")
+    
+    if not _initialized:
+        await _application.initialize()
+        _initialized = True
+        logger.info("Bot application initialized")
     
     return _application
 
@@ -105,25 +112,27 @@ def register_all_handlers(app):
 def webhook_handler(request):
     """Telegram webhook endpoint"""
     try:
-        app = get_application()
-        
         # Update ni parse qilish
         data = json.loads(request.body.decode('utf-8'))
-        update = Update.de_json(data, app.bot)
         
-        # Update ni process qilish
-        async_to_sync(app.process_update)(update)
+        # Async process
+        async def process():
+            app = await get_application()
+            update = Update.de_json(data, app.bot)
+            await app.process_update(update)
+        
+        asyncio.run(process())
         
         return HttpResponse('OK')
     except Exception as e:
         logger.error(f"Webhook xatoligi: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)
 
 
 def set_webhook_view(request):
     """Webhook ni o'rnatish (bir marta chaqiriladi)"""
-    import asyncio
-    
     SITE_URL = os.getenv('SITE_URL', '').rstrip('/')
     BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
     
@@ -133,7 +142,7 @@ def set_webhook_view(request):
     webhook_url = f"{SITE_URL}/telegram/webhook/"
     
     async def set_webhook():
-        app = get_application()
+        app = await get_application()
         await app.bot.set_webhook(url=webhook_url)
         return await app.bot.get_webhook_info()
     
@@ -150,10 +159,8 @@ def set_webhook_view(request):
 
 def delete_webhook_view(request):
     """Webhook ni o'chirish"""
-    import asyncio
-    
     async def delete_webhook():
-        app = get_application()
+        app = await get_application()
         await app.bot.delete_webhook()
         return True
     
