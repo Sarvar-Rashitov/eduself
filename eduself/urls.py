@@ -8,6 +8,7 @@ urlpatterns = [
     path('', include('core.urls')),
     path('accounts/', include('accounts.urls')),
     path('ai-hamroh/', include('ai_assistant.urls')),
+    path('telegram/', include('telegram_bot.urls')),
 ]
 
 if settings.DEBUG:
