@@ -548,13 +548,32 @@ body {
     transform: translateX(-50%);
     width: 100%;
     max-width: 480px;
-    background: white;
+    background: var(--card-bg);
     display: flex;
     justify-content: space-around;
     padding: 8px 0 12px;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
     border-radius: 24px 24px 0 0;
     z-index: 100;
+    transition: background-color 0.3s ease;
+}
+
+/* Dark mode for bottom nav */
+[data-theme="dark"] .bottom-nav {
+    background: var(--card-bg) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .bottom-nav .nav-btn {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .bottom-nav .nav-btn.active {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="dark"] .bottom-nav .nav-btn:hover {
+    color: var(--primary-color) !important;
 }
 
 
@@ -820,11 +839,12 @@ body {
 }
 
 .question-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: var(--radius-lg);
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s ease;
 }
 
 .question-number {
@@ -942,9 +962,20 @@ body {
 .result-card {
     text-align: center;
     padding: 40px 20px;
-    background: white;
+    background: var(--card-bg);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
+    transition: background-color 0.3s ease;
+}
+
+/* Dark mode for result card */
+[data-theme="dark"] .result-card {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .result-score {
+    color: var(--text-primary) !important;
 }
 
 .result-icon {
@@ -1677,7 +1708,7 @@ body {
     display: flex;
     align-items: center;
     padding: 16px;
-    background: white;
+    background: var(--card-bg);
     border-radius: var(--radius-md);
     text-decoration: none;
     color: inherit;
@@ -1973,13 +2004,24 @@ body {
     transform: translateX(-50%) translateY(100px);
     width: calc(100% - 40px);
     max-width: 400px;
-    background: white;
+    background: var(--card-bg);
     border-radius: var(--radius-xl);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     opacity: 0;
     transition: all 0.3s ease;
     border: 1px solid var(--border-color);
+}
+
+/* Dark mode for install prompt */
+[data-theme="dark"] .install-prompt {
+    background: var(--card-bg) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .install-prompt-title,
+[data-theme="dark"] .install-prompt-subtitle {
+    color: var(--text-primary) !important;
 }
 
 .install-prompt.show {
