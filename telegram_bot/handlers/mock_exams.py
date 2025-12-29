@@ -223,15 +223,18 @@ async def start_mock_exam(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.message.delete()
 
     await query.message.reply_text(
-        "📝 Mock imtihon boshlandi!\n\nJavobni tanlash uchun A, B, C, D harflarini yuboring.",
-        reply_markup=mock_test_keyboard()
+        f"📝 *{exam.title}* imtihoni boshlandi!\n\n"
+        f"❓ Savollar soni: {len(questions)}\n"
+        f"⏱ Vaqt: {exam.time_limit} daqiqa\n\n"
+        f"Javobni tanlash uchun A, B, C, D tugmalarini bosing.",
+        parse_mode='Markdown'
     )
 
     await show_mock_question(update, context, questions[0], 1, len(questions))
 
 
 async def show_mock_question(update: Update, context: ContextTypes.DEFAULT_TYPE, question, num, total):
-    """Mock savolini ko'rsatish"""
+    """Mock savolini ko'rsatish - inline tugmalar bilan"""
     session = context.user_data.get('test_session')
     if not session:
         return
@@ -255,16 +258,37 @@ async def show_mock_question(update: Update, context: ContextTypes.DEFAULT_TYPE,
     context.user_data['current_answers'] = {chr(65 + i): ans.id for i, ans in enumerate(answers)}
     context.user_data['current_question'] = question
 
+    # Inline tugmalar yaratish - platformadagidek
+    keyboard = []
+    row = []
+    for i, answer in enumerate(answers):
+        letter = chr(65 + i)
+        row.append(InlineKeyboardButton(letter, callback_data=f"mock_ans_{question.id}_{answer.id}"))
+        if len(row) == 2:
+            keyboard.append(row)
+            row = []
+    if row:
+        keyboard.append(row)
+    
+    keyboard.append([
+        InlineKeyboardButton("⏩ O'tkazib yuborish", callback_data=f"mock_skip_{question.id}"),
+        InlineKeyboardButton("🏁 Yakunlash", callback_data="mock_finish")
+    ])
+
     if update.callback_query:
         message = update.callback_query.message
     else:
         message = update.message
 
-    await message.reply_text(text, parse_mode='Markdown')
+    await message.reply_text(
+        text, 
+        parse_mode='Markdown',
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
 
 
 async def handle_mock_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Mock javobini qabul qilish"""
+    """Mock javobini qabul qilish - matn orqali (eski usul)"""
     session = context.user_data.get('test_session')
     if not session or session.get('test_type') != 'mock':
         return
@@ -309,6 +333,263 @@ async def handle_mock_answer(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     except Exception as e:
         await update.message.reply_text(f"❌ Xatolik: {str(e)}")
+
+
+async def handle_mock_inline_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Inline tugma orqali mock javobni qabul qilish"""
+    query = update.callback_query
+    await query.answer()
+    
+    session = context.user_data.get('test_session')
+    if not session or session.get('test_type') != 'mock':
+        await query.answer("❌ Faol imtihon topilmadi!", show_alert=True)
+        return
+    
+    data = query.data
+    parts = data.split('_')
+    if len(parts) != 4:  # mock_ans_questionId_answerId
+        return
+    
+    question_id = int(parts[2])
+    answer_id = int(parts[3])
+    
+    current_question = context.user_data.get('current_question')
+    current_answers = context.user_data.get('current_answers', {})
+    
+    if not current_question or current_question.id != question_id:
+        await query.answer("❌ Bu savol endi aktiv emas!", show_alert=True)
+        return
+    
+    try:
+        answer = await get_mock_answer(answer_id, current_question)
+        correct_answer = await get_mock_correct_answer(current_question)
+        
+        # Tanlangan javob harfini topish
+        selected_letter = None
+        for letter, ans_id in current_answers.items():
+            if ans_id == answer_id:
+                selected_letter = letter
+                break
+        
+        # Javobni saqlash
+        session['answers'][str(current_question.id)] = {
+            'answer_id': answer_id,
+            'is_correct': answer.is_correct
+        }
+        
+        # Natijani ko'rsatish
+        answers = list(current_question.mock_answers.all())
+        
+        elapsed = time.time() - session['start_time']
+        remaining = max(0, session['time_limit'] - elapsed)
+        timer_str = format_timer(int(remaining))
+        
+        num = session['current_index'] + 1
+        total = len(session['questions'])
+        
+        text = f"⏱ *Vaqt: {timer_str}*\n\n"
+        text += f"❓ *Savol {num}/{total}*\n\n"
+        text += f"{current_question.text}\n\n"
+        
+        for i, ans in enumerate(answers):
+            letter = chr(65 + i)
+            if ans.is_correct:
+                text += f"✅ *{letter})* {ans.text}\n"
+            elif ans.id == answer_id and not ans.is_correct:
+                text += f"❌ *{letter})* {ans.text}\n"
+            else:
+                text += f"*{letter})* {ans.text}\n"
+        
+        text += f"\n💎 Ball: {current_question.points}"
+        
+        if answer.is_correct:
+            session['correct_count'] += 1
+            session['earned_points'] += int(current_question.points)
+            text += "\n\n✅ *To'g'ri javob!*"
+        else:
+            correct_letter = None
+            for letter, ans_id in current_answers.items():
+                if correct_answer and ans_id == correct_answer.id:
+                    correct_letter = letter
+                    break
+            text += f"\n\n❌ *Noto'g'ri!* To'g'ri javob: *{correct_letter}*"
+        
+        keyboard = [[InlineKeyboardButton("➡️ Keyingi savol", callback_data="mock_next")]]
+        
+        await query.edit_message_text(
+            text,
+            parse_mode='Markdown',
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+        
+    except Exception as e:
+        await query.answer(f"❌ Xatolik: {str(e)}", show_alert=True)
+
+
+async def handle_mock_skip(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Inline tugma orqali mock savolni o'tkazib yuborish"""
+    query = update.callback_query
+    await query.answer()
+    
+    session = context.user_data.get('test_session')
+    if not session or session.get('test_type') != 'mock':
+        await query.answer("❌ Faol imtihon topilmadi!", show_alert=True)
+        return
+    
+    current_question = context.user_data.get('current_question')
+    if current_question:
+        session['answers'][str(current_question.id)] = {
+            'answer_id': None,
+            'is_correct': False,
+            'skipped': True
+        }
+    
+    await query.answer("⏩ Savol o'tkazib yuborildi")
+    
+    session['current_index'] += 1
+    
+    if session['current_index'] < len(session['questions']):
+        next_q_id = session['questions'][session['current_index']]
+        question = await get_mock_question(next_q_id)
+        
+        await query.message.delete()
+        await show_mock_question_from_callback(query, context, question, session['current_index'] + 1, len(session['questions']))
+    else:
+        await finish_mock_from_callback(query, context)
+
+
+async def handle_mock_next(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Keyingi mock savol tugmasi"""
+    query = update.callback_query
+    await query.answer()
+    
+    session = context.user_data.get('test_session')
+    if not session or session.get('test_type') != 'mock':
+        await query.answer("❌ Faol imtihon topilmadi!", show_alert=True)
+        return
+    
+    session['current_index'] += 1
+    
+    if session['current_index'] < len(session['questions']):
+        next_q_id = session['questions'][session['current_index']]
+        question = await get_mock_question(next_q_id)
+        
+        await query.message.delete()
+        await show_mock_question_from_callback(query, context, question, session['current_index'] + 1, len(session['questions']))
+    else:
+        await finish_mock_from_callback(query, context)
+
+
+async def show_mock_question_from_callback(query, context: ContextTypes.DEFAULT_TYPE, question, num, total):
+    """Callback dan mock savol ko'rsatish"""
+    session = context.user_data.get('test_session')
+    if not session:
+        return
+
+    answers = list(question.mock_answers.all())
+
+    elapsed = time.time() - session['start_time']
+    remaining = max(0, session['time_limit'] - elapsed)
+    timer_str = format_timer(int(remaining))
+
+    text = f"⏱ *Vaqt: {timer_str}*\n\n"
+    text += f"❓ *Savol {num}/{total}*\n\n"
+    text += f"{question.text}\n\n"
+
+    for i, answer in enumerate(answers):
+        letter = chr(65 + i)
+        text += f"*{letter})* {answer.text}\n"
+
+    text += f"\n💎 Ball: {question.points}"
+
+    context.user_data['current_answers'] = {chr(65 + i): ans.id for i, ans in enumerate(answers)}
+    context.user_data['current_question'] = question
+
+    keyboard = []
+    row = []
+    for i, answer in enumerate(answers):
+        letter = chr(65 + i)
+        row.append(InlineKeyboardButton(letter, callback_data=f"mock_ans_{question.id}_{answer.id}"))
+        if len(row) == 2:
+            keyboard.append(row)
+            row = []
+    if row:
+        keyboard.append(row)
+    
+    keyboard.append([
+        InlineKeyboardButton("⏩ O'tkazib yuborish", callback_data=f"mock_skip_{question.id}"),
+        InlineKeyboardButton("🏁 Yakunlash", callback_data="mock_finish")
+    ])
+
+    await query.message.reply_text(
+        text, 
+        parse_mode='Markdown',
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
+
+async def finish_mock_from_callback(query, context: ContextTypes.DEFAULT_TYPE):
+    """Callback dan mock imtihonni yakunlash"""
+    session = context.user_data.get('test_session')
+    if not session:
+        await query.message.reply_text("❌ Faol imtihon topilmadi.", reply_markup=main_menu_keyboard())
+        return
+
+    user = await get_user_or_none(query.from_user.id)
+    exam = await get_mock_exam(session['test_id'])
+
+    total = len(session['questions'])
+    correct = session['correct_count']
+    score = int((correct / total) * 100) if total > 0 else 0
+    passed = score >= exam.passing_score
+    time_taken = int(time.time() - session['start_time'])
+
+    if user:
+        await save_mock_result(
+            user, exam, score, total, correct, passed,
+            time_taken, session['earned_points'], session['answers']
+        )
+
+    status = "✅ O'TDINGIZ!" if passed else "❌ O'TMADINGIZ"
+
+    text = f"🏁 *Mock imtihon yakunlandi!*\n\n"
+    text += f"📝 {exam.title}\n"
+    text += f"━━━━━━━━━━━━━━━\n"
+    text += f"📊 *Natija: {status}*\n\n"
+    text += f"✅ To'g'ri: {correct}/{total}\n"
+    text += f"📈 Ball: {score}%\n"
+    text += f"🏆 Olingan ball: {session['earned_points']}\n"
+    text += f"⏱ Vaqt: {time_taken // 60}:{time_taken % 60:02d}\n"
+
+    if passed:
+        text += "\n🎉 Ajoyib natija! Keyingi imtihon ochildi!"
+    else:
+        text += f"\n💪 O'tish uchun {exam.passing_score}% kerak."
+
+    context.user_data.pop('test_session', None)
+    context.user_data.pop('current_answers', None)
+    context.user_data.pop('current_question', None)
+
+    keyboard = [
+        [InlineKeyboardButton("🔄 Qayta yechish", callback_data=f"start_mock_{exam.id}")],
+        [InlineKeyboardButton("🏆 Reyting", callback_data=f"mock_leaderboard_{exam.id}")],
+        [InlineKeyboardButton("⬅️ Imtihonlarga qaytish", callback_data="mock_exams")]
+    ]
+
+    try:
+        await query.message.delete()
+    except:
+        pass
+
+    await query.message.reply_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
+    await query.message.reply_text("Menyu:", reply_markup=main_menu_keyboard())
+
+
+async def handle_mock_finish_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Inline tugma orqali mock imtihonni yakunlash"""
+    query = update.callback_query
+    await query.answer()
+    await finish_mock_from_callback(query, context)
 
 
 async def next_mock_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -459,3 +740,9 @@ def register_handlers(app):
     app.add_handler(CallbackQueryHandler(start_mock_exam, pattern=r"^start_mock_\d+$"))
     app.add_handler(CallbackQueryHandler(mock_leaderboard, pattern=r"^mock_leaderboard_\d+$"))
     app.add_handler(MessageHandler(filters.Regex("^📝 Mock Imtihonlar$"), handle_mock_text))
+    
+    # Inline tugmalar uchun handlerlar
+    app.add_handler(CallbackQueryHandler(handle_mock_inline_answer, pattern=r"^mock_ans_\d+_\d+$"))
+    app.add_handler(CallbackQueryHandler(handle_mock_skip, pattern=r"^mock_skip_\d+$"))
+    app.add_handler(CallbackQueryHandler(handle_mock_next, pattern="^mock_next$"))
+    app.add_handler(CallbackQueryHandler(handle_mock_finish_callback, pattern="^mock_finish$"))
