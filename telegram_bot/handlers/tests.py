@@ -1,11 +1,10 @@
-"""Test handlerlari"""
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
-from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
+"""Test handlerlari - Topic asosida"""
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ContextTypes, CallbackQueryHandler
 from asgiref.sync import sync_to_async
-from telegram_bot.keyboards import test_start_keyboard, main_menu_keyboard
+from telegram_bot.keyboards import main_menu_keyboard
 from telegram_bot.utils import get_user_or_none
 import time
-import asyncio
 
 
 @sync_to_async
