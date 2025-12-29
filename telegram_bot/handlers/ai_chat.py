@@ -188,6 +188,11 @@ async def handle_ai_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await ai_menu(update, context)
 
 
+async def end_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Suhbatni tugatish"""
+    return ConversationHandler.END
+
+
 def register_handlers(app):
     """AI handlerlarini ro'yxatdan o'tkazish"""
     ai_conv = ConversationHandler(
@@ -204,7 +209,7 @@ def register_handlers(app):
         },
         fallbacks=[
             CommandHandler("stop", stop_ai_chat),
-            CallbackQueryHandler(lambda u, c: ConversationHandler.END, pattern="^main_menu$")
+            CallbackQueryHandler(end_conversation, pattern="^main_menu$")
         ],
         allow_reentry=True,
         per_message=False
