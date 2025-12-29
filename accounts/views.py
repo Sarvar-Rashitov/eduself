@@ -325,7 +325,7 @@ def google_auth_view(request):
 
 # Telegram Auth
 def telegram_auth_view(request):
-    """Telegram OAuth callback"""
+    """Telegram Login Widget callback - hash tekshiruvi bilan"""
     # Telegram ma'lumotlarini olish
     telegram_data = {
         'id': request.GET.get('id'),
@@ -341,23 +341,29 @@ def telegram_auth_view(request):
         messages.error(request, "Telegram ma'lumotlari noto'g'ri")
         return redirect('accounts:login')
     
-    # Hash tekshirish
-    if not verify_telegram_auth(telegram_data):
-        messages.error(request, "Telegram autentifikatsiya xatosi")
+    # Hash tekshirish - xavfsizlik uchun muhim
+    if not verify_telegram_auth(telegram_data.copy()):
+        messages.error(request, "Telegram autentifikatsiya xatosi - ma'lumotlar noto'g'ri")
         return redirect('accounts:login')
     
-    telegram_id = telegram_data['id']
+    telegram_id = str(telegram_data['id'])
     
     # Foydalanuvchini topish yoki yaratish
     try:
         user = User.objects.get(telegram_id=telegram_id)
+        # Mavjud foydalanuvchi ma'lumotlarini yangilash
+        if telegram_data['first_name']:
+            user.first_name = telegram_data['first_name']
+        if telegram_data['last_name']:
+            user.last_name = telegram_data['last_name']
+        user.save()
     except User.DoesNotExist:
         # Yangi foydalanuvchi yaratish
         username = telegram_data['username'] or f"tg_{telegram_id}"
         base_username = username
         counter = 1
         while User.objects.filter(username=username).exists():
-            username = f"{base_username}{counter}"
+            username = f"{base_username}_{counter}"
             counter += 1
         
         user = User.objects.create_user(
@@ -369,15 +375,16 @@ def telegram_auth_view(request):
         )
         user.first_name = telegram_data['first_name']
         user.last_name = telegram_data['last_name']
+        user.set_unusable_password()
         user.save()
     
     login(request, user)
-    messages.success(request, "Telegram orqali kirdingiz!")
+    messages.success(request, f"Telegram orqali kirdingiz, {user.first_name or user.username}!")
     return redirect('core:home')
 
 
 def verify_telegram_auth(data):
-    """Telegram auth hash'ni tekshirish"""
+    """Telegram auth hash'ni tekshirish - Telegram rasmiy algoritmi"""
     bot_token = settings.TELEGRAM_BOT_TOKEN
     if not bot_token:
         return False
@@ -387,18 +394,23 @@ def verify_telegram_auth(data):
         return False
     
     # Auth date tekshirish (24 soatdan eski bo'lmasligi kerak)
-    auth_date = int(data.get('auth_date', 0))
+    try:
+        auth_date = int(data.get('auth_date', 0))
+    except (ValueError, TypeError):
+        return False
+    
     if time.time() - auth_date > 86400:
         return False
     
-    # Data string yaratish
+    # Data string yaratish - faqat mavjud qiymatlar
     data_check_arr = []
-    for key, value in sorted(data.items()):
-        if value:
+    for key in sorted(data.keys()):
+        value = data[key]
+        if value is not None and value != '':
             data_check_arr.append(f"{key}={value}")
     data_check_string = '\n'.join(data_check_arr)
     
-    # Secret key
+    # Secret key - SHA256(bot_token)
     secret_key = hashlib.sha256(bot_token.encode()).digest()
     
     # Hash hisoblash
@@ -412,21 +424,50 @@ def verify_telegram_auth(data):
 
 
 def telegram_callback_view(request):
-    """Telegram bot orqali login - bot start bosilganda ro'yxatdan o'tgan foydalanuvchi uchun"""
+    """Telegram bot orqali xavfsiz login - token bilan"""
+    from telegram_bot.utils import verify_login_token
+    
     telegram_id = request.GET.get('telegram_id')
+    token = request.GET.get('token')
     
     if not telegram_id:
         messages.error(request, "Telegram ID topilmadi. Iltimos, botdan qayta urinib ko'ring.")
         return redirect('accounts:login')
     
+    # Token tekshirish - xavfsizlik uchun majburiy
+    if not token:
+        messages.error(request, "Xavfsizlik tokeni topilmadi. Iltimos, botdan qayta urinib ko'ring.")
+        return redirect('accounts:login')
+    
+    if not verify_login_token(telegram_id, token):
+        messages.error(request, "Havola eskirgan yoki noto'g'ri. Iltimos, botdan yangi havola oling.")
+        return redirect('accounts:login')
+    
     try:
-        user = User.objects.get(telegram_id=telegram_id)
+        user = User.objects.get(telegram_id=str(telegram_id))
         login(request, user)
         messages.success(request, f"Xush kelibsiz, {user.first_name or user.username}!")
         return redirect('core:home')
     except User.DoesNotExist:
-        messages.error(request, "Foydalanuvchi topilmadi. Iltimos, avval botda /start buyrug'ini bosing.")
+        messages.error(request, "Foydalanuvchi topilmadi. Iltimos, avval Telegram botda /start buyrug'ini bosing.")
         return redirect('accounts:login')
+
+
+def verify_telegram_callback_token(telegram_id: str, token: str) -> bool:
+    """Bot callback token'ni tekshirish - eski usul (deprecated)"""
+    bot_token = settings.TELEGRAM_BOT_TOKEN
+    if not bot_token:
+        return False
+    
+    # Token yaratish - telegram_id + bot_token hash
+    expected_token = hashlib.sha256(f"{telegram_id}:{bot_token}".encode()).hexdigest()[:32]
+    return hmac.compare_digest(token, expected_token)
+
+
+def generate_telegram_callback_token(telegram_id: str) -> str:
+    """Bot callback uchun xavfsiz token yaratish - eski usul (deprecated)"""
+    bot_token = settings.TELEGRAM_BOT_TOKEN
+    return hashlib.sha256(f"{telegram_id}:{bot_token}".encode()).hexdigest()[:32]
 
 
 def verify_telegram_webapp_data(init_data: str) -> dict | None:

@@ -1,9 +1,15 @@
 """Telegram bot yordamchi funksiyalari"""
 import os
+import hashlib
+import time
 from asgiref.sync import sync_to_async
 from telegram import Bot, User as TelegramUser
 from telegram.error import TelegramError
 from accounts.models import User
+
+
+# Login tokenlarni saqlash uchun (xotirada - production uchun Redis ishlatish kerak)
+_login_tokens = {}
 
 
 def get_channel_username():
@@ -57,12 +63,53 @@ def create_user_from_telegram(tg_user: TelegramUser) -> User:
         telegram_id=telegram_id,
         first_name=tg_user.first_name or '',
         last_name=tg_user.last_name or '',
-        auth_provider='telegram'
+        auth_provider='telegram',
+        email_verified=True
     )
     user.set_unusable_password()
     user.save()
     
     return user
+
+
+@sync_to_async
+def generate_login_token(telegram_id: str) -> str:
+    """Xavfsiz login token yaratish - 5 daqiqa amal qiladi"""
+    bot_token = os.getenv('TELEGRAM_BOT_TOKEN', '')
+    timestamp = str(int(time.time()))
+    
+    # Token yaratish
+    token_data = f"{telegram_id}:{bot_token}:{timestamp}"
+    token = hashlib.sha256(token_data.encode()).hexdigest()[:32]
+    
+    # Tokenni saqlash (timestamp bilan)
+    _login_tokens[f"{telegram_id}:{token}"] = int(timestamp)
+    
+    # Eski tokenlarni tozalash (5 daqiqadan eski)
+    current_time = int(time.time())
+    expired_keys = [k for k, v in _login_tokens.items() if current_time - v > 300]
+    for key in expired_keys:
+        del _login_tokens[key]
+    
+    return token
+
+
+def verify_login_token(telegram_id: str, token: str) -> bool:
+    """Login tokenni tekshirish"""
+    key = f"{telegram_id}:{token}"
+    
+    if key not in _login_tokens:
+        return False
+    
+    # Vaqtni tekshirish (5 daqiqa)
+    token_time = _login_tokens[key]
+    if int(time.time()) - token_time > 300:
+        del _login_tokens[key]
+        return False
+    
+    # Token ishlatildi - o'chirish
+    del _login_tokens[key]
+    return True
 
 
 @sync_to_async

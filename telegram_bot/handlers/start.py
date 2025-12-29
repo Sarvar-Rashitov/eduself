@@ -2,7 +2,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler
 from telegram_bot.keyboards import main_menu_keyboard
-from telegram_bot.utils import get_user_or_none, create_user_from_telegram
+from telegram_bot.utils import get_user_or_none, create_user_from_telegram, generate_login_token
 import os
 
 SITE_URL = os.getenv('SITE_URL', 'https://eduself.uz')
@@ -22,15 +22,22 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # start parametrini tekshirish (login yoki register)
     args = context.args
     if args and args[0] in ['login', 'register']:
-        # Saytdan kelgan - login havolasini ko'rsatish
-        login_url = f"{SITE_URL}/accounts/telegram-callback/?telegram_id={tg_user.id}"
+        # Saytdan kelgan - xavfsiz login havolasini yaratish
+        login_token = await generate_login_token(str(tg_user.id))
+        login_url = f"{SITE_URL}/accounts/telegram-callback/?telegram_id={tg_user.id}&token={login_token}"
         
-        text = f"""✅ *Ro'yxatdan o'tdingiz!*
+        # Email'dagi _ belgisini escape qilish
+        safe_email = db_user.email.replace('_', '\\_')
+        safe_username = (db_user.first_name or db_user.username).replace('_', '\\_')
+        
+        text = f"""✅ Muvaffaqiyatli!
 
-👤 Username: @{db_user.username}
-📧 Email: {db_user.email}
+👤 Foydalanuvchi: {safe_username}
+📧 Email: {safe_email}
 
-Saytga kirish uchun quyidagi tugmani bosing 👇"""
+🔐 Saytga kirish uchun quyidagi tugmani bosing 👇
+
+⚠️ Havola 5 daqiqa ichida amal qiladi"""
         
         keyboard = [
             [InlineKeyboardButton("🌐 Saytga kirish", url=login_url)],
@@ -39,7 +46,6 @@ Saytga kirish uchun quyidagi tugmani bosing 👇"""
         
         await update.message.reply_text(
             text,
-            parse_mode='Markdown',
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
         

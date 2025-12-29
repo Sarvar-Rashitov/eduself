@@ -109,14 +109,20 @@
                     <span>yoki</span>
                 </div>
                 
+                {% if google_client_id or telegram_bot_username %}
                 <div class="social-auth">
-                    <button class="social-auth-btn google">
+                    {% if google_client_id %}
+                    <button type="button" class="social-auth-btn google" id="googleRegisterBtn">
                         <i class="fab fa-google"></i> Google
                     </button>
-                    <button class="social-auth-btn telegram">
+                    {% endif %}
+                    {% if telegram_bot_username %}
+                    <a href="https://t.me/{{ telegram_bot_username }}?start=register" class="social-auth-btn telegram">
                         <i class="fab fa-telegram"></i> Telegram
-                    </button>
+                    </a>
+                    {% endif %}
                 </div>
+                {% endif %}
                 
                 <div class="auth-footer">
                     <p>Hisobingiz bormi? <a href="{% url 'accounts:login' %}">Kirish</a></p>
@@ -392,6 +398,11 @@
     color: #0088cc;
 }
 
+.social-auth-btn.telegram {
+    text-decoration: none;
+    color: var(--text-color);
+}
+
 .auth-footer {
     text-align: center;
     margin-top: 2rem;
@@ -426,4 +437,63 @@
     }
 }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+{% if google_client_id %}
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+function initGoogleRegister() {
+    if (typeof google !== 'undefined' && google.accounts) {
+        google.accounts.id.initialize({
+            client_id: '{{ google_client_id }}',
+            callback: handleGoogleCredential
+        });
+        
+        const registerBtn = document.getElementById('googleRegisterBtn');
+        if (registerBtn) {
+            registerBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                google.accounts.id.prompt();
+            });
+        }
+    } else {
+        setTimeout(initGoogleRegister, 100);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initGoogleRegister, 500);
+    });
+} else {
+    setTimeout(initGoogleRegister, 500);
+}
+
+function handleGoogleCredential(response) {
+    fetch('{% url "accounts:google_auth" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ credential: response.credential })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const nextUrl = urlParams.get('next');
+            window.location.href = nextUrl || data.redirect || '/';
+        } else {
+            alert(data.error || 'Xatolik yuz berdi');
+        }
+    })
+    .catch(err => {
+        console.error('Google auth error:', err);
+        alert('Xatolik yuz berdi');
+    });
+}
+</script>
+{% endif %}
 {% endblock %}
