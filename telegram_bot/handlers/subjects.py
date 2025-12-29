@@ -24,7 +24,9 @@ def get_subject(subject_id):
 
 @sync_to_async
 def get_topics(subject):
-    return list(subject.topics.filter(is_active=True).order_by('order', 'name'))
+    """Mavzularni savollar soni bilan birga olish"""
+    topics = list(subject.topics.filter(is_active=True).order_by('order', 'name'))
+    return [(topic, topic.questions.count()) for topic in topics]
 
 
 @sync_to_async
@@ -101,20 +103,20 @@ async def subject_detail(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text("❌ Fan topilmadi.")
         return
 
-    topics = await get_topics(subject)
+    topics_with_counts = await get_topics(subject)
     questions_count = await get_questions_count(subject)
 
     text = f"📖 *{subject.name}*\n\n"
     if subject.description:
         text += f"{subject.description}\n\n"
-    text += f"📑 Mavzular soni: {len(topics)}\n"
+    text += f"📑 Mavzular soni: {len(topics_with_counts)}\n"
     text += f"❓ Savollar soni: {questions_count}\n\n"
     text += "Mavzuni tanlang:"
 
     await query.edit_message_text(
         text,
         parse_mode='Markdown',
-        reply_markup=topics_keyboard(topics, subject_id)
+        reply_markup=topics_keyboard(topics_with_counts, subject_id)
     )
 
 

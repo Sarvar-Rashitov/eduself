@@ -62,11 +62,12 @@ def subjects_keyboard(subjects, page=0, per_page=8):
     return InlineKeyboardMarkup(keyboard)
 
 
-def topics_keyboard(topics, subject_id):
-    """Mavzular ro'yxati klaviaturasi"""
+def topics_keyboard(topics_with_counts, subject_id):
+    """Mavzular ro'yxati klaviaturasi
+    topics_with_counts: list of tuples (topic, questions_count)
+    """
     keyboard = []
-    for topic in topics:
-        questions_count = topic.questions.count()
+    for topic, questions_count in topics_with_counts:
         status = "📑" if questions_count > 0 else "🔒"
         keyboard.append([InlineKeyboardButton(
             f"{status} {topic.name} ({questions_count} savol)",
