@@ -82,8 +82,7 @@ def register_all_handlers(app):
     ai_handlers(app)
     common_handlers(app)
     
-    # Test menyu handlerlari
-    from telegram_bot.handlers.tests import handle_test_menu, handle_test_answer
+    # Test menyu handlerlari (faqat sertifikat va mock uchun)
     from telegram_bot.handlers.certificates import handle_cert_menu, handle_cert_answer
     from telegram_bot.handlers.mock_exams import handle_mock_menu, handle_mock_answer
     
@@ -92,9 +91,7 @@ def register_all_handlers(app):
         if not session:
             return
         test_type = session.get('test_type')
-        if test_type == 'regular':
-            await handle_test_menu(update, context)
-        elif test_type == 'certificate':
+        if test_type == 'certificate':
             await handle_cert_menu(update, context)
         elif test_type == 'mock':
             await handle_mock_menu(update, context)
@@ -104,9 +101,7 @@ def register_all_handlers(app):
         if not session:
             return
         test_type = session.get('test_type')
-        if test_type == 'regular':
-            await handle_test_answer(update, context)
-        elif test_type == 'certificate':
+        if test_type == 'certificate':
             await handle_cert_answer(update, context)
         elif test_type == 'mock':
             await handle_mock_answer(update, context)
