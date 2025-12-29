@@ -49,6 +49,24 @@ def get_institution_type_name(inst):
     return dict(InstitutionType.choices).get(inst.institution_type, inst.institution_type)
 
 
+@sync_to_async
+def get_directions_count(inst):
+    """Muassasadagi yo'nalishlar sonini olish"""
+    return inst.directions.filter(is_active=True).count()
+
+
+@sync_to_async
+def get_contract_price_range(inst):
+    """Kontrakt narxini olish"""
+    return inst.get_contract_price_range()
+
+
+@sync_to_async
+def get_admission_period(inst):
+    """Qabul muddatini olish"""
+    return inst.get_admission_period()
+
+
 @require_subscription("institutions")
 async def institutions_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Muassasalar menyusi"""
@@ -124,15 +142,15 @@ async def institution_detail(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if inst.website:
         text += f"🌐 Sayt: {inst.website}\n"
 
-    price_range = inst.get_contract_price_range()
+    price_range = await get_contract_price_range(inst)
     if price_range != "Narx ko'rsatilmagan":
         text += f"\n💰 Kontrakt: {price_range}\n"
 
-    admission = inst.get_admission_period()
+    admission = await get_admission_period(inst)
     if admission != "Qabul muddati ko'rsatilmagan":
         text += f"📅 Qabul: {admission}\n"
 
-    directions_count = inst.get_directions_count()
+    directions_count = await get_directions_count(inst)
     if directions_count > 0:
         text += f"\n📚 Yo'nalishlar: {directions_count} ta\n"
 

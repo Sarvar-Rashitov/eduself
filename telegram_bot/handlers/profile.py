@@ -124,10 +124,17 @@ async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     stats = await get_user_stats(user)
     position = await get_user_position(user)
 
-    text = f"👤 *{user.first_name or user.username}*\n\n"
-    text += f"📧 Email: {user.email}\n"
-    text += f"📱 Username: @{user.username}\n\n"
-    text += f"━━━━━━━━━━━━━━━\n"
+    # Escape special characters for Markdown
+    first_name = (user.first_name or user.username or "Foydalanuvchi").replace("_", "\\_")
+    username = (user.username or "").replace("_", "\\_")
+    email = (user.email or "").replace("_", "\\_")
+
+    text = f"👤 *{first_name}*\n\n"
+    if email:
+        text += f"📧 Email: {email}\n"
+    if username:
+        text += f"📱 Username: @{username}\n"
+    text += f"\n━━━━━━━━━━━━━━━\n"
     text += f"📊 *Statistika:*\n\n"
     text += f"🏆 Umumiy ball: *{user.total_points}*\n"
     if position:
