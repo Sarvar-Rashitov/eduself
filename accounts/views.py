@@ -358,19 +358,19 @@ def telegram_auth_view(request):
             user.last_name = telegram_data['last_name']
         user.save()
     except User.DoesNotExist:
-        # Yangi foydalanuvchi yaratish
-        username = telegram_data['username'] or f"tg_{telegram_id}"
+        # Yangi foydalanuvchi yaratish - username'ni to'liq saqlash
+        username = telegram_data['username'] or f"user{telegram_id}"
         base_username = username
         counter = 1
         while User.objects.filter(username=username).exists():
-            username = f"{base_username}_{counter}"
+            username = f"{base_username}{counter}"
             counter += 1
         
         user = User.objects.create_user(
             username=username,
-            email=f"{telegram_id}@telegram.eduself.uz",
+            email=None,  # Bo'sh - foydalanuvchi o'zi kiritadi
             telegram_id=telegram_id,
-            email_verified=True,
+            email_verified=False,
             auth_provider='telegram'
         )
         user.first_name = telegram_data['first_name']
@@ -547,19 +547,19 @@ def telegram_miniapp_auth_view(request):
             try:
                 user = User.objects.get(telegram_id=telegram_id)
             except User.DoesNotExist:
-                # Yangi foydalanuvchi yaratish
-                username = tg_user.get('username') or f"tg_{telegram_id}"
+                # Yangi foydalanuvchi yaratish - username'ni to'liq saqlash
+                username = tg_user.get('username') or f"user{telegram_id}"
                 base_username = username
                 counter = 1
                 while User.objects.filter(username=username).exists():
-                    username = f"{base_username}_{counter}"
+                    username = f"{base_username}{counter}"
                     counter += 1
                 
                 user = User.objects.create_user(
                     username=username,
-                    email=f"{telegram_id}@telegram.eduself.uz",
+                    email=None,  # Bo'sh - foydalanuvchi o'zi kiritadi
                     telegram_id=telegram_id,
-                    email_verified=True,
+                    email_verified=False,
                     auth_provider='telegram'
                 )
                 user.first_name = tg_user.get('first_name', '')

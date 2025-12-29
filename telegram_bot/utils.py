@@ -42,29 +42,26 @@ def create_user_from_telegram(tg_user: TelegramUser) -> User:
     """Telegram foydalanuvchisidan avtomatik ro'yxatdan o'tkazish"""
     telegram_id = str(tg_user.id)
     
-    # Username yaratish
-    base_username = tg_user.username or f"user_{telegram_id}"
+    # Username yaratish - telegram username'ni to'liq saqlash (pastki chiziq bilan)
+    base_username = tg_user.username or f"user{telegram_id}"
     username = base_username
     counter = 1
     
     # Unique username topish
     while User.objects.filter(username=username).exists():
-        username = f"{base_username}_{counter}"
+        username = f"{base_username}{counter}"
         counter += 1
     
-    # Email yaratish (placeholder)
-    email = f"{username}@telegram.eduself.uz"
-    
-    # Foydalanuvchi yaratish
+    # Foydalanuvchi yaratish - email bo'sh (user o'zi kiritadi)
     user = User.objects.create_user(
         username=username,
-        email=email,
-        password=None,  # Parolsiz
+        email=None,  # Bo'sh - foydalanuvchi o'zi kiritadi
+        password=None,
         telegram_id=telegram_id,
         first_name=tg_user.first_name or '',
         last_name=tg_user.last_name or '',
         auth_provider='telegram',
-        email_verified=True
+        email_verified=False  # Email kiritilmagan
     )
     user.set_unusable_password()
     user.save()

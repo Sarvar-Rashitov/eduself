@@ -26,14 +26,12 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         login_token = await generate_login_token(str(tg_user.id))
         login_url = f"{SITE_URL}/accounts/telegram-callback/?telegram_id={tg_user.id}&token={login_token}"
         
-        # Email'dagi _ belgisini escape qilish
-        safe_email = db_user.email.replace('_', '\\_')
-        safe_username = (db_user.first_name or db_user.username).replace('_', '\\_')
+        # Foydalanuvchi ismini olish
+        display_name = db_user.first_name or db_user.username
         
         text = f"""✅ Muvaffaqiyatli!
 
-👤 Foydalanuvchi: {safe_username}
-📧 Email: {safe_email}
+👤 Foydalanuvchi: {display_name}
 
 🔐 Saytga kirish uchun quyidagi tugmani bosing 👇
 

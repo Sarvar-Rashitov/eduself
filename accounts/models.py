@@ -5,7 +5,7 @@ from datetime import timedelta
 import uuid
 
 class User(AbstractUser):
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True, verbose_name="Profil rasmi")
     phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Telefon")
     bio = models.TextField(blank=True, verbose_name="Bio")
