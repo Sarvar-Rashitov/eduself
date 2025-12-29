@@ -37,33 +37,6 @@ def get_user_position(user):
 
 
 @sync_to_async
-def get_detailed_stats(user):
-    from core.models import TopicResult, CertificateResult, MockExamResult
-    from django.db.models import Avg
-
-    regular_tests = TopicResult.objects.filter(user=user).count()
-    regular_passed = TopicResult.objects.filter(user=user, passed=True).count()
-
-    cert_tests = CertificateResult.objects.filter(user=user).count()
-    cert_passed = CertificateResult.objects.filter(user=user, passed=True).count()
-
-    mock_tests = MockExamResult.objects.filter(user=user).count()
-    mock_passed = MockExamResult.objects.filter(user=user, passed=True).count()
-
-    avg_score = TopicResult.objects.filter(user=user).aggregate(avg=Avg('score'))['avg'] or 0
-
-    return {
-        'regular_tests': regular_tests,
-        'regular_passed': regular_passed,
-        'cert_tests': cert_tests,
-        'cert_passed': cert_passed,
-        'mock_tests': mock_tests,
-        'mock_passed': mock_passed,
-        'avg_score': avg_score
-    }
-
-
-@sync_to_async
 def get_test_history(user):
     from core.models import TopicResult, CertificateResult, MockExamResult
     results = []
@@ -147,42 +120,6 @@ async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await message.edit_text(text, parse_mode='Markdown', reply_markup=profile_keyboard())
     else:
         await message.reply_text(text, parse_mode='Markdown', reply_markup=profile_keyboard())
-
-
-async def profile_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Batafsil statistika"""
-    query = update.callback_query
-    await query.answer()
-
-    user = await get_user_or_none(update.effective_user.id)
-    if not user:
-        return
-
-    stats = await get_detailed_stats(user)
-
-    text = f"📊 *Batafsil Statistika*\n\n"
-    text += f"👤 {user.first_name or user.username}\n"
-    text += f"━━━━━━━━━━━━━━━\n\n"
-
-    text += f"📚 *Oddiy testlar:*\n"
-    text += f"   Yechilgan: {stats['regular_tests']}\n"
-    text += f"   O'tilgan: {stats['regular_passed']}\n\n"
-
-    text += f"🏆 *Sertifikat testlari:*\n"
-    text += f"   Yechilgan: {stats['cert_tests']}\n"
-    text += f"   O'tilgan: {stats['cert_passed']}\n\n"
-
-    text += f"📝 *Mock imtihonlar:*\n"
-    text += f"   Yechilgan: {stats['mock_tests']}\n"
-    text += f"   O'tilgan: {stats['mock_passed']}\n\n"
-
-    text += f"━━━━━━━━━━━━━━━\n"
-    text += f"📈 O'rtacha ball: {stats['avg_score']:.1f}%\n"
-    text += f"🏆 Umumiy ball: {user.total_points}\n"
-
-    keyboard = [[InlineKeyboardButton("⬅️ Orqaga", callback_data="profile")]]
-
-    await query.edit_message_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 async def profile_history(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -272,7 +209,6 @@ async def handle_leaderboard_text(update: Update, context: ContextTypes.DEFAULT_
 def register_handlers(app):
     """Profile handlerlarini ro'yxatdan o'tkazish"""
     app.add_handler(CallbackQueryHandler(profile_menu, pattern="^profile$"))
-    app.add_handler(CallbackQueryHandler(profile_stats, pattern="^profile_stats$"))
     app.add_handler(CallbackQueryHandler(profile_history, pattern="^profile_history$"))
     app.add_handler(CallbackQueryHandler(global_leaderboard, pattern="^leaderboard$"))
     app.add_handler(MessageHandler(filters.Regex("^👤 Profil$"), handle_profile_text))

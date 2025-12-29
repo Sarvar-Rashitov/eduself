@@ -146,7 +146,6 @@ def institutions_keyboard(institutions, page=0, per_page=5):
 def profile_keyboard():
     """Profil klaviaturasi"""
     keyboard = [
-        [InlineKeyboardButton("📊 Statistika", callback_data="profile_stats")],
         [InlineKeyboardButton("📜 Test tarixi", callback_data="profile_history")],
         [InlineKeyboardButton("🔗 Saytga o'tish", url="https://eduself.uz/accounts/profile/")],
         [InlineKeyboardButton("🏠 Asosiy menyu", callback_data="main_menu")]
