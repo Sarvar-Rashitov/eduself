@@ -30,27 +30,27 @@ class User(AbstractUser):
         return self.username
     
     def get_progress_percentage(self):
-        from core.models import TestResult, CertificateResult, MockExamResult
-        total_tests = TestResult.objects.filter(user=self).count()
+        from core.models import TopicResult, CertificateResult, MockExamResult
+        total_tests = TopicResult.objects.filter(user=self).count()
         total_tests += CertificateResult.objects.filter(user=self).count()
         total_tests += MockExamResult.objects.filter(user=self).count()
         if total_tests == 0:
             return 0
-        passed_tests = TestResult.objects.filter(user=self, passed=True).count()
+        passed_tests = TopicResult.objects.filter(user=self, passed=True).count()
         passed_tests += CertificateResult.objects.filter(user=self, passed=True).count()
         passed_tests += MockExamResult.objects.filter(user=self, passed=True).count()
         return int((passed_tests / total_tests) * 100)
     
     def get_total_tests_taken(self):
-        from core.models import TestResult, CertificateResult, MockExamResult
-        total = TestResult.objects.filter(user=self).count()
+        from core.models import TopicResult, CertificateResult, MockExamResult
+        total = TopicResult.objects.filter(user=self).count()
         total += CertificateResult.objects.filter(user=self).count()
         total += MockExamResult.objects.filter(user=self).count()
         return total
     
     def get_passed_tests(self):
-        from core.models import TestResult, CertificateResult, MockExamResult
-        passed = TestResult.objects.filter(user=self, passed=True).count()
+        from core.models import TopicResult, CertificateResult, MockExamResult
+        passed = TopicResult.objects.filter(user=self, passed=True).count()
         passed += CertificateResult.objects.filter(user=self, passed=True).count()
         passed += MockExamResult.objects.filter(user=self, passed=True).count()
         return passed

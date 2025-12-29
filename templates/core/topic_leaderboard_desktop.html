@@ -1,15 +1,15 @@
 {% extends 'base_desktop.html' %}
 {% load static %}
 
-{% block title %}{{ test.title }} - Reyting - EduSelf{% endblock %}
+{% block title %}{{ topic.name }} - Reyting - EduSelf{% endblock %}
 
 {% block content %}
 <section class="leaderboard-section">
     <div class="container">
         <div class="leaderboard-header">
-            <a href="{% url 'core:topic_detail' test.topic.pk %}" class="back-link"><i class="fas fa-arrow-left"></i> Orqaga</a>
-            <h1>{{ test.title }}</h1>
-            <p>{{ test.get_questions_count }} savol | {{ test.time_limit }} daqiqa | O'tish balli: {{ test.passing_score }}%</p>
+            <a href="{% url 'core:subject_detail' topic.subject.pk %}" class="back-link"><i class="fas fa-arrow-left"></i> Orqaga</a>
+            <h1>{{ topic.name }}</h1>
+            <p>{{ topic.get_questions_count }} savol | {{ topic.time_limit }} daqiqa | O'tish balli: {{ topic.passing_score }}%</p>
         </div>
         <div class="leaderboard-grid">
             <div class="leaderboard-main">
@@ -40,13 +40,13 @@
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div class="empty-leaderboard"><i class="fas fa-inbox"></i><p>Hali hech kim bu testni ishlamagan</p></div>
+                    <div class="empty-leaderboard"><i class="fas fa-inbox"></i><p>Hali hech kim bu mavzuni ishlamagan</p></div>
                     {% endif %}
                 </div>
                 {% if user.is_authenticated %}
-                <a href="{% url 'core:take_test' test.pk %}" class="btn btn-primary btn-lg btn-block"><i class="fas fa-play"></i> Testni boshlash</a>
+                <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary btn-lg btn-block"><i class="fas fa-play"></i> Testni boshlash</a>
                 {% else %}
-                <button type="button" class="btn btn-primary btn-lg btn-block auth-required-btn" data-redirect="{% url 'core:take_test' test.pk %}"><i class="fas fa-play"></i> Testni boshlash</button>
+                <button type="button" class="btn btn-primary btn-lg btn-block auth-required-btn" data-redirect="{% url 'core:take_topic_test' topic.pk %}"><i class="fas fa-play"></i> Testni boshlash</button>
                 {% endif %}
             </div>
         </div>
@@ -60,6 +60,7 @@
 .leaderboard-header { text-align: center; margin-bottom: 2rem; }
 .leaderboard-header h1 { font-size: 2rem; color: var(--dark-color); margin: 1rem 0 0.5rem; }
 .leaderboard-header p { color: var(--text-color); }
+
 .back-link { color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
 .leaderboard-grid { max-width: 800px; margin: 0 auto; }
 .user-best-card, .leaderboard-card { background: var(--white); border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }

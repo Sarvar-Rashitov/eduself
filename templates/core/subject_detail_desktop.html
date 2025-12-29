@@ -23,7 +23,7 @@
                 <p>{{ subject.description|safe }}</p>
                 <div class="subject-stats">
                     <span><i class="fas fa-folder"></i> {{ subject.get_topics_count }} mavzu</span>
-                    <span><i class="fas fa-clipboard-list"></i> {{ subject.get_tests_count }} test</span>
+                    <span><i class="fas fa-clipboard-list"></i> {{ subject.get_questions_count }} savol</span>
                 </div>
             </div>
         </div>
@@ -36,19 +36,33 @@
         <h2 class="section-title-left">Mavzular</h2>
         <div class="topics-grid">
             {% for topic in topics %}
-            <a href="{% url 'core:topic_detail' topic.pk %}" class="topic-card-large">
+            <div class="topic-card-large {% if not topic.questions.count %}disabled{% endif %}">
                 <div class="topic-number">{{ forloop.counter }}</div>
                 <div class="topic-content">
                     <h3>{{ topic.name }}</h3>
                     <p>{{ topic.description|truncatewords:12|safe }}</p>
                     <div class="topic-meta">
-                        <span><i class="fas fa-clipboard-list"></i> {{ topic.get_tests_count }} test</span>
+                        <span><i class="fas fa-clipboard-list"></i> {{ topic.get_questions_count }} savol</span>
                     </div>
                 </div>
-                <div class="topic-arrow">
-                    <i class="fas fa-arrow-right"></i>
+                <div class="topic-actions">
+                    {% if topic.questions.count %}
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Boshlash
+                        </a>
+                        {% else %}
+                        <a href="{% url 'accounts:login' %}?next={% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Boshlash
+                        </a>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn btn-secondary" disabled>
+                            <i class="fas fa-lock"></i> Yopiq
+                        </button>
+                    {% endif %}
                 </div>
-            </a>
+            </div>
             {% empty %}
             <div class="empty-state full-width">
                 <i class="fas fa-folder-open"></i>
@@ -170,7 +184,7 @@
 }
 
 .topic-card-large:hover {
-    transform: translateX(10px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-lg);
 }
 
@@ -210,14 +224,33 @@
     color: var(--primary-color);
 }
 
-.topic-arrow {
-    color: var(--primary-color);
-    font-size: 1.25rem;
-    transition: transform 0.3s ease;
+.topic-actions {
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
-.topic-card-large:hover .topic-arrow {
-    transform: translateX(5px);
+.topic-actions .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.topic-card-large.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-left-color: #6c757d;
+}
+
+.topic-card-large.disabled:hover {
+    transform: none;
+    box-shadow: var(--shadow);
+}
+
+.topic-card-large.disabled .topic-number {
+    background: #6c757d;
 }
 
 .empty-state.full-width {

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    SiteSettings, DifficultyLevel, SubjectCategory, Subject, Topic, Test, Question, Answer, TestResult,
+    SiteSettings, DifficultyLevel, SubjectCategory, Subject, Topic, Question, Answer, TopicResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     InstitutionCategory, Institution, InstitutionDirection, Advertisement, Statistic, NewsCategory, News,
@@ -40,12 +40,6 @@ class TopicInline(admin.TabularInline):
     show_change_link = True
 
 
-class TestInline(admin.TabularInline):
-    model = Test
-    extra = 1
-    show_change_link = True
-
-
 @admin.register(SubjectCategory)
 class SubjectCategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug', 'icon', 'order', 'is_active', 'created_at']
@@ -66,37 +60,28 @@ class SubjectAdmin(admin.ModelAdmin):
 
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
-    list_display = ['name', 'subject', 'order', 'is_active', 'created_at']
+    list_display = ['name', 'subject', 'time_limit', 'passing_score', 'order', 'is_active', 'get_questions_count', 'created_at']
     list_filter = ['subject', 'is_active', 'created_at']
     search_fields = ['name', 'description']
-    list_editable = ['order', 'is_active']
-    inlines = [TestInline]
-
-
-@admin.register(Test)
-class TestAdmin(admin.ModelAdmin):
-    list_display = ['title', 'topic', 'difficulty', 'order', 'time_limit', 'passing_score', 'unlock_score', 'is_active', 'get_questions_count']
-    list_filter = ['topic__subject', 'difficulty', 'is_active', 'created_at']
-    search_fields = ['title', 'description']
-    list_editable = ['difficulty', 'order', 'unlock_score', 'is_active']
+    list_editable = ['time_limit', 'passing_score', 'order', 'is_active']
     inlines = [QuestionInline]
 
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['text', 'test', 'order', 'points']
-    list_filter = ['test__topic__subject', 'test']
+    list_display = ['text', 'topic', 'order', 'points']
+    list_filter = ['topic__subject', 'topic']
     search_fields = ['text']
     list_editable = ['points']
     inlines = [AnswerInline]
 
 
-@admin.register(TestResult)
-class TestResultAdmin(admin.ModelAdmin):
-    list_display = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
-    list_filter = ['passed', 'completed_at', 'test__topic__subject']
-    search_fields = ['user__username', 'test__title']
-    readonly_fields = ['user', 'test', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
+@admin.register(TopicResult)
+class TopicResultAdmin(admin.ModelAdmin):
+    list_display = ['user', 'topic', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
+    list_filter = ['passed', 'completed_at', 'topic__subject']
+    search_fields = ['user__username', 'topic__name']
+    readonly_fields = ['user', 'topic', 'score', 'correct_answers', 'total_questions', 'earned_points', 'passed', 'completed_at']
 
 
 class CertAnswerInline(admin.TabularInline):

@@ -5,7 +5,7 @@ from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
 import json
 from .models import (
-    SubjectCategory, Subject, Topic, Test, Question, Answer, TestResult,
+    SubjectCategory, Subject, Topic, Question, Answer, TopicResult,
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     InstitutionCategory, Institution, InstitutionDirection, InstitutionType, Advertisement, Statistic, SiteSettings,
@@ -31,7 +31,7 @@ def home_view(request):
     # Dinamik statistikalar
     from accounts.models import User
     total_users = User.objects.count()
-    total_tests = Test.objects.count() + CertificateTest.objects.count() + MockExam.objects.count()
+    total_questions = Question.objects.count() + CertificateQuestion.objects.count() + MockExamQuestion.objects.count()
     total_certificates = Certificate.objects.filter(is_active=True).count()
     
     # Reyting hisoblash (o'rtacha ball)
@@ -40,7 +40,7 @@ def home_view(request):
     # Dinamik statistikalar ro'yxati
     dynamic_statistics = [
         {'title': 'Foydalanuvchilar', 'value': f'{total_users:,}', 'icon': 'users'},
-        {'title': 'Testlar', 'value': f'{total_tests:,}', 'icon': 'book'},
+        {'title': 'Savollar', 'value': f'{total_questions:,}', 'icon': 'book'},
         {'title': 'Sertifikatlar', 'value': f'{total_certificates:,}', 'icon': 'trophy'},
         {'title': 'Reyting', 'value': f'{avg_rating}', 'icon': 'star'},
     ]
@@ -114,9 +114,17 @@ def subjects_view(request):
 
 def subject_detail_view(request, pk):
     subject = get_object_or_404(Subject, pk=pk, is_active=True)
-    topics = subject.topics.filter(is_active=True)
+    topics = subject.topics.filter(is_active=True).prefetch_related('questions')
     
-    context = {'subject': subject, 'topics': topics}
+    # Har bir mavzu uchun foydalanuvchi natijasini olish
+    user_results = {}
+    if request.user.is_authenticated:
+        for topic in topics:
+            result = TopicResult.objects.filter(user=request.user, topic=topic).order_by('-completed_at').first()
+            if result:
+                user_results[topic.id] = result
+    
+    context = {'subject': subject, 'topics': topics, 'user_results': user_results}
     
     if is_mobile(request):
         return render(request, 'core/subject_detail.html', context)
@@ -124,49 +132,24 @@ def subject_detail_view(request, pk):
         return render(request, 'core/subject_detail_desktop.html', context)
 
 
-def topic_detail_view(request, pk):
-    topic = get_object_or_404(Topic, pk=pk, is_active=True)
-    tests = topic.tests.filter(is_active=True).order_by('order', 'created_at')
-    
-    user_results = {}
-    if request.user.is_authenticated:
-        for test in tests:
-            result = TestResult.objects.filter(user=request.user, test=test).order_by('-completed_at').first()
-            if result:
-                user_results[test.id] = result
-            # Test ochilganligini tekshirish
-            test.is_unlocked = test.is_unlocked_for_user(request.user)
-    else:
-        # Mehmonlar uchun ham testlar ochiq ko'rinadi
-        for test in tests:
-            test.is_unlocked = True
-    
-    context = {'topic': topic, 'tests': tests, 'user_results': user_results}
-    
-    if is_mobile(request):
-        return render(request, 'core/topic_detail.html', context)
-    else:
-        return render(request, 'core/topic_detail_desktop.html', context)
-
-
 @login_required
-def test_leaderboard_view(request, pk):
-    test = get_object_or_404(Test, pk=pk, is_active=True)
+def topic_leaderboard_view(request, pk):
+    topic = get_object_or_404(Topic, pk=pk, is_active=True)
     
     # Har bir foydalanuvchining eng yaxshi natijasini olish (earned_points bo'yicha)
     from django.db.models import Max
-    best_points = TestResult.objects.filter(test=test).values('user').annotate(
+    best_points = TopicResult.objects.filter(topic=topic).values('user').annotate(
         best_points=Max('earned_points')
     ).values_list('user', 'best_points')
     
     # Har bir foydalanuvchi uchun eng yaxshi natijani topish
     top_results = []
     for user_id, best_earned_points in best_points:
-        result = TestResult.objects.filter(
-            test=test, 
+        result = TopicResult.objects.filter(
+            topic=topic, 
             user_id=user_id, 
             earned_points=best_earned_points
-        ).select_related('user').order_by('completed_at').first()  # Tezroq yechgan birinchi
+        ).select_related('user').order_by('completed_at').first()
         if result:
             top_results.append(result)
     
@@ -174,55 +157,23 @@ def test_leaderboard_view(request, pk):
     top_results = sorted(top_results, key=lambda x: (-x.earned_points, x.completed_at))[:10]
     
     # Foydalanuvchining eng yaxshi natijasi
-    user_best = TestResult.objects.filter(test=test, user=request.user).order_by('-earned_points', 'completed_at').first()
+    user_best = TopicResult.objects.filter(topic=topic, user=request.user).order_by('-earned_points', 'completed_at').first()
     
     context = {
-        'test': test,
+        'topic': topic,
         'top_results': top_results,
         'user_best': user_best,
     }
     if is_mobile(request):
-        return render(request, 'core/test_leaderboard.html', context)
+        return render(request, 'core/topic_leaderboard.html', context)
     else:
-        return render(request, 'core/test_leaderboard_desktop.html', context)
+        return render(request, 'core/topic_leaderboard_desktop.html', context)
 
 
 @login_required
-def check_answer_view(request, question_id, answer_id):
-    """AJAX orqali javobni tekshirish"""
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        try:
-            question = get_object_or_404(Question, id=question_id)
-            selected_answer = get_object_or_404(Answer, id=answer_id, question=question)
-            correct_answer = question.answers.filter(is_correct=True).first()
-            
-            # Ball ma'lumotini qo'shish
-            points_earned = question.points if selected_answer.is_correct else 0
-            
-            return JsonResponse({
-                'is_correct': selected_answer.is_correct,
-                'correct_answer': correct_answer.text if correct_answer else '',
-                'correct_answer_id': correct_answer.id if correct_answer else None,
-                'selected_answer': selected_answer.text,
-                'points_earned': points_earned,
-                'question_points': question.points
-            })
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
-    
-    return JsonResponse({'error': 'Invalid request'}, status=400)
-
-
-@login_required
-def take_test_view(request, pk):
-    test = get_object_or_404(Test, pk=pk, is_active=True)
-    
-    # Test ochilganligini tekshirish
-    if not test.is_unlocked_for_user(request.user):
-        messages.error(request, "Bu testni yechish uchun oldingi testlarni muvaffaqiyatli yakunlashingiz kerak.")
-        return redirect('core:topic_detail', pk=test.topic.pk)
-    
-    questions = test.questions.all().prefetch_related('answers')
+def take_topic_test_view(request, pk):
+    topic = get_object_or_404(Topic, pk=pk, is_active=True)
+    questions = topic.questions.all().prefetch_related('answers')
     
     if request.method == 'POST':
         # JSON formatdagi javoblarni olish
@@ -264,7 +215,7 @@ def take_test_view(request, pk):
                 }
         
         score = int((correct / total) * 100) if total > 0 else 0
-        passed = score >= test.passing_score
+        passed = score >= topic.passing_score
         
         # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
         earned_points = 0
@@ -276,9 +227,9 @@ def take_test_view(request, pk):
                 except Question.DoesNotExist:
                     continue
         
-        TestResult.objects.create(
+        TopicResult.objects.create(
             user=request.user,
-            test=test,
+            topic=topic,
             score=score,
             total_questions=total,
             correct_answers=correct,
@@ -287,51 +238,51 @@ def take_test_view(request, pk):
             earned_points=earned_points
         )
         
-        return redirect('core:test_result', pk=test.pk)
+        return redirect('core:topic_result', pk=topic.pk)
     
     # Reklamalarni olish
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
     
-    context = {'test': test, 'questions': questions, 'advertisements': advertisements}
+    context = {'topic': topic, 'questions': questions, 'advertisements': advertisements}
     if is_mobile(request):
-        return render(request, 'core/take_test.html', context)
+        return render(request, 'core/take_topic_test.html', context)
     else:
-        return render(request, 'core/take_test_desktop.html', context)
+        return render(request, 'core/take_topic_test_desktop.html', context)
 
 
 @login_required
-def test_result_view(request, pk):
-    test = get_object_or_404(Test, pk=pk)
-    result = TestResult.objects.filter(user=request.user, test=test).order_by('-completed_at').first()
+def topic_result_view(request, pk):
+    topic = get_object_or_404(Topic, pk=pk)
+    result = TopicResult.objects.filter(user=request.user, topic=topic).order_by('-completed_at').first()
     
-    # Keyingi testni topish
-    next_test = Test.objects.filter(
-        topic=test.topic,
+    # Keyingi mavzuni topish
+    next_topic = Topic.objects.filter(
+        subject=topic.subject,
         is_active=True,
-        id__gt=test.id
-    ).order_by('id').first()
+        order__gt=topic.order
+    ).order_by('order').first()
     
     context = {
-        'test': test,
+        'topic': topic,
         'result': result,
-        'next_test': next_test
+        'next_topic': next_topic
     }
     if is_mobile(request):
-        return render(request, 'core/test_result.html', context)
+        return render(request, 'core/topic_result.html', context)
     else:
-        return render(request, 'core/test_result_desktop.html', context)
+        return render(request, 'core/topic_result_desktop.html', context)
 
 
 @login_required
-def test_analysis_view(request, pk):
-    test = get_object_or_404(Test, pk=pk)
-    result = TestResult.objects.filter(user=request.user, test=test).order_by('-completed_at').first()
+def topic_analysis_view(request, pk):
+    topic = get_object_or_404(Topic, pk=pk)
+    result = TopicResult.objects.filter(user=request.user, topic=topic).order_by('-completed_at').first()
     
     if not result:
         messages.error(request, "Natija topilmadi.")
-        return redirect('core:test_result', pk=test.pk)
+        return redirect('core:topic_result', pk=topic.pk)
     
-    questions = test.questions.all().prefetch_related('answers')
+    questions = topic.questions.all().prefetch_related('answers')
     analysis_data = []
     
     for question in questions:
@@ -357,14 +308,40 @@ def test_analysis_view(request, pk):
         analysis_data.append(question_data)
     
     context = {
-        'test': test,
+        'topic': topic,
         'result': result,
         'analysis_data': analysis_data,
     }
     if is_mobile(request):
-        return render(request, 'core/test_analysis.html', context)
+        return render(request, 'core/topic_analysis.html', context)
     else:
-        return render(request, 'core/test_analysis_desktop.html', context)
+        return render(request, 'core/topic_analysis_desktop.html', context)
+
+
+@login_required
+def check_answer_view(request, question_id, answer_id):
+    """AJAX orqali javobni tekshirish"""
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            question = get_object_or_404(Question, id=question_id)
+            selected_answer = get_object_or_404(Answer, id=answer_id, question=question)
+            correct_answer = question.answers.filter(is_correct=True).first()
+            
+            # Ball ma'lumotini qo'shish
+            points_earned = question.points if selected_answer.is_correct else 0
+            
+            return JsonResponse({
+                'is_correct': selected_answer.is_correct,
+                'correct_answer': correct_answer.text if correct_answer else '',
+                'correct_answer_id': correct_answer.id if correct_answer else None,
+                'selected_answer': selected_answer.text,
+                'points_earned': points_earned,
+                'question_points': question.points
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 def certificates_view(request):

@@ -78,14 +78,16 @@ class Subject(models.Model):
     def get_topics_count(self):
         return self.topics.count()
     
-    def get_tests_count(self):
-        return sum(topic.tests.count() for topic in self.topics.all())
+    def get_questions_count(self):
+        return sum(topic.questions.count() for topic in self.topics.all())
 
 
 class Topic(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='topics', verbose_name="Fan")
     name = models.CharField(max_length=200, verbose_name="Mavzu nomi")
     description = models.TextField(blank=True, verbose_name="Tavsif")
+    time_limit = models.PositiveIntegerField(default=30, verbose_name="Vaqt limiti (daqiqa)")
+    passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish balli (%)")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -97,75 +99,19 @@ class Topic(models.Model):
     
     def __str__(self):
         return f"{self.subject.name} - {self.name}"
-
-
-class Test(models.Model):
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='tests', verbose_name="Mavzu")
-    title = models.CharField(max_length=200, verbose_name="Test nomi")
-    description = models.TextField(blank=True, verbose_name="Tavsif")
-    difficulty = models.ForeignKey(DifficultyLevel, on_delete=models.SET_NULL, null=True, blank=True, related_name='tests', verbose_name="Qiyinlik darajasi")
-    time_limit = models.PositiveIntegerField(default=30, verbose_name="Vaqt limiti (daqiqa)")
-    passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish balli (%)")
-    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    unlock_score = models.PositiveIntegerField(default=60, verbose_name="Ochish uchun kerakli ball (%)")
-    is_active = models.BooleanField(default=True, verbose_name="Faol")
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['order', 'created_at']
-        verbose_name = "Test"
-        verbose_name_plural = "Testlar"
-    
-    def __str__(self):
-        return f"{self.topic.name} - {self.title}"
     
     def get_questions_count(self):
         return self.questions.count()
     
     def get_max_points(self):
-        """Testdagi barcha savollar ballarining yig'indisini qaytarish"""
+        """Mavzudagi barcha savollar ballarining yig'indisini qaytarish"""
         return self.questions.aggregate(
             total_points=models.Sum('points')
         )['total_points'] or 0
-    
-    def is_unlocked_for_user(self, user):
-        """Foydalanuvchi uchun test ochilganligini tekshirish"""
-        if not user.is_authenticated:
-            return False
-        
-        # Birinchi test har doim ochiq
-        first_test = self.topic.tests.filter(is_active=True).order_by('order', 'created_at').first()
-        if self == first_test:
-            return True
-        
-        # Oldingi testni topish
-        previous_tests = self.topic.tests.filter(
-            is_active=True,
-            order__lt=self.order
-        ).order_by('order', 'created_at')
-        
-        if not previous_tests.exists():
-            # Agar order bir xil bo'lsa, created_at bo'yicha
-            previous_tests = self.topic.tests.filter(
-                is_active=True,
-                created_at__lt=self.created_at
-            ).order_by('order', 'created_at')
-        
-        # Barcha oldingi testlar o'tilganligini tekshirish
-        for prev_test in previous_tests:
-            best_result = TestResult.objects.filter(
-                user=user,
-                test=prev_test
-            ).order_by('-score').first()
-            
-            if not best_result or best_result.score < prev_test.unlock_score:
-                return False
-        
-        return True
 
 
 class Question(models.Model):
-    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions', verbose_name="Test")
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='questions', verbose_name="Mavzu", null=True, blank=True)
     long_text = models.TextField(blank=True, null=True, verbose_name="Uzun matn", help_text="Hikoya, she'r yoki uzun matn (ixtiyoriy)")
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='questions/', blank=True, null=True, verbose_name="Rasm")
@@ -194,9 +140,9 @@ class Answer(models.Model):
         return self.text[:50]
 
 
-class TestResult(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='test_results')
-    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='results')
+class TopicResult(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='topic_results')
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='results')
     score = models.PositiveIntegerField(default=0)
     total_questions = models.PositiveIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
@@ -208,11 +154,11 @@ class TestResult(models.Model):
     
     class Meta:
         ordering = ['-completed_at']
-        verbose_name = "Test natijasi"
-        verbose_name_plural = "Test natijalari"
+        verbose_name = "Mavzu natijasi"
+        verbose_name_plural = "Mavzu natijalari"
     
     def __str__(self):
-        return f"{self.user.username} - {self.test.title} - {self.score}%"
+        return f"{self.user.username} - {self.topic.name} - {self.score}%"
 
 
 class Certificate(models.Model):

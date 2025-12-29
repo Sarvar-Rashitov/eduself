@@ -1,7 +1,7 @@
 from django.test import TestCase
 from hypothesis import given, strategies as st, settings
-from hypothesis.extra.django import TestCase as HypothesisTestCase, from_model
-from core.models import Question, Answer, TestResult, Advertisement, Test, Topic, Subject, SubjectCategory, Course, CourseCategory, CourseEnrollment
+from hypothesis.extra.django import TestCase as HypothesisTestCase
+from core.models import Question, Answer, TopicResult, Advertisement, Topic, Subject, SubjectCategory, Course, CourseCategory
 from accounts.models import User
 import uuid
 
@@ -10,8 +10,6 @@ class ModelFieldPropertyTests(HypothesisTestCase):
     """Property-based tests for model fields"""
     
     def setUp(self):
-        """Set up test data"""
-        # Create required objects for foreign key relationships
         self.subject_category = SubjectCategory.objects.create(
             name="Test Category",
             slug="test-category"
@@ -22,11 +20,9 @@ class ModelFieldPropertyTests(HypothesisTestCase):
         )
         self.topic = Topic.objects.create(
             name="Test Topic",
-            subject=self.subject
-        )
-        self.test = Test.objects.create(
-            title="Test Title",
-            topic=self.topic
+            subject=self.subject,
+            time_limit=30,
+            passing_score=60
         )
         self.user = User.objects.create_user(
             username="testuser",
@@ -37,27 +33,17 @@ class ModelFieldPropertyTests(HypothesisTestCase):
     @given(st.integers(min_value=1, max_value=100))
     @settings(max_examples=10, deadline=None)
     def test_question_points_default_value_property(self, points_value):
-        """
-        **Feature: eduself-enhancements, Property 5: Question Points Default Value**
-        **Validates: Requirements 4.2**
-        
-        For any newly created question, the points field should default to 1
-        """
-        # Test default value
         question = Question(
-            test=self.test,
+            topic=self.topic,
             text="Test question text"
         )
-        # Check default value before saving
         self.assertEqual(question.points, 1)
         
-        # Test custom value
         question_with_points = Question(
-            test=self.test,
+            topic=self.topic,
             text="Test question with points",
             points=points_value
         )
-        # Verify the points value is set correctly
         self.assertEqual(question_with_points.points, points_value)
 
 
@@ -65,7 +51,6 @@ class QuestionPointsTests(TestCase):
     """Unit tests for Question.points field"""
     
     def setUp(self):
-        """Set up test data"""
         self.subject_category = SubjectCategory.objects.create(
             name="Test Category",
             slug="test-category"
@@ -76,34 +61,29 @@ class QuestionPointsTests(TestCase):
         )
         self.topic = Topic.objects.create(
             name="Test Topic",
-            subject=self.subject
-        )
-        self.test = Test.objects.create(
-            title="Test Title",
-            topic=self.topic
+            subject=self.subject,
+            time_limit=30,
+            passing_score=60
         )
     
     def test_question_points_default_value(self):
-        """Test that Question.points defaults to 1"""
         question = Question.objects.create(
-            test=self.test,
+            topic=self.topic,
             text="Test question"
         )
         self.assertEqual(question.points, 1)
     
     def test_question_points_custom_value(self):
-        """Test that Question.points can be set to custom values"""
         question = Question.objects.create(
-            test=self.test,
+            topic=self.topic,
             text="Test question",
             points=5
         )
         self.assertEqual(question.points, 5)
     
     def test_question_points_positive_integer(self):
-        """Test that Question.points only accepts positive integers"""
         question = Question.objects.create(
-            test=self.test,
+            topic=self.topic,
             text="Test question",
             points=10
         )
@@ -112,11 +92,10 @@ class QuestionPointsTests(TestCase):
         self.assertGreater(question.points, 0)
 
 
-class TestResultEarnedPointsTests(TestCase):
-    """Unit tests for TestResult.earned_points field"""
+class TopicResultEarnedPointsTests(TestCase):
+    """Unit tests for TopicResult.earned_points field"""
     
     def setUp(self):
-        """Set up test data"""
         self.subject_category = SubjectCategory.objects.create(
             name="Test Category",
             slug="test-category"
@@ -127,11 +106,9 @@ class TestResultEarnedPointsTests(TestCase):
         )
         self.topic = Topic.objects.create(
             name="Test Topic",
-            subject=self.subject
-        )
-        self.test = Test.objects.create(
-            title="Test Title",
-            topic=self.topic
+            subject=self.subject,
+            time_limit=30,
+            passing_score=60
         )
         self.user = User.objects.create_user(
             username="testuser",
@@ -139,22 +116,20 @@ class TestResultEarnedPointsTests(TestCase):
             password="testpass123"
         )
     
-    def test_testresult_earned_points_default_value(self):
-        """Test that TestResult.earned_points defaults to 0"""
-        result = TestResult.objects.create(
+    def test_topicresult_earned_points_default_value(self):
+        result = TopicResult.objects.create(
             user=self.user,
-            test=self.test,
+            topic=self.topic,
             score=80,
             total_questions=10,
             correct_answers=8
         )
         self.assertEqual(result.earned_points, 0)
     
-    def test_testresult_earned_points_custom_value(self):
-        """Test that TestResult.earned_points can be set to custom values"""
-        result = TestResult.objects.create(
+    def test_topicresult_earned_points_custom_value(self):
+        result = TopicResult.objects.create(
             user=self.user,
-            test=self.test,
+            topic=self.topic,
             score=80,
             total_questions=10,
             correct_answers=8,
@@ -167,7 +142,6 @@ class UserTotalPointsTests(TestCase):
     """Unit tests for User.total_points field"""
     
     def test_user_total_points_default_value(self):
-        """Test that User.total_points defaults to 0"""
         user = User.objects.create_user(
             username="testuser",
             email="test@example.com",
@@ -176,7 +150,6 @@ class UserTotalPointsTests(TestCase):
         self.assertEqual(user.total_points, 0)
     
     def test_user_total_points_custom_value(self):
-        """Test that User.total_points can be set to custom values"""
         user = User.objects.create_user(
             username="testuser",
             email="test@example.com",
@@ -190,7 +163,6 @@ class AdvertisementLinkUrlTests(TestCase):
     """Unit tests for Advertisement.link_url field"""
     
     def test_advertisement_link_url_default_value(self):
-        """Test that Advertisement.link_url can be null/blank"""
         ad = Advertisement.objects.create(
             title="Test Ad",
             image="test.jpg"
@@ -198,7 +170,6 @@ class AdvertisementLinkUrlTests(TestCase):
         self.assertIsNone(ad.link_url)
     
     def test_advertisement_link_url_custom_value(self):
-        """Test that Advertisement.link_url can be set to URL values"""
         ad = Advertisement.objects.create(
             title="Test Ad",
             image="test.jpg",
@@ -207,7 +178,6 @@ class AdvertisementLinkUrlTests(TestCase):
         self.assertEqual(ad.link_url, "https://example.com")
     
     def test_advertisement_link_url_blank_value(self):
-        """Test that Advertisement.link_url can be blank"""
         ad = Advertisement.objects.create(
             title="Test Ad",
             image="test.jpg",
@@ -222,30 +192,13 @@ class ThemeTogglePropertyTests(HypothesisTestCase):
     @given(st.sampled_from(['light', 'dark']))
     @settings(max_examples=10, deadline=None)
     def test_theme_toggle_functionality_property(self, initial_theme):
-        """
-        **Feature: eduself-enhancements, Property 1: Theme Toggle Functionality**
-        **Validates: Requirements 1.4**
-        
-        For any theme toggle button click, the CSS data-theme attribute should change from 'light' to 'dark' or vice versa
-        """
-        from django.test import Client
-        from django.urls import reverse
-        
-        client = Client()
-        
-        # Simulate the theme toggle logic that would happen in JavaScript
-        # Since we can't directly test JavaScript in Django tests, we test the logic
-        
-        # Test the toggle logic: light -> dark, dark -> light
         if initial_theme == 'light':
             expected_new_theme = 'dark'
         else:
             expected_new_theme = 'light'
         
-        # Verify the toggle logic works correctly
         self.assertNotEqual(initial_theme, expected_new_theme)
         
-        # Test that toggling twice returns to original theme
         if expected_new_theme == 'light':
             final_theme = 'dark'
         else:
@@ -254,32 +207,23 @@ class ThemeTogglePropertyTests(HypothesisTestCase):
         self.assertEqual(initial_theme, final_theme)
     
     def test_theme_persistence_property(self):
-        """
-        Test that theme preference can be stored and retrieved
-        This simulates the localStorage functionality
-        """
-        # Simulate theme storage (in a real app this would be localStorage)
         theme_storage = {}
         
-        # Test storing light theme
         theme_storage['theme'] = 'light'
         self.assertEqual(theme_storage.get('theme'), 'light')
         
-        # Test storing dark theme
         theme_storage['theme'] = 'dark'
         self.assertEqual(theme_storage.get('theme'), 'dark')
         
-        # Test default behavior when no theme is stored
         theme_storage.clear()
         default_theme = theme_storage.get('theme', 'light')
         self.assertEqual(default_theme, 'light')
 
 
-class TestMaxPointsPropertyTests(HypothesisTestCase):
-    """Property-based tests for test maximum points calculation"""
+class TopicMaxPointsPropertyTests(HypothesisTestCase):
+    """Property-based tests for topic maximum points calculation"""
     
     def setUp(self):
-        """Set up test data"""
         unique_id = str(uuid.uuid4())[:8]
         self.subject_category = SubjectCategory.objects.create(
             name=f"Test Category {unique_id}",
@@ -291,43 +235,31 @@ class TestMaxPointsPropertyTests(HypothesisTestCase):
         )
         self.topic = Topic.objects.create(
             name=f"Test Topic {unique_id}",
-            subject=self.subject
-        )
-        self.test = Test.objects.create(
-            title=f"Test Title {unique_id}",
-            topic=self.topic
+            subject=self.subject,
+            time_limit=30,
+            passing_score=60
         )
     
     @given(st.lists(st.integers(min_value=1, max_value=10), min_size=1, max_size=10))
     @settings(max_examples=10, deadline=None)
-    def test_test_maximum_points_calculation_property(self, points_list):
-        """
-        **Feature: eduself-enhancements, Property 6: Test Maximum Points Calculation**
-        **Validates: Requirements 4.3**
+    def test_topic_maximum_points_calculation_property(self, points_list):
+        self.topic.questions.all().delete()
         
-        For any test, the maximum possible points should equal the sum of all its questions' points
-        """
-        # Clear existing questions
-        self.test.questions.all().delete()
-        
-        # Create questions with given points
         total_expected_points = 0
         for i, points in enumerate(points_list):
             Question.objects.create(
-                test=self.test,
+                topic=self.topic,
                 text=f"Test question {i+1}",
                 points=points
             )
             total_expected_points += points
         
-        # Test the get_max_points method
-        calculated_max_points = self.test.get_max_points()
+        from django.db.models import Sum
+        calculated_max_points = self.topic.questions.aggregate(total=Sum('points'))['total'] or 0
         
-        # Verify that calculated max points equals sum of all question points
         self.assertEqual(calculated_max_points, total_expected_points)
         
-        # Verify that it equals the manual sum
-        manual_sum = sum(q.points for q in self.test.questions.all())
+        manual_sum = sum(q.points for q in self.topic.questions.all())
         self.assertEqual(calculated_max_points, manual_sum)
 
 
@@ -335,7 +267,6 @@ class EarnedPointsPropertyTests(HypothesisTestCase):
     """Property-based tests for earned points calculation"""
     
     def setUp(self):
-        """Set up test data"""
         unique_id = str(uuid.uuid4())[:8]
         self.subject_category = SubjectCategory.objects.create(
             name=f"Test Category {unique_id}",
@@ -347,11 +278,9 @@ class EarnedPointsPropertyTests(HypothesisTestCase):
         )
         self.topic = Topic.objects.create(
             name=f"Test Topic {unique_id}",
-            subject=self.subject
-        )
-        self.test = Test.objects.create(
-            title=f"Test Title {unique_id}",
-            topic=self.topic
+            subject=self.subject,
+            time_limit=30,
+            passing_score=60
         )
         self.user = User.objects.create_user(
             username=f"testuser{unique_id}",
@@ -362,24 +291,15 @@ class EarnedPointsPropertyTests(HypothesisTestCase):
     @given(st.lists(st.integers(min_value=1, max_value=5), min_size=2, max_size=5))
     @settings(max_examples=10, deadline=None)
     def test_earned_points_calculation_property(self, points_list):
-        """
-        **Feature: eduself-enhancements, Property 7: Earned Points Calculation**
-        **Validates: Requirements 5.2**
+        self.topic.questions.all().delete()
         
-        For any completed test, the earned_points should equal the sum of points from correctly answered questions
-        """
-        # Clear existing questions
-        self.test.questions.all().delete()
-        
-        # Create questions with given points
         questions = []
         for i, points in enumerate(points_list):
             question = Question.objects.create(
-                test=self.test,
+                topic=self.topic,
                 text=f"Test question {i+1}",
                 points=points
             )
-            # Create answers for each question
             Answer.objects.create(
                 question=question,
                 text="Correct answer",
@@ -392,7 +312,6 @@ class EarnedPointsPropertyTests(HypothesisTestCase):
             )
             questions.append(question)
         
-        # Simulate answering first half correctly, second half incorrectly
         user_answers = {}
         expected_earned_points = 0
         
@@ -400,30 +319,28 @@ class EarnedPointsPropertyTests(HypothesisTestCase):
             correct_answer = question.answers.filter(is_correct=True).first()
             wrong_answer = question.answers.filter(is_correct=False).first()
             
-            if i < len(questions) // 2:  # First half correct
+            if i < len(questions) // 2:
                 user_answers[str(question.id)] = {
                     'selected_answer_id': correct_answer.id,
                     'is_correct': True
                 }
                 expected_earned_points += question.points
-            else:  # Second half wrong
+            else:
                 user_answers[str(question.id)] = {
                     'selected_answer_id': wrong_answer.id,
                     'is_correct': False
                 }
         
-        # Create TestResult with calculated earned_points
-        result = TestResult.objects.create(
+        result = TopicResult.objects.create(
             user=self.user,
-            test=self.test,
-            score=50,  # Doesn't matter for this test
+            topic=self.topic,
+            score=50,
             total_questions=len(questions),
             correct_answers=len(questions) // 2,
             user_answers=user_answers,
             earned_points=expected_earned_points
         )
         
-        # Verify earned_points matches expected
         self.assertEqual(result.earned_points, expected_earned_points)
 
 
@@ -431,7 +348,6 @@ class UserTotalPointsPropertyTests(HypothesisTestCase):
     """Property-based tests for user total points functionality"""
     
     def setUp(self):
-        """Set up test data"""
         unique_id = str(uuid.uuid4())[:8]
         self.subject_category = SubjectCategory.objects.create(
             name=f"Test Category {unique_id}",
@@ -443,11 +359,9 @@ class UserTotalPointsPropertyTests(HypothesisTestCase):
         )
         self.topic = Topic.objects.create(
             name=f"Test Topic {unique_id}",
-            subject=self.subject
-        )
-        self.test = Test.objects.create(
-            title=f"Test Title {unique_id}",
-            topic=self.topic
+            subject=self.subject,
+            time_limit=30,
+            passing_score=60
         )
         self.user = User.objects.create_user(
             username=f"testuser{unique_id}",
@@ -458,20 +372,13 @@ class UserTotalPointsPropertyTests(HypothesisTestCase):
     @given(st.lists(st.integers(min_value=1, max_value=10), min_size=1, max_size=5))
     @settings(max_examples=10, deadline=None)
     def test_profile_total_points_update_property(self, earned_points_list):
-        """
-        **Feature: eduself-enhancements, Property 11: Profile Total Points Update**
-        **Validates: Requirements 7.2**
-        
-        For any completed test, the user's total_points should be automatically updated to reflect the new earned points
-        """
         initial_total_points = self.user.total_points
         
-        # Create multiple test results
         total_expected_points = initial_total_points
         for i, earned_points in enumerate(earned_points_list):
-            TestResult.objects.create(
+            TopicResult.objects.create(
                 user=self.user,
-                test=self.test,
+                topic=self.topic,
                 score=80,
                 total_questions=5,
                 correct_answers=4,
@@ -479,55 +386,34 @@ class UserTotalPointsPropertyTests(HypothesisTestCase):
             )
             total_expected_points += earned_points
         
-        # Refresh user from database
         self.user.refresh_from_db()
         
-        # Verify total_points was updated correctly
         self.assertEqual(self.user.total_points, total_expected_points)
     
     def test_total_points_aggregation_property(self):
-        """
-        **Feature: eduself-enhancements, Property 12: Total Points Aggregation**
-        **Validates: Requirements 7.3**
-        
-        For any user, the total_points should equal the sum of earned_points from all test types
-        """
-        # Create test results from different test types
         test_earned_points = 15
-        cert_correct_answers = 8
-        mock_correct_answers = 12
         
-        # Create TestResult
-        TestResult.objects.create(
+        TopicResult.objects.create(
             user=self.user,
-            test=self.test,
+            topic=self.topic,
             score=80,
             total_questions=5,
             correct_answers=4,
             earned_points=test_earned_points
         )
         
-        # Expected total: test_earned_points + cert_correct_answers + mock_correct_answers
-        # But since we don't have actual cert and mock results, just test with test results
         self.user.refresh_from_db()
         expected_total = test_earned_points
         
         self.assertEqual(self.user.total_points, expected_total)
     
     def test_user_total_points_auto_update_property(self):
-        """
-        **Feature: eduself-enhancements, Property 13: User Total Points Auto-update**
-        **Validates: Requirements 7.4**
-        
-        For any change in test results, the user's total_points field should be automatically recalculated and updated
-        """
         initial_points = self.user.total_points
         
-        # Create first test result
         first_earned = 10
-        TestResult.objects.create(
+        TopicResult.objects.create(
             user=self.user,
-            test=self.test,
+            topic=self.topic,
             score=80,
             total_questions=5,
             correct_answers=4,
@@ -538,11 +424,10 @@ class UserTotalPointsPropertyTests(HypothesisTestCase):
         after_first = self.user.total_points
         self.assertEqual(after_first, initial_points + first_earned)
         
-        # Create second test result
         second_earned = 15
-        TestResult.objects.create(
+        TopicResult.objects.create(
             user=self.user,
-            test=self.test,
+            topic=self.topic,
             score=90,
             total_questions=5,
             correct_answers=5,
@@ -558,31 +443,25 @@ class ThemeToggleUnitTests(TestCase):
     """Unit tests for theme toggle functionality"""
     
     def test_theme_toggle_logic(self):
-        """Test the core theme toggle logic"""
-        # Test light to dark toggle
         current_theme = 'light'
         new_theme = 'dark' if current_theme == 'light' else 'light'
         self.assertEqual(new_theme, 'dark')
         
-        # Test dark to light toggle
         current_theme = 'dark'
         new_theme = 'dark' if current_theme == 'light' else 'light'
         self.assertEqual(new_theme, 'light')
     
     def test_theme_attribute_values(self):
-        """Test that only valid theme values are used"""
         valid_themes = ['light', 'dark']
         
         for theme in valid_themes:
             self.assertIn(theme, valid_themes)
         
-        # Test invalid theme defaults to light
         invalid_theme = 'invalid'
         default_theme = 'light' if invalid_theme not in valid_themes else invalid_theme
         self.assertEqual(default_theme, 'light')
     
     def test_theme_css_classes_mapping(self):
-        """Test that theme values map to correct CSS data-theme attributes"""
         theme_mappings = {
             'light': 'light',
             'dark': 'dark'
@@ -592,24 +471,19 @@ class ThemeToggleUnitTests(TestCase):
             self.assertEqual(theme, css_value)
     
     def test_theme_button_state_changes(self):
-        """Test that theme button states change correctly"""
-        # Simulate theme button state for light theme
         light_theme_state = {
             'icon': 'bi bi-sun-fill',
             'text': 'Oq rejim'
         }
         
-        # Simulate theme button state for dark theme
         dark_theme_state = {
             'icon': 'bi bi-moon-fill',
             'text': 'Qora rejim'
         }
         
-        # Verify states are different
         self.assertNotEqual(light_theme_state['icon'], dark_theme_state['icon'])
         self.assertNotEqual(light_theme_state['text'], dark_theme_state['text'])
         
-        # Verify correct icons for each theme
         self.assertEqual(light_theme_state['icon'], 'bi bi-sun-fill')
         self.assertEqual(dark_theme_state['icon'], 'bi bi-moon-fill')
 
@@ -620,26 +494,18 @@ class SlideUrlNavigationPropertyTests(HypothesisTestCase):
     @given(st.text(min_size=1, max_size=50, alphabet=st.characters(min_codepoint=32, max_codepoint=126)).filter(lambda x: x.strip()))
     @settings(max_examples=100, deadline=None)
     def test_slide_url_navigation_property(self, title):
-        """
-        **Feature: eduself-enhancements, Property 2: Slide URL Navigation**
-        **Validates: Requirements 2.2**
-        
-        For any advertisement slide with a non-empty link_url, clicking the slide should navigate to the specified URL
-        """
         from django.test import Client
         from django.urls import reverse
         from django.contrib.auth import get_user_model
         
         User = get_user_model()
         
-        # Create test user
         user = User.objects.create_user(
             username=f"testuser_{uuid.uuid4().hex[:8]}",
             email=f"test_{uuid.uuid4().hex[:8]}@example.com",
             password="testpass123"
         )
         
-        # Test with valid URL
         valid_url = "https://example.com"
         ad_with_url = Advertisement.objects.create(
             title=title,
@@ -647,53 +513,42 @@ class SlideUrlNavigationPropertyTests(HypothesisTestCase):
             link_url=valid_url
         )
         
-        # Test that advertisement with URL has the link_url field set
         self.assertEqual(ad_with_url.link_url, valid_url)
         self.assertIsNotNone(ad_with_url.link_url)
         
-        # Test with empty URL
         ad_without_url = Advertisement.objects.create(
             title=f"{title}_no_url",
             image="test.jpg",
             link_url=""
         )
         
-        # Test that advertisement without URL has empty link_url
         self.assertEqual(ad_without_url.link_url, "")
         
-        # Test with null URL
         ad_null_url = Advertisement.objects.create(
             title=f"{title}_null_url",
             image="test.jpg",
             link_url=None
         )
         
-        # Test that advertisement with null URL has None link_url
         self.assertIsNone(ad_null_url.link_url)
         
-        # Test home page rendering with advertisements
         client = Client()
         client.force_login(user)
         
         response = client.get(reverse('core:home'))
         self.assertEqual(response.status_code, 200)
         
-        # Check that advertisements are in context
         advertisements = response.context.get('advertisements', [])
         
-        # Verify that our test advertisements are included
         ad_titles = [ad.title for ad in advertisements]
         self.assertIn(title, ad_titles)
         
-        # Check template rendering logic for clickable slides
         content = response.content.decode()
         
-        # For advertisements with URLs, should have clickable-slide class and data-url
         if valid_url:
             self.assertIn('clickable-slide', content)
             self.assertIn(f'data-url="{valid_url}"', content)
         
-        # Clean up
         ad_with_url.delete()
         ad_without_url.delete() 
         ad_null_url.delete()
@@ -704,7 +559,6 @@ class CoursePaymentVisibilityPropertyTests(HypothesisTestCase):
     """Property-based tests for course payment visibility"""
     
     def setUp(self):
-        """Set up test data"""
         self.course_category, _ = CourseCategory.objects.get_or_create(
             slug="test-course-category-prop",
             defaults={
@@ -717,7 +571,7 @@ class CoursePaymentVisibilityPropertyTests(HypothesisTestCase):
                 "email": "test_prop@example.com"
             }
         )
-        if _:  # If user was created, set password
+        if _:
             self.user.set_password("testpass123")
             self.user.save()
     
@@ -728,157 +582,15 @@ class CoursePaymentVisibilityPropertyTests(HypothesisTestCase):
     )
     @settings(max_examples=10, deadline=None)
     def test_course_payment_button_visibility_property(self, title, description, instructor):
-        """
-        **Feature: eduself-enhancements, Property 3: Course Payment Button Visibility**
-        **Validates: Requirements 3.2**
-        
-        For any free course, no payment buttons should be visible on the course detail page
-        """
         from django.test import Client
         from django.urls import reverse
         
-        # Create a free course
         course = Course.objects.create(
             category=self.course_category,
             title=title,
             slug=f"test-course-{uuid.uuid4().hex[:8]}",
             description=description,
             instructor=instructor,
-            is_free=True,  # This is the key - course is free
-            price=0,
-            is_active=True
-        )
-        
-        # Test with authenticated user
-        client = Client()
-        client.force_login(self.user)
-        
-        response = client.get(reverse('core:course_detail', kwargs={'slug': course.slug}))
-        self.assertEqual(response.status_code, 200)
-        
-        content = response.content.decode()
-        
-        # For free courses, no payment buttons should be visible
-        # Check that payment-related elements are not present
-        self.assertNotIn('To\'lov qilish', content)  # Payment button text
-        self.assertNotIn('credit-card', content)     # Payment icon
-        self.assertNotIn('payment_url', content)     # Payment URL reference
-        self.assertNotIn('To\'lov kutilayotgan', content)  # Pending payment text
-        
-        # Free course should show enrollment button instead
-        self.assertIn('Bepul kursga yozilish', content)  # Free enrollment button
-        
-        # Clean up
-        course.delete()
-    
-    @given(
-        title=st.text(min_size=1, max_size=100),
-        description=st.text(min_size=1, max_size=500),
-        instructor=st.text(min_size=1, max_size=100),
-        price=st.decimals(min_value=1, max_value=1000000, places=2)
-    )
-    @settings(max_examples=10, deadline=None)
-    def test_paid_course_payment_display_property(self, title, description, instructor, price):
-        """
-        **Feature: eduself-enhancements, Property 4: Pullik Course Payment Display**
-        **Validates: Requirements 3.3**
-        
-        For any paid course, only payment_url-based payment options should be displayed
-        """
-        from django.test import Client
-        from django.urls import reverse
-        
-        # Create a paid course with payment URL
-        payment_url = "https://example.com/payment"
-        course = Course.objects.create(
-            category=self.course_category,
-            title=title,
-            slug=f"test-paid-course-{uuid.uuid4().hex[:8]}",
-            description=description,
-            instructor=instructor,
-            is_free=False,  # This is paid course
-            price=price,
-            payment_url=payment_url,
-            is_active=True
-        )
-        
-        # Test with authenticated user
-        client = Client()
-        client.force_login(self.user)
-        
-        response = client.get(reverse('core:course_detail', kwargs={'slug': course.slug}))
-        self.assertEqual(response.status_code, 200)
-        
-        content = response.content.decode()
-        
-        # For paid courses with payment_url, should show payment options
-        self.assertIn('To\'lov qilish', content)  # Payment button text
-        self.assertIn(payment_url, content)       # Payment URL should be present
-        self.assertIn(str(price), content)        # Price should be displayed
-        
-        # Should not show free enrollment button
-        self.assertNotIn('Bepul kursga yozilish', content)
-        
-        # Clean up
-        course.delete()
-        
-        # Test paid course without payment URL
-        course_no_payment = Course.objects.create(
-            category=self.course_category,
-            title=f"{title}_no_payment",
-            slug=f"test-paid-course-no-payment-{uuid.uuid4().hex[:8]}",
-            description=description,
-            instructor=instructor,
-            is_free=False,
-            price=price,
-            payment_url="",  # No payment URL
-            is_active=True
-        )
-        
-        response = client.get(reverse('core:course_detail', kwargs={'slug': course_no_payment.slug}))
-        self.assertEqual(response.status_code, 200)
-        
-        content = response.content.decode()
-        
-        # Should show warning message when no payment URL is available
-        self.assertIn('To\'lov tizimi hozircha mavjud emas', content)
-        
-        # Clean up
-        course_no_payment.delete()
-
-
-class CoursePaymentVisibilityUnitTests(TestCase):
-    """Unit tests for course payment visibility"""
-    
-    def setUp(self):
-        """Set up test data"""
-        self.course_category, _ = CourseCategory.objects.get_or_create(
-            slug="test-course-category-unit",
-            defaults={
-                "name": "Test Course Category Unit"
-            }
-        )
-        self.user, _ = User.objects.get_or_create(
-            username="testuser_unit",
-            defaults={
-                "email": "test_unit@example.com"
-            }
-        )
-        if _:  # If user was created, set password
-            self.user.set_password("testpass123")
-            self.user.save()
-    
-    def test_free_course_no_payment_buttons(self):
-        """Test that free courses show no payment buttons"""
-        from django.test import Client
-        from django.urls import reverse
-        
-        course = Course.objects.create(
-            category=self.course_category,
-            title="Free Test Course",
-            slug="free-test-course",
-            description="Test description",
-            instructor="Test Instructor",
             is_free=True,
             price=0,
             is_active=True
@@ -892,71 +604,11 @@ class CoursePaymentVisibilityUnitTests(TestCase):
         
         content = response.content.decode()
         
-        # Should not contain payment elements
         self.assertNotIn('To\'lov qilish', content)
         self.assertNotIn('credit-card', content)
+        self.assertNotIn('payment_url', content)
+        self.assertNotIn('To\'lov kutilayotgan', content)
         
-        # Should contain free enrollment
         self.assertIn('Bepul kursga yozilish', content)
-    
-    def test_paid_course_with_payment_url(self):
-        """Test that paid courses with payment URL show correct payment options"""
-        from django.test import Client
-        from django.urls import reverse
         
-        payment_url = "https://example.com/payment"
-        course = Course.objects.create(
-            category=self.course_category,
-            title="Paid Test Course",
-            slug="paid-test-course",
-            description="Test description",
-            instructor="Test Instructor",
-            is_free=False,
-            price=100000,
-            payment_url=payment_url,
-            is_active=True
-        )
-        
-        client = Client()
-        client.force_login(self.user)
-        
-        response = client.get(reverse('core:course_detail', kwargs={'slug': course.slug}))
-        self.assertEqual(response.status_code, 200)
-        
-        content = response.content.decode()
-        
-        # Should contain payment elements
-        self.assertIn('To\'lov qilish', content)
-        self.assertIn(payment_url, content)
-        self.assertIn('100000', content)  # Price
-        
-        # Should not contain free enrollment
-        self.assertNotIn('Bepul kursga yozilish', content)
-    
-    def test_paid_course_without_payment_url(self):
-        """Test that paid courses without payment URL show warning"""
-        from django.test import Client
-        from django.urls import reverse
-        
-        course = Course.objects.create(
-            category=self.course_category,
-            title="Paid Course No Payment",
-            slug="paid-course-no-payment",
-            description="Test description",
-            instructor="Test Instructor",
-            is_free=False,
-            price=50000,
-            payment_url="",  # Empty payment URL
-            is_active=True
-        )
-        
-        client = Client()
-        client.force_login(self.user)
-        
-        response = client.get(reverse('core:course_detail', kwargs={'slug': course.slug}))
-        self.assertEqual(response.status_code, 200)
-        
-        content = response.content.decode()
-        
-        # Should show warning message
-        self.assertIn('To\'lov tizimi hozircha mavjud emas', content)
+        course.delete()

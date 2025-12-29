@@ -8,11 +8,10 @@ urlpatterns = [
     
     path('subjects/', views.subjects_view, name='subjects'),
     path('subjects/<int:pk>/', views.subject_detail_view, name='subject_detail'),
-    path('topics/<int:pk>/', views.topic_detail_view, name='topic_detail'),
-    path('tests/<int:pk>/leaderboard/', views.test_leaderboard_view, name='test_leaderboard'),
-    path('tests/<int:pk>/', views.take_test_view, name='take_test'),
-    path('tests/<int:pk>/result/', views.test_result_view, name='test_result'),
-    path('tests/<int:pk>/analysis/', views.test_analysis_view, name='test_analysis'),
+    path('topics/<int:pk>/leaderboard/', views.topic_leaderboard_view, name='topic_leaderboard'),
+    path('topics/<int:pk>/', views.take_topic_test_view, name='take_topic_test'),
+    path('topics/<int:pk>/result/', views.topic_result_view, name='topic_result'),
+    path('topics/<int:pk>/analysis/', views.topic_analysis_view, name='topic_analysis'),
     path('check-answer/<int:question_id>/<int:answer_id>/', views.check_answer_view, name='check_answer'),
     
     path('certificates/', views.certificates_view, name='certificates'),

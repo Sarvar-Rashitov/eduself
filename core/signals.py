@@ -1,15 +1,15 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db.models import Sum
-from .models import TestResult, CertificateResult, MockExamResult
+from .models import TopicResult, CertificateResult, MockExamResult
 
 
 def calculate_user_total_points(user):
     """
     Foydalanuvchining barcha test turlaridan umumiy ballini hisoblash
     """
-    # Oddiy testlardan balllar (earned_points maydoni)
-    test_points = TestResult.objects.filter(user=user).aggregate(
+    # Mavzu testlaridan balllar (earned_points maydoni)
+    topic_points = TopicResult.objects.filter(user=user).aggregate(
         total=Sum('earned_points')
     )['total'] or 0
     
@@ -23,13 +23,13 @@ def calculate_user_total_points(user):
         total=Sum('earned_points')
     )['total'] or 0
     
-    return test_points + cert_points + mock_points
+    return topic_points + cert_points + mock_points
 
 
-@receiver(post_save, sender=TestResult)
-def update_user_total_points_on_test_result(sender, instance, created, **kwargs):
+@receiver(post_save, sender=TopicResult)
+def update_user_total_points_on_topic_result(sender, instance, created, **kwargs):
     """
-    TestResult yaratilganda foydalanuvchining total_points ni yangilash
+    TopicResult yaratilganda foydalanuvchining total_points ni yangilash
     """
     if created:  # Faqat yangi natija yaratilganda
         user = instance.user

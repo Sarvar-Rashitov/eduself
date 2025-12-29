@@ -9,12 +9,12 @@ from telegram_bot.decorators import require_subscription
 
 @sync_to_async
 def get_user_stats(user):
-    from core.models import TestResult, CertificateResult, MockExamResult
-    total_tests = TestResult.objects.filter(user=user).count()
+    from core.models import TopicResult, CertificateResult, MockExamResult
+    total_tests = TopicResult.objects.filter(user=user).count()
     total_tests += CertificateResult.objects.filter(user=user).count()
     total_tests += MockExamResult.objects.filter(user=user).count()
 
-    passed_tests = TestResult.objects.filter(user=user, passed=True).count()
+    passed_tests = TopicResult.objects.filter(user=user, passed=True).count()
     passed_tests += CertificateResult.objects.filter(user=user, passed=True).count()
     passed_tests += MockExamResult.objects.filter(user=user, passed=True).count()
 
@@ -38,11 +38,11 @@ def get_user_position(user):
 
 @sync_to_async
 def get_detailed_stats(user):
-    from core.models import TestResult, CertificateResult, MockExamResult
+    from core.models import TopicResult, CertificateResult, MockExamResult
     from django.db.models import Avg
 
-    regular_tests = TestResult.objects.filter(user=user).count()
-    regular_passed = TestResult.objects.filter(user=user, passed=True).count()
+    regular_tests = TopicResult.objects.filter(user=user).count()
+    regular_passed = TopicResult.objects.filter(user=user, passed=True).count()
 
     cert_tests = CertificateResult.objects.filter(user=user).count()
     cert_passed = CertificateResult.objects.filter(user=user, passed=True).count()
@@ -50,7 +50,7 @@ def get_detailed_stats(user):
     mock_tests = MockExamResult.objects.filter(user=user).count()
     mock_passed = MockExamResult.objects.filter(user=user, passed=True).count()
 
-    avg_score = TestResult.objects.filter(user=user).aggregate(avg=Avg('score'))['avg'] or 0
+    avg_score = TopicResult.objects.filter(user=user).aggregate(avg=Avg('score'))['avg'] or 0
 
     return {
         'regular_tests': regular_tests,
@@ -65,13 +65,13 @@ def get_detailed_stats(user):
 
 @sync_to_async
 def get_test_history(user):
-    from core.models import TestResult, CertificateResult, MockExamResult
+    from core.models import TopicResult, CertificateResult, MockExamResult
     results = []
 
-    for r in TestResult.objects.filter(user=user).select_related('test').order_by('-completed_at')[:5]:
+    for r in TopicResult.objects.filter(user=user).select_related('topic').order_by('-completed_at')[:5]:
         results.append({
             'type': '📚',
-            'title': r.test.title[:25],
+            'title': r.topic.name[:25],
             'score': r.score,
             'passed': r.passed,
             'date': r.completed_at

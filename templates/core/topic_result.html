@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Natija - {{ topic.name }} - EduSelf{% endblock %}
+
+{% block content %}
+<div class="result-wrapper">
+{% if result %}
+<div class="result-card">
+    <div class="result-icon {% if result.passed %}success{% else %}fail{% endif %}">
+        <i class="bi {% if result.passed %}bi-check-circle{% else %}bi-x-circle{% endif %}"></i>
+    </div>
+    <h4 class="mb-2">{% if result.passed %}Tabriklaymiz!{% else %}Afsuski...{% endif %}</h4>
+    <div class="result-score">{{ result.score }}%</div>
+    <p class="text-muted mb-1">{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri javob</p>
+    {% if result.earned_points is not None %}
+    <p class="text-muted mb-0"><strong>{{ result.earned_points }}</strong> / {{ topic.get_max_points }} ball</p>
+    {% endif %}
+    
+    <div class="progress mt-3" style="height: 10px;">
+        <div class="progress-bar {% if result.passed %}bg-success{% else %}bg-danger{% endif %}" style="width: {{ result.score }}%"></div>
+    </div>
+    <p class="small text-muted mt-2 mb-0">O'tish balli: {{ topic.passing_score }}%</p>
+    
+    <div class="result-buttons">
+        <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary btn-sm">Qayta urinish</a>
+        <a href="{% url 'core:topic_analysis' topic.pk %}" class="btn btn-info btn-sm">Tahlil</a>
+        <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-warning btn-sm">
+            <i class="bi bi-trophy me-1"></i>Reyting
+        </a>
+        {% if next_topic %}
+        <a href="{% url 'core:topic_leaderboard' next_topic.pk %}" class="btn btn-success btn-sm">Keyingi</a>
+        {% endif %}
+        <a href="{% url 'core:subject_detail' topic.subject.pk %}" class="btn btn-outline-primary btn-sm">Ortga</a>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="bi bi-file-text"></i>
+    <p>Natija topilmadi</p>
+    <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary btn-sm">Testni boshlash</a>
+</div>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.result-wrapper {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.result-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.result-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 2rem;
+}
+
+.result-icon.success {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: white;
+}
+
+.result-icon.fail {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+    color: white;
+}
+
+.result-score {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #6366f1;
+}
+
+.result-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.result-buttons .btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+}
+
+@media (max-width: 576px) {
+    .result-wrapper {
+        padding: 10px;
+    }
+    
+    .result-buttons {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .result-buttons .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

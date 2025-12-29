@@ -1,0 +1,119 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}Tahlil - {{ topic.name }} - EduSelf{% endblock %}
+
+{% block content %}
+<section class="analysis-section">
+    <div class="container">
+        <div class="analysis-header">
+            <div class="analysis-info">
+                <h1>{{ topic.name }}</h1>
+                <p>{{ topic.get_questions_count }} savol | O'tish balli: {{ topic.passing_score }}%</p>
+            </div>
+            <div class="analysis-score {% if result.passed %}success{% else %}fail{% endif %}">
+                <div class="score-value">{{ result.score }}%</div>
+                <div class="score-details">{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri</div>
+                {% if result.earned_points is not None %}
+                <div class="score-points">{{ result.earned_points }} / {{ topic.get_max_points }} ball</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="analysis-actions mb-4">
+            <a href="{% url 'core:topic_result' topic.pk %}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Natijaga qaytish</a>
+            <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary"><i class="fas fa-redo"></i> Qayta urinish</a>
+        </div>
+        
+        <div class="analysis-container">
+            {% for item in analysis_data %}
+            <div class="question-analysis-card {% if item.is_correct %}correct{% else %}incorrect{% endif %}">
+                <div class="question-header">
+                    <div class="question-badge">
+                        <i class="fas {% if item.is_correct %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                        Savol {{ forloop.counter }}
+                        {% if item.question.points %}<span class="points">({{ item.question.points }} ball)</span>{% endif %}
+                    </div>
+                    <span class="question-status">
+                        {% if item.is_correct %}
+                            <i class="fas fa-check"></i> To'g'ri
+                            {% if item.question.points %}<span class="earned">+{{ item.question.points }} ball</span>{% endif %}
+                        {% else %}
+                            <i class="fas fa-times"></i> Noto'g'ri
+                            <span class="missed">0 ball</span>
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="question-text">{{ item.question.text }}</div>
+                {% if item.question.image %}
+                <img src="{{ item.question.image.url }}" alt="Question image" class="img-fluid mb-3 rounded">
+                {% endif %}
+                
+                <div class="answers-analysis">
+                    {% for answer in item.all_answers %}
+                    <div class="answer-item {% if answer.is_correct %}correct{% endif %} {% if item.user_answer and item.user_answer.selected_answer_id == answer.id %}selected{% endif %} {% if item.user_answer and item.user_answer.selected_answer_id == answer.id and not answer.is_correct %}wrong{% endif %}">
+                        <div class="answer-indicator">
+                            {% if answer.is_correct %}<i class="fas fa-check-circle text-success"></i>
+                            {% elif item.user_answer and item.user_answer.selected_answer_id == answer.id %}<i class="fas fa-times-circle text-danger"></i>
+                            {% else %}<i class="far fa-circle"></i>{% endif %}
+                        </div>
+                        <div class="answer-text">
+                            {{ answer.text }}
+                            {% if answer.is_correct %}<span class="badge bg-success">To'g'ri javob</span>{% endif %}
+                            {% if item.user_answer and item.user_answer.selected_answer_id == answer.id %}
+                            <span class="badge {% if answer.is_correct %}bg-success{% else %}bg-danger{% endif %}">Sizning javobingiz</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if not item.user_answer or not item.user_answer.selected_answer_id %}
+                    <div class="alert alert-warning mt-2"><i class="fas fa-exclamation-triangle"></i> Siz bu savolga javob bermadingiz.</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="analysis-actions mt-4">
+            <a href="{% url 'core:topic_result' topic.pk %}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Natijaga qaytish</a>
+            <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary"><i class="fas fa-redo"></i> Qayta urinish</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.analysis-section { padding: 40px 0 80px; }
+.analysis-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 16px; box-shadow: var(--shadow); }
+.analysis-info h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+.analysis-info p { color: var(--text-color); margin: 0; }
+.analysis-score { text-align: right; }
+.analysis-score.success .score-value { color: #28a745; }
+.analysis-score.fail .score-value { color: #dc3545; }
+.score-value { font-size: 2.5rem; font-weight: 700; }
+.score-details, .score-points { color: var(--text-color); font-size: 0.9rem; }
+.question-analysis-card { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; border-left: 4px solid #dee2e6; }
+.question-analysis-card.correct { border-left-color: #28a745; }
+.question-analysis-card.incorrect { border-left-color: #dc3545; }
+.question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.question-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 25px; font-weight: 600; }
+.question-analysis-card.correct .question-badge { background: #d4edda; color: #155724; }
+.question-analysis-card.incorrect .question-badge { background: #f8d7da; color: #721c24; }
+.question-badge .points { font-size: 0.85rem; opacity: 0.8; }
+.question-status { font-weight: 600; }
+.question-status .earned { color: #28a745; margin-left: 8px; }
+.question-status .missed { color: #dc3545; margin-left: 8px; }
+.question-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.answers-analysis { margin-top: 1rem; }
+.answer-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 2px solid #e9ecef; background: #f8f9fa; }
+.answer-item.correct { background: #d4edda; border-color: #28a745; }
+.answer-item.selected { background: #fff3cd; border-color: #ffc107; }
+.answer-item.wrong { background: #f8d7da; border-color: #dc3545; }
+.answer-item.correct.selected { background: #d4edda; border-color: #28a745; }
+.answer-indicator { font-size: 1.25rem; flex-shrink: 0; }
+.answer-text { flex: 1; }
+.answer-text .badge { margin-left: 8px; }
+</style>
+{% endblock %}

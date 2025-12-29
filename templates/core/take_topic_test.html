@@ -1,21 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ test.title }} - EduSelf{% endblock %}
+{% block title %}{{ topic.name }} - EduSelf{% endblock %}
 
 {% block content %}
 <div class="card mb-4">
-    <div class="card-body d-flex justify-content-between align-items-center">
-        <div>
-
-        </div>
-        <div class="d-flex gap-3">
+    <div class="card-body d-flex justify-content-end align-items-center" style="min-height: 56px;">
+        <div class="d-flex gap-3 flex-nowrap">
             <div class="score-display">
                 <i class="bi bi-trophy"></i>
-                <span id="currentScore">0</span> / <span id="maxScore">{{ test.get_max_points }}</span> ball
+                <span id="currentScore">0</span> / <span id="maxScore">{{ topic.get_max_points }}</span> ball
             </div>
             <div class="timer-display">
                 <i class="bi bi-clock"></i>
-                <span id="timer">{{ test.time_limit }}:00</span>
+                <span id="timer">{{ topic.time_limit }}:00</span>
             </div>
         </div>
     </div>
@@ -33,7 +30,10 @@
 <div id="questionContainer">
     {% for question in questions %}
     <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
-        <div class="question-number">Savol {{ forloop.counter }} / {{ questions|length }}</div>
+        <div class="question-header-mobile">
+            <div class="question-number">Savol {{ forloop.counter }} / {{ questions|length }}</div>
+            <div class="question-points-mobile"><i class="bi bi-star-fill"></i> {{ question.points }} ball</div>
+        </div>
         
         {% if question.long_text %}
         <div class="long-text-container">
@@ -130,17 +130,6 @@
     justify-content: center;
 }
 
-.score-display i {
-    font-size: 1.1rem;
-}
-
-#currentScore {
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    min-width: 45px;
-    text-align: right;
-}
-
 .timer-display {
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     color: white;
@@ -156,16 +145,6 @@
     justify-content: center;
 }
 
-.timer-display i {
-    font-size: 1.1rem;
-}
-
-#timer {
-    font-variant-numeric: tabular-nums;
-    min-width: 50px;
-    text-align: center;
-}
-
 .question-card {
     background: white;
     border-radius: 12px;
@@ -174,11 +153,29 @@
     margin-bottom: 20px;
 }
 
+.question-header-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
 .question-number {
     color: #6c757d;
     font-size: 0.9rem;
     font-weight: 600;
-    margin-bottom: 12px;
+}
+
+.question-points-mobile {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .question-text {
@@ -189,7 +186,6 @@
     line-height: 1.6;
 }
 
-/* Long text container - uzun matnlar uchun */
 .long-text-container {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border: 1px solid #dee2e6;
@@ -219,25 +215,6 @@
     white-space: pre-wrap;
 }
 
-/* Custom scrollbar for long text */
-.long-text-content::-webkit-scrollbar {
-    width: 6px;
-}
-
-.long-text-content::-webkit-scrollbar-track {
-    background: #e9ecef;
-    border-radius: 3px;
-}
-
-.long-text-content::-webkit-scrollbar-thumb {
-    background: #6366f1;
-    border-radius: 3px;
-}
-
-.long-text-content::-webkit-scrollbar-thumb:hover {
-    background: #4f46e5;
-}
-
 .answers-container {
     display: flex;
     flex-direction: column;
@@ -258,13 +235,13 @@
 
 .answer-option:hover {
     background: #e3f2fd;
-    border-color: #2196f3;
+    border-color: #6366f1;
 }
 
 .answer-option.selected {
     background: #e3f2fd;
-    border-color: #2196f3;
-    color: #1976d2;
+    border-color: #6366f1;
+    color: #1e40af;
 }
 
 .answer-option.answer-correct {
@@ -292,12 +269,6 @@
     justify-content: flex-end;
 }
 
-.question-buttons .btn {
-    font-size: 0.85rem;
-    padding: 6px 12px;
-}
-
-/* Responsive tugmalar */
 @media (max-width: 576px) {
     .question-buttons {
         flex-direction: column;
@@ -317,39 +288,6 @@
         width: 100%;
     }
 }
-
-.progress {
-    background-color: #e9ecef;
-    border-radius: 10px;
-}
-
-.progress-bar {
-    transition: width 0.5s ease;
-    border-radius: 10px;
-}
-
-/* Score animation */
-@keyframes scoreIncrease {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-.score-animation {
-    animation: scoreIncrease 0.5s ease;
-}
-
-/* Timer warning */
-.timer-warning {
-    background: linear-gradient(135deg, #dc3545, #c82333) !important;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
 </style>
 {% endblock %}
 
@@ -357,19 +295,43 @@
 <script>
 let currentQuestion = 0;
 let totalQuestions = {{ questions|length }};
-let timeLimit = {{ test.time_limit }} * 60; // daqiqani soniyaga aylantirish
+let timeLimit = {{ topic.time_limit }} * 60;
 let timeRemaining = timeLimit;
 let timerInterval;
 let userAnswers = {};
 let questionResults = {};
-let currentScore = 0; // Joriy ball hisobi
+let currentScore = 0;
+let testCompleted = false;
 
-// Real-time score yangilash funksiyasi
+function startTimer() {
+    timerInterval = setInterval(function() {
+        timeRemaining--;
+        updateTimerDisplay();
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert('Vaqt tugadi!');
+            submitTest();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    let minutes = Math.floor(timeRemaining / 60);
+    let seconds = timeRemaining % 60;
+    document.getElementById('timer').textContent = 
+        minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+    if (timeRemaining < 300) {
+        document.getElementById('timer').style.color = '#dc3545';
+    }
+}
+
 function updateCurrentScore(pointsEarned) {
-    currentScore += pointsEarned;
+    var points = Number(pointsEarned);
+    if (!isNaN(points)) {
+        currentScore += points;
+    }
     document.getElementById('currentScore').textContent = currentScore;
     
-    // Score animation effect
     const scoreElement = document.getElementById('currentScore');
     scoreElement.style.transform = 'scale(1.2)';
     scoreElement.style.color = pointsEarned > 0 ? '#28a745' : '#dc3545';
@@ -380,40 +342,11 @@ function updateCurrentScore(pointsEarned) {
     }, 500);
 }
 
-// Timer boshlash
-function startTimer() {
-    timerInterval = setInterval(function() {
-        timeRemaining--;
-        updateTimerDisplay();
-        
-        if (timeRemaining <= 0) {
-            clearInterval(timerInterval);
-            alert('Vaqt tugadi!');
-            submitTest();
-        }
-    }, 1000);
-}
-
-// Timer ko'rsatishni yangilash
-function updateTimerDisplay() {
-    let minutes = Math.floor(timeRemaining / 60);
-    let seconds = timeRemaining % 60;
-    document.getElementById('timer').textContent = 
-        minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
-    
-    // Vaqt kam qolganda qizil rang
-    if (timeRemaining < 300) { // 5 daqiqadan kam
-        document.getElementById('timer').style.color = '#dc3545';
-    }
-}
-
-// Progress bar yangilash
 function updateProgressBar() {
     let progress = ((currentQuestion + 1) / totalQuestions) * 100;
     document.getElementById('progressBar').style.width = progress + '%';
 }
 
-// Javobni tanlash
 document.querySelectorAll('.answer-option').forEach(option => {
     option.addEventListener('click', function() {
         const name = this.querySelector('input').name;
@@ -422,14 +355,10 @@ document.querySelectorAll('.answer-option').forEach(option => {
         });
         this.classList.add('selected');
         this.querySelector('input').checked = true;
-        
-        // Javobni tekshirish tugmasini faollashtirish
-        const questionIndex = currentQuestion;
-        document.getElementById(`checkAnswer-${questionIndex}`).disabled = false;
+        document.getElementById(`checkAnswer-${currentQuestion}`).disabled = false;
     });
 });
 
-// Javobni tekshirish
 function checkAnswer(questionIndex, questionId) {
     const selectedAnswer = document.querySelector(`input[name="question_${questionId}"]:checked`);
     if (!selectedAnswer) {
@@ -440,27 +369,20 @@ function checkAnswer(questionIndex, questionId) {
     const answerId = selectedAnswer.value;
     userAnswers[questionId] = answerId;
     
-    // AJAX orqali javobni tekshirish
     fetch(`/check-answer/${questionId}/${answerId}/`, {
         method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-        }
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(response => response.json())
     .then(data => {
         questionResults[questionId] = data;
         showAnswerResults(questionIndex, questionId, data);
-        
-        // Real-time score yangilash
         updateCurrentScore(data.points_earned);
         
-        // Tugmalarni o'zgartirish
         document.getElementById(`checkAnswer-${questionIndex}`).style.display = 'none';
         document.getElementById(`afterCheckButtons-${questionIndex}`).style.display = 'flex';
         document.getElementById(`afterCheckButtons-${questionIndex}`).style.gap = '12px';
         
-        // Javob variantlarini o'chirish
         document.querySelectorAll(`input[name="question_${questionId}"]`).forEach(input => {
             input.disabled = true;
         });
@@ -471,9 +393,7 @@ function checkAnswer(questionIndex, questionId) {
     });
 }
 
-// Javob natijalarini ko'rsatish
 function showAnswerResults(questionIndex, questionId, result) {
-    // Barcha javob variantlarini olish
     const answerOptions = document.querySelectorAll(`input[name="question_${questionId}"]`);
     const selectedAnswerId = document.querySelector(`input[name="question_${questionId}"]:checked`).value;
     
@@ -481,171 +401,87 @@ function showAnswerResults(questionIndex, questionId, result) {
         const answerOption = input.closest('.answer-option');
         const answerId = input.value;
         
-        // Barcha stillarni tozalash
         answerOption.classList.remove('answer-correct', 'answer-incorrect', 'selected');
         
-        // To'g'ri javobni yashil bilan belgilash
         if (result.correct_answer_id && answerId == result.correct_answer_id) {
             answerOption.classList.add('answer-correct');
         }
         
-        // Foydalanuvchi tanlagan noto'g'ri javobni qizil bilan belgilash
         if (answerId == selectedAnswerId && !result.is_correct) {
             answerOption.classList.add('answer-incorrect');
         }
     });
 }
 
-// Keyingi savol yoki testni yakunlash
 function handleNextQuestion(questionIndex) {
-    console.log('=== HANDLE NEXT QUESTION ===');
-    console.log('Question index:', questionIndex);
-    console.log('Current question:', currentQuestion);
-    console.log('Total questions:', totalQuestions);
-    
     const button = document.getElementById(`nextQuestion-${questionIndex}`);
-    if (!button) {
-        console.error('Tugma topilmadi:', `nextQuestion-${questionIndex}`);
-        return;
-    }
-    
     const isLast = button.getAttribute('data-is-last') === 'true';
-    const buttonText = button.textContent.trim();
-    
-    console.log('Button found:', button);
-    console.log('Button text:', buttonText);
-    console.log('Is last question:', isLast);
-    console.log('data-is-last attribute:', button.getAttribute('data-is-last'));
     
     if (isLast) {
-        console.log('=== OXIRGI SAVOL - TESTNI YAKUNLASH ===');
         submitTest();
     } else {
-        console.log('=== KEYINGI SAVOLGA O\'TISH ===');
         nextQuestion(questionIndex);
     }
 }
 
-// Keyingi savolga o'tish
 function nextQuestion(questionIndex) {
-    console.log('Next question called for index:', questionIndex);
-    
-    // Joriy savolni yashirish
     document.getElementById(`question-${questionIndex}`).style.display = 'none';
-    
-    // Keyingi savolni ko'rsatish
     currentQuestion = questionIndex + 1;
     document.getElementById(`question-${currentQuestion}`).style.display = 'block';
     updateProgressBar();
 }
 
-// Testni yakunlash
 function submitTest() {
-    console.log('=== TESTNI YAKUNLASH BOSHLANDI ===');
-    console.log('User answers:', userAnswers);
-    console.log('Total answers:', Object.keys(userAnswers).length);
-    
-    // Test yakunlanganini belgilash (beforeunload ogohlantirishini o'chirish uchun)
     testCompleted = true;
+    if (timerInterval) clearInterval(timerInterval);
     
-    // Timer to'xtatish
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        console.log('Timer to\'xtatildi');
-    }
-    
-    // Javoblar bo'sh emasligini tekshirish
     if (Object.keys(userAnswers).length === 0) {
         alert('Hech qanday javob berilmagan!');
-        console.log('Javoblar bo\'sh - to\'xtatildi');
-        testCompleted = false; // Xatolik bo'lsa qayta o'rnatish
+        testCompleted = false;
         return;
     }
     
-
-    
-    // Javoblarni JSON formatga o'tkazish
-    const answersData = JSON.stringify(userAnswers);
-    console.log('Answers JSON:', answersData);
-    
-    // Hidden input'ga qiymat berish
-    const answersInput = document.getElementById('answersData');
-    if (answersInput) {
-        answersInput.value = answersData;
-        console.log('Answers input\'ga o\'rnatildi:', answersInput.value);
-    } else {
-        console.error('answersData input topilmadi!');
-        alert('Xatolik: Form elementi topilmadi!');
-        return;
-    }
-    
-    // Formani topish va yuborish
-    const form = document.getElementById('testForm');
-    if (form) {
-        console.log('Form topildi, yuborilmoqda...');
-        form.style.display = 'block';
-        
-        // Loading ko'rsatish
-        document.body.style.cursor = 'wait';
-        
-        // Form yuborish
-        console.log('Form submit qilinmoqda...');
-        form.submit();
-        
-        console.log('=== FORM YUBORILDI ===');
-    } else {
-        console.error('testForm topilmadi!');
-        alert('Xatolik: Form topilmadi!');
-    }
+    document.getElementById('answersData').value = JSON.stringify(userAnswers);
+    document.getElementById('testForm').style.display = 'block';
+    document.getElementById('testForm').submit();
 }
 
-// Sahifa yuklanganda timer boshlash
+function showFinishConfirmation() {
+    document.getElementById('answeredCount').textContent = Object.keys(userAnswers).length;
+    document.getElementById('modalCurrentScore').textContent = currentScore;
+    new bootstrap.Modal(document.getElementById('finishTestModal')).show();
+}
+
+function confirmFinishTest() {
+    bootstrap.Modal.getInstance(document.getElementById('finishTestModal')).hide();
+    submitTest();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     startTimer();
     updateProgressBar();
 });
 
-// Sahifani yopishdan oldin ogohlantirish (faqat test davom etayotganda)
-let testCompleted = false;
-
 window.addEventListener('beforeunload', function(e) {
     if (!testCompleted && timeRemaining > 0 && Object.keys(userAnswers).length > 0) {
         e.preventDefault();
-        e.returnValue = 'Test davom etmoqda. Sahifani yopishni xohlaysizmi?';
+        e.returnValue = 'Test davom etmoqda.';
         return e.returnValue;
     }
 });
 
-// Testni tugatish modal oynasini ko'rsatish
-function showFinishConfirmation() {
-    document.getElementById('answeredCount').textContent = Object.keys(userAnswers).length;
-    document.getElementById('modalCurrentScore').textContent = currentScore;
-    const modal = new bootstrap.Modal(document.getElementById('finishTestModal'));
-    modal.show();
-}
-
-// Testni tugatishni tasdiqlash
-function confirmFinishTest() {
-    const modal = bootstrap.Modal.getInstance(document.getElementById('finishTestModal'));
-    modal.hide();
-    submitTest();
-}
-
-// Klaviatura bilan navigatsiya
 document.addEventListener('keydown', function(e) {
-    // Enter tugmasi - javobni tekshirish yoki keyingi savolga o'tish
     if (e.key === 'Enter') {
         const checkBtn = document.getElementById(`checkAnswer-${currentQuestion}`);
         const nextBtn = document.getElementById(`nextQuestion-${currentQuestion}`);
         
-        if (checkBtn && checkBtn.style.display !== 'none') {
+        if (checkBtn && checkBtn.style.display !== 'none' && !checkBtn.disabled) {
             checkBtn.click();
         } else if (nextBtn && nextBtn.style.display !== 'none') {
             nextBtn.click();
         }
     }
     
-    // 1-4 raqamlar - javoblarni tanlash
     if (e.key >= '1' && e.key <= '4') {
         const answerIndex = parseInt(e.key) - 1;
         const answers = document.querySelectorAll(`#question-${currentQuestion} .answer-option`);

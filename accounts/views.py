@@ -627,38 +627,37 @@ def profile_view(request):
         form = ProfileForm(instance=request.user)
     
     # Fanlar bo'yicha progress
-    from core.models import Subject, TestResult, Test
+    from core.models import Subject, TopicResult, Topic
     subjects_progress = []
     
-    user_test_ids = TestResult.objects.filter(user=request.user).values_list('test_id', flat=True).distinct()
+    user_topic_ids = TopicResult.objects.filter(user=request.user).values_list('topic_id', flat=True).distinct()
     user_subjects = Subject.objects.filter(
-        topics__tests__id__in=user_test_ids,
+        topics__id__in=user_topic_ids,
         is_active=True
-    ).distinct().prefetch_related('topics__tests')
+    ).distinct().prefetch_related('topics')
     
     for subject in user_subjects:
-        all_tests = Test.objects.filter(
-            topic__subject=subject,
-            topic__is_active=True,
+        all_topics = Topic.objects.filter(
+            subject=subject,
             is_active=True
         )
-        total_tests = all_tests.count()
+        total_topics = all_topics.count()
         
-        user_results = TestResult.objects.filter(
+        user_results = TopicResult.objects.filter(
             user=request.user,
-            test__topic__subject=subject
+            topic__subject=subject
         )
         
-        completed_tests = user_results.values('test').distinct().count()
-        passed_tests = user_results.filter(passed=True).values('test').distinct().count()
+        completed_topics = user_results.values('topic').distinct().count()
+        passed_topics = user_results.filter(passed=True).values('topic').distinct().count()
         
-        progress_percentage = int((passed_tests / total_tests) * 100) if total_tests > 0 else 0
+        progress_percentage = int((passed_topics / total_topics) * 100) if total_topics > 0 else 0
         
         subjects_progress.append({
             'subject': subject,
-            'total_tests': total_tests,
-            'completed_tests': completed_tests,
-            'passed_tests': passed_tests,
+            'total_tests': total_topics,
+            'completed_tests': completed_topics,
+            'passed_tests': passed_topics,
             'progress_percentage': progress_percentage,
         })
     
@@ -725,12 +724,12 @@ def profile_view(request):
         })
     
     # User stats for profile cards
-    from core.models import TestResult, CertificateResult, MockExamResult
-    total_tests = TestResult.objects.filter(user=request.user).count()
+    from core.models import TopicResult, CertificateResult, MockExamResult
+    total_tests = TopicResult.objects.filter(user=request.user).count()
     total_tests += CertificateResult.objects.filter(user=request.user).count()
     total_tests += MockExamResult.objects.filter(user=request.user).count()
     
-    passed_tests = TestResult.objects.filter(user=request.user, passed=True).count()
+    passed_tests = TopicResult.objects.filter(user=request.user, passed=True).count()
     passed_tests += CertificateResult.objects.filter(user=request.user, passed=True).count()
     passed_tests += MockExamResult.objects.filter(user=request.user, passed=True).count()
     
@@ -754,7 +753,7 @@ def profile_view(request):
     from operator import attrgetter
     
     # Oddiy testlar
-    regular_tests = TestResult.objects.filter(user=request.user).select_related('test__topic__subject').order_by('-completed_at')[:20]
+    regular_tests = TopicResult.objects.filter(user=request.user).select_related('topic__subject').order_by('-completed_at')[:20]
     
     # Sertifikat testlari
     cert_tests = CertificateResult.objects.filter(user=request.user).select_related('test__topic__certificate').order_by('-completed_at')[:20]
@@ -768,8 +767,8 @@ def profile_view(request):
     for result in regular_tests:
         all_results.append({
             'type': 'test',
-            'title': result.test.title,
-            'subtitle': f"{result.test.topic.subject.name} - {result.test.topic.name}",
+            'title': result.topic.name,
+            'subtitle': f"{result.topic.subject.name}",
             'score': result.score,
             'passed': result.passed,
             'completed_at': result.completed_at,
