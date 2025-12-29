@@ -32,6 +32,14 @@
                 <span class="q-num">Savol {{ forloop.counter }}</span>
                 <span class="q-points">{{ question.points|floatformat:1 }} ball</span>
             </div>
+            
+            {% if question.long_text %}
+            <div class="long-text-box">
+                <div class="long-text-title"><i class="fas fa-file-alt"></i> Matn</div>
+                <div class="long-text-body">{{ question.long_text|linebreaks }}</div>
+            </div>
+            {% endif %}
+            
             <div class="question-text">{{ question.text|safe }}</div>
             {% if question.image %}
             <img src="{{ question.image.url }}" class="question-img" alt="">
@@ -100,6 +108,11 @@
 .question-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
 .q-num { background: #667eea; color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; }
 .q-points { background: #fef3c7; color: #d97706; padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; }
+.long-text-box { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 15px; overflow: hidden; }
+.long-text-title { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 10px 15px; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+.long-text-body { max-height: 180px; overflow-y: auto; padding: 15px; font-size: 0.95rem; line-height: 1.7; }
+.long-text-body::-webkit-scrollbar { width: 5px; }
+.long-text-body::-webkit-scrollbar-thumb { background: #667eea; border-radius: 3px; }
 .question-text { font-size: 1rem; line-height: 1.6; margin-bottom: 15px; }
 .question-img { max-width: 100%; border-radius: 12px; margin-bottom: 15px; }
 .answers { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }

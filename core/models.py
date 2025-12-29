@@ -166,6 +166,7 @@ class Test(models.Model):
 
 class Question(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions', verbose_name="Test")
+    long_text = models.TextField(blank=True, null=True, verbose_name="Uzun matn", help_text="Hikoya, she'r yoki uzun matn (ixtiyoriy)")
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
@@ -310,6 +311,7 @@ class CertificateTest(models.Model):
 
 class CertificateQuestion(models.Model):
     test = models.ForeignKey(CertificateTest, on_delete=models.CASCADE, related_name='cert_questions', verbose_name="Test")
+    long_text = models.TextField(blank=True, null=True, verbose_name="Uzun matn", help_text="Hikoya, she'r yoki uzun matn (ixtiyoriy)")
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='cert_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
@@ -458,6 +460,7 @@ class MockExam(models.Model):
 
 class MockExamQuestion(models.Model):
     exam = models.ForeignKey(MockExam, on_delete=models.CASCADE, related_name='mock_questions', verbose_name="Imtihon")
+    long_text = models.TextField(blank=True, null=True, verbose_name="Uzun matn", help_text="Hikoya, she'r yoki uzun matn (ixtiyoriy)")
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='mock_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
@@ -934,6 +937,7 @@ class DirectionExam(models.Model):
 class DirectionExamQuestion(models.Model):
     """Yo'nalish imtihon savoli"""
     exam = models.ForeignKey(DirectionExam, on_delete=models.CASCADE, related_name='direction_questions', verbose_name="Imtihon")
+    long_text = models.TextField(blank=True, null=True, verbose_name="Uzun matn", help_text="Hikoya, she'r yoki uzun matn (ixtiyoriy)")
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='direction_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
