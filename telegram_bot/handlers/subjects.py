@@ -1,8 +1,8 @@
 """Fanlar handlerlari"""
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
 from asgiref.sync import sync_to_async
-from telegram_bot.keyboards import subjects_keyboard, topics_keyboard, tests_keyboard
+from telegram_bot.keyboards import subjects_keyboard, topics_keyboard
 from telegram_bot.utils import get_user_or_none
 from telegram_bot.decorators import require_subscription
 
@@ -37,16 +37,15 @@ def get_topic(topic_id):
 
 
 @sync_to_async
-def get_tests(topic, user):
-    tests = list(topic.tests.filter(is_active=True).order_by('order', 'created_at'))
-    for test in tests:
-        test.is_unlocked = test.is_unlocked_for_user(user) if user else False
-    return tests
+def get_topic_questions_count(topic):
+    """Mavzudagi savollar sonini olish"""
+    return topic.get_questions_count()
 
 
 @sync_to_async
-def get_tests_count(subject):
-    return subject.get_tests_count()
+def get_questions_count(subject):
+    """Fandagi barcha savollar sonini olish"""
+    return subject.get_questions_count()
 
 
 @require_subscription("subjects")
@@ -103,13 +102,13 @@ async def subject_detail(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     topics = await get_topics(subject)
-    tests_count = await get_tests_count(subject)
+    questions_count = await get_questions_count(subject)
 
     text = f"📖 *{subject.name}*\n\n"
     if subject.description:
         text += f"{subject.description}\n\n"
     text += f"📑 Mavzular soni: {len(topics)}\n"
-    text += f"📝 Testlar soni: {tests_count}\n\n"
+    text += f"❓ Savollar soni: {questions_count}\n\n"
     text += "Mavzuni tanlang:"
 
     await query.edit_message_text(
@@ -120,11 +119,10 @@ async def subject_detail(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def topic_detail(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Mavzu tafsilotlari"""
+    """Mavzu tafsilotlari - to'g'ridan-to'g'ri test boshlash"""
     query = update.callback_query
     await query.answer()
 
-    user = await get_user_or_none(update.effective_user.id)
     topic_id = int(query.data.split('_')[-1])
 
     topic = await get_topic(topic_id)
@@ -132,19 +130,26 @@ async def topic_detail(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text("❌ Mavzu topilmadi.")
         return
 
-    tests = await get_tests(topic, user)
+    questions_count = await get_topic_questions_count(topic)
 
     text = f"📑 *{topic.name}*\n\n"
     text += f"📖 Fan: {topic.subject.name}\n"
-    text += f"📝 Testlar soni: {len(tests)}\n\n"
-    text += "Testni tanlang:"
+    text += f"❓ Savollar: {questions_count} ta\n"
+    text += f"⏱ Vaqt: {topic.time_limit} daqiqa\n"
+    text += f"✅ O'tish balli: {topic.passing_score}%\n"
 
     context.user_data['current_topic_id'] = topic_id
+
+    keyboard = [
+        [InlineKeyboardButton("▶️ Testni boshlash", callback_data=f"start_topic_test_{topic_id}")],
+        [InlineKeyboardButton("🏆 Reyting", callback_data=f"topic_leaderboard_{topic_id}")],
+        [InlineKeyboardButton("⬅️ Orqaga", callback_data=f"subject_{topic.subject.id}")]
+    ]
 
     await query.edit_message_text(
         text,
         parse_mode='Markdown',
-        reply_markup=tests_keyboard(tests, topic_id)
+        reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
 

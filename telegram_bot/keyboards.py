@@ -66,34 +66,13 @@ def topics_keyboard(topics, subject_id):
     """Mavzular ro'yxati klaviaturasi"""
     keyboard = []
     for topic in topics:
+        questions_count = topic.questions.count()
+        status = "📑" if questions_count > 0 else "🔒"
         keyboard.append([InlineKeyboardButton(
-            f"📑 {topic.name}",
+            f"{status} {topic.name} ({questions_count} savol)",
             callback_data=f"topic_{topic.id}"
         )])
-    keyboard.append([InlineKeyboardButton("⬅️ Orqaga", callback_data=f"subject_{subject_id}")])
-    return InlineKeyboardMarkup(keyboard)
-
-
-def tests_keyboard(tests, topic_id):
-    """Testlar ro'yxati klaviaturasi"""
-    keyboard = []
-    for test in tests:
-        status = "🔓" if test.is_unlocked else "🔒"
-        keyboard.append([InlineKeyboardButton(
-            f"{status} {test.title}",
-            callback_data=f"test_{test.id}"
-        )])
-    keyboard.append([InlineKeyboardButton("⬅️ Orqaga", callback_data=f"topic_{topic_id}")])
-    return InlineKeyboardMarkup(keyboard)
-
-
-def test_start_keyboard(test_id):
-    """Test boshlash klaviaturasi"""
-    keyboard = [
-        [InlineKeyboardButton("▶️ Testni boshlash", callback_data=f"start_test_{test_id}")],
-        [InlineKeyboardButton("🏆 Reyting", callback_data=f"test_leaderboard_{test_id}")],
-        [InlineKeyboardButton("⬅️ Orqaga", callback_data="back_to_tests")]
-    ]
+    keyboard.append([InlineKeyboardButton("⬅️ Orqaga", callback_data="subjects")])
     return InlineKeyboardMarkup(keyboard)
 
 
