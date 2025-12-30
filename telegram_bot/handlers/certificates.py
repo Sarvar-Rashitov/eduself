@@ -1,5 +1,5 @@
-﻿"""Sertifikatlar handlerlari - Mock uslubida"""
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+﻿"""Sertifikatlar handlerlari - ReplyKeyboard bilan"""
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
 from asgiref.sync import sync_to_async
 from telegram_bot.keyboards import certificates_keyboard, main_menu_keyboard
@@ -117,6 +117,15 @@ def get_cert_leaderboard(test):
     return list(CertificateResult.objects.filter(test=test).values(
         'user__username', 'user__first_name'
     ).annotate(best_score=Max('earned_points')).order_by('-best_score')[:10])
+
+
+def cert_test_keyboard():
+    """Cert test vaqtidagi menyu"""
+    keyboard = [
+        [KeyboardButton("🅰️"), KeyboardButton("🅱️"), KeyboardButton("🅲"), KeyboardButton("🅳")],
+        [KeyboardButton("⏩ O'tkazib yuborish"), KeyboardButton("🏁 Yakunlash")]
+    ]
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 
 def format_timer(seconds):
@@ -297,15 +306,16 @@ async def start_cert_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"🏆 *{test.title}* testi boshlandi!\n\n"
         f"❓ Savollar soni: {len(questions)}\n"
         f"⏱ Vaqt: {test.time_limit} daqiqa\n\n"
-        f"Javobni tanlash uchun tugmalarni bosing.",
-        parse_mode='Markdown'
+        f"Javobni tanlash uchun menyudagi tugmalarni bosing.",
+        parse_mode='Markdown',
+        reply_markup=cert_test_keyboard()
     )
 
-    await show_cert_question(query, context, questions[0], 1, len(questions))
+    await show_cert_question(update, context, questions[0], 1, len(questions))
 
 
-async def show_cert_question(query, context: ContextTypes.DEFAULT_TYPE, question, num, total):
-    """Sertifikat savolini ko'rsatish - inline tugmalar bilan"""
+async def show_cert_question(update: Update, context: ContextTypes.DEFAULT_TYPE, question, num, total):
+    """Sertifikat savolini ko'rsatish"""
     session = context.user_data.get('test_session')
     if not session:
         return
@@ -329,116 +339,91 @@ async def show_cert_question(query, context: ContextTypes.DEFAULT_TYPE, question
     context.user_data['current_answers'] = {chr(65 + i): ans.id for i, ans in enumerate(answers)}
     context.user_data['current_question'] = question
 
-    keyboard = []
-    row = []
-    for i, answer in enumerate(answers):
-        letter = chr(65 + i)
-        row.append(InlineKeyboardButton(letter, callback_data=f"cert_ans_{question.id}_{answer.id}"))
-        if len(row) == 2:
-            keyboard.append(row)
-            row = []
-    if row:
-        keyboard.append(row)
-    
-    keyboard.append([
-        InlineKeyboardButton("⏩ O'tkazib yuborish", callback_data=f"cert_skip_{question.id}"),
-        InlineKeyboardButton("🏁 Yakunlash", callback_data="cert_finish")
-    ])
+    if update.callback_query:
+        message = update.callback_query.message
+    else:
+        message = update.message
 
-    await query.message.reply_text(
-        text, 
-        parse_mode='Markdown',
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+    await message.reply_text(text, parse_mode='Markdown')
 
 
-async def handle_cert_inline_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Inline tugma orqali cert javobni qabul qilish"""
-    query = update.callback_query
-    await query.answer()
-    
+async def handle_cert_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Cert javobini qabul qilish (A, B, C, D)"""
     session = context.user_data.get('test_session')
     if not session or session.get('test_type') != 'certificate':
-        await query.answer("❌ Faol test topilmadi!", show_alert=True)
         return
+
+    text = update.message.text.strip()
     
-    parts = query.data.split('_')
-    if len(parts) != 4:
+    answer_map = {'🅰️': 'A', '🅱️': 'B', '🅲': 'C', '🅳': 'D', 'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D'}
+    user_answer = answer_map.get(text.upper(), text.upper())
+
+    if user_answer not in ['A', 'B', 'C', 'D']:
         return
-    
-    question_id = int(parts[2])
-    answer_id = int(parts[3])
-    
-    current_question = context.user_data.get('current_question')
+
     current_answers = context.user_data.get('current_answers', {})
-    
-    if not current_question or current_question.id != question_id:
-        await query.answer("❌ Bu savol endi aktiv emas!", show_alert=True)
+    current_question = context.user_data.get('current_question')
+
+    if not current_answers or not current_question or user_answer not in current_answers:
+        await update.message.reply_text("❌ Javob topilmadi.")
         return
-    
+
+    answer_id = current_answers[user_answer]
+
     try:
         answer = await get_cert_answer(answer_id, current_question)
         correct_answer = await get_cert_correct_answer(current_question)
-        
+
         session['answers'][str(current_question.id)] = {
             'answer_id': answer_id,
             'is_correct': answer.is_correct
         }
-        
-        answers = list(current_question.cert_answers.all())
-        
-        elapsed = time.time() - session['start_time']
-        remaining = max(0, session['time_limit'] - elapsed)
-        timer_str = format_timer(int(remaining))
-        
-        num = session['current_index'] + 1
-        total = len(session['questions'])
-        
-        text = f"⏱ *Vaqt: {timer_str}*\n\n"
-        text += f"❓ *Savol {num}/{total}*\n\n"
-        text += f"{current_question.text}\n\n"
-        
-        for i, ans in enumerate(answers):
-            letter = chr(65 + i)
-            if ans.is_correct:
-                text += f"✅ *{letter})* {ans.text}\n"
-            elif ans.id == answer_id and not ans.is_correct:
-                text += f"❌ *{letter})* {ans.text}\n"
-            else:
-                text += f"*{letter})* {ans.text}\n"
-        
-        text += f"\n💎 Ball: {current_question.points}"
-        
+
         if answer.is_correct:
             session['correct_count'] += 1
             session['earned_points'] += current_question.points
-            text += "\n\n✅ *To'g'ri javob!*"
+            result_text = "✅ To'g'ri!"
         else:
             correct_letter = None
             for letter, ans_id in current_answers.items():
                 if correct_answer and ans_id == correct_answer.id:
                     correct_letter = letter
                     break
-            text += f"\n\n❌ *Noto'g'ri!* To'g'ri javob: *{correct_letter}*"
-        
-        keyboard = [[InlineKeyboardButton("➡️ Keyingi savol", callback_data="cert_next")]]
-        
-        await query.edit_message_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
-        
+            result_text = f"❌ Noto'g'ri! To'g'ri javob: {correct_letter}"
+
+        await update.message.reply_text(result_text)
+        await next_cert_question(update, context)
+
     except Exception as e:
-        await query.answer(f"❌ Xatolik: {str(e)}", show_alert=True)
+        await update.message.reply_text(f"❌ Xatolik: {str(e)}")
 
 
-async def handle_cert_skip(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Inline tugma orqali cert savolni o'tkazib yuborish"""
-    query = update.callback_query
-    await query.answer()
-    
+async def next_cert_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Keyingi cert savoliga o'tish"""
+    session = context.user_data.get('test_session')
+    if not session:
+        return
+
+    session['current_index'] += 1
+
+    if session['current_index'] < len(session['questions']):
+        next_q_id = session['questions'][session['current_index']]
+        question = await get_cert_question(next_q_id)
+        await show_cert_question(
+            update, context, question,
+            session['current_index'] + 1,
+            len(session['questions'])
+        )
+    else:
+        await finish_cert_test(update, context)
+
+
+async def skip_cert_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Cert savolini o'tkazib yuborish"""
     session = context.user_data.get('test_session')
     if not session or session.get('test_type') != 'certificate':
-        await query.answer("❌ Faol test topilmadi!", show_alert=True)
         return
-    
+
     current_question = context.user_data.get('current_question')
     if current_question:
         session['answers'][str(current_question.id)] = {
@@ -446,51 +431,19 @@ async def handle_cert_skip(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'is_correct': False,
             'skipped': True
         }
-    
-    await query.answer("⏩ Savol o'tkazib yuborildi")
-    
-    session['current_index'] += 1
-    
-    if session['current_index'] < len(session['questions']):
-        next_q_id = session['questions'][session['current_index']]
-        question = await get_cert_question(next_q_id)
-        
-        await query.message.delete()
-        await show_cert_question(query, context, question, session['current_index'] + 1, len(session['questions']))
-    else:
-        await finish_cert_from_callback(query, context)
+
+    await update.message.reply_text("⏩ Savol o'tkazib yuborildi")
+    await next_cert_question(update, context)
 
 
-async def handle_cert_next(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Keyingi cert savol tugmasi"""
-    query = update.callback_query
-    await query.answer()
-    
-    session = context.user_data.get('test_session')
-    if not session or session.get('test_type') != 'certificate':
-        await query.answer("❌ Faol test topilmadi!", show_alert=True)
-        return
-    
-    session['current_index'] += 1
-    
-    if session['current_index'] < len(session['questions']):
-        next_q_id = session['questions'][session['current_index']]
-        question = await get_cert_question(next_q_id)
-        
-        await query.message.delete()
-        await show_cert_question(query, context, question, session['current_index'] + 1, len(session['questions']))
-    else:
-        await finish_cert_from_callback(query, context)
-
-
-async def finish_cert_from_callback(query, context: ContextTypes.DEFAULT_TYPE):
-    """Callback dan cert testni yakunlash"""
+async def finish_cert_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Cert testni yakunlash"""
     session = context.user_data.get('test_session')
     if not session:
-        await query.message.reply_text("❌ Faol test topilmadi.", reply_markup=main_menu_keyboard())
+        await update.message.reply_text("❌ Faol test topilmadi.", reply_markup=main_menu_keyboard())
         return
 
-    user = await get_user_or_none(query.from_user.id)
+    user = await get_user_or_none(update.effective_user.id)
     test = await get_cert_test(session['test_id'])
 
     total = len(session['questions'])
@@ -532,20 +485,22 @@ async def finish_cert_from_callback(query, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("⬅️ Fanga qaytish", callback_data=f"cert_topic_{test.topic.id}")]
     ]
 
-    try:
-        await query.message.delete()
-    except:
-        pass
-
-    await query.message.reply_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
-    await query.message.reply_text("Menyu:", reply_markup=main_menu_keyboard())
+    await update.message.reply_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
+    await update.message.reply_text("Menyu:", reply_markup=main_menu_keyboard())
 
 
-async def handle_cert_finish_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Inline tugma orqali cert testni yakunlash"""
-    query = update.callback_query
-    await query.answer()
-    await finish_cert_from_callback(query, context)
+async def handle_cert_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Cert test menyu tugmalarini qayta ishlash"""
+    text = update.message.text
+    session = context.user_data.get('test_session')
+
+    if not session or session.get('test_type') != 'certificate':
+        return
+
+    if text == "⏩ O'tkazib yuborish":
+        await skip_cert_question(update, context)
+    elif text == "🏁 Yakunlash":
+        await finish_cert_test(update, context)
 
 
 async def cert_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -591,8 +546,4 @@ def register_handlers(app):
     app.add_handler(CallbackQueryHandler(cert_test_detail, pattern=r"^cert_test_\d+$"))
     app.add_handler(CallbackQueryHandler(start_cert_test, pattern=r"^start_cert_test_\d+$"))
     app.add_handler(CallbackQueryHandler(cert_leaderboard, pattern=r"^cert_leaderboard_\d+$"))
-    app.add_handler(CallbackQueryHandler(handle_cert_inline_answer, pattern=r"^cert_ans_\d+_\d+$"))
-    app.add_handler(CallbackQueryHandler(handle_cert_skip, pattern=r"^cert_skip_\d+$"))
-    app.add_handler(CallbackQueryHandler(handle_cert_next, pattern="^cert_next$"))
-    app.add_handler(CallbackQueryHandler(handle_cert_finish_callback, pattern="^cert_finish$"))
     app.add_handler(MessageHandler(filters.Regex("^🏆 Sertifikatlar$"), handle_certificates_text))

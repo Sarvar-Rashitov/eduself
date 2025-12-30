@@ -60,6 +60,8 @@ async def get_application():
 
 def register_all_handlers(app):
     """Barcha handlerlarni ro'yxatdan o'tkazish"""
+    from telegram.ext import MessageHandler, filters
+    
     from telegram_bot.handlers.start import register_handlers as start_handlers
     from telegram_bot.handlers.subjects import register_handlers as subject_handlers
     from telegram_bot.handlers.tests import register_handlers as test_handlers
@@ -79,6 +81,49 @@ def register_all_handlers(app):
     profile_handlers(app)
     ai_handlers(app)
     common_handlers(app)
+    
+    # Test javoblari uchun unified handler
+    from telegram_bot.handlers.tests import handle_topic_answer, handle_topic_menu
+    from telegram_bot.handlers.certificates import handle_cert_answer, handle_cert_menu
+    from telegram_bot.handlers.mock_exams import handle_mock_answer, handle_mock_menu
+    
+    async def unified_answer_handler(update, context):
+        """Barcha test turlari uchun javob handler"""
+        session = context.user_data.get('test_session')
+        if not session:
+            return
+        test_type = session.get('test_type')
+        if test_type == 'topic':
+            await handle_topic_answer(update, context)
+        elif test_type == 'certificate':
+            await handle_cert_answer(update, context)
+        elif test_type == 'mock':
+            await handle_mock_answer(update, context)
+    
+    async def unified_menu_handler(update, context):
+        """Barcha test turlari uchun menyu handler"""
+        session = context.user_data.get('test_session')
+        if not session:
+            return
+        test_type = session.get('test_type')
+        if test_type == 'topic':
+            await handle_topic_menu(update, context)
+        elif test_type == 'certificate':
+            await handle_cert_menu(update, context)
+        elif test_type == 'mock':
+            await handle_mock_menu(update, context)
+    
+    # Javob tugmalari (A, B, C, D emoji va oddiy)
+    app.add_handler(MessageHandler(
+        filters.Regex("^(🅰️|🅱️|🅲|🅳|[AaBbCcDd])$"),
+        unified_answer_handler
+    ))
+    
+    # Menyu tugmalari
+    app.add_handler(MessageHandler(
+        filters.Regex("^(⏩ O'tkazib yuborish|🏁 Yakunlash)$"),
+        unified_menu_handler
+    ))
     
     logger.info("Barcha handlerlar ro'yxatdan o'tkazildi")
 
