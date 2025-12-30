@@ -476,8 +476,7 @@ async def mock_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_mock_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.text == "Mock Imtihonlar":
-        await mock_exams_menu(update, context)
+    await mock_exams_menu(update, context)
 
 
 def register_handlers(app):
@@ -489,4 +488,4 @@ def register_handlers(app):
     app.add_handler(CallbackQueryHandler(handle_mock_skip, pattern=r"^mock_skip_\d+$"))
     app.add_handler(CallbackQueryHandler(handle_mock_next, pattern="^mock_next$"))
     app.add_handler(CallbackQueryHandler(handle_mock_finish_callback, pattern="^mock_finish$"))
-    app.add_handler(MessageHandler(filters.Regex("^Mock Imtihonlar$"), handle_mock_text))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex("Mock Imtihonlar"), handle_mock_text))
