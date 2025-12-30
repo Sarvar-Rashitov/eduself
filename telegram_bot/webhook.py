@@ -60,8 +60,6 @@ async def get_application():
 
 def register_all_handlers(app):
     """Barcha handlerlarni ro'yxatdan o'tkazish"""
-    from telegram.ext import MessageHandler, filters
-    
     from telegram_bot.handlers.start import register_handlers as start_handlers
     from telegram_bot.handlers.subjects import register_handlers as subject_handlers
     from telegram_bot.handlers.tests import register_handlers as test_handlers
@@ -81,36 +79,6 @@ def register_all_handlers(app):
     profile_handlers(app)
     ai_handlers(app)
     common_handlers(app)
-    
-    # Test menyu handlerlari (faqat sertifikat va mock uchun)
-    from telegram_bot.handlers.certificates import handle_cert_menu, handle_cert_answer
-    from telegram_bot.handlers.mock_exams import handle_mock_menu, handle_mock_answer
-    
-    async def unified_test_menu_handler(update, context):
-        session = context.user_data.get('test_session')
-        if not session:
-            return
-        test_type = session.get('test_type')
-        if test_type == 'certificate':
-            await handle_cert_menu(update, context)
-        elif test_type == 'mock':
-            await handle_mock_menu(update, context)
-    
-    async def unified_answer_handler(update, context):
-        session = context.user_data.get('test_session')
-        if not session:
-            return
-        test_type = session.get('test_type')
-        if test_type == 'certificate':
-            await handle_cert_answer(update, context)
-        elif test_type == 'mock':
-            await handle_mock_answer(update, context)
-    
-    app.add_handler(MessageHandler(
-        filters.Regex("^(⏭ Keyingisi|⏩ O'tkazib yuborish|🏁 Yakunlash)$"),
-        unified_test_menu_handler
-    ))
-    app.add_handler(MessageHandler(filters.Regex("^[AaBbCcDd]$"), unified_answer_handler))
     
     logger.info("Barcha handlerlar ro'yxatdan o'tkazildi")
 
