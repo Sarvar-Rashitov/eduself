@@ -156,6 +156,11 @@ def resend_verification_view(request):
         messages.info(request, "Emailingiz allaqachon tasdiqlangan.")
         return redirect('accounts:profile')
     
+    # Email sozlamalari tekshirish
+    if not settings.EMAIL_HOST_USER or settings.EMAIL_HOST_USER == 'your-email@gmail.com':
+        messages.warning(request, "Email xizmati hozircha sozlanmagan. Tez orada ishga tushadi!")
+        return redirect('accounts:profile')
+    
     # Yangi token yaratish
     token = EmailVerificationToken.objects.create(user=user)
     
