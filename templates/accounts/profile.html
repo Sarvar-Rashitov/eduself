@@ -37,9 +37,9 @@
                     
                     <!-- Email verification status -->
                     {% if user.email and not user.email_verified %}
-                    <span class="badge rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 0.7rem; background: #f59e0b; color: #000; width: fit-content; padding: 5px 12px; cursor: pointer;" onclick="window.location.href='{% url 'accounts:resend_verification' %}'">
-                        <i class="bi bi-exclamation-circle"></i> Tasdiqlanmagan
-                    </span>
+                    <a href="{% url 'accounts:resend_verification' %}" class="text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 0.75rem; color: #f59e0b;">
+                        <i class="bi bi-envelope"></i> Emailni tasdiqlash <i class="bi bi-arrow-right" style="font-size: 0.65rem;"></i>
+                    </a>
                     {% endif %}
                 </div>
             </div>
