@@ -6,51 +6,53 @@
 <div class="section-title">Profil</div>
 
 <div class="card mb-3">
-    <div class="card-body text-center py-3">
-        {% if user.profile_image %}
-        <img src="{{ user.profile_image.url }}" alt="Profile" class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
-        {% else %}
-        <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-primary text-white rounded-circle" style="width: 80px; height: 80px;">
-            <i class="bi bi-person fs-2"></i>
-        </div>
-        {% endif %}
-        
-        <!-- Telegram foydalanuvchilari uchun ism familiya -->
-        {% if user.auth_provider == 'telegram' and user.first_name %}
-        <h5 class="mb-1">{{ user.first_name }} {{ user.last_name }}</h5>
-        {% else %}
-        <h5 class="mb-1">{{ user.username }}</h5>
-        {% endif %}
-        
-        {% if user.email %}
-        <p class="text-muted small mb-1">{{ user.email }}</p>
-        {% endif %}
-        
-        <!-- Auth provider badge -->
-        {% if user.auth_provider == 'google' %}
-        <span class="badge bg-light text-dark border" style="font-size: 0.7rem;"><i class="bi bi-google"></i> Google</span>
-        {% elif user.auth_provider == 'telegram' %}
-        <span class="badge bg-info text-white" style="font-size: 0.7rem;"><i class="bi bi-telegram"></i> Telegram</span>
-        {% endif %}
-        
-        <!-- Email verification status -->
-        {% if user.email and not user.email_verified %}
-        <div class="mt-2">
-            <span class="badge bg-warning text-dark" style="font-size: 0.65rem;"><i class="bi bi-exclamation-circle"></i> Email tasdiqlanmagan</span>
-            <a href="{% url 'accounts:resend_verification' %}" class="d-block mt-1" style="font-size: 0.75rem;">
-                <i class="bi bi-envelope"></i> Tasdiqlash
-            </a>
-        </div>
-        {% elif user.email and user.email_verified %}
-        <span class="badge bg-success mt-1" style="font-size: 0.65rem;"><i class="bi bi-check-circle"></i> Tasdiqlangan</span>
-        {% endif %}
-        
-        <!-- Ball ko'rsatish -->
-        <div class="mt-2 p-2 bg-light rounded">
-            <div class="d-flex align-items-center justify-content-center">
-                <i class="bi bi-coin text-warning me-1"></i>
-                <span class="fw-bold text-primary">{{ user.total_points }}</span>
-                <span class="text-muted small ms-1">ball</span>
+    <div class="card-body py-3">
+        <div class="d-flex align-items-center">
+            <!-- Profil rasmi -->
+            {% if user.profile_image %}
+            <img src="{{ user.profile_image.url }}" alt="Profile" class="rounded-circle me-3" style="width: 70px; height: 70px; object-fit: cover;">
+            {% else %}
+            <div class="d-flex align-items-center justify-content-center bg-primary text-white rounded-circle me-3" style="width: 70px; height: 70px;">
+                <i class="bi bi-person fs-3"></i>
+            </div>
+            {% endif %}
+            
+            <!-- Ism va ma'lumotlar -->
+            <div class="flex-grow-1">
+                {% if user.auth_provider == 'telegram' and user.first_name %}
+                <h5 class="mb-1" style="font-size: 1rem;">{{ user.first_name }} {{ user.last_name }}</h5>
+                {% else %}
+                <h5 class="mb-1" style="font-size: 1rem;">{{ user.get_full_name|default:user.username }}</h5>
+                {% endif %}
+                
+                {% if user.email %}
+                <p class="text-muted small mb-1" style="font-size: 0.75rem;">{{ user.email }}</p>
+                {% endif %}
+                
+                <div class="d-flex align-items-center gap-1 flex-wrap">
+                    <!-- Auth provider badge -->
+                    {% if user.auth_provider == 'google' %}
+                    <span class="badge bg-light text-dark border" style="font-size: 0.65rem;"><i class="bi bi-google"></i> Google</span>
+                    {% elif user.auth_provider == 'telegram' %}
+                    <span class="badge bg-info text-white" style="font-size: 0.65rem;"><i class="bi bi-telegram"></i> Telegram</span>
+                    {% endif %}
+                    
+                    <!-- Email verification status -->
+                    {% if user.email and user.email_verified %}
+                    <span class="badge bg-success" style="font-size: 0.65rem;"><i class="bi bi-check-circle"></i> Tasdiqlangan</span>
+                    {% elif user.email and not user.email_verified %}
+                    <span class="badge bg-warning text-dark" style="font-size: 0.65rem;"><i class="bi bi-exclamation-circle"></i> Tasdiqlanmagan</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Ball -->
+            <div class="text-center ms-2">
+                <div class="bg-light rounded p-2">
+                    <i class="bi bi-coin text-warning"></i>
+                    <div class="fw-bold text-primary" style="font-size: 1rem;">{{ user.total_points }}</div>
+                    <small class="text-muted" style="font-size: 0.6rem;">ball</small>
+                </div>
             </div>
         </div>
     </div>
