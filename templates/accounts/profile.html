@@ -20,38 +20,38 @@
             <!-- Ism va ma'lumotlar -->
             <div class="flex-grow-1">
                 {% if user.auth_provider == 'telegram' and user.first_name %}
-                <h5 class="mb-1" style="font-size: 1rem;">{{ user.first_name }} {{ user.last_name }}</h5>
+                <h5 class="mb-2" style="font-size: 1rem;">{{ user.first_name }} {{ user.last_name }}</h5>
                 {% else %}
-                <h5 class="mb-1" style="font-size: 1rem;">{{ user.get_full_name|default:user.username }}</h5>
+                <h5 class="mb-2" style="font-size: 1rem;">{{ user.get_full_name|default:user.username }}</h5>
                 {% endif %}
                 
-                {% if user.email %}
-                <p class="text-muted small mb-1" style="font-size: 0.75rem;">{{ user.email }}</p>
-                {% endif %}
-                
-                <div class="d-flex align-items-center gap-1 flex-wrap">
+                <div class="d-flex flex-column gap-1">
                     <!-- Auth provider badge -->
                     {% if user.auth_provider == 'google' %}
-                    <span class="badge bg-light text-dark border" style="font-size: 0.65rem;"><i class="bi bi-google"></i> Google</span>
+                    <span class="badge rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 0.7rem; background: #db4437; color: white; width: fit-content; padding: 5px 12px;">
+                        <i class="bi bi-google"></i> Google
+                    </span>
                     {% elif user.auth_provider == 'telegram' %}
-                    <span class="badge bg-info text-white" style="font-size: 0.65rem;"><i class="bi bi-telegram"></i> Telegram</span>
+                    <span class="badge rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 0.7rem; background: #0088cc; color: white; width: fit-content; padding: 5px 12px;">
+                        <i class="bi bi-telegram"></i> Telegram
+                    </span>
                     {% endif %}
                     
                     <!-- Email verification status -->
-                    {% if user.email and user.email_verified %}
-                    <span class="badge bg-success" style="font-size: 0.65rem;"><i class="bi bi-check-circle"></i> Tasdiqlangan</span>
-                    {% elif user.email and not user.email_verified %}
-                    <span class="badge bg-warning text-dark" style="font-size: 0.65rem;"><i class="bi bi-exclamation-circle"></i> Tasdiqlanmagan</span>
+                    {% if user.email and not user.email_verified %}
+                    <a href="{% url 'accounts:resend_verification' %}" class="badge rounded-pill d-inline-flex align-items-center gap-1 text-decoration-none" style="font-size: 0.7rem; background: #f59e0b; color: #000; width: fit-content; padding: 5px 12px;">
+                        <i class="bi bi-exclamation-circle"></i> Tasdiqlanmagan
+                    </a>
                     {% endif %}
                 </div>
             </div>
             
             <!-- Ball -->
-            <div class="text-center ms-2">
-                <div class="bg-light rounded p-2">
-                    <i class="bi bi-coin text-warning"></i>
-                    <div class="fw-bold text-primary" style="font-size: 1rem;">{{ user.total_points }}</div>
-                    <small class="text-muted" style="font-size: 0.6rem;">ball</small>
+            <div class="text-center ms-2" style="min-width: 60px;">
+                <div class="bg-light rounded p-2" style="min-width: 60px;">
+                    <i class="bi bi-coin text-warning" style="font-size: 1.2rem;"></i>
+                    <div class="fw-bold text-primary" style="font-size: 1.1rem;">{{ user.total_points }}</div>
+                    <small class="text-muted" style="font-size: 0.65rem;">ball</small>
                 </div>
             </div>
         </div>
