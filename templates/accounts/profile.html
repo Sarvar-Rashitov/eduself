@@ -39,16 +39,16 @@
                     
                     <!-- Email verification status -->
                     {% if user.email and not user.email_verified %}
-                    <a href="{% url 'accounts:resend_verification' %}" class="badge rounded-pill d-inline-flex align-items-center gap-1 text-decoration-none" style="font-size: 0.7rem; background: #f59e0b; color: #000; width: fit-content; padding: 5px 12px;">
+                    <span class="badge rounded-pill d-inline-flex align-items-center gap-1" style="font-size: 0.7rem; background: #f59e0b; color: #000; width: fit-content; padding: 5px 12px; cursor: pointer;" onclick="window.location.href='{% url 'accounts:resend_verification' %}'">
                         <i class="bi bi-exclamation-circle"></i> Tasdiqlanmagan
-                    </a>
+                    </span>
                     {% endif %}
                 </div>
             </div>
             
             <!-- Ball -->
-            <div class="text-center ms-2" style="min-width: 60px;">
-                <div class="bg-light rounded p-2" style="min-width: 60px;">
+            <div class="text-center ms-2" style="min-width: 70px;">
+                <div class="bg-light rounded p-2" style="min-width: 70px;">
                     <i class="bi bi-coin text-warning" style="font-size: 1.2rem;"></i>
                     <div class="fw-bold text-primary" style="font-size: 1.1rem;">{{ user.total_points }}</div>
                     <small class="text-muted" style="font-size: 0.65rem;">ball</small>
