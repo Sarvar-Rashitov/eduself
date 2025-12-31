@@ -5,207 +5,293 @@
 {% block content %}
 <div class="section-title">Profil</div>
 
-<div class="card mb-4">
-    <div class="card-body text-center">
+<div class="card mb-3">
+    <div class="card-body text-center py-3">
         {% if user.profile_image %}
-        <img src="{{ user.profile_image.url }}" alt="Profile" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+        <img src="{{ user.profile_image.url }}" alt="Profile" class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
         {% else %}
-        <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-primary text-white rounded-circle" style="width: 100px; height: 100px;">
-            <i class="bi bi-person fs-1"></i>
+        <div class="mx-auto mb-2 d-flex align-items-center justify-content-center bg-primary text-white rounded-circle" style="width: 80px; height: 80px;">
+            <i class="bi bi-person fs-2"></i>
         </div>
         {% endif %}
-        <h5 class="mb-1">{{ user.username }}</h5>
-        <p class="text-muted mb-1">{{ user.email }}</p>
         
-        <!-- Email verification status -->
-        {% if user.email_verified %}
-        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Email tasdiqlangan</span>
+        <!-- Telegram foydalanuvchilari uchun ism familiya -->
+        {% if user.auth_provider == 'telegram' and user.first_name %}
+        <h5 class="mb-0">{{ user.first_name }} {{ user.last_name }}</h5>
+        <p class="text-muted small mb-1">@{{ user.username }}</p>
         {% else %}
-        <div class="mt-2">
-            <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle"></i> Email tasdiqlanmagan</span>
-            <div class="mt-2">
-                <a href="{% url 'accounts:resend_verification' %}" class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-envelope"></i> Tasdiqlash havolasini yuborish
-                </a>
-            </div>
-        </div>
+        <h5 class="mb-1">{{ user.username }}</h5>
+        {% endif %}
+        
+        {% if user.email %}
+        <p class="text-muted small mb-1">{{ user.email }}</p>
         {% endif %}
         
         <!-- Auth provider badge -->
         {% if user.auth_provider == 'google' %}
-        <div class="mt-2">
-            <span class="badge bg-light text-dark border"><i class="bi bi-google"></i> Google orqali</span>
-        </div>
+        <span class="badge bg-light text-dark border" style="font-size: 0.7rem;"><i class="bi bi-google"></i> Google</span>
         {% elif user.auth_provider == 'telegram' %}
+        <span class="badge bg-info text-white" style="font-size: 0.7rem;"><i class="bi bi-telegram"></i> Telegram</span>
+        {% endif %}
+        
+        <!-- Email verification status -->
+        {% if user.email and not user.email_verified %}
         <div class="mt-2">
-            <span class="badge bg-info text-white"><i class="bi bi-telegram"></i> Telegram orqali</span>
+            <span class="badge bg-warning text-dark" style="font-size: 0.65rem;"><i class="bi bi-exclamation-circle"></i> Email tasdiqlanmagan</span>
+            <a href="{% url 'accounts:resend_verification' %}" class="d-block mt-1" style="font-size: 0.75rem;">
+                <i class="bi bi-envelope"></i> Tasdiqlash
+            </a>
         </div>
+        {% elif user.email and user.email_verified %}
+        <span class="badge bg-success mt-1" style="font-size: 0.65rem;"><i class="bi bi-check-circle"></i> Tasdiqlangan</span>
         {% endif %}
+        
+        <!-- Ball ko'rsatish -->
+        <div class="mt-2 p-2 bg-light rounded">
+            <div class="d-flex align-items-center justify-content-center">
+                <i class="bi bi-coin text-warning me-1"></i>
+                <span class="fw-bold text-primary">{{ user.total_points }}</span>
+                <span class="text-muted small ms-1">ball</span>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="stats-grid mb-4">
-    <div class="stat-card">
-        <div class="stat-value">{{ user.get_total_tests_taken }}</div>
-        <div class="stat-label">Jami testlar</div>
+<div class="stats-grid mb-3">
+    <div class="stat-card" style="padding: 10px;">
+        <div class="stat-value" style="font-size: 1.2rem;">{{ user.get_total_tests_taken }}</div>
+        <div class="stat-label" style="font-size: 0.7rem;">Jami testlar</div>
     </div>
-    <div class="stat-card secondary">
-        <div class="stat-value">{{ user.get_passed_tests }}</div>
-        <div class="stat-label">Muvaffaqiyatli</div>
+    <div class="stat-card secondary" style="padding: 10px;">
+        <div class="stat-value" style="font-size: 1.2rem;">{{ user.get_passed_tests }}</div>
+        <div class="stat-label" style="font-size: 0.7rem;">Muvaffaqiyatli</div>
     </div>
-    <div class="stat-card accent">
-        <div class="stat-value">{{ user.get_progress_percentage }}%</div>
-        <div class="stat-label">Progress</div>
+    <div class="stat-card accent" style="padding: 10px;">
+        <div class="stat-value" style="font-size: 1.2rem;">{{ user.get_progress_percentage }}%</div>
+        <div class="stat-label" style="font-size: 0.7rem;">Progress</div>
     </div>
 </div>
 
-<div class="card mb-4">
-    <div class="card-body">
-        <h6 class="mb-3">Fanlar bo'yicha progress</h6>
-        {% if subjects_progress %}
-            {% for item in subjects_progress %}
-            <div class="progress-item mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="d-flex align-items-center">
-                        <i class="{{ item.subject.icon }} me-2 text-primary"></i>
-                        <strong>{{ item.subject.name }}</strong>
+<!-- Tabs -->
+<ul class="nav nav-pills nav-fill mb-3" id="profileTabs" role="tablist" style="font-size: 0.8rem;">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active py-2 px-1" id="progress-tab" data-bs-toggle="pill" data-bs-target="#progress" type="button" role="tab">
+            <i class="bi bi-graph-up"></i> Progress
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link py-2 px-1" id="edit-tab" data-bs-toggle="pill" data-bs-target="#edit" type="button" role="tab">
+            <i class="bi bi-pencil"></i> Tahrirlash
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link py-2 px-1" id="settings-tab" data-bs-toggle="pill" data-bs-target="#settings" type="button" role="tab">
+            <i class="bi bi-gear"></i> Sozlamalar
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="profileTabsContent">
+    <!-- Progress Tab -->
+    <div class="tab-pane fade show active" id="progress" role="tabpanel">
+        <div class="card mb-3">
+            <div class="card-body py-2">
+                <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-book text-primary"></i> Fanlar</h6>
+                {% if subjects_progress %}
+                    {% for item in subjects_progress %}
+                    <div class="mb-2 pb-2 {% if not forloop.last %}border-bottom{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="fw-bold">{{ item.subject.name }}</small>
+                            <span class="badge {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" style="font-size: 0.65rem;">
+                                {{ item.progress_percentage }}%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" 
+                                 style="width: {{ item.progress_percentage }}%"></div>
+                        </div>
+                        <small class="text-muted" style="font-size: 0.65rem;">{{ item.completed_tests }}/{{ item.total_tests }} test</small>
                     </div>
-                    <span class="badge {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}">
-                        {{ item.progress_percentage }}%
-                    </span>
-                </div>
-                <div class="progress" style="height: 8px;">
-                    <div class="progress-bar {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" 
-                         style="width: {{ item.progress_percentage }}%"></div>
-                </div>
-                <div class="d-flex justify-content-between mt-1">
-                    <small class="text-muted">{{ item.completed_tests }} / {{ item.total_tests }} test ishlangan</small>
-                    <small class="text-muted">{{ item.passed_tests }} muvaffaqiyatli</small>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="text-center text-muted py-3">
-                <i class="bi bi-book fs-1 d-block mb-2"></i>
-                <p class="mb-0">Hali hech qanday fan bo'yicha test ishlanmagan</p>
-                <a href="{% url 'core:subjects' %}" class="btn btn-primary btn-sm mt-2">Fanlarni ko'rish</a>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-<div class="card mb-4">
-    <div class="card-body">
-        <h6 class="mb-3">Sertifikatlar bo'yicha progress</h6>
-        {% if certificates_progress %}
-            {% for item in certificates_progress %}
-            <div class="progress-item mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-award me-2 text-success"></i>
-                        <strong>{{ item.certificate.name }}</strong>
-                    </div>
-                    <span class="badge {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}">
-                        {{ item.progress_percentage }}%
-                    </span>
-                </div>
-                <div class="progress" style="height: 8px;">
-                    <div class="progress-bar {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" 
-                         style="width: {{ item.progress_percentage }}%"></div>
-                </div>
-                <div class="d-flex justify-content-between mt-1">
-                    <small class="text-muted">{{ item.completed_tests }} / {{ item.total_tests }} test ishlangan</small>
-                    <small class="text-muted">{{ item.passed_tests }} muvaffaqiyatli</small>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="text-center text-muted py-3">
-                <i class="bi bi-award fs-1 d-block mb-2"></i>
-                <p class="mb-0">Hali hech qanday sertifikat bo'yicha test ishlanmagan</p>
-                <a href="{% url 'core:certificates' %}" class="btn btn-success btn-sm mt-2">Sertifikatlarni ko'rish</a>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-<div class="card mb-4">
-    <div class="card-body">
-        <h6 class="mb-3">Mock Exam bo'yicha progress</h6>
-        {% if mock_exams_progress %}
-            {% for item in mock_exams_progress %}
-            <div class="progress-item mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-clipboard-check me-2 text-warning"></i>
-                        <strong>{{ item.exam.title }}</strong>
-                    </div>
-                    {% if item.completed_exams > 0 %}
-                    <span class="badge {% if item.best_score >= item.exam.passing_score %}bg-success{% else %}bg-danger{% endif %}">
-                        Eng yaxshi: {{ item.best_score }}%
-                    </span>
-                    {% else %}
-                    <span class="badge bg-secondary">Ishlanmagan</span>
-                    {% endif %}
-                </div>
-                {% if item.completed_exams > 0 %}
-                <div class="progress" style="height: 8px;">
-                    <div class="progress-bar {% if item.best_score >= item.exam.passing_score %}bg-success{% else %}bg-danger{% endif %}" 
-                         style="width: {{ item.best_score }}%"></div>
-                </div>
-                <div class="d-flex justify-content-between mt-1">
-                    <small class="text-muted">{{ item.completed_exams }} marta ishlangan</small>
-                    <small class="text-muted">{{ item.passed_exams }} marta o'tilgan</small>
-                </div>
+                    {% endfor %}
                 {% else %}
-                <p class="text-muted small mb-0">Hali ishlanmagan</p>
+                    <div class="text-center text-muted py-2">
+                        <small>Hali test ishlanmagan</small>
+                        <a href="{% url 'core:subjects' %}" class="btn btn-primary btn-sm mt-1 d-block" style="font-size: 0.75rem;">Fanlarni ko'rish</a>
+                    </div>
                 {% endif %}
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="text-center text-muted py-3">
-                <i class="bi bi-clipboard-check fs-1 d-block mb-2"></i>
-                <p class="mb-0">Hali hech qanday mock exam ishlanmagan</p>
-                <a href="{% url 'core:mock_exams' %}" class="btn btn-warning btn-sm mt-2">Mock Examlarni ko'rish</a>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body py-2">
+                <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-award text-success"></i> Sertifikatlar</h6>
+                {% if certificates_progress %}
+                    {% for item in certificates_progress %}
+                    <div class="mb-2 pb-2 {% if not forloop.last %}border-bottom{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="fw-bold">{{ item.certificate.name }}</small>
+                            <span class="badge {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" style="font-size: 0.65rem;">
+                                {{ item.progress_percentage }}%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" 
+                                 style="width: {{ item.progress_percentage }}%"></div>
+                        </div>
+                        <small class="text-muted" style="font-size: 0.65rem;">{{ item.completed_tests }}/{{ item.total_tests }} test</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted py-2">
+                        <small>Hali test ishlanmagan</small>
+                        <a href="{% url 'core:certificates' %}" class="btn btn-success btn-sm mt-1 d-block" style="font-size: 0.75rem;">Sertifikatlarni ko'rish</a>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body py-2">
+                <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-clipboard-check text-warning"></i> Mock Exam</h6>
+                {% if mock_exams_progress %}
+                    {% for item in mock_exams_progress %}
+                    <div class="mb-2 pb-2 {% if not forloop.last %}border-bottom{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="fw-bold">{{ item.exam.title }}</small>
+                            {% if item.completed_exams > 0 %}
+                            <span class="badge {% if item.best_score >= item.exam.passing_score %}bg-success{% else %}bg-danger{% endif %}" style="font-size: 0.65rem;">
+                                {{ item.best_score }}%
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary" style="font-size: 0.65rem;">-</span>
+                            {% endif %}
+                        </div>
+                        {% if item.completed_exams > 0 %}
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar {% if item.best_score >= item.exam.passing_score %}bg-success{% else %}bg-danger{% endif %}" 
+                                 style="width: {{ item.best_score }}%"></div>
+                        </div>
+                        <small class="text-muted" style="font-size: 0.65rem;">{{ item.completed_exams }}x ishlangan</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted py-2">
+                        <small>Hali exam ishlanmagan</small>
+                        <a href="{% url 'core:mock_exams' %}" class="btn btn-warning btn-sm mt-1 d-block" style="font-size: 0.75rem;">Mock Examlarni ko'rish</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Tab -->
+    <div class="tab-pane fade" id="edit" role="tabpanel">
+        <div class="card">
+            <div class="card-body py-3">
+                <h6 class="mb-3" style="font-size: 0.9rem;"><i class="bi bi-person-gear"></i> Profilni tahrirlash</h6>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label small">Ism</label>
+                            <input type="text" name="first_name" class="form-control form-control-sm" value="{{ user.first_name }}" placeholder="Ismingiz">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Familiya</label>
+                            <input type="text" name="last_name" class="form-control form-control-sm" value="{{ user.last_name }}" placeholder="Familiyangiz">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small">Foydalanuvchi nomi</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                        <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small">Telefon</label>
+                        <input type="tel" name="phone" class="form-control form-control-sm" value="{{ user.phone|default:'' }}" placeholder="+998 90 123 45 67">
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small">Bio</label>
+                        {{ form.bio }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small">Profil rasmi</label>
+                        {{ form.profile_image }}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-check-lg"></i> Saqlash
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-pane fade" id="settings" role="tabpanel">
+        <div class="card mb-3">
+            <div class="card-body py-3">
+                <h6 class="mb-3" style="font-size: 0.9rem;"><i class="bi bi-key"></i> Parolni o'zgartirish</h6>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="change_password">
+                    
+                    <div class="mb-2">
+                        <label class="form-label small">Joriy parol</label>
+                        <input type="password" name="current_password" class="form-control form-control-sm" required>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small">Yangi parol</label>
+                        <input type="password" name="new_password" class="form-control form-control-sm" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small">Yangi parolni tasdiqlang</label>
+                        <input type="password" name="confirm_password" class="form-control form-control-sm" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-key"></i> Parolni o'zgartirish
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card border-danger">
+            <div class="card-body py-3">
+                <h6 class="mb-2 text-danger" style="font-size: 0.9rem;"><i class="bi bi-exclamation-triangle"></i> Xavfli zona</h6>
+                <p class="small text-muted mb-2">Hisobni o'chirish qaytarib bo'lmaydi.</p>
+                <button class="btn btn-outline-danger btn-sm w-100" onclick="confirmDeleteAccount()">
+                    <i class="bi bi-trash"></i> Hisobni o'chirish
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <h6 class="mb-3">Profilni tahrirlash</h6>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <div class="mb-3">
-                <label class="form-label">Foydalanuvchi nomi</label>
-                {{ form.username }}
-                {% if form.username.errors %}
-                <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
-                {% endif %}
-            </div>
-            
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                {{ form.email }}
-                {% if form.email.errors %}
-                <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
-                {% endif %}
-            </div>
-            
-            <div class="mb-3">
-                <label class="form-label">Bio</label>
-                {{ form.bio }}
-            </div>
-            
-            <div class="mb-4">
-                <label class="form-label">Profil rasmi</label>
-                {{ form.profile_image }}
-            </div>
-            
-            <button type="submit" class="btn btn-primary w-100">Saqlash</button>
-        </form>
-    </div>
-</div>
+<script>
+function confirmDeleteAccount() {
+    if (confirm("Hisobingizni o'chirishni xohlaysizmi? Bu amal qaytarib bo'lmaydi!")) {
+        // Delete account logic
+        alert("Hisob o'chirish funksiyasi hali tayyor emas");
+    }
+}
+</script>
 {% endblock %}

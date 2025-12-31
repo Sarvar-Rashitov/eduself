@@ -621,7 +621,15 @@ def profile_view(request):
         # Profil ma'lumotlarini yangilash
         form = ProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)
+            # Qo'shimcha maydonlarni saqlash
+            if 'first_name' in request.POST:
+                user.first_name = request.POST.get('first_name', '')
+            if 'last_name' in request.POST:
+                user.last_name = request.POST.get('last_name', '')
+            if 'phone' in request.POST:
+                user.phone = request.POST.get('phone', '')
+            user.save()
             messages.success(request, "Profil yangilandi!")
             return redirect('accounts:profile')
     else:
