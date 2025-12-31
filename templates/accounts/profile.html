@@ -3,8 +3,6 @@
 {% block title %}Profil - EduSelf{% endblock %}
 
 {% block content %}
-<div class="section-title">Profil</div>
-
 <div class="card mb-3">
     <div class="card-body py-3">
         <div class="d-flex align-items-center">
@@ -20,9 +18,9 @@
             <!-- Ism va ma'lumotlar -->
             <div class="flex-grow-1">
                 {% if user.auth_provider == 'telegram' and user.first_name %}
-                <h5 class="mb-2" style="font-size: 1rem;">{{ user.first_name }} {{ user.last_name }}</h5>
+                <h5 class="mb-2" style="font-size: 1.15rem; font-weight: 600;">{{ user.first_name }} {{ user.last_name }}</h5>
                 {% else %}
-                <h5 class="mb-2" style="font-size: 1rem;">{{ user.get_full_name|default:user.username }}</h5>
+                <h5 class="mb-2" style="font-size: 1.15rem; font-weight: 600;">{{ user.get_full_name|default:user.username }}</h5>
                 {% endif %}
                 
                 <div class="d-flex flex-column gap-1">
