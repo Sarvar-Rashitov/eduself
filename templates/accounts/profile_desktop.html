@@ -33,7 +33,6 @@
                 {% else %}
                 <h1>{{ user.get_full_name|default:user.username }}</h1>
                 {% endif %}
-                <p>@{{ user.username }}</p>
                 <div class="profile-badges">
                     {% if user.is_staff %}
                     <span class="badge admin"><i class="fas fa-shield-alt"></i> Admin</span>
