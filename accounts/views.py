@@ -555,15 +555,16 @@ def telegram_miniapp_auth_view(request):
                     username = f"{base_username}{counter}"
                     counter += 1
                 
-                user = User.objects.create_user(
+                # User modelini to'g'ridan-to'g'ri yaratish (email=None unique constraint uchun)
+                user = User(
                     username=username,
-                    email=None,  # Bo'sh - foydalanuvchi o'zi kiritadi
+                    email=None,  # NULL - unique constraint muammosini hal qiladi
                     telegram_id=telegram_id,
+                    first_name=tg_user.get('first_name', ''),
+                    last_name=tg_user.get('last_name', ''),
                     email_verified=False,
                     auth_provider='telegram'
                 )
-                user.first_name = tg_user.get('first_name', '')
-                user.last_name = tg_user.get('last_name', '')
                 user.set_unusable_password()
                 user.save()
             
