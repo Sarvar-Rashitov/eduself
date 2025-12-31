@@ -20,17 +20,17 @@
 
 {% if user.is_authenticated and user_stats %}
 <div class="stats-grid mb-3">
-    <div class="stat-card" style="padding: 10px;">
-        <div class="stat-value" style="font-size: 1.1rem;">{{ user_stats.total_tests }}</div>
-        <div class="stat-label" style="font-size: 0.65rem;">Jami testlar</div>
+    <div class="stat-card" style="padding: 12px 10px;">
+        <div class="stat-value" style="font-size: 1.2rem;">{{ user_stats.total_tests }}</div>
+        <div class="stat-label" style="font-size: 0.7rem;">Jami testlar</div>
     </div>
-    <div class="stat-card secondary" style="padding: 10px;">
-        <div class="stat-value" style="font-size: 1.1rem;">{{ user_stats.passed_tests }}</div>
-        <div class="stat-label" style="font-size: 0.65rem;">Muvaffaqiyatli</div>
+    <div class="stat-card secondary" style="padding: 12px 10px;">
+        <div class="stat-value" style="font-size: 1.2rem;">{{ user_stats.passed_tests }}</div>
+        <div class="stat-label" style="font-size: 0.7rem;">Muvaffaqiyatli</div>
     </div>
-    <div class="stat-card accent" style="padding: 10px;">
-        <div class="stat-value" style="font-size: 1.1rem;">{{ user_stats.progress }}%</div>
-        <div class="stat-label" style="font-size: 0.65rem;">Progress</div>
+    <div class="stat-card accent" style="padding: 12px 10px;">
+        <div class="stat-value" style="font-size: 1.2rem;">{{ user_stats.progress }}%</div>
+        <div class="stat-label" style="font-size: 0.7rem;">Progress</div>
     </div>
 </div>
 {% endif %}
@@ -101,12 +101,12 @@
 <a href="{% url 'core:institution_detail' inst.pk %}" class="text-decoration-none mb-2 d-block">
     <div class="institution-card-new" style="padding: 10px;">
         <div class="institution-header">
-            <div class="institution-logo-wrapper" style="width: 40px; height: 40px;">
+            <div class="institution-logo-wrapper" style="width: 48px; height: 48px;">
                 {% if inst.logo %}
-                <img src="{{ inst.logo.url }}" alt="{{ inst.name }}" class="institution-logo-new" style="width: 40px; height: 40px;">
+                <img src="{{ inst.logo.url }}" alt="{{ inst.name }}" class="institution-logo-new" style="width: 48px; height: 48px;">
                 {% else %}
-                <div class="institution-logo-new d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                    <i class="bi bi-building text-muted" style="font-size: 1rem;"></i>
+                <div class="institution-logo-new d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-building text-muted" style="font-size: 1.2rem;"></i>
                 </div>
                 {% endif %}
             </div>
