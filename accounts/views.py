@@ -148,6 +148,10 @@ def resend_verification_view(request):
     """Tasdiqlash emailini qayta yuborish"""
     user = request.user
     
+    if not user.email:
+        messages.warning(request, "Avval profilingizda email manzilini kiriting.")
+        return redirect('accounts:profile')
+    
     if user.email_verified:
         messages.info(request, "Emailingiz allaqachon tasdiqlangan.")
         return redirect('accounts:profile')
@@ -175,9 +179,11 @@ EduSelf jamoasi''',
             recipient_list=[user.email],
             fail_silently=False,
         )
-        messages.success(request, "Tasdiqlash havolasi emailingizga yuborildi!")
-    except Exception:
+        messages.success(request, f"Tasdiqlash havolasi {user.email} manziliga yuborildi!")
+    except Exception as e:
         messages.error(request, "Email yuborishda xatolik yuz berdi. Keyinroq urinib ko'ring.")
+    
+    return redirect('accounts:profile')
     
     return redirect('accounts:profile')
 

@@ -40,6 +40,10 @@
                     <a href="{% url 'accounts:resend_verification' %}" class="text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 0.75rem; color: #f59e0b;">
                         <i class="bi bi-envelope"></i> Emailni tasdiqlash <i class="bi bi-arrow-right" style="font-size: 0.65rem;"></i>
                     </a>
+                    {% elif not user.email %}
+                    <a href="#edit" onclick="document.getElementById('edit-tab').click();" class="text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 0.75rem; color: #6366f1;">
+                        <i class="bi bi-plus-circle"></i> Email qo'shish <i class="bi bi-arrow-right" style="font-size: 0.65rem;"></i>
+                    </a>
                     {% endif %}
                 </div>
             </div>
