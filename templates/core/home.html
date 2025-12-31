@@ -147,8 +147,8 @@
 </div>
 {% for subject in subjects %}
 <a href="{% url 'core:subject_detail' subject.pk %}" class="subject-card" style="padding: 10px;">
-    <div class="subject-icon" style="width: 36px; height: 36px;">
-        <i class="{{ subject.icon }}" style="font-size: 1rem;"></i>
+    <div class="subject-icon" style="width: 42px; height: 42px;">
+        <i class="{{ subject.icon }}" style="font-size: 1.15rem;"></i>
     </div>
     <div class="subject-info">
         <div class="subject-name" style="font-size: 0.8rem;">{{ subject.name }}</div>
@@ -168,8 +168,8 @@
 </div>
 {% for cert in certificates %}
 <a href="{% url 'core:certificate_detail' cert.pk %}" class="subject-card" style="padding: 10px;">
-    <div class="subject-icon" style="background: linear-gradient(135deg, #10B981, #34D399); width: 36px; height: 36px;">
-        <i class="bi bi-award" style="font-size: 1rem;"></i>
+    <div class="subject-icon" style="background: linear-gradient(135deg, #10B981, #34D399); width: 42px; height: 42px;">
+        <i class="bi bi-award" style="font-size: 1.15rem;"></i>
     </div>
     <div class="subject-info">
         <div class="subject-name" style="font-size: 0.8rem;">{{ cert.name }}</div>
