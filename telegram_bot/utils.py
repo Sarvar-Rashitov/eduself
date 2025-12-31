@@ -42,6 +42,11 @@ def create_user_from_telegram(tg_user: TelegramUser) -> User:
     """Telegram foydalanuvchisidan avtomatik ro'yxatdan o'tkazish"""
     telegram_id = str(tg_user.id)
     
+    # Avval mavjud foydalanuvchini tekshirish
+    existing_user = User.objects.filter(telegram_id=telegram_id).first()
+    if existing_user:
+        return existing_user
+    
     # Username yaratish - telegram username'ni to'liq saqlash (pastki chiziq bilan)
     base_username = tg_user.username or f"user{telegram_id}"
     username = base_username
@@ -52,16 +57,15 @@ def create_user_from_telegram(tg_user: TelegramUser) -> User:
         username = f"{base_username}{counter}"
         counter += 1
     
-    # Foydalanuvchi yaratish - email bo'sh (user o'zi kiritadi)
-    user = User.objects.create_user(
+    # Foydalanuvchi yaratish - email NULL (unique constraint uchun)
+    user = User(
         username=username,
-        email=None,  # Bo'sh - foydalanuvchi o'zi kiritadi
-        password=None,
+        email=None,  # NULL - unique constraint muammosini hal qiladi
         telegram_id=telegram_id,
         first_name=tg_user.first_name or '',
         last_name=tg_user.last_name or '',
         auth_provider='telegram',
-        email_verified=False  # Email kiritilmagan
+        email_verified=False
     )
     user.set_unusable_password()
     user.save()
