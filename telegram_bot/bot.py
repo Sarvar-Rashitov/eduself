@@ -61,45 +61,8 @@ def main():
         ai_handlers(app)
         common_handlers(app)
         
-        # Test menyu tugmalari uchun umumiy handler
+        # Test menyu tugmalari uchun umumiy handler - faqat mavjud handlerlar
         from telegram.ext import MessageHandler, filters
-        from telegram_bot.handlers.tests import handle_test_menu, handle_test_answer
-        from telegram_bot.handlers.certificates import handle_cert_menu, handle_cert_answer
-        from telegram_bot.handlers.mock_exams import handle_mock_menu, handle_mock_answer
-        
-        # Umumiy test menyu handler
-        async def unified_test_menu_handler(update, context):
-            session = context.user_data.get('test_session')
-            if not session:
-                return
-            
-            test_type = session.get('test_type')
-            if test_type == 'regular':
-                await handle_test_menu(update, context)
-            elif test_type == 'certificate':
-                await handle_cert_menu(update, context)
-            elif test_type == 'mock':
-                await handle_mock_menu(update, context)
-        
-        # Umumiy javob handler
-        async def unified_answer_handler(update, context):
-            session = context.user_data.get('test_session')
-            if not session:
-                return
-            
-            test_type = session.get('test_type')
-            if test_type == 'regular':
-                await handle_test_answer(update, context)
-            elif test_type == 'certificate':
-                await handle_cert_answer(update, context)
-            elif test_type == 'mock':
-                await handle_mock_answer(update, context)
-        
-        app.add_handler(MessageHandler(
-            filters.Regex("^(⏭ Keyingisi|⏩ O'tkazib yuborish|🏁 Yakunlash)$"),
-            unified_test_menu_handler
-        ))
-        app.add_handler(MessageHandler(filters.Regex("^[AaBbCcDd]$"), unified_answer_handler))
 
         logger.info("Barcha handlerlar ro'yxatdan o'tkazildi")
     except Exception as e:
