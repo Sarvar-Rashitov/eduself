@@ -129,7 +129,31 @@ def set_webhook_view(request):
         return JsonResponse({
             'success': True,
             'webhook_url': info.url,
-            'pending_update_count': info.pending_update_count
+            'pending_update_count': info.pending_update_count,
+            'message': f'Webhook muvaffaqiyatli o\'rnatildi: {webhook_url}'
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def webhook_info_view(request):
+    """Webhook ma'lumotlarini olish"""
+    loop = get_or_create_event_loop()
+    
+    async def get_info():
+        app = await get_application()
+        return await app.bot.get_webhook_info()
+    
+    try:
+        info = loop.run_until_complete(get_info())
+        return JsonResponse({
+            'webhook_url': info.url,
+            'has_custom_certificate': info.has_custom_certificate,
+            'pending_update_count': info.pending_update_count,
+            'last_error_date': info.last_error_date.isoformat() if info.last_error_date else None,
+            'last_error_message': info.last_error_message,
+            'max_connections': info.max_connections,
+            'allowed_updates': info.allowed_updates
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
