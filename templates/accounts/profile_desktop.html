@@ -201,7 +201,7 @@
                                 <div class="notification-content">
                                     <h4>{{ notification.title }}</h4>
                                     <p>{{ notification.message }}</p>
-                                    <small>{{ notification.created_at|timesince }} oldin</small>
+                                    <small>{{ notification.created_at|date:"d.m.Y H:i" }}</small>
                                 </div>
                                 <div class="notification-actions">
                                     {% if notification.link %}

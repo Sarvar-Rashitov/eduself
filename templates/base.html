@@ -151,7 +151,7 @@
                 {% if notifications %}
                 <div class="notification-list">
                     {% for notification in notifications %}
-                    <div class="notification-item {% if not notification.is_read %}unread{% endif %}" onclick="showNotificationModal({{ notification.id }}, '{{ notification.title|escapejs }}', '{{ notification.message|escapejs }}', '{{ notification.link|default:''|escapejs }}', '{{ notification.created_at|timesince }}')" style="cursor: pointer;">
+                    <div class="notification-item {% if not notification.is_read %}unread{% endif %}" onclick="showNotificationModal({{ notification.id }}, '{{ notification.title|escapejs }}', '{{ notification.message|escapejs }}', '{{ notification.link|default:''|escapejs }}', '{{ notification.created_at|date:"d.m.Y H:i" }}')" style="cursor: pointer;">
                         <div class="notification-icon-wrapper">
                             <div class="notification-icon">
                                 <i class="{{ notification.icon }}"></i>
@@ -161,7 +161,7 @@
                             <div class="notification-title">{{ notification.title }}</div>
                             <div class="notification-message">{{ notification.message|truncatewords:12 }}</div>
                             <div class="notification-time">
-                                <i class="bi bi-clock"></i> {{ notification.created_at|timesince }} oldin
+                                <i class="bi bi-calendar"></i> {{ notification.created_at|date:"d.m.Y H:i" }}
                             </div>
                         </div>
                         {% if not notification.is_read %}
@@ -643,11 +643,11 @@
     
     <!-- Notification JavaScript -->
     <script>
-    function showNotificationModal(notificationId, title, message, link, timeAgo) {
+    function showNotificationModal(notificationId, title, message, link, createdAt) {
         // Modal ma'lumotlarini to'ldirish
         document.getElementById('modalNotificationTitle').textContent = title;
         document.getElementById('modalNotificationMessage').textContent = message;
-        document.getElementById('modalNotificationTime').innerHTML = '<i class="bi bi-clock"></i> ' + timeAgo + ' oldin';
+        document.getElementById('modalNotificationTime').innerHTML = '<i class="bi bi-calendar"></i> ' + createdAt;
         
         // Havola tugmasini boshqarish
         const linkButton = document.getElementById('modalNotificationLink');
