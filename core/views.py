@@ -11,7 +11,7 @@ from .models import (
     InstitutionCategory, Institution, InstitutionDirection, InstitutionType, Advertisement, Statistic, SiteSettings,
     NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment,
-    Notification,
+    Notification, NotificationRead,
     DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult
 )
 
@@ -1164,7 +1164,14 @@ def mark_notification_read(request, notification_id):
     notification = get_object_or_404(Notification, id=notification_id)
     
     # Bildirishnomani o'qilgan deb belgilash
-    if notification.is_global or notification.user == request.user:
+    if notification.is_global:
+        # Global bildirishnoma uchun NotificationRead yaratish
+        NotificationRead.objects.get_or_create(
+            notification=notification,
+            user=request.user
+        )
+    elif notification.user == request.user:
+        # Shaxsiy bildirishnoma uchun is_read ni true qilish
         notification.is_read = True
         notification.save()
     
@@ -1186,10 +1193,20 @@ def mark_notification_read(request, notification_id):
 def mark_all_notifications_read(request):
     """Barcha bildirishnomalarni o'qilgan deb belgilash"""
     if request.method == 'POST':
+        # Shaxsiy bildirishnomalarni o'qilgan deb belgilash
         Notification.objects.filter(
-            Q(user=request.user) | Q(is_global=True),
+            user=request.user,
             is_read=False
         ).update(is_read=True)
+        
+        # Global bildirishnomalar uchun NotificationRead yaratish
+        global_notifications = Notification.objects.filter(is_global=True)
+        for notification in global_notifications:
+            NotificationRead.objects.get_or_create(
+                notification=notification,
+                user=request.user
+            )
+        
         return JsonResponse({'success': True})
     return JsonResponse({'success': False})
 

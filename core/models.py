@@ -841,6 +841,30 @@ class Notification(models.Model):
     
     def __str__(self):
         return f"{self.title} - {self.get_notification_type_display()}"
+    
+    def is_read_by_user(self, user):
+        """Foydalanuvchi tomonidan o'qilganligini tekshirish"""
+        if self.is_global:
+            # Global bildirishnoma uchun NotificationRead modelini tekshirish
+            return NotificationRead.objects.filter(notification=self, user=user).exists()
+        else:
+            # Shaxsiy bildirishnoma uchun is_read maydonini tekshirish
+            return self.is_read
+
+
+class NotificationRead(models.Model):
+    """Global bildirishnomalarni kim o'qiganligi uchun"""
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE, related_name='reads')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    read_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['notification', 'user']
+        verbose_name = "Bildirishnoma o'qilganligi"
+        verbose_name_plural = "Bildirishnoma o'qilganliklari"
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.notification.title}"
 
 
 # ==================== Yo'nalish Imtihon Modellari ====================

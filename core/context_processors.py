@@ -1,6 +1,6 @@
 from django.conf import settings as django_settings
 from django.db import models
-from .models import SiteSettings, Notification
+from .models import SiteSettings, Notification, NotificationRead
 
 def site_settings(request):
     try:
@@ -20,19 +20,28 @@ def auth_settings(request):
 
 def notifications(request):
     if request.user.is_authenticated:
-        # Bitta so'rov bilan barcha bildirishnomalarni olish
+        # Barcha bildirishnomalarni olish
         all_notifications = Notification.objects.filter(
-            is_read=False
-        ).filter(
             models.Q(user=request.user) | models.Q(is_global=True)
         ).select_related('user').order_by('-created_at')[:10]
         
-        unread_count = all_notifications.count()
+        # Har bir bildirishnoma uchun o'qilganligini tekshirish
+        notifications_with_read_status = []
+        unread_count = 0
+        
+        for notification in all_notifications:
+            is_read = notification.is_read_by_user(request.user)
+            # Template da ishlatish uchun is_read attributini qo'shish
+            notification.is_read = is_read
+            notifications_with_read_status.append(notification)
+            
+            if not is_read:
+                unread_count += 1
     else:
-        all_notifications = []
+        notifications_with_read_status = []
         unread_count = 0
     
     return {
-        'notifications': all_notifications,
+        'notifications': notifications_with_read_status,
         'unread_notifications_count': unread_count
     }

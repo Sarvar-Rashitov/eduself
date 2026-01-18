@@ -4,7 +4,7 @@ from .models import (
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     InstitutionCategory, Institution, InstitutionDirection, Advertisement, Statistic, NewsCategory, News,
-    CourseCategory, Course, Lesson, CourseEnrollment, Notification,
+    CourseCategory, Course, Lesson, CourseEnrollment, Notification, NotificationRead,
     DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult
 )
 
@@ -416,8 +416,15 @@ class NotificationAdmin(admin.ModelAdmin):
     list_display = ['title', 'notification_type', 'user', 'is_global', 'is_read', 'created_at']
     list_filter = ['notification_type', 'is_global', 'is_read', 'created_at']
     search_fields = ['title', 'message']
-    list_editable = ['is_read']
     readonly_fields = ['created_at']
+
+
+@admin.register(NotificationRead)
+class NotificationReadAdmin(admin.ModelAdmin):
+    list_display = ['notification', 'user', 'read_at']
+    list_filter = ['read_at']
+    search_fields = ['notification__title', 'user__username']
+    readonly_fields = ['read_at']
     
     fieldsets = (
         ('Asosiy ma\'lumotlar', {
