@@ -424,64 +424,53 @@ async def direction_exam_detail(update: Update, context: ContextTypes.DEFAULT_TY
     query = update.callback_query
     await query.answer()
 
-    try:
-        exam_id = int(query.data.split('_')[-1])
-        exam = await get_direction_exam(exam_id)
-        
-        if not exam:
-            await query.edit_message_text("❌ Imtihon topilmadi.")
-            return
+    exam_id = int(query.data.split('_')[-1])
+    exam = await get_direction_exam(exam_id)
+    
+    if not exam:
+        await query.edit_message_text("❌ Imtihon topilmadi.")
+        return
 
-        from telegram_bot.utils import get_user_or_none
-        user = await get_user_or_none(update.effective_user.id)
-        best_result = await get_direction_exam_best_result(user, exam) if user else None
-        
-        print(f"Debug: exam object: {exam}")
-        print(f"Debug: calling get_direction_exam_questions_count")
-        questions_count = await get_direction_exam_questions_count(exam)
-        print(f"Debug: questions_count = {questions_count}")
-        
-        max_points = await get_direction_exam_max_points(exam)
+    from telegram_bot.utils import get_user_or_none
+    user = await get_user_or_none(update.effective_user.id)
+    best_result = await get_direction_exam_best_result(user, exam) if user else None
+    questions_count = await get_direction_exam_questions_count(exam)
+    max_points = await get_direction_exam_max_points(exam)
 
-        text = f"📝 *{exam.title}*\n\n"
-        text += f"🏫 {exam.direction.institution.name}\n"
-        text += f"📚 Yo'nalish: {exam.direction.name}\n\n"
-        
-        if exam.description:
-            text += f"📄 {exam.description}\n\n"
-        
-        text += f"📚 Fanlar: {exam.subjects}\n"
-        text += f"❓ Savollar: {questions_count} ta\n"
-        text += f"⏱ Vaqt: {exam.time_limit} daqiqa\n"
-        text += f"✅ O'tish bali: {exam.passing_score}\n"
-        text += f"🏆 Maksimal ball: {max_points}\n\n"
+    text = f"📝 *{exam.title}*\n\n"
+    text += f"🏫 {exam.direction.institution.name}\n"
+    text += f"📚 Yo'nalish: {exam.direction.name}\n\n"
+    
+    if exam.description:
+        text += f"📄 {exam.description}\n\n"
+    
+    text += f"📚 Fanlar: {exam.subjects}\n"
+    text += f"❓ Savollar: {questions_count} ta\n"
+    text += f"⏱ Vaqt: {exam.time_limit} daqiqa\n"
+    text += f"✅ O'tish bali: {exam.passing_score}\n"
+    text += f"🏆 Maksimal ball: {max_points}\n\n"
 
-        if best_result:
-            status = "✅ O'tdi" if best_result.passed else "❌ O'tmadi"
-            text += f"📊 *Sizning natijangiz:*\n"
-            text += f"Ball: {best_result.score:.1f} {status}\n"
-            text += f"Olingan ball: {best_result.earned_points}\n\n"
+    if best_result:
+        status = "✅ O'tdi" if best_result.passed else "❌ O'tmadi"
+        text += f"📊 *Sizning natijangiz:*\n"
+        text += f"Ball: {best_result.score:.1f} {status}\n"
+        text += f"Olingan ball: {best_result.earned_points}\n\n"
 
-        keyboard = []
-        
-        if questions_count > 0:
-            keyboard.append([InlineKeyboardButton("▶️ Imtihonni boshlash", callback_data=f"start_direction_exam_{exam_id}")])
-        
-        if exam.application_url and best_result and best_result.passed:
-            keyboard.append([InlineKeyboardButton("📝 Ariza qoldirish", url=exam.application_url)])
-        
-        keyboard.append([InlineKeyboardButton("⬅️ Orqaga", callback_data=f"direction_exams_{exam.direction.id}")])
+    keyboard = []
+    
+    if questions_count > 0:
+        keyboard.append([InlineKeyboardButton("▶️ Imtihonni boshlash", callback_data=f"start_direction_exam_{exam_id}")])
+    
+    if exam.application_url and best_result and best_result.passed:
+        keyboard.append([InlineKeyboardButton("📝 Ariza qoldirish", url=exam.application_url)])
+    
+    keyboard.append([InlineKeyboardButton("⬅️ Orqaga", callback_data=f"direction_exams_{exam.direction.id}")])
 
-        await query.edit_message_text(
-            text,
-            parse_mode='Markdown',
-            reply_markup=InlineKeyboardMarkup(keyboard)
-        )
-    except Exception as e:
-        print(f"Debug: Exception in direction_exam_detail: {e}")
-        import traceback
-        traceback.print_exc()
-        await query.edit_message_text(f"❌ Xatolik: {str(e)}")
+    await query.edit_message_text(
+        text,
+        parse_mode='Markdown',
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
 
 
 async def start_direction_exam(update: Update, context: ContextTypes.DEFAULT_TYPE):
