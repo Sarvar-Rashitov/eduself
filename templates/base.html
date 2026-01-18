@@ -39,6 +39,55 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <!-- Notification Modal Styles -->
+    <style>
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid #e9ecef;
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-title {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    #modalNotificationTitle {
+        color: #212529;
+        font-size: 1.1rem;
+    }
+    
+    #modalNotificationMessage {
+        color: #6c757d;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+    
+    #modalNotificationTime {
+        color: #adb5bd;
+        font-size: 0.85rem;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #e9ecef;
+        padding: 1rem 1.5rem;
+    }
+    
+    .btn-close {
+        font-size: 0.8rem;
+    }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -102,7 +151,7 @@
                 {% if notifications %}
                 <div class="notification-list">
                     {% for notification in notifications %}
-                    <div class="notification-item {% if not notification.is_read %}unread{% endif %}" onclick="markNotificationRead({{ notification.id }}, '{{ notification.link|default:'' }}')" style="cursor: pointer;">
+                    <div class="notification-item {% if not notification.is_read %}unread{% endif %}" onclick="showNotificationModal({{ notification.id }}, '{{ notification.title|escapejs }}', '{{ notification.message|escapejs }}', '{{ notification.link|default:''|escapejs }}', '{{ notification.created_at|timesince }}')" style="cursor: pointer;">
                         <div class="notification-icon-wrapper">
                             <div class="notification-icon">
                                 <i class="{{ notification.icon }}"></i>
@@ -130,6 +179,27 @@
                     <p class="empty-subtext">Yangi bildirishnomalar bu yerda ko'rinadi</p>
                 </div>
                 {% endif %}
+            </div>
+        </div>
+        
+        <!-- Notification Modal -->
+        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="notificationModalLabel">Bildirishnoma</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6 id="modalNotificationTitle" class="fw-bold mb-3"></h6>
+                        <p id="modalNotificationMessage" class="mb-3"></p>
+                        <small id="modalNotificationTime" class="text-muted"></small>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                        <button type="button" class="btn btn-primary" id="modalNotificationLink" style="display: none;">Sahifaga o'tish</button>
+                    </div>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -573,7 +643,41 @@
     
     <!-- Notification JavaScript -->
     <script>
-    function markNotificationRead(notificationId, link) {
+    function showNotificationModal(notificationId, title, message, link, timeAgo) {
+        // Modal ma'lumotlarini to'ldirish
+        document.getElementById('modalNotificationTitle').textContent = title;
+        document.getElementById('modalNotificationMessage').textContent = message;
+        document.getElementById('modalNotificationTime').innerHTML = '<i class="bi bi-clock"></i> ' + timeAgo + ' oldin';
+        
+        // Havola tugmasini boshqarish
+        const linkButton = document.getElementById('modalNotificationLink');
+        if (link && link.trim() !== '') {
+            linkButton.style.display = 'inline-block';
+            linkButton.onclick = function() {
+                window.location.href = link;
+            };
+        } else {
+            linkButton.style.display = 'none';
+        }
+        
+        // Offcanvas ni yopish
+        const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('notificationMenu'));
+        if (offcanvas) {
+            offcanvas.hide();
+        }
+        
+        // Modal ni ko'rsatish
+        const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+        modal.show();
+        
+        // Bildirishnomani o'qilgan deb belgilash (faqat o'qilmagan bo'lsa)
+        const notificationElement = document.querySelector(`[onclick*="${notificationId}"]`);
+        if (notificationElement && notificationElement.classList.contains('unread')) {
+            markNotificationAsRead(notificationId, notificationElement);
+        }
+    }
+    
+    function markNotificationAsRead(notificationId, notificationElement) {
         // AJAX so'rov yuborish
         fetch(`/notification/${notificationId}/read/`, {
             method: 'GET',
@@ -584,7 +688,6 @@
         .then(response => {
             if (response.ok) {
                 // Bildirishnomani o'qilgan deb belgilash (UI da)
-                const notificationElement = event.currentTarget;
                 notificationElement.classList.remove('unread');
                 const dot = notificationElement.querySelector('.notification-dot');
                 if (dot) {
@@ -600,19 +703,6 @@
                     } else {
                         badge.textContent = count;
                     }
-                }
-                
-                // Offcanvas ni yopish
-                const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('notificationMenu'));
-                if (offcanvas) {
-                    offcanvas.hide();
-                }
-                
-                // Agar havola bo'lsa, u yerga o'tish
-                if (link && link.trim() !== '') {
-                    setTimeout(() => {
-                        window.location.href = link;
-                    }, 300);
                 }
             }
         })
