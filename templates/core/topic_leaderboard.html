@@ -69,7 +69,7 @@
                                     {{ result.user.username|slice:":1"|upper }}
                                 </div>
                                 {% endif %}
-                                <span>{{ result.user.username }}</span>
+                                <span>{{ result.user.get_full_name|default:result.user.first_name|default:result.user.username }}</span>
                                 {% if result.user == request.user %}
                                 <span class="badge bg-primary ms-2">Siz</span>
                                 {% endif %}
