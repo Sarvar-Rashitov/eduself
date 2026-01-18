@@ -75,20 +75,20 @@
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 12px;">
                                                     <i class="bi bi-person-fill"></i>
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-0">{{ user_item.get_full_name|default:user_item.username }}</h6>
-                                                    <small class="text-muted">@{{ user_item.username }}</small>
+                                                    <div class="fw-bold" style="font-size: 14px;">{{ user_item.get_full_name|default:user_item.username }}</div>
+                                                    <small class="text-muted" style="font-size: 11px;">@{{ user_item.username }}</small>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <span class="badge bg-info">{{ user_item.tests_completed }}</span>
+                                            <span class="badge bg-info" style="font-size: 10px;">{{ user_item.tests_completed }}</span>
                                         </td>
                                         <td class="text-end pe-4">
-                                            <span class="badge bg-success fs-6">{{ user_item.total_points }} ball</span>
+                                            <span class="badge bg-success" style="font-size: 11px;">{{ user_item.total_points }} ball</span>
                                         </td>
                                     </tr>
                                     {% endfor %}

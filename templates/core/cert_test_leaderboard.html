@@ -63,20 +63,22 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 {% if result.user.profile_image %}
-                                <img src="{{ result.user.profile_image.url }}" alt="{{ result.user.username }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                <img src="{{ result.user.profile_image.url }}" alt="{{ result.user.username }}" class="rounded-circle me-2" style="width: 28px; height: 28px; object-fit: cover;">
                                 {% else %}
-                                <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 14px;">
+                                <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 12px;">
                                     {{ result.user.username|slice:":1"|upper }}
                                 </div>
                                 {% endif %}
-                                <span>{{ result.user.get_full_name|default:result.user.first_name|default:result.user.username }}</span>
-                                {% if result.user == request.user %}
-                                <span class="badge bg-success ms-2">Siz</span>
-                                {% endif %}
+                                <div>
+                                    <div style="font-size: 14px;">{{ result.user.get_full_name|default:result.user.first_name|default:result.user.username }}</div>
+                                    {% if result.user == request.user %}
+                                    <span class="badge bg-success" style="font-size: 9px;">Siz</span>
+                                    {% endif %}
+                                </div>
                             </div>
                         </td>
                         <td class="text-center">
-                            <span class="badge bg-success fs-6">
+                            <span class="badge bg-success" style="font-size: 10px;">
                                 {{ result.earned_points }} ball
                             </span>
                         </td>
