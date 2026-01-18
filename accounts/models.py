@@ -117,3 +117,45 @@ class EmailVerificationToken(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+
+
+class TelegramLoginToken(models.Model):
+    """Telegram login uchun vaqtinchalik tokenlar - database'da saqlash"""
+    telegram_id = models.CharField(max_length=255, db_index=True)
+    token = models.CharField(max_length=64, unique=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used = models.BooleanField(default=False)
+    expires_at = models.DateTimeField()
+    
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(minutes=5)
+        super().save(*args, **kwargs)
+    
+    def is_valid(self):
+        """Token hali ham amal qiladimi?"""
+        if self.used:
+            return False
+        if timezone.now() > self.expires_at:
+            return False
+        return True
+    
+    def mark_as_used(self):
+        """Tokenni ishlatilgan deb belgilash"""
+        self.used = True
+        self.save()
+    
+    @classmethod
+    def cleanup_expired(cls):
+        """Eskirgan tokenlarni tozalash"""
+        cls.objects.filter(expires_at__lt=timezone.now()).delete()
+    
+    def __str__(self):
+        return f"Telegram login token for {self.telegram_id}"
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['telegram_id', 'token']),
+            models.Index(fields=['expires_at']),
+        ]

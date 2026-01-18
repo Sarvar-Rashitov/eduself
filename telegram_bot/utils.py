@@ -2,14 +2,13 @@
 import os
 import hashlib
 import time
+import secrets
 from asgiref.sync import sync_to_async
 from telegram import Bot, User as TelegramUser
 from telegram.error import TelegramError
 from accounts.models import User
-
-
-# Login tokenlarni saqlash uchun (xotirada - production uchun Redis ishlatish kerak)
-_login_tokens = {}
+from django.utils import timezone
+from datetime import timedelta
 
 
 def get_channel_username():
@@ -75,42 +74,44 @@ def create_user_from_telegram(tg_user: TelegramUser) -> User:
 
 @sync_to_async
 def generate_login_token(telegram_id: str) -> str:
-    """Xavfsiz login token yaratish - 5 daqiqa amal qiladi"""
-    bot_token = os.getenv('TELEGRAM_BOT_TOKEN', '')
-    timestamp = str(int(time.time()))
+    """Database'da xavfsiz login token yaratish - 5 daqiqa amal qiladi"""
+    from accounts.models import TelegramLoginToken
     
-    # Token yaratish
-    token_data = f"{telegram_id}:{bot_token}:{timestamp}"
-    token = hashlib.sha256(token_data.encode()).hexdigest()[:32]
+    # Yangi xavfsiz token yaratish
+    token = secrets.token_urlsafe(32)
     
-    # Tokenni saqlash (timestamp bilan)
-    _login_tokens[f"{telegram_id}:{token}"] = int(timestamp)
-    
-    # Eski tokenlarni tozalash (5 daqiqadan eski)
-    current_time = int(time.time())
-    expired_keys = [k for k, v in _login_tokens.items() if current_time - v > 300]
-    for key in expired_keys:
-        del _login_tokens[key]
+    # Database'da saqlash
+    login_token = TelegramLoginToken.objects.create(
+        telegram_id=telegram_id,
+        token=token,
+        expires_at=timezone.now() + timedelta(minutes=5)
+    )
     
     return token
 
 
 def verify_login_token(telegram_id: str, token: str) -> bool:
-    """Login tokenni tekshirish"""
-    key = f"{telegram_id}:{token}"
+    """Database'dan login tokenni tekshirish"""
+    from accounts.models import TelegramLoginToken
     
-    if key not in _login_tokens:
+    try:
+        # Tokenni topish
+        login_token = TelegramLoginToken.objects.get(
+            telegram_id=telegram_id,
+            token=token
+        )
+        
+        # Token hali amal qiladimi?
+        if not login_token.is_valid():
+            login_token.delete()  # Eskirgan tokenni o'chirish
+            return False
+        
+        # Token ishlatildi - o'chirish
+        login_token.delete()
+        return True
+        
+    except TelegramLoginToken.DoesNotExist:
         return False
-    
-    # Vaqtni tekshirish (5 daqiqa)
-    token_time = _login_tokens[key]
-    if int(time.time()) - token_time > 300:
-        del _login_tokens[key]
-        return False
-    
-    # Token ishlatildi - o'chirish
-    del _login_tokens[key]
-    return True
 
 
 @sync_to_async
