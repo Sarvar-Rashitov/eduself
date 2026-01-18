@@ -102,7 +102,7 @@
                 {% if notifications %}
                 <div class="notification-list">
                     {% for notification in notifications %}
-                    <a href="{% url 'core:mark_notification_read' notification.id %}" class="notification-item {% if not notification.is_read %}unread{% endif %}" data-bs-dismiss="offcanvas">
+                    <div class="notification-item {% if not notification.is_read %}unread{% endif %}" onclick="markNotificationRead({{ notification.id }}, '{{ notification.link|default:'' }}')" style="cursor: pointer;">
                         <div class="notification-icon-wrapper">
                             <div class="notification-icon">
                                 <i class="{{ notification.icon }}"></i>
@@ -118,7 +118,7 @@
                         {% if not notification.is_read %}
                         <div class="notification-dot"></div>
                         {% endif %}
-                    </a>
+                    </div>
                     {% endfor %}
                 </div>
                 {% else %}
@@ -569,6 +569,57 @@
                 });
             }
         });
+    </script>
+    
+    <!-- Notification JavaScript -->
+    <script>
+    function markNotificationRead(notificationId, link) {
+        // AJAX so'rov yuborish
+        fetch(`/notification/${notificationId}/read/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Bildirishnomani o'qilgan deb belgilash (UI da)
+                const notificationElement = event.currentTarget;
+                notificationElement.classList.remove('unread');
+                const dot = notificationElement.querySelector('.notification-dot');
+                if (dot) {
+                    dot.remove();
+                }
+                
+                // Notification badge ni yangilash
+                const badge = document.querySelector('.notif-badge');
+                if (badge) {
+                    let count = parseInt(badge.textContent) - 1;
+                    if (count <= 0) {
+                        badge.remove();
+                    } else {
+                        badge.textContent = count;
+                    }
+                }
+                
+                // Offcanvas ni yopish
+                const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('notificationMenu'));
+                if (offcanvas) {
+                    offcanvas.hide();
+                }
+                
+                // Agar havola bo'lsa, u yerga o'tish
+                if (link && link.trim() !== '') {
+                    setTimeout(() => {
+                        window.location.href = link;
+                    }, 300);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Xatolik:', error);
+        });
+    }
     </script>
     
     {% block extra_js %}{% endblock %}

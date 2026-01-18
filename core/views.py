@@ -1169,8 +1169,11 @@ def mark_notification_read(request, notification_id):
         notification.save()
     
     # AJAX so'rov bo'lsa JSON qaytarish
-    if request.headers.get('Content-Type') == 'application/json':
-        return JsonResponse({'success': True})
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'link': notification.link if notification.link else None
+        })
     
     # Agar havola bo'lsa, u yerga yo'naltirish
     if notification.link:
