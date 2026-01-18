@@ -1125,9 +1125,15 @@ def global_leaderboard_view(request):
     from accounts.models import User
     
     # Top 100 foydalanuvchini total_points bo'yicha tartiblanish
-    top_users = User.objects.filter(
+    top_users_queryset = User.objects.filter(
         total_points__gt=0
     ).select_related().order_by('-total_points')[:100]
+    
+    # Har bir foydalanuvchi uchun testlar sonini qo'shish
+    top_users = []
+    for user in top_users_queryset:
+        user.tests_completed = user.get_total_tests_taken()
+        top_users.append(user)
     
     # Joriy foydalanuvchining pozitsiyasini topish
     user_position = None

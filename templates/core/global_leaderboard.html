@@ -54,6 +54,7 @@
                                     <tr>
                                         <th class="border-0 ps-4">Pozitsiya</th>
                                         <th class="border-0">Foydalanuvchi</th>
+                                        <th class="border-0 text-center">Testlar</th>
                                         <th class="border-0 text-end pe-4">Ball</th>
                                     </tr>
                                 </thead>
@@ -82,6 +83,9 @@
                                                     <small class="text-muted">@{{ user_item.username }}</small>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info">{{ user_item.tests_completed }}</span>
                                         </td>
                                         <td class="text-end pe-4">
                                             <span class="badge bg-success fs-6">{{ user_item.total_points }} ball</span>
