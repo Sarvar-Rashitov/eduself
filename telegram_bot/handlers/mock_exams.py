@@ -225,15 +225,46 @@ async def show_mock_question(query, context, question, num, total):
     remaining = max(0, session['time_limit'] - elapsed)
     timer_str = format_timer(int(remaining))
 
-    text = f"*Vaqt: {timer_str}*\n\n"
-    text += f"*Savol {num}/{total}*\n\n"
+    # Oldingi xabarlarni o'chirish
+    previous_messages = context.user_data.get('question_messages', [])
+    for msg_id in previous_messages:
+        try:
+            await context.bot.delete_message(chat_id=query.message.chat_id, message_id=msg_id)
+        except:
+            pass
+    context.user_data['question_messages'] = []
+
+    # Uzun matn mavjud bo'lsa, avval uni yuborish
+    if question.long_text and question.long_text.strip():
+        long_text_message = f"📖 *Matn o'qing:*\n\n{question.long_text}\n\n"
+        long_text_message += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        
+        msg = await query.message.reply_text(
+            long_text_message,
+            parse_mode='Markdown'
+        )
+        context.user_data['question_messages'].append(msg.message_id)
+
+    # Rasm mavjud bo'lsa, uni yuborish
+    if question.image:
+        try:
+            msg = await query.message.reply_photo(
+                photo=question.image.url,
+                caption=f"📷 Savol {num}/{total} uchun rasm"
+            )
+            context.user_data['question_messages'].append(msg.message_id)
+        except Exception as e:
+            print(f"Rasm yuborishda xatolik: {e}")
+
+    text = f"⏱ *Vaqt: {timer_str}*\n\n"
+    text += f"❓ *Savol {num}/{total}*\n\n"
     text += f"{question.text}\n\n"
 
     for i, answer in enumerate(answers):
         letter = chr(65 + i)
         text += f"*{letter})* {answer.text}\n"
 
-    text += f"\nBall: {question.points}"
+    text += f"\n💎 Ball: {question.points}"
 
     context.user_data['current_answers'] = {chr(65 + i): ans.id for i, ans in enumerate(answers)}
     context.user_data['current_question'] = question
@@ -250,11 +281,12 @@ async def show_mock_question(query, context, question, num, total):
         keyboard.append(row)
     
     keyboard.append([
-        InlineKeyboardButton("Otkazib yuborish", callback_data=f"mock_skip_{question.id}"),
-        InlineKeyboardButton("Yakunlash", callback_data="mock_finish")
+        InlineKeyboardButton("⏩ O'tkazib yuborish", callback_data=f"mock_skip_{question.id}"),
+        InlineKeyboardButton("🏁 Yakunlash", callback_data="mock_finish")
     ])
 
-    await query.message.reply_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
+    msg = await query.message.reply_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
+    context.user_data['question_messages'].append(msg.message_id)
 
 
 async def handle_mock_inline_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -358,7 +390,12 @@ async def handle_mock_skip(update: Update, context: ContextTypes.DEFAULT_TYPE):
         next_q_id = session['questions'][session['current_index']]
         question = await get_mock_question(next_q_id)
         
-        await query.message.delete()
+        # Hozirgi savolni o'chirish
+        try:
+            await query.message.delete()
+        except:
+            pass
+        
         await show_mock_question(query, context, question, session['current_index'] + 1, len(session['questions']))
     else:
         await finish_mock_from_callback(query, context)
@@ -379,7 +416,12 @@ async def handle_mock_next(update: Update, context: ContextTypes.DEFAULT_TYPE):
         next_q_id = session['questions'][session['current_index']]
         question = await get_mock_question(next_q_id)
         
-        await query.message.delete()
+        # Hozirgi savolni o'chirish
+        try:
+            await query.message.delete()
+        except:
+            pass
+        
         await show_mock_question(query, context, question, session['current_index'] + 1, len(session['questions']))
     else:
         await finish_mock_from_callback(query, context)
@@ -422,9 +464,18 @@ async def finish_mock_from_callback(query, context):
     else:
         text += f"\nOtish uchun {exam.passing_score}% kerak."
 
+    # Barcha test xabarlarini o'chirish
+    previous_messages = context.user_data.get('question_messages', [])
+    for msg_id in previous_messages:
+        try:
+            await context.bot.delete_message(chat_id=query.message.chat_id, message_id=msg_id)
+        except:
+            pass
+
     context.user_data.pop('test_session', None)
     context.user_data.pop('current_answers', None)
     context.user_data.pop('current_question', None)
+    context.user_data.pop('question_messages', None)
 
     keyboard = [
         [InlineKeyboardButton("Qayta yechish", callback_data=f"start_mock_{exam.id}")],

@@ -316,6 +316,37 @@ async def show_cert_question(query, context: ContextTypes.DEFAULT_TYPE, question
     remaining = max(0, session['time_limit'] - elapsed)
     timer_str = format_timer(int(remaining))
 
+    # Oldingi xabarlarni o'chirish
+    previous_messages = context.user_data.get('question_messages', [])
+    for msg_id in previous_messages:
+        try:
+            await context.bot.delete_message(chat_id=query.message.chat_id, message_id=msg_id)
+        except:
+            pass
+    context.user_data['question_messages'] = []
+
+    # Uzun matn mavjud bo'lsa, avval uni yuborish
+    if question.long_text and question.long_text.strip():
+        long_text_message = f"📖 *Matn o'qing:*\n\n{question.long_text}\n\n"
+        long_text_message += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        
+        msg = await query.message.reply_text(
+            long_text_message,
+            parse_mode='Markdown'
+        )
+        context.user_data['question_messages'].append(msg.message_id)
+
+    # Rasm mavjud bo'lsa, uni yuborish
+    if question.image:
+        try:
+            msg = await query.message.reply_photo(
+                photo=question.image.url,
+                caption=f"📷 Savol {num}/{total} uchun rasm"
+            )
+            context.user_data['question_messages'].append(msg.message_id)
+        except Exception as e:
+            print(f"Rasm yuborishda xatolik: {e}")
+
     text = f"⏱ *Vaqt: {timer_str}*\n\n"
     text += f"❓ *Savol {num}/{total}*\n\n"
     text += f"{question.text}\n\n"
@@ -345,11 +376,12 @@ async def show_cert_question(query, context: ContextTypes.DEFAULT_TYPE, question
         InlineKeyboardButton("🏁 Yakunlash", callback_data="cert_finish")
     ])
 
-    await query.message.reply_text(
+    msg = await query.message.reply_text(
         text, 
         parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
+    context.user_data['question_messages'].append(msg.message_id)
 
 
 async def handle_cert_inline_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -455,7 +487,12 @@ async def handle_cert_skip(update: Update, context: ContextTypes.DEFAULT_TYPE):
         next_q_id = session['questions'][session['current_index']]
         question = await get_cert_question(next_q_id)
         
-        await query.message.delete()
+        # Hozirgi savolni o'chirish
+        try:
+            await query.message.delete()
+        except:
+            pass
+        
         await show_cert_question(query, context, question, session['current_index'] + 1, len(session['questions']))
     else:
         await finish_cert_from_callback(query, context)
@@ -477,7 +514,12 @@ async def handle_cert_next(update: Update, context: ContextTypes.DEFAULT_TYPE):
         next_q_id = session['questions'][session['current_index']]
         question = await get_cert_question(next_q_id)
         
-        await query.message.delete()
+        # Hozirgi savolni o'chirish
+        try:
+            await query.message.delete()
+        except:
+            pass
+        
         await show_cert_question(query, context, question, session['current_index'] + 1, len(session['questions']))
     else:
         await finish_cert_from_callback(query, context)
@@ -522,9 +564,18 @@ async def finish_cert_from_callback(query, context: ContextTypes.DEFAULT_TYPE):
     else:
         text += f"\n💪 O'tish uchun {test.passing_score}% kerak."
 
+    # Barcha test xabarlarini o'chirish
+    previous_messages = context.user_data.get('question_messages', [])
+    for msg_id in previous_messages:
+        try:
+            await context.bot.delete_message(chat_id=query.message.chat_id, message_id=msg_id)
+        except:
+            pass
+
     context.user_data.pop('test_session', None)
     context.user_data.pop('current_answers', None)
     context.user_data.pop('current_question', None)
+    context.user_data.pop('question_messages', None)
 
     keyboard = [
         [InlineKeyboardButton("🔄 Qayta yechish", callback_data=f"start_cert_test_{test.id}")],

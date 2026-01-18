@@ -60,20 +60,44 @@ class SubjectAdmin(admin.ModelAdmin):
 
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
-    list_display = ['name', 'subject', 'time_limit', 'passing_score', 'order', 'is_active', 'get_questions_count', 'created_at']
+    list_display = ['name', 'subject', 'time_limit', 'passing_score', 'order', 'is_active', 'questions_count_display', 'created_at']
     list_filter = ['subject', 'is_active', 'created_at']
     search_fields = ['name', 'description']
     list_editable = ['time_limit', 'passing_score', 'order', 'is_active']
     inlines = [QuestionInline]
+    
+    def questions_count_display(self, obj):
+        return obj.get_questions_count()
+    questions_count_display.short_description = 'Savollar soni'
 
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['text', 'topic', 'order', 'points']
+    list_display = ['text', 'topic', 'order', 'points', 'has_long_text', 'has_image']
     list_filter = ['topic__subject', 'topic']
-    search_fields = ['text']
+    search_fields = ['text', 'long_text']
     list_editable = ['points']
     inlines = [AnswerInline]
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('topic', 'text', 'order', 'points')
+        }),
+        ('Qo\'shimcha kontent', {
+            'fields': ('long_text', 'image'),
+            'description': 'Uzun matn (hikoya, she\'r) va rasm qo\'shish uchun'
+        }),
+    )
+    
+    def has_long_text(self, obj):
+        return bool(obj.long_text and obj.long_text.strip())
+    has_long_text.boolean = True
+    has_long_text.short_description = 'Uzun matn'
+    
+    def has_image(self, obj):
+        return bool(obj.image)
+    has_image.boolean = True
+    has_image.short_description = 'Rasm'
 
 
 @admin.register(TopicResult)
@@ -136,11 +160,31 @@ class CertificateTestAdmin(admin.ModelAdmin):
 
 @admin.register(CertificateQuestion)
 class CertificateQuestionAdmin(admin.ModelAdmin):
-    list_display = ['text', 'test', 'order', 'points']
+    list_display = ['text', 'test', 'order', 'points', 'has_long_text', 'has_image']
     list_filter = ['test__topic__certificate', 'test']
-    search_fields = ['text']
+    search_fields = ['text', 'long_text']
     list_editable = ['points']
     inlines = [CertAnswerInline]
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('test', 'text', 'order', 'points')
+        }),
+        ('Qo\'shimcha kontent', {
+            'fields': ('long_text', 'image'),
+            'description': 'Uzun matn (hikoya, she\'r) va rasm qo\'shish uchun'
+        }),
+    )
+    
+    def has_long_text(self, obj):
+        return bool(obj.long_text and obj.long_text.strip())
+    has_long_text.boolean = True
+    has_long_text.short_description = 'Uzun matn'
+    
+    def has_image(self, obj):
+        return bool(obj.image)
+    has_image.boolean = True
+    has_image.short_description = 'Rasm'
 
 
 @admin.register(CertificateResult)
@@ -181,11 +225,31 @@ class MockExamAdmin(admin.ModelAdmin):
 
 @admin.register(MockExamQuestion)
 class MockExamQuestionAdmin(admin.ModelAdmin):
-    list_display = ['text', 'exam', 'order', 'points']
+    list_display = ['text', 'exam', 'order', 'points', 'has_long_text', 'has_image']
     list_filter = ['exam']
-    search_fields = ['text']
+    search_fields = ['text', 'long_text']
     list_editable = ['points']
     inlines = [MockAnswerInline]
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('exam', 'text', 'order', 'points')
+        }),
+        ('Qo\'shimcha kontent', {
+            'fields': ('long_text', 'image'),
+            'description': 'Uzun matn (hikoya, she\'r) va rasm qo\'shish uchun'
+        }),
+    )
+    
+    def has_long_text(self, obj):
+        return bool(obj.long_text and obj.long_text.strip())
+    has_long_text.boolean = True
+    has_long_text.short_description = 'Uzun matn'
+    
+    def has_image(self, obj):
+        return bool(obj.image)
+    has_image.boolean = True
+    has_image.short_description = 'Rasm'
 
 
 @admin.register(MockExamResult)
@@ -455,11 +519,15 @@ class DirectionExamQuestionInline(admin.TabularInline):
 
 @admin.register(DirectionExam)
 class DirectionExamAdmin(admin.ModelAdmin):
-    list_display = ['title', 'direction', 'subjects', 'time_limit', 'passing_score', 'get_questions_count', 'is_active', 'order']
+    list_display = ['title', 'direction', 'subjects', 'time_limit', 'passing_score', 'questions_count_display', 'is_active', 'order']
     list_filter = ['direction__institution', 'is_active', 'created_at']
     search_fields = ['title', 'description', 'subjects', 'direction__name']
     list_editable = ['passing_score', 'order', 'is_active']
     inlines = [DirectionExamQuestionInline]
+    
+    def questions_count_display(self, obj):
+        return obj.get_questions_count()
+    questions_count_display.short_description = 'Savollar soni'
     
     fieldsets = (
         ('Asosiy ma\'lumotlar', {
@@ -480,11 +548,31 @@ class DirectionExamAdmin(admin.ModelAdmin):
 
 @admin.register(DirectionExamQuestion)
 class DirectionExamQuestionAdmin(admin.ModelAdmin):
-    list_display = ['text', 'exam', 'order', 'points']
+    list_display = ['text', 'exam', 'order', 'points', 'has_long_text', 'has_image']
     list_filter = ['exam__direction__institution', 'exam']
-    search_fields = ['text']
+    search_fields = ['text', 'long_text']
     list_editable = ['order', 'points']
     inlines = [DirectionExamAnswerInline]
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('exam', 'text', 'order', 'points')
+        }),
+        ('Qo\'shimcha kontent', {
+            'fields': ('long_text', 'image'),
+            'description': 'Uzun matn (hikoya, she\'r) va rasm qo\'shish uchun'
+        }),
+    )
+    
+    def has_long_text(self, obj):
+        return bool(obj.long_text and obj.long_text.strip())
+    has_long_text.boolean = True
+    has_long_text.short_description = 'Uzun matn'
+    
+    def has_image(self, obj):
+        return bool(obj.image)
+    has_image.boolean = True
+    has_image.short_description = 'Rasm'
 
 
 @admin.register(DirectionExamResult)
