@@ -50,6 +50,17 @@
             {{ item.question.text }}
         </div>
         
+        {% if item.question.long_text %}
+        <div class="long-text-container">
+            <div class="long-text-header">
+                <i class="bi bi-file-text"></i> Matn
+            </div>
+            <div class="long-text-content">
+                {{ item.question.long_text|linebreaks }}
+            </div>
+        </div>
+        {% endif %}
+        
         {% if item.question.image %}
         <img src="{{ item.question.image.url }}" alt="Question image" class="img-fluid mb-3 rounded">
         {% endif %}
