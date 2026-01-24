@@ -55,7 +55,14 @@
             {% for answer in question.answers.all %}
             <label class="answer-option" data-answer-id="{{ answer.id }}">
                 <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" data-question-id="{{ question.id }}">
-                {{ answer.text | safe }}
+                <div class="answer-content">
+                    <span class="answer-text">{{ answer.text | safe }}</span>
+                    {% if answer.image %}
+                    <div class="answer-image">
+                        <img src="{{ answer.image.url }}" alt="Answer image" class="img-fluid rounded">
+                    </div>
+                    {% endif %}
+                </div>
             </label>
             {% endfor %}
         </div>
@@ -260,6 +267,29 @@
     margin: 0;
     width: 18px;
     height: 18px;
+}
+
+.answer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.answer-text {
+    line-height: 1.5;
+}
+
+.answer-image {
+    margin-top: 8px;
+}
+
+.answer-image img {
+    max-width: 100%;
+    max-height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .question-buttons {

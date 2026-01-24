@@ -62,7 +62,14 @@
                     <label class="answer-card">
                         <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}">
                         <span class="answer-marker">{% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}</span>
-                        <span class="answer-text">{{ answer.text|safe }}</span>
+                        <div class="answer-content">
+                            <span class="answer-text">{{ answer.text|safe }}</span>
+                            {% if answer.image %}
+                            <div class="answer-image">
+                                <img src="{{ answer.image.url }}" alt="Answer image" class="answer-img">
+                            </div>
+                            {% endif %}
+                        </div>
                         <span class="answer-icon"></span>
                     </label>
                     {% endfor %}
@@ -474,6 +481,25 @@
     flex: 1;
     font-size: 1rem;
     line-height: 1.5;
+}
+
+.answer-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.answer-image {
+    margin-top: 8px;
+}
+
+.answer-img {
+    max-width: 100%;
+    max-height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .answer-icon {

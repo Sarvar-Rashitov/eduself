@@ -55,7 +55,14 @@
             {% for answer in question.mock_answers.all %}
             <label class="answer-option" data-answer-id="{{ answer.id }}">
                 <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" data-question-id="{{ question.id }}">
-                {{ answer.text | safe }}
+                <div class="answer-content">
+                    <span class="answer-text">{{ answer.text | safe }}</span>
+                    {% if answer.image %}
+                    <div class="answer-image">
+                        <img src="{{ answer.image.url }}" alt="Answer image" class="img-fluid rounded">
+                    </div>
+                    {% endif %}
+                </div>
             </label>
             {% endfor %}
         </div>

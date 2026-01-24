@@ -130,6 +130,7 @@ class Question(models.Model):
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers', verbose_name="Savol")
     text = models.CharField(max_length=500, verbose_name="Javob matni")
+    image = models.ImageField(upload_to='answers/', blank=True, null=True, verbose_name="Javob rasmi")
     is_correct = models.BooleanField(default=False, verbose_name="To'g'ri javob")
     
     class Meta:
@@ -275,6 +276,7 @@ class CertificateQuestion(models.Model):
 class CertificateAnswer(models.Model):
     question = models.ForeignKey(CertificateQuestion, on_delete=models.CASCADE, related_name='cert_answers', verbose_name="Savol")
     text = models.CharField(max_length=500, verbose_name="Javob matni")
+    image = models.ImageField(upload_to='cert_answers/', blank=True, null=True, verbose_name="Javob rasmi")
     is_correct = models.BooleanField(default=False, verbose_name="To'g'ri javob")
     
     class Meta:
@@ -424,6 +426,7 @@ class MockExamQuestion(models.Model):
 class MockExamAnswer(models.Model):
     question = models.ForeignKey(MockExamQuestion, on_delete=models.CASCADE, related_name='mock_answers', verbose_name="Savol")
     text = models.CharField(max_length=500, verbose_name="Javob matni")
+    image = models.ImageField(upload_to='mock_answers/', blank=True, null=True, verbose_name="Javob rasmi")
     is_correct = models.BooleanField(default=False, verbose_name="To'g'ri javob")
     
     class Meta:
@@ -926,6 +929,7 @@ class DirectionExamAnswer(models.Model):
     """Yo'nalish imtihon javobi"""
     question = models.ForeignKey(DirectionExamQuestion, on_delete=models.CASCADE, related_name='direction_answers', verbose_name="Savol")
     text = models.CharField(max_length=500, verbose_name="Javob matni")
+    image = models.ImageField(upload_to='direction_answers/', blank=True, null=True, verbose_name="Javob rasmi")
     is_correct = models.BooleanField(default=False, verbose_name="To'g'ri javob")
     
     class Meta:
