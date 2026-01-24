@@ -75,6 +75,43 @@
     </div>
 </div>
 
+<!-- Weekly Activity Chart -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-bar-chart text-info"></i> Haftalik faollik</h6>
+        <div class="weekly-activity-mobile">
+            <div class="activity-chart-mobile">
+                <div class="chart-bars-mobile" id="chartBarsMobile">
+                    <!-- JavaScript orqali to'ldiriladi -->
+                </div>
+                <div class="chart-labels-mobile">
+                    <div class="day-label-mobile">Du</div>
+                    <div class="day-label-mobile">Se</div>
+                    <div class="day-label-mobile">Ch</div>
+                    <div class="day-label-mobile">Pa</div>
+                    <div class="day-label-mobile">Ju</div>
+                    <div class="day-label-mobile">Sh</div>
+                    <div class="day-label-mobile">Ya</div>
+                </div>
+            </div>
+            <div class="activity-stats-mobile">
+                <div class="activity-stat-mobile">
+                    <span class="stat-number-mobile" id="weeklyTotalMobile">0</span>
+                    <span class="stat-label-mobile">Jami</span>
+                </div>
+                <div class="activity-stat-mobile">
+                    <span class="stat-number-mobile" id="dailyAverageMobile">0</span>
+                    <span class="stat-label-mobile">O'rtacha</span>
+                </div>
+                <div class="activity-stat-mobile">
+                    <span class="stat-number-mobile" id="mostActiveDayMobile">-</span>
+                    <span class="stat-label-mobile">Eng faol</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Tabs -->
 <ul class="nav nav-pills nav-fill mb-3" id="profileTabs" role="tablist" style="font-size: 0.8rem;">
     <li class="nav-item" role="presentation">
@@ -296,5 +333,235 @@ function confirmDeleteAccount() {
         alert("Hisob o'chirish funksiyasi hali tayyor emas");
     }
 }
+
+// Mobile Weekly Activity Chart
+function generateWeeklyActivityMobile() {
+    const chartBars = document.getElementById('chartBarsMobile');
+    if (!chartBars) return;
+    
+    // Backend dan kelgan haftalik faollik ma'lumotlari
+    const weeklyData = JSON.parse('{{ weekly_activity|escapejs }}');
+    
+    let weeklyTotal = 0;
+    let mostActiveDay = '';
+    let maxActivity = 0;
+    
+    // Maksimal faollikni topish va jami faollikni hisoblash
+    weeklyData.forEach(day => {
+        if (!day.is_future) {
+            weeklyTotal += day.activity;
+            if (day.activity > maxActivity) {
+                maxActivity = day.activity;
+                mostActiveDay = day.day_name;
+            }
+        }
+    });
+    
+    // Ustunlarni yaratish
+    weeklyData.forEach((day, index) => {
+        const barElement = document.createElement('div');
+        barElement.className = 'chart-bar-mobile';
+        
+        if (day.is_future) {
+            // Kelajakdagi kunlar uchun bo'sh ustun
+            barElement.classList.add('future');
+            barElement.style.height = '3px';
+            barElement.style.opacity = '0.3';
+        } else {
+            // Balandlikni hisoblash (maksimal 80px mobile uchun)
+            const height = Math.max(3, maxActivity > 0 ? (day.activity / maxActivity) * 80 : 3);
+            barElement.style.height = `${height}px`;
+        }
+        
+        // Bugungi kunni belgilash
+        if (day.is_today) {
+            barElement.classList.add('today');
+            document.querySelectorAll('.day-label-mobile')[index].classList.add('today');
+        }
+        
+        // Tooltip ma'lumotlari
+        const date = new Date(day.date);
+        const options = { 
+            month: 'long', 
+            day: 'numeric'
+        };
+        const formattedDate = date.toLocaleDateString('uz-UZ', options);
+        
+        if (day.is_future) {
+            barElement.setAttribute('data-value', `${day.day_name}, ${formattedDate}: Kelajakdagi kun`);
+        } else {
+            barElement.setAttribute('data-value', `${day.day_name}, ${formattedDate}: ${day.activity} faollik`);
+        }
+        
+        chartBars.appendChild(barElement);
+    });
+    
+    // Statistikalarni yangilash (faqat o'tgan kunlar asosida)
+    const activeDaysCount = weeklyData.filter(day => !day.is_future).length;
+    const dailyAverage = activeDaysCount > 0 ? Math.round(weeklyTotal / activeDaysCount) : 0;
+    
+    animateCounterMobile('weeklyTotalMobile', weeklyTotal);
+    animateCounterMobile('dailyAverageMobile', dailyAverage);
+    
+    // Eng faol kunni ko'rsatish
+    setTimeout(() => {
+        const mostActiveDayElement = document.getElementById('mostActiveDayMobile');
+        if (mostActiveDayElement) {
+            mostActiveDayElement.textContent = mostActiveDay || '-';
+        }
+    }, 800);
+}
+
+// Mobile raqamlarni animatsiya bilan ko'rsatish
+function animateCounterMobile(elementId, targetValue) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    let currentValue = 0;
+    const increment = targetValue / 20; // 20 qadam
+    const timer = setInterval(() => {
+        currentValue += increment;
+        if (currentValue >= targetValue) {
+            currentValue = targetValue;
+            clearInterval(timer);
+        }
+        element.textContent = Math.floor(currentValue);
+    }, 30);
+}
+
+// Sahifa yuklanganda mobile haftalik faollik diagrammasini yaratish
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        generateWeeklyActivityMobile();
+    }, 300);
+});
 </script>
+
+<style>
+/* Mobile Weekly Activity Chart Styles */
+.weekly-activity-mobile {
+    padding: 0.5rem 0;
+}
+
+.activity-chart-mobile {
+    margin-bottom: 1rem;
+}
+
+.chart-bars-mobile {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    height: 90px;
+    padding: 0 0.5rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.chart-bars-mobile::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e5e7eb;
+}
+
+.chart-bar-mobile {
+    flex: 1;
+    margin: 0 1px;
+    background: linear-gradient(180deg, #6366f1, #8b5cf6);
+    border-radius: 3px 3px 0 0;
+    min-height: 3px;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.chart-bar-mobile:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.chart-bar-mobile.today {
+    background: linear-gradient(180deg, #f59e0b, #fbbf24);
+}
+
+.chart-bar-mobile.future {
+    background: #e5e7eb;
+}
+
+.chart-bar-mobile::after {
+    content: attr(data-value);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #374151;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    z-index: 10;
+    margin-bottom: 5px;
+}
+
+.chart-bar-mobile:hover::after {
+    opacity: 1;
+}
+
+.chart-labels-mobile {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0.5rem;
+}
+
+.day-label-mobile {
+    flex: 1;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #6b7280;
+    padding: 0.25rem 0;
+}
+
+.day-label-mobile.today {
+    color: #6366f1;
+    font-weight: 700;
+}
+
+.activity-stats-mobile {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.activity-stat-mobile {
+    text-align: center;
+    padding: 0.5rem;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.stat-number-mobile {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #6366f1;
+    margin-bottom: 0.125rem;
+}
+
+.stat-label-mobile {
+    font-size: 0.65rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+</style>
 {% endblock %}

@@ -818,6 +818,56 @@ def profile_view(request):
     all_results.sort(key=lambda x: x['completed_at'], reverse=True)
     test_results = all_results[:15]
     
+    # Weekly Activity Data - oxirgi 7 kunlik faollik
+    from datetime import datetime, timedelta
+    from django.db.models import Count
+    from django.utils import timezone
+    import json
+    
+    today = timezone.now().date()
+    # Dushanbadan boshlab oxirgi 7 kunni olish
+    days_from_monday = today.weekday()  # 0=Dushanba, 6=Yakshanba
+    start_of_week = today - timedelta(days=days_from_monday)
+    
+    weekly_activity = []
+    day_names = ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba']
+    
+    for i in range(7):
+        date = start_of_week + timedelta(days=i)
+        is_future = date > today
+        
+        if is_future:
+            activity_count = 0
+        else:
+            # Shu kunda bajarilgan barcha testlar sonini hisoblash
+            topic_results = TopicResult.objects.filter(
+                user=request.user,
+                completed_at__date=date
+            ).count()
+            
+            cert_results = CertificateResult.objects.filter(
+                user=request.user,
+                completed_at__date=date
+            ).count()
+            
+            mock_results = MockExamResult.objects.filter(
+                user=request.user,
+                completed_at__date=date
+            ).count()
+            
+            activity_count = topic_results + cert_results + mock_results
+        
+        weekly_activity.append({
+            'date': date.strftime('%Y-%m-%d'),
+            'day_name': day_names[i],
+            'activity': activity_count,
+            'is_today': date == today,
+            'is_future': is_future
+        })
+    
+    # JSON formatida saqlash
+    weekly_activity_json = json.dumps(weekly_activity)
+    
     # Notifications
     from core.models import Notification
     from django.db.models import Q
@@ -837,6 +887,7 @@ def profile_view(request):
         'test_results': test_results,
         'notifications': notifications,
         'unread_notifications_count': unread_notifications_count,
+        'weekly_activity': weekly_activity_json,
     }
     
     if is_mobile(request):
