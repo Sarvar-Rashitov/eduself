@@ -75,37 +75,67 @@
     </div>
 </div>
 
-<!-- Weekly Activity Chart -->
+<!-- Activity Chart -->
 <div class="card mb-3">
     <div class="card-body py-2">
-        <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-bar-chart text-info"></i> Haftalik faollik</h6>
-        <div class="weekly-activity-mobile">
-            <div class="activity-chart-mobile">
-                <div class="chart-bars-mobile" id="chartBarsMobile">
-                    <!-- JavaScript orqali to'ldiriladi -->
-                </div>
-                <div class="chart-labels-mobile">
-                    <div class="day-label-mobile">Du</div>
-                    <div class="day-label-mobile">Se</div>
-                    <div class="day-label-mobile">Ch</div>
-                    <div class="day-label-mobile">Pa</div>
-                    <div class="day-label-mobile">Ju</div>
-                    <div class="day-label-mobile">Sh</div>
-                    <div class="day-label-mobile">Ya</div>
+        <div class="activity-header-mobile">
+            <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-bar-chart text-info"></i> Faollik diagrammasi</h6>
+            <div class="activity-toggle-mobile">
+                <button class="toggle-btn-mobile active" data-period="weekly">
+                    <i class="bi bi-calendar-week"></i> Haftalik
+                </button>
+                <button class="toggle-btn-mobile" data-period="monthly">
+                    <i class="bi bi-calendar3"></i> Oylik
+                </button>
+            </div>
+        </div>
+        
+        <div class="activity-mobile">
+            <!-- Haftalik chart -->
+            <div class="chart-view-mobile active" id="weeklyChartMobile">
+                <div class="activity-chart-mobile">
+                    <div class="chart-bars-mobile" id="chartBarsMobile">
+                        <!-- JavaScript orqali to'ldiriladi -->
+                    </div>
+                    <div class="chart-labels-mobile">
+                        <div class="day-label-mobile">Du</div>
+                        <div class="day-label-mobile">Se</div>
+                        <div class="day-label-mobile">Ch</div>
+                        <div class="day-label-mobile">Pa</div>
+                        <div class="day-label-mobile">Ju</div>
+                        <div class="day-label-mobile">Sh</div>
+                        <div class="day-label-mobile">Ya</div>
+                    </div>
                 </div>
             </div>
+            
+            <!-- Oylik chart -->
+            <div class="chart-view-mobile" id="monthlyChartMobile">
+                <div class="activity-chart-mobile">
+                    <div class="chart-bars-mobile" id="monthlyChartBarsMobile">
+                        <!-- JavaScript orqali to'ldiriladi -->
+                    </div>
+                    <div class="monthly-chart-labels-mobile" id="monthlyChartLabelsMobile">
+                        <!-- JavaScript orqali to'ldiriladi -->
+                    </div>
+                </div>
+                <div class="monthly-chart-info-mobile">
+                    <span class="chart-period-mobile">Oxirgi 30 kun</span>
+                </div>
+            </div>
+            
             <div class="activity-stats-mobile">
                 <div class="activity-stat-mobile">
-                    <span class="stat-number-mobile" id="weeklyTotalMobile">0</span>
-                    <span class="stat-label-mobile">Jami</span>
+                    <span class="stat-number-mobile" id="totalActivityMobile">0</span>
+                    <span class="stat-label-mobile" id="totalLabelMobile">Jami</span>
                 </div>
                 <div class="activity-stat-mobile">
-                    <span class="stat-number-mobile" id="dailyAverageMobile">0</span>
-                    <span class="stat-label-mobile">O'rtacha</span>
+                    <span class="stat-number-mobile" id="averageActivityMobile">0</span>
+                    <span class="stat-label-mobile" id="averageLabelMobile">O'rtacha</span>
                 </div>
                 <div class="activity-stat-mobile">
-                    <span class="stat-number-mobile" id="mostActiveDayMobile">-</span>
-                    <span class="stat-label-mobile">Eng faol</span>
+                    <span class="stat-number-mobile" id="peakActivityMobile">-</span>
+                    <span class="stat-label-mobile" id="peakLabelMobile">Eng faol</span>
                 </div>
             </div>
         </div>
@@ -334,20 +364,70 @@ function confirmDeleteAccount() {
     }
 }
 
-// Mobile Weekly Activity Chart
+// Mobile Activity Chart - Haftalik va Oylik
+let currentPeriodMobile = 'weekly';
+let weeklyDataMobile = [];
+let monthlyDataMobile = [];
+
+function initializeActivityChartMobile() {
+    // Backend dan kelgan ma'lumotlar
+    try {
+        weeklyDataMobile = JSON.parse('{{ weekly_activity|escapejs }}');
+        monthlyDataMobile = JSON.parse('{{ monthly_activity|escapejs }}');
+    } catch (error) {
+        console.error('Mobile ma\'lumotlarni yuklashda xatolik:', error);
+        return;
+    }
+    
+    // Toggle tugmalarini sozlash
+    document.querySelectorAll('.toggle-btn-mobile').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const period = btn.dataset.period;
+            switchActivityPeriodMobile(period);
+        });
+    });
+    
+    // Dastlab haftalik ko'rsatish
+    generateWeeklyActivityMobile();
+}
+
+function switchActivityPeriodMobile(period) {
+    if (currentPeriodMobile === period) return;
+    
+    currentPeriodMobile = period;
+    
+    // Toggle tugmalarini yangilash
+    document.querySelectorAll('.toggle-btn-mobile').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.period === period);
+    });
+    
+    // Chart view larni almashtirish
+    document.querySelectorAll('.chart-view-mobile').forEach(view => {
+        view.classList.toggle('active', view.id === period + 'ChartMobile');
+    });
+    
+    // Ma'lumotlarni yangilash
+    if (period === 'weekly') {
+        generateWeeklyActivityMobile();
+    } else {
+        generateMonthlyActivityMobile();
+    }
+}
+
 function generateWeeklyActivityMobile() {
     const chartBars = document.getElementById('chartBarsMobile');
     if (!chartBars) return;
     
-    // Backend dan kelgan haftalik faollik ma'lumotlari
-    const weeklyData = JSON.parse('{{ weekly_activity|escapejs }}');
+    chartBars.innerHTML = ''; // Tozalash
+    
+    if (!weeklyDataMobile || weeklyDataMobile.length === 0) return;
     
     let weeklyTotal = 0;
     let mostActiveDay = '';
     let maxActivity = 0;
     
     // Maksimal faollikni topish va jami faollikni hisoblash
-    weeklyData.forEach(day => {
+    weeklyDataMobile.forEach(day => {
         if (!day.is_future) {
             weeklyTotal += day.activity;
             if (day.activity > maxActivity) {
@@ -358,33 +438,29 @@ function generateWeeklyActivityMobile() {
     });
     
     // Ustunlarni yaratish
-    weeklyData.forEach((day, index) => {
+    weeklyDataMobile.forEach((day, index) => {
         const barElement = document.createElement('div');
         barElement.className = 'chart-bar-mobile';
         
         if (day.is_future) {
-            // Kelajakdagi kunlar uchun bo'sh ustun
             barElement.classList.add('future');
             barElement.style.height = '3px';
             barElement.style.opacity = '0.3';
         } else {
-            // Balandlikni hisoblash (maksimal 80px mobile uchun)
             const height = Math.max(3, maxActivity > 0 ? (day.activity / maxActivity) * 80 : 3);
             barElement.style.height = `${height}px`;
         }
         
-        // Bugungi kunni belgilash
         if (day.is_today) {
             barElement.classList.add('today');
-            document.querySelectorAll('.day-label-mobile')[index].classList.add('today');
+            const dayLabels = document.querySelectorAll('.day-label-mobile');
+            if (dayLabels[index]) {
+                dayLabels[index].classList.add('today');
+            }
         }
         
-        // Tooltip ma'lumotlari
         const date = new Date(day.date);
-        const options = { 
-            month: 'long', 
-            day: 'numeric'
-        };
+        const options = { month: 'long', day: 'numeric' };
         const formattedDate = date.toLocaleDateString('uz-UZ', options);
         
         if (day.is_future) {
@@ -396,18 +472,106 @@ function generateWeeklyActivityMobile() {
         chartBars.appendChild(barElement);
     });
     
-    // Statistikalarni yangilash (faqat o'tgan kunlar asosida)
-    const activeDaysCount = weeklyData.filter(day => !day.is_future).length;
+    // Statistikalarni yangilash
+    const activeDaysCount = weeklyDataMobile.filter(day => !day.is_future).length;
     const dailyAverage = activeDaysCount > 0 ? Math.round(weeklyTotal / activeDaysCount) : 0;
     
-    animateCounterMobile('weeklyTotalMobile', weeklyTotal);
-    animateCounterMobile('dailyAverageMobile', dailyAverage);
+    updateActivityStatsMobile(weeklyTotal, dailyAverage, mostActiveDay, 'haftalik');
+}
+
+function generateMonthlyActivityMobile() {
+    const chartBars = document.getElementById('monthlyChartBarsMobile');
+    const chartLabels = document.getElementById('monthlyChartLabelsMobile');
     
-    // Eng faol kunni ko'rsatish
+    if (!chartBars || !chartLabels) return;
+    
+    chartBars.innerHTML = ''; // Tozalash
+    chartLabels.innerHTML = ''; // Tozalash
+    
+    if (!monthlyDataMobile || monthlyDataMobile.length === 0) return;
+    
+    let monthlyTotal = 0;
+    let mostActiveDay = '';
+    let maxActivity = 0;
+    let mostActivityCount = 0;
+    
+    // Ma'lumotlarni tayyorlash
+    monthlyDataMobile.forEach(day => {
+        monthlyTotal += day.activity;
+        if (day.activity > maxActivity) {
+            maxActivity = day.activity;
+        }
+        if (day.activity > mostActivityCount) {
+            mostActivityCount = day.activity;
+            mostActiveDay = `${day.day} ${day.month}`;
+        }
+    });
+    
+    // Ustunlarni yaratish
+    monthlyDataMobile.forEach((day, index) => {
+        const barElement = document.createElement('div');
+        barElement.className = 'chart-bar-mobile';
+        
+        // Balandlikni hisoblash (maksimal 80px mobile uchun)
+        const height = Math.max(2, maxActivity > 0 ? (day.activity / maxActivity) * 80 : 2);
+        barElement.style.height = `${height}px`;
+        
+        // Bugungi kunni belgilash
+        if (day.is_today) {
+            barElement.classList.add('today');
+        }
+        
+        // Tooltip ma'lumotlari
+        const date = new Date(day.date);
+        const options = { month: 'long', day: 'numeric' };
+        const formattedDate = date.toLocaleDateString('uz-UZ', options);
+        
+        barElement.setAttribute('data-value', `${formattedDate}: ${day.activity} faollik`);
+        
+        chartBars.appendChild(barElement);
+    });
+    
+    // Labellarni yaratish (har 6-kunlik mobile uchun)
+    monthlyDataMobile.forEach((day, index) => {
+        if (index % 6 === 0 || index === monthlyDataMobile.length - 1) {
+            const labelElement = document.createElement('div');
+            labelElement.className = 'month-day-label-mobile';
+            labelElement.textContent = day.day;
+            
+            if (day.is_today) {
+                labelElement.classList.add('today');
+            }
+            
+            chartLabels.appendChild(labelElement);
+        } else {
+            const labelElement = document.createElement('div');
+            labelElement.className = 'month-day-label-mobile';
+            labelElement.textContent = '';
+            chartLabels.appendChild(labelElement);
+        }
+    });
+    
+    // Statistikalarni yangilash
+    const dailyAverage = monthlyDataMobile.length > 0 ? Math.round(monthlyTotal / monthlyDataMobile.length) : 0;
+    updateActivityStatsMobile(monthlyTotal, dailyAverage, mostActiveDay, 'oylik');
+}
+
+function updateActivityStatsMobile(total, average, peak, period) {
+    animateCounterMobile('totalActivityMobile', total);
+    animateCounterMobile('averageActivityMobile', average);
+    
+    const totalLabel = document.getElementById('totalLabelMobile');
+    const averageLabel = document.getElementById('averageLabelMobile');
+    const peakLabel = document.getElementById('peakLabelMobile');
+    
+    if (totalLabel) totalLabel.textContent = `Jami (${period})`;
+    if (averageLabel) averageLabel.textContent = 'O\'rtacha';
+    if (peakLabel) peakLabel.textContent = 'Eng faol';
+    
     setTimeout(() => {
-        const mostActiveDayElement = document.getElementById('mostActiveDayMobile');
-        if (mostActiveDayElement) {
-            mostActiveDayElement.textContent = mostActiveDay || '-';
+        const peakElement = document.getElementById('peakActivityMobile');
+        if (peakElement) {
+            peakElement.textContent = peak || '-';
         }
     }, 800);
 }
@@ -429,17 +593,74 @@ function animateCounterMobile(elementId, targetValue) {
     }, 30);
 }
 
-// Sahifa yuklanganda mobile haftalik faollik diagrammasini yaratish
+// Sahifa yuklanganda mobile faollik diagrammasini yaratish
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
-        generateWeeklyActivityMobile();
+        initializeActivityChartMobile();
     }, 300);
 });
 </script>
 
 <style>
-/* Mobile Weekly Activity Chart Styles */
-.weekly-activity-mobile {
+/* Mobile Activity Chart Styles */
+.activity-header-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.activity-toggle-mobile {
+    display: flex;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 2px;
+    position: relative;
+}
+
+.toggle-btn-mobile {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    position: relative;
+    z-index: 2;
+}
+
+.toggle-btn-mobile.active {
+    background: #ffffff;
+    color: #6366f1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-btn-mobile:hover:not(.active) {
+    color: #6366f1;
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.toggle-btn-mobile i {
+    font-size: 0.7rem;
+}
+
+.chart-view-mobile {
+    display: none;
+}
+
+.chart-view-mobile.active {
+    display: block;
+}
+
+.activity-mobile {
     padding: 0.5rem 0;
 }
 
@@ -533,6 +754,35 @@ document.addEventListener('DOMContentLoaded', function() {
 .day-label-mobile.today {
     color: #6366f1;
     font-weight: 700;
+}
+
+/* Oylik chart mobile stillari */
+.monthly-chart-labels-mobile {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.6rem;
+    color: #6b7280;
+}
+
+.monthly-chart-labels-mobile .month-day-label-mobile {
+    flex: 1;
+    text-align: center;
+    font-weight: 500;
+}
+
+.monthly-chart-info-mobile {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.chart-period-mobile {
+    font-size: 0.75rem;
+    color: #6b7280;
+    background: #f8fafc;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
 }
 
 .activity-stats-mobile {

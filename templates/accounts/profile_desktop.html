@@ -102,42 +102,65 @@
                 </div>
             </div>
             
-            <!-- Weekly Activity Chart -->
-            <div class="weekly-activity-card">
+            <!-- Activity Chart -->
+            <div class="activity-card">
                 <div class="activity-header">
-                    <h3><i class="fas fa-chart-bar"></i> Haftalik faollik</h3>
-                    <div class="activity-period">
-                        <span>Oxirgi 7 kun</span>
+                    <h3><i class="fas fa-chart-bar"></i> Faollik diagrammasi</h3>
+                    <div class="activity-controls">
+                        <div class="activity-toggle">
+                            <button class="toggle-btn active" data-period="weekly">
+                                <i class="fas fa-calendar-week"></i> Haftalik
+                            </button>
+                            <button class="toggle-btn" data-period="monthly">
+                                <i class="fas fa-calendar-alt"></i> Oylik
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="activity-chart">
                     <div class="chart-container">
-                        <div class="chart-bars" id="chartBars">
-                            <!-- JavaScript orqali to'ldiriladi -->
+                        <!-- Haftalik chart -->
+                        <div class="chart-view active" id="weeklyChart">
+                            <div class="chart-bars" id="chartBars">
+                                <!-- JavaScript orqali to'ldiriladi -->
+                            </div>
+                            <div class="chart-labels">
+                                <div class="day-label">Du</div>
+                                <div class="day-label">Se</div>
+                                <div class="day-label">Ch</div>
+                                <div class="day-label">Pa</div>
+                                <div class="day-label">Ju</div>
+                                <div class="day-label">Sh</div>
+                                <div class="day-label">Ya</div>
+                            </div>
                         </div>
-                        <div class="chart-labels">
-                            <div class="day-label">Du</div>
-                            <div class="day-label">Se</div>
-                            <div class="day-label">Ch</div>
-                            <div class="day-label">Pa</div>
-                            <div class="day-label">Ju</div>
-                            <div class="day-label">Sh</div>
-                            <div class="day-label">Ya</div>
+                        
+                        <!-- Oylik chart -->
+                        <div class="chart-view" id="monthlyChart">
+                            <div class="chart-bars" id="monthlyChartBars">
+                                <!-- JavaScript orqali to'ldiriladi -->
+                            </div>
+                            <div class="monthly-chart-labels" id="monthlyChartLabels">
+                                <!-- JavaScript orqali to'ldiriladi -->
+                            </div>
+                            <div class="monthly-chart-info">
+                                <span class="chart-period">Oxirgi 30 kun</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="activity-stats">
                     <div class="activity-stat">
-                        <span class="stat-number" id="weeklyTotal">0</span>
-                        <span class="stat-label">Jami faollik</span>
+                        <span class="stat-number" id="totalActivity">0</span>
+                        <span class="stat-label" id="totalLabel">Jami faollik</span>
                     </div>
                     <div class="activity-stat">
-                        <span class="stat-number" id="dailyAverage">0</span>
-                        <span class="stat-label">Kunlik o'rtacha</span>
+                        <span class="stat-number" id="averageActivity">0</span>
+                        <span class="stat-label" id="averageLabel">Kunlik o'rtacha</span>
                     </div>
                     <div class="activity-stat">
-                        <span class="stat-number" id="mostActiveDay">-</span>
-                        <span class="stat-label">Eng faol kun</span>
+                        <span class="stat-number" id="peakActivity">-</span>
+                        <span class="stat-label" id="peakLabel">Eng faol kun</span>
                     </div>
                 </div>
             </div>
@@ -795,8 +818,8 @@
     color: var(--text-color);
 }
 
-/* Weekly Activity Chart */
-.weekly-activity-card {
+/* Activity Chart */
+.activity-card {
     background: var(--white);
     border-radius: 20px;
     padding: 2rem;
@@ -806,7 +829,7 @@
     transition: all 0.4s ease;
 }
 
-.weekly-activity-card:hover {
+.activity-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
 }
@@ -830,6 +853,52 @@
     padding-bottom: 1rem;
     border-bottom: 2px solid var(--light-color);
     position: relative;
+}
+
+.activity-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.activity-toggle {
+    display: flex;
+    background: var(--light-color);
+    border-radius: 12px;
+    padding: 4px;
+    position: relative;
+}
+
+.toggle-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.toggle-btn.active {
+    background: var(--white);
+    color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-btn:hover:not(.active) {
+    color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.toggle-btn i {
+    font-size: 0.8rem;
 }
 
 .activity-header h3 {
@@ -891,11 +960,17 @@
     animation: chartContainerFade 0.6s ease 1.1s both;
 }
 
-@keyframes chartContainerFade {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+.chart-view {
+    display: none;
+    width: 100%;
+    height: 100%;
 }
 
+.chart-view.active {
+    display: block;
+}
+
+/* Haftalik chart stillari */
 .chart-bars {
     display: flex;
     align-items: end;
@@ -914,6 +989,35 @@
     right: 0;
     height: 1px;
     background: var(--light-color);
+}
+
+/* Oylik chart stillari */
+.monthly-chart-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.7rem;
+    color: var(--text-color);
+}
+
+.monthly-chart-labels .month-day-label {
+    flex: 1;
+    text-align: center;
+    font-weight: 500;
+}
+
+.monthly-chart-info {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.chart-period {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    background: var(--light-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
 }
 
 .chart-bar {
@@ -1061,9 +1165,18 @@
         align-items: flex-start;
     }
     
-    .activity-period {
+    .activity-controls {
         align-self: stretch;
-        text-align: center;
+    }
+    
+    .activity-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .toggle-btn {
+        flex: 1;
+        justify-content: center;
     }
     
     .chart-container {
@@ -1085,6 +1198,11 @@
     
     .day-label {
         font-size: 0.8rem;
+    }
+    
+    .monthly-chart-labels {
+        padding: 0 0.5rem;
+        font-size: 0.65rem;
     }
     
     .activity-stats {
@@ -1895,12 +2013,63 @@ function updateNotificationBadge() {
     }
 }
 
-// Weekly Activity Chart
+// Activity Chart - Haftalik va Oylik
+let currentPeriod = 'weekly';
+let weeklyData = [];
+let monthlyData = [];
+
+function initializeActivityChart() {
+    // Backend dan kelgan ma'lumotlar
+    try {
+        weeklyData = JSON.parse('{{ weekly_activity|escapejs }}');
+        monthlyData = JSON.parse('{{ monthly_activity|escapejs }}');
+    } catch (error) {
+        console.error('Ma\'lumotlarni yuklashda xatolik:', error);
+        return;
+    }
+    
+    // Toggle tugmalarini sozlash
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const period = btn.dataset.period;
+            switchActivityPeriod(period);
+        });
+    });
+    
+    // Dastlab haftalik ko'rsatish
+    generateWeeklyActivity();
+}
+
+function switchActivityPeriod(period) {
+    if (currentPeriod === period) return;
+    
+    currentPeriod = period;
+    
+    // Toggle tugmalarini yangilash
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.period === period);
+    });
+    
+    // Chart view larni almashtirish
+    document.querySelectorAll('.chart-view').forEach(view => {
+        view.classList.toggle('active', view.id === period + 'Chart');
+    });
+    
+    // Ma'lumotlarni yangilash
+    if (period === 'weekly') {
+        generateWeeklyActivity();
+    } else {
+        generateMonthlyActivity();
+    }
+}
+
 function generateWeeklyActivity() {
     const chartBars = document.getElementById('chartBars');
+    if (!chartBars) return;
     
-    // Backend dan kelgan haftalik faollik ma'lumotlari
-    const weeklyData = JSON.parse('{{ weekly_activity|escapejs }}');
+    chartBars.innerHTML = ''; // Tozalash
+    
+    if (!weeklyData || weeklyData.length === 0) return;
     
     let weeklyTotal = 0;
     let mostActiveDay = '';
@@ -1923,28 +2092,24 @@ function generateWeeklyActivity() {
         barElement.className = 'chart-bar';
         
         if (day.is_future) {
-            // Kelajakdagi kunlar uchun bo'sh ustun
             barElement.classList.add('future');
             barElement.style.height = '4px';
             barElement.style.opacity = '0.3';
         } else {
-            // Balandlikni hisoblash (maksimal 160px)
             const height = Math.max(4, maxActivity > 0 ? (day.activity / maxActivity) * 160 : 4);
             barElement.style.height = `${height}px`;
         }
         
-        // Bugungi kunni belgilash
         if (day.is_today) {
             barElement.classList.add('today');
-            document.querySelectorAll('.day-label')[index].classList.add('today');
+            const dayLabels = document.querySelectorAll('.day-label');
+            if (dayLabels[index]) {
+                dayLabels[index].classList.add('today');
+            }
         }
         
-        // Tooltip ma'lumotlari
         const date = new Date(day.date);
-        const options = { 
-            month: 'long', 
-            day: 'numeric'
-        };
+        const options = { month: 'long', day: 'numeric' };
         const formattedDate = date.toLocaleDateString('uz-UZ', options);
         
         if (day.is_future) {
@@ -1953,28 +2118,115 @@ function generateWeeklyActivity() {
             barElement.setAttribute('data-value', `${day.day_name}, ${formattedDate}: ${day.activity} faollik`);
         }
         
-        // Animatsiya kechikishi
         barElement.style.animationDelay = `${1.2 + (index * 0.1)}s`;
+        chartBars.appendChild(barElement);
+    });
+    
+    // Statistikalarni yangilash
+    const activeDaysCount = weeklyData.filter(day => !day.is_future).length;
+    const dailyAverage = activeDaysCount > 0 ? Math.round(weeklyTotal / activeDaysCount) : 0;
+    
+    updateActivityStats(weeklyTotal, dailyAverage, mostActiveDay, 'haftalik');
+}
+
+function generateMonthlyActivity() {
+    const chartBars = document.getElementById('monthlyChartBars');
+    const chartLabels = document.getElementById('monthlyChartLabels');
+    
+    if (!chartBars || !chartLabels) return;
+    
+    chartBars.innerHTML = ''; // Tozalash
+    chartLabels.innerHTML = ''; // Tozalash
+    
+    if (!monthlyData || monthlyData.length === 0) return;
+    
+    let monthlyTotal = 0;
+    let mostActiveDay = '';
+    let maxActivity = 0;
+    let mostActivityCount = 0;
+    
+    // Ma'lumotlarni tayyorlash
+    monthlyData.forEach(day => {
+        monthlyTotal += day.activity;
+        if (day.activity > maxActivity) {
+            maxActivity = day.activity;
+        }
+        if (day.activity > mostActivityCount) {
+            mostActivityCount = day.activity;
+            mostActiveDay = `${day.day} ${day.month}`;
+        }
+    });
+    
+    // Ustunlarni yaratish
+    monthlyData.forEach((day, index) => {
+        const barElement = document.createElement('div');
+        barElement.className = 'chart-bar';
+        
+        // Balandlikni hisoblash (maksimal 160px)
+        const height = Math.max(2, maxActivity > 0 ? (day.activity / maxActivity) * 160 : 2);
+        barElement.style.height = `${height}px`;
+        
+        // Bugungi kunni belgilash
+        if (day.is_today) {
+            barElement.classList.add('today');
+        }
+        
+        // Tooltip ma'lumotlari
+        const date = new Date(day.date);
+        const options = { month: 'long', day: 'numeric' };
+        const formattedDate = date.toLocaleDateString('uz-UZ', options);
+        
+        barElement.setAttribute('data-value', `${formattedDate}: ${day.activity} faollik`);
+        
+        // Animatsiya kechikishi
+        barElement.style.animationDelay = `${0.5 + (index * 0.02)}s`;
         
         chartBars.appendChild(barElement);
     });
     
-    // Statistikalarni yangilash (faqat o'tgan kunlar asosida)
-    const activeDaysCount = weeklyData.filter(day => !day.is_future).length;
-    const dailyAverage = activeDaysCount > 0 ? Math.round(weeklyTotal / activeDaysCount) : 0;
+    // Labellarni yaratish (har 5-kunlik)
+    monthlyData.forEach((day, index) => {
+        if (index % 5 === 0 || index === monthlyData.length - 1) {
+            const labelElement = document.createElement('div');
+            labelElement.className = 'month-day-label';
+            labelElement.textContent = day.day;
+            
+            if (day.is_today) {
+                labelElement.classList.add('today');
+            }
+            
+            chartLabels.appendChild(labelElement);
+        } else {
+            const labelElement = document.createElement('div');
+            labelElement.className = 'month-day-label';
+            labelElement.textContent = '';
+            chartLabels.appendChild(labelElement);
+        }
+    });
     
-    animateCounter('weeklyTotal', weeklyTotal);
-    animateCounter('dailyAverage', dailyAverage);
+    // Statistikalarni yangilash
+    const dailyAverage = monthlyData.length > 0 ? Math.round(monthlyTotal / monthlyData.length) : 0;
+    updateActivityStats(monthlyTotal, dailyAverage, mostActiveDay, 'oylik');
+}
+
+function updateActivityStats(total, average, peak, period) {
+    animateCounter('totalActivity', total);
+    animateCounter('averageActivity', average);
     
-    // Eng faol kunni ko'rsatish
+    document.getElementById('totalLabel').textContent = `Jami faollik (${period})`;
+    document.getElementById('averageLabel').textContent = 'Kunlik o\'rtacha';
+    document.getElementById('peakLabel').textContent = 'Eng faol kun';
+    
     setTimeout(() => {
-        document.getElementById('mostActiveDay').textContent = mostActiveDay || '-';
-    }, 1800);
+        document.getElementById('peakActivity').textContent = peak || '-';
+    }, 800);
 }
 
 // Raqamlarni animatsiya bilan ko'rsatish
 function animateCounter(elementId, targetValue) {
     const element = document.getElementById(elementId);
+    if (!element) return;
+    
     let currentValue = 0;
     const increment = targetValue / 30; // 30 qadam
     const timer = setInterval(() => {
@@ -1987,13 +2239,13 @@ function animateCounter(elementId, targetValue) {
     }, 50);
 }
 
-// Sahifa yuklanganda haftalik faollik diagrammasini yaratish
+// Sahifa yuklanganda faollik diagrammasini yaratish
 document.addEventListener('DOMContentLoaded', function() {
     // Mavjud kodlar...
     
-    // Haftalik faollik diagrammasini yaratish
+    // Faollik diagrammasini yaratish
     setTimeout(() => {
-        generateWeeklyActivity();
+        initializeActivityChart();
     }, 500);
 });
 </script>

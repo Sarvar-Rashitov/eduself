@@ -818,7 +818,7 @@ def profile_view(request):
     all_results.sort(key=lambda x: x['completed_at'], reverse=True)
     test_results = all_results[:15]
     
-    # Weekly Activity Data - oxirgi 7 kunlik faollik
+    # Weekly Activity Data - oxirgi 7 kunlik faollik (mobile uchun)
     from datetime import datetime, timedelta
     from django.db.models import Count
     from django.utils import timezone
@@ -865,8 +865,41 @@ def profile_view(request):
             'is_future': is_future
         })
     
+    # Monthly Activity Data - oxirgi 30 kunlik faollik (desktop uchun)
+    monthly_activity = []
+    
+    for i in range(30):
+        date = today - timedelta(days=29-i)  # 30 kun oldin dan bugunga qadar
+        
+        # Shu kunda bajarilgan barcha testlar sonini hisoblash
+        topic_results = TopicResult.objects.filter(
+            user=request.user,
+            completed_at__date=date
+        ).count()
+        
+        cert_results = CertificateResult.objects.filter(
+            user=request.user,
+            completed_at__date=date
+        ).count()
+        
+        mock_results = MockExamResult.objects.filter(
+            user=request.user,
+            completed_at__date=date
+        ).count()
+        
+        activity_count = topic_results + cert_results + mock_results
+        
+        monthly_activity.append({
+            'date': date.strftime('%Y-%m-%d'),
+            'day': date.day,
+            'month': date.strftime('%B'),
+            'activity': activity_count,
+            'is_today': date == today,
+        })
+    
     # JSON formatida saqlash
     weekly_activity_json = json.dumps(weekly_activity)
+    monthly_activity_json = json.dumps(monthly_activity)
     
     # Notifications
     from core.models import Notification
@@ -888,6 +921,7 @@ def profile_view(request):
         'notifications': notifications,
         'unread_notifications_count': unread_notifications_count,
         'weekly_activity': weekly_activity_json,
+        'monthly_activity': monthly_activity_json,
     }
     
     if is_mobile(request):
