@@ -16,7 +16,14 @@
         <div class="video-container mb-4">
             {% if lesson.video_url %}
             <div class="ratio ratio-16x9">
-                <iframe src="{{ lesson.get_embed_url }}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                <iframe 
+                    src="{{ lesson.get_embed_url }}" 
+                    title="{{ lesson.title }}"
+                    frameborder="0" 
+                    allowfullscreen 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
             </div>
             {% elif lesson.video_file %}
             <video controls class="w-100">
@@ -61,4 +68,37 @@
     </a>
     {% endfor %}
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // YouTube iframe'larni dinamik yuklash
+    const videoContainers = document.querySelectorAll('.video-container, .video-wrapper');
+    
+    videoContainers.forEach(container => {
+        const iframe = container.querySelector('iframe');
+        if (iframe && iframe.src.includes('youtube.com/embed/')) {
+            // Iframe'ni qayta yuklash
+            const originalSrc = iframe.src;
+            
+            // Iframe'ga load event listener qo'shish
+            iframe.addEventListener('load', function() {
+                console.log('Video yuklandi');
+            });
+            
+            iframe.addEventListener('error', function() {
+                console.log('Video yuklashda xatolik');
+                // Xatolik bo'lsa, iframe'ni qayta yuklash
+                setTimeout(() => {
+                    iframe.src = originalSrc;
+                }, 1000);
+            });
+            
+            // CSP va CORS muammolarini hal qilish uchun
+            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms');
+        }
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}

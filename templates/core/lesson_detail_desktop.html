@@ -15,7 +15,16 @@
                     {% if lesson.video_url or lesson.video_file %}
                     <div class="video-container">
                         {% if lesson.video_url %}
-                        <div class="video-wrapper"><iframe src="{{ lesson.get_embed_url }}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>
+                        <div class="video-wrapper">
+                            <iframe 
+                                src="{{ lesson.get_embed_url }}" 
+                                title="{{ lesson.title }}"
+                                frameborder="0" 
+                                allowfullscreen 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerpolicy="strict-origin-when-cross-origin">
+                            </iframe>
+                        </div>
                         {% elif lesson.video_file %}
                         <video controls class="video-player"><source src="{{ lesson.video_file.url }}" type="video/mp4">Brauzeringiz video ni qo'llab-quvvatlamaydi.</video>
                         {% endif %}
@@ -72,4 +81,37 @@
 .lesson-item.locked i { color: var(--text-color); }
 @media (max-width: 968px) { .lesson-layout { grid-template-columns: 1fr; } .sidebar-card { position: static; } }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // YouTube iframe'larni dinamik yuklash
+    const videoContainers = document.querySelectorAll('.video-container, .video-wrapper');
+    
+    videoContainers.forEach(container => {
+        const iframe = container.querySelector('iframe');
+        if (iframe && iframe.src.includes('youtube.com/embed/')) {
+            // Iframe'ni qayta yuklash
+            const originalSrc = iframe.src;
+            
+            // Iframe'ga load event listener qo'shish
+            iframe.addEventListener('load', function() {
+                console.log('Video yuklandi');
+            });
+            
+            iframe.addEventListener('error', function() {
+                console.log('Video yuklashda xatolik');
+                // Xatolik bo'lsa, iframe'ni qayta yuklash
+                setTimeout(() => {
+                    iframe.src = originalSrc;
+                }, 1000);
+            });
+            
+            // CSP va CORS muammolarini hal qilish uchun
+            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms');
+        }
+    });
+});
+</script>
 {% endblock %}
