@@ -31,6 +31,80 @@
     display: none !important;
 }
 
+/* Markdown formatting for AI messages */
+.msg-text h1, .msg-text h2, .msg-text h3, .msg-text h4, .msg-text h5, .msg-text h6 {
+    margin: 0.5rem 0;
+    font-weight: 600;
+}
+
+.msg-text h1 { font-size: 1.2rem; }
+.msg-text h2 { font-size: 1.1rem; }
+.msg-text h3 { font-size: 1rem; }
+.msg-text h4, .msg-text h5, .msg-text h6 { font-size: 0.95rem; }
+
+.msg-text strong, .msg-text b {
+    font-weight: 600;
+}
+
+.msg-text em, .msg-text i {
+    font-style: italic;
+}
+
+.msg-text ul, .msg-text ol {
+    margin: 0.5rem 0;
+    padding-left: 1.2rem;
+}
+
+.msg-text li {
+    margin: 0.2rem 0;
+}
+
+.msg-text p {
+    margin: 0.3rem 0;
+}
+
+.msg-text code {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+}
+
+[data-theme="dark"] .msg-text code {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.msg-text pre {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.5rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+}
+
+[data-theme="dark"] .msg-text pre {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.msg-text pre code {
+    background: none;
+    padding: 0;
+}
+
+.msg-text blockquote {
+    border-left: 3px solid #667eea;
+    padding-left: 0.8rem;
+    margin: 0.5rem 0;
+    opacity: 0.8;
+}
+
+.msg-text hr {
+    border: none;
+    border-top: 1px solid var(--ai-border-color);
+    margin: 0.8rem 0;
+}
+
 /* Confirm Modal */
 .confirm-modal {
     display: none;
@@ -576,7 +650,7 @@
                     {% endif %}
                 </div>
                 <div class="msg-bubble">
-                    <p class="msg-text">{{ msg.content|linebreaks }}</p>
+                    <div class="msg-text" data-is-user="{% if msg.is_user %}true{% else %}false{% endif %}">{{ msg.content|linebreaks }}</div>
                     <div class="msg-meta">
                         {% if msg.is_user %}
                         <span class="msg-username">{{ user.first_name|default:user.username }}</span>
@@ -659,6 +733,81 @@ const confirmCancelBtn = document.getElementById('confirmCancel');
 let currentSessionId = {% if current_session %}{{ current_session.id }}{% else %}null{% endif %};
 let selectedFile = null;
 let confirmCallback = null;
+
+// Markdown to HTML converter (simple)
+function parseMarkdown(text) {
+    if (!text) return '';
+    
+    // Escape HTML first
+    text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    // Headers (must be at start of line)
+    text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+    
+    // Code blocks (before other formatting)
+    text = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    
+    // Inline code (before other formatting)
+    text = text.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    
+    // Bold
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/__(.*?)__/g, '<strong>$1</strong>');
+    
+    // Italic
+    text = text.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+    text = text.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+    
+    // Lists - handle bullet points
+    const lines = text.split('\n');
+    let inList = false;
+    let result = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        // Check if line is a list item
+        if (line.match(/^[\*\-\+] /)) {
+            if (!inList) {
+                result.push('<ul>');
+                inList = true;
+            }
+            result.push('<li>' + line.replace(/^[\*\-\+] /, '') + '</li>');
+        } else if (line.match(/^\d+\. /)) {
+            if (!inList) {
+                result.push('<ol>');
+                inList = true;
+            }
+            result.push('<li>' + line.replace(/^\d+\. /, '') + '</li>');
+        } else {
+            if (inList) {
+                result.push('</ul>');
+                inList = false;
+            }
+            result.push(line);
+        }
+    }
+    
+    if (inList) {
+        result.push('</ul>');
+    }
+    
+    text = result.join('\n');
+    
+    // Line breaks
+    text = text.replace(/\n/g, '<br>');
+    
+    // Clean up multiple <br> tags
+    text = text.replace(/(<br>\s*){3,}/g, '<br><br>');
+    
+    // Clean up <br> tags around block elements
+    text = text.replace(/<br>\s*(<\/?(ul|ol|li|h[1-6]|pre|blockquote))/g, '$1');
+    text = text.replace(/(<\/?(ul|ol|li|h[1-6]|pre|blockquote)[^>]*>)\s*<br>/g, '$1');
+    
+    return text;
+}
 
 // File icons
 const fileIcons = {
@@ -836,13 +985,21 @@ function addMessage(text, isUser, sourceLabel = '', attachmentInfo = null) {
         avatarContent = `<i class="bi bi-robot"></i>`;
     }
     
+    // Format text - markdown for AI, plain for user
+    let formattedText = '';
+    if (isUser) {
+        formattedText = text.replace(/\n/g, '<br>');
+    } else {
+        formattedText = parseMarkdown(text);
+    }
+    
     div.innerHTML = `
         <div class="msg-avatar">
             ${avatarContent}
         </div>
         <div class="msg-bubble">
             ${attachmentHtml}
-            <p class="msg-text">${text.replace(/\n/g, '<br>')}</p>
+            <div class="msg-text">${formattedText}</div>
             <div class="msg-meta">
                 ${isUser ? `<span class="msg-username">{{ user.first_name|default:user.username }}</span>` : `<span class="msg-username">AI Hamroh</span>`}
                 <span class="msg-time">${time}</span>
@@ -902,5 +1059,14 @@ document.getElementById('clearChatBtn').addEventListener('click', function() {
 
 // Scroll to bottom on load
 messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+// Format existing AI messages on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const existingMessages = document.querySelectorAll('.msg-text[data-is-user="false"]');
+    existingMessages.forEach(msgElement => {
+        const originalText = msgElement.textContent || msgElement.innerText;
+        msgElement.innerHTML = parseMarkdown(originalText);
+    });
+});
 </script>
 {% endblock %}
