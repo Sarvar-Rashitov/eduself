@@ -99,7 +99,7 @@
                                 <span class="message-sender">{% if msg.is_user %}Siz{% else %}AI Yordamchi{% endif %}</span>
                                 <span class="message-time">{{ msg.created_at|date:"H:i" }}</span>
                             </div>
-                            <div class="message-text">{{ msg.content|linebreaks }}</div>
+                            <div class="message-text" data-is-user="{% if msg.is_user %}true{% else %}false{% endif %}">{{ msg.content|linebreaks }}</div>
                         </div>
                     </div>
                     {% endfor %}
@@ -182,6 +182,80 @@
     z-index: 9999;
     align-items: center;
     justify-content: center;
+}
+
+/* Markdown formatting for AI messages */
+.message-text h1, .message-text h2, .message-text h3, .message-text h4, .message-text h5, .message-text h6 {
+    margin: 0.5rem 0;
+    font-weight: 600;
+}
+
+.message-text h1 { font-size: 1.3rem; }
+.message-text h2 { font-size: 1.2rem; }
+.message-text h3 { font-size: 1.1rem; }
+.message-text h4, .message-text h5, .message-text h6 { font-size: 1rem; }
+
+.message-text strong, .message-text b {
+    font-weight: 600;
+}
+
+.message-text em, .message-text i {
+    font-style: italic;
+}
+
+.message-text ul, .message-text ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.message-text li {
+    margin: 0.3rem 0;
+}
+
+.message-text p {
+    margin: 0.4rem 0;
+}
+
+.message-text code {
+    background: rgba(0, 0, 0, 0.08);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+[data-theme="dark"] .message-text code {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.message-text pre {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.8rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0.8rem 0;
+}
+
+[data-theme="dark"] .message-text pre {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.message-text pre code {
+    background: none;
+    padding: 0;
+}
+
+.message-text blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1rem;
+    margin: 0.8rem 0;
+    opacity: 0.8;
+}
+
+.message-text hr {
+    border: none;
+    border-top: 1px solid var(--light-color);
+    margin: 1rem 0;
 }
 
 .confirm-modal.active {
@@ -895,6 +969,81 @@ const fileIcon = document.getElementById('fileIcon');
 const fileName = document.getElementById('fileName');
 const removeFileBtn = document.getElementById('removeFile');
 
+// Markdown to HTML converter (simple)
+function parseMarkdown(text) {
+    if (!text) return '';
+    
+    // Escape HTML first
+    text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    // Headers (must be at start of line)
+    text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+    
+    // Code blocks (before other formatting)
+    text = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    
+    // Inline code (before other formatting)
+    text = text.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    
+    // Bold
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/__(.*?)__/g, '<strong>$1</strong>');
+    
+    // Italic
+    text = text.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+    text = text.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+    
+    // Lists - handle bullet points
+    const lines = text.split('\n');
+    let inList = false;
+    let result = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        // Check if line is a list item
+        if (line.match(/^[\*\-\+] /)) {
+            if (!inList) {
+                result.push('<ul>');
+                inList = true;
+            }
+            result.push('<li>' + line.replace(/^[\*\-\+] /, '') + '</li>');
+        } else if (line.match(/^\d+\. /)) {
+            if (!inList) {
+                result.push('<ol>');
+                inList = true;
+            }
+            result.push('<li>' + line.replace(/^\d+\. /, '') + '</li>');
+        } else {
+            if (inList) {
+                result.push('</ul>');
+                inList = false;
+            }
+            result.push(line);
+        }
+    }
+    
+    if (inList) {
+        result.push('</ul>');
+    }
+    
+    text = result.join('\n');
+    
+    // Line breaks
+    text = text.replace(/\n/g, '<br>');
+    
+    // Clean up multiple <br> tags
+    text = text.replace(/(<br>\s*){3,}/g, '<br><br>');
+    
+    // Clean up <br> tags around block elements
+    text = text.replace(/<br>\s*(<\/?(ul|ol|li|h[1-6]|pre|blockquote))/g, '$1');
+    text = text.replace(/(<\/?(ul|ol|li|h[1-6]|pre|blockquote)[^>]*>)\s*<br>/g, '$1');
+    
+    return text;
+}
+
 // Current session ID
 let currentSessionId = {% if current_session %}{{ current_session.id }}{% else %}null{% endif %};
 let selectedFile = null;
@@ -1089,6 +1238,14 @@ function addMessage(text, isUser, sourceLabel = '', attachmentInfo = null) {
         }
     }
     
+    // Format text - markdown for AI, plain for user
+    let formattedText = '';
+    if (isUser) {
+        formattedText = text.replace(/\n/g, '<br>');
+    } else {
+        formattedText = parseMarkdown(text);
+    }
+    
     messageDiv.innerHTML = `
         <div class="message-avatar">
             ${isUser ? '{{ user.username|slice:":1"|upper }}' : '<i class="fas fa-robot"></i>'}
@@ -1099,7 +1256,7 @@ function addMessage(text, isUser, sourceLabel = '', attachmentInfo = null) {
                 <span class="message-time">${time}</span>
             </div>
             ${attachmentHtml}
-            <div class="message-text">${text.replace(/\n/g, '<br>')}</div>
+            <div class="message-text">${formattedText}</div>
             ${sourceBadge}
         </div>
     `;
@@ -1229,6 +1386,15 @@ document.getElementById('clearChatBtn').addEventListener('click', function() {
         } catch (error) {
             console.error('Tozalashda xatolik:', error);
         }
+    });
+});
+
+// Format existing AI messages on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const existingMessages = document.querySelectorAll('.message-text[data-is-user="false"]');
+    existingMessages.forEach(msgElement => {
+        const originalText = msgElement.textContent || msgElement.innerText;
+        msgElement.innerHTML = parseMarkdown(originalText);
     });
 });
 </script>
