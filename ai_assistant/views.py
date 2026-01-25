@@ -19,7 +19,7 @@ def is_mobile(request):
 
 
 @login_required
-def ai_chat_view(request):
+def ai_chat_view(request, session_id=None):
     """AI Chat asosiy sahifasi"""
     chat_service = ChatService()
     
@@ -27,7 +27,9 @@ def ai_chat_view(request):
     sessions = chat_service.get_user_sessions(request.user)
     
     # Aktiv sessiyani aniqlash
-    session_id = request.GET.get('session')
+    if not session_id:
+        session_id = request.GET.get('session')
+    
     current_session = None
     messages_list = []
     
@@ -86,7 +88,7 @@ def send_message(request):
         
         # Agar session_id yo'q bo'lsa, yangi sessiya yaratish
         if not session_id:
-            session = chat_service.create_chat_session(request.user, "AI Hamroh suhbati")
+            session = chat_service.create_chat_session(request.user, "Yangi suhbat")
         else:
             # Sessiyani olish
             session = get_object_or_404(ChatSession, id=session_id, user=request.user)
@@ -326,7 +328,7 @@ def quick_question(request):
             else:
                 session = chat_service.create_chat_session(
                     request.user, 
-                    "AI Hamroh suhbati"
+                    "Yangi suhbat"
                 )
             
             # Savolni yuborish
@@ -354,7 +356,7 @@ def ai_chat_redirect(request):
         return redirect(reverse('ai_assistant:chat') + f'?session={latest_session.id}')
     else:
         # Avtomatik yangi sessiya yaratish
-        session = chat_service.create_chat_session(request.user, "AI Hamroh suhbati")
+        session = chat_service.create_chat_session(request.user, "Yangi suhbat")
         return redirect(reverse('ai_assistant:chat') + f'?session={session.id}')
 
 

@@ -409,6 +409,14 @@ Qanday yordam kerak?"""
                 attachment=attachment
             )
             
+            # Agar bu birinchi foydalanuvchi xabari bo'lsa, sessiya title'ini yangilash
+            user_messages_count = session.messages.filter(message_type=MessageType.USER).count()
+            if user_messages_count == 1:  # Birinchi foydalanuvchi xabari
+                # Xabar uzunligini cheklash va title yaratish
+                title = self._generate_session_title(user_message)
+                session.title = title
+                session.save()
+            
             # Attachment URL olish (rasm uchun)
             attachment_url = None
             if attachment and user_msg.attachment:
@@ -497,6 +505,34 @@ Qanday yordam kerak?"""
     def get_session_messages(self, session: ChatSession) -> List[ChatMessage]:
         """Sessiya xabarlarini olish"""
         return ChatMessage.objects.filter(session=session).order_by('created_at')
+    
+    def _generate_session_title(self, user_message: str) -> str:
+        """Foydalanuvchi xabari asosida sessiya title'ini yaratish"""
+        # Xabarni tozalash va uzunligini cheklash
+        message = user_message.strip()
+        
+        # Agar xabar juda qisqa bo'lsa
+        if len(message) < 5:
+            return "Yangi suhbat"
+        
+        # Agar xabar juda uzun bo'lsa, qisqartirish
+        if len(message) > 50:
+            # So'zlar bo'yicha qisqartirish
+            words = message.split()
+            title = ""
+            for word in words:
+                if len(title + " " + word) <= 50:
+                    title += (" " if title else "") + word
+                else:
+                    break
+            
+            # Agar hali ham uzun bo'lsa, belgilar bo'yicha qisqartirish
+            if len(title) > 50:
+                title = title[:47] + "..."
+            
+            return title if title else message[:47] + "..."
+        
+        return message
 
 
 class InstitutionRecommendationService:
