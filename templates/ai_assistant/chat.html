@@ -271,6 +271,11 @@
 
 .ai-msg.user {
     flex-direction: row-reverse;
+    margin-left: 20%;
+}
+
+.ai-msg.bot {
+    margin-right: 20%;
 }
 
 .msg-avatar {
@@ -286,7 +291,15 @@
 }
 
 .ai-msg.user .msg-avatar {
-    background: #667eea;
+    background: transparent;
+    border: 2px solid #667eea;
+}
+
+.ai-msg.user .msg-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: cover;
 }
 
 .ai-msg.bot .msg-avatar {
@@ -294,7 +307,7 @@
 }
 
 .msg-bubble {
-    max-width: 80%;
+    max-width: 100%;
     padding: 10px 14px;
     border-radius: 16px;
 }
@@ -324,6 +337,20 @@
     align-items: center;
     gap: 8px;
     margin-top: 4px;
+}
+
+.msg-username {
+    font-size: 0.7rem;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.ai-msg.user .msg-username {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.ai-msg.bot .msg-username {
+    color: var(--ai-text-color);
 }
 
 .msg-time {
@@ -362,6 +389,7 @@
     display: flex;
     gap: 8px;
     margin-bottom: 12px;
+    margin-right: 20%;
 }
 
 .typing-dots {
@@ -538,7 +566,11 @@
             <div class="ai-msg {% if msg.is_user %}user{% else %}bot{% endif %}">
                 <div class="msg-avatar">
                     {% if msg.is_user %}
-                    <i class="bi bi-person-fill"></i>
+                        {% if user.profile_image %}
+                        <img src="{{ user.profile_image.url }}" alt="User" style="width: 100%; height: 100%; border-radius: 10px; object-fit: cover;">
+                        {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ user.username|default:'User' }}&background=667eea&color=fff" alt="User" style="width: 100%; height: 100%; border-radius: 10px; object-fit: cover;">
+                        {% endif %}
                     {% else %}
                     <i class="bi bi-robot"></i>
                     {% endif %}
@@ -546,6 +578,11 @@
                 <div class="msg-bubble">
                     <p class="msg-text">{{ msg.content|linebreaks }}</p>
                     <div class="msg-meta">
+                        {% if msg.is_user %}
+                        <span class="msg-username">{{ user.first_name|default:user.username }}</span>
+                        {% else %}
+                        <span class="msg-username">AI Hamroh</span>
+                        {% endif %}
                         <span class="msg-time">{{ msg.created_at|date:"H:i" }}</span>
                     </div>
                 </div>
@@ -787,14 +824,27 @@ function addMessage(text, isUser, sourceLabel = '', attachmentInfo = null) {
     
     const sourceBadge = !isUser && sourceLabel ? `<span class="msg-source">${sourceLabel}</span>` : '';
     
+    // User avatar uchun profil rasmini ishlatish
+    let avatarContent = '';
+    if (isUser) {
+        {% if user.profile_image %}
+        avatarContent = `<img src="{{ user.profile_image.url }}" alt="User" style="width: 100%; height: 100%; border-radius: 10px; object-fit: cover;">`;
+        {% else %}
+        avatarContent = `<img src="https://ui-avatars.com/api/?name={{ user.username|default:"User" }}&background=667eea&color=fff" alt="User" style="width: 100%; height: 100%; border-radius: 10px; object-fit: cover;">`;
+        {% endif %}
+    } else {
+        avatarContent = `<i class="bi bi-robot"></i>`;
+    }
+    
     div.innerHTML = `
         <div class="msg-avatar">
-            <i class="bi ${isUser ? 'bi-person-fill' : 'bi-robot'}"></i>
+            ${avatarContent}
         </div>
         <div class="msg-bubble">
             ${attachmentHtml}
             <p class="msg-text">${text.replace(/\n/g, '<br>')}</p>
             <div class="msg-meta">
+                ${isUser ? `<span class="msg-username">{{ user.first_name|default:user.username }}</span>` : `<span class="msg-username">AI Hamroh</span>`}
                 <span class="msg-time">${time}</span>
                 ${sourceBadge}
             </div>
