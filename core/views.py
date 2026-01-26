@@ -84,6 +84,19 @@ def home_view(request):
         return render(request, 'core/home_desktop.html', context)
 
 
+def offline_view(request):
+    """Offline sahifa uchun view"""
+    # Mobil yoki Desktop shablonni tanlash
+    if is_mobile(request):
+        return render(request, 'core/offline.html', {
+            'title': 'Offline - EduSelf'
+        })
+    else:
+        return render(request, 'core/offline_desktop.html', {
+            'title': 'Offline - EduSelf'
+        })
+
+
 def subjects_view(request):
     category_slug = request.GET.get('category')
     

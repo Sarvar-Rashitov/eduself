@@ -1,12 +1,13 @@
 {
   "name": "EduSelf - Ta'lim Platformasi",
   "short_name": "EduSelf",
-  "description": "O'zbekiston uchun zamonaviy ta'lim platformasi",
+  "description": "O'zbekiston uchun zamonaviy ta'lim platformasi - Offline qo'llab-quvvatlash bilan",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#4F46E5",
   "theme_color": "#4F46E5",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
+  "scope": "/",
   "icons": [
     {
       "src": "/static/icons/icon-72x72.png",
@@ -57,7 +58,66 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["education", "learning"],
+  "categories": ["education", "learning", "productivity"],
   "lang": "uz",
-  "dir": "ltr"
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Fanlar",
+      "short_name": "Fanlar",
+      "description": "Barcha fanlarni ko'rish",
+      "url": "/subjects/",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Sertifikatlar",
+      "short_name": "Sertifikatlar",
+      "description": "Sertifikat testlari",
+      "url": "/certificates/",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Mock Imtihonlar",
+      "short_name": "Imtihonlar",
+      "description": "Mock imtihonlar",
+      "url": "/mock_exams/",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Muassasalar",
+      "short_name": "Muassasalar",
+      "description": "Ta'lim muassasalari",
+      "url": "/institutions/",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
 }

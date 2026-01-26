@@ -27,6 +27,36 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- Connection Status Indicator (Desktop) -->
+    <div id="connectionStatusDesktop" style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 8px 16px;
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+    ">
+        <span id="connectionDotDesktop" style="
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        "></span>
+        <span id="connectionTextDesktop">Offline</span>
+    </div>
+
     <!-- Header -->
     <header class="header">
         <div class="container">
@@ -459,6 +489,92 @@
     }
     </script>
     {% endif %}
+    
+    <!-- Desktop Connection Monitoring (No PWA) -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const connectionStatus = document.getElementById('connectionStatusDesktop');
+        const connectionDot = document.getElementById('connectionDotDesktop');
+        const connectionText = document.getElementById('connectionTextDesktop');
+        
+        function updateConnectionStatus() {
+            if (!navigator.onLine) {
+                connectionStatus.style.display = 'flex';
+                connectionStatus.style.background = 'rgba(239, 68, 68, 0.9)';
+                connectionDot.style.background = '#ef4444';
+                connectionText.textContent = 'Offline';
+            } else {
+                connectionStatus.style.display = 'flex';
+                connectionStatus.style.background = 'rgba(16, 185, 129, 0.9)';
+                connectionDot.style.background = '#10b981';
+                connectionText.textContent = 'Online';
+                
+                // Hide online status after 3 seconds
+                setTimeout(() => {
+                    if (navigator.onLine) {
+                        connectionStatus.style.display = 'none';
+                    }
+                }, 3000);
+            }
+        }
+        
+        // Listen for connection changes
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Initial check - only show if offline
+        if (!navigator.onLine) {
+            updateConnectionStatus();
+        }
+        
+        // Auto-retry connection every 30 seconds when offline
+        setInterval(() => {
+            if (!navigator.onLine) {
+                fetch('/', { 
+                    method: 'HEAD', 
+                    cache: 'no-cache',
+                    mode: 'no-cors'
+                })
+                .then(() => {
+                    // Connection restored
+                    updateConnectionStatus();
+                })
+                .catch(() => {
+                    console.log('Still offline');
+                });
+            }
+        }, 30000);
+        
+        // Offline page redirect for navigation requests
+        window.addEventListener('offline', function() {
+            // Show offline indicator immediately
+            updateConnectionStatus();
+            
+            // Redirect to offline page after 2 seconds if still offline
+            setTimeout(() => {
+                if (!navigator.onLine && window.location.pathname !== '/offline/') {
+                    window.location.href = '/offline/';
+                }
+            }, 2000);
+        });
+    });
+    
+    // Add pulse animation CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.5; 
+                transform: scale(1.2);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>

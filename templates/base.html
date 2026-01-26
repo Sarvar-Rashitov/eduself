@@ -48,6 +48,58 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
     
+    /* PWA Animations */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.1); }
+    }
+    
+    @keyframes slideUp {
+        from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+        to { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+    
+    @keyframes slideDown {
+        from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+        to { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+    
+    /* Connection Status Styles */
+    #connectionStatus {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    /* PWA Install Button Hover Effects */
+    .pwa-button:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.4) !important;
+    }
+    
+    /* Offline Indicator */
+    .offline-indicator {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        backdrop-filter: blur(10px);
+        animation: slideUp 0.3s ease;
+    }
+    
+    /* Update Available Indicator */
+    .update-available {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        animation: pulse 2s infinite;
+    }
+    
+    /* Modal Styles */
     .modal-header {
         border-bottom: 1px solid #e9ecef;
         padding: 1rem 1.5rem;
@@ -339,7 +391,36 @@
             {% endif %}
             {% endblock %}
             
-            {% block content %}{% endblock %}
+            <!-- Connection Status Indicator -->
+    <div id="connectionStatus" style="
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        background: rgba(16, 185, 129, 0.9);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        gap: 6px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    ">
+        <span id="connectionDot" style="
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        "></span>
+        <span id="connectionText">Online</span>
+    </div>
+
+    {% block content %}{% endblock %}
         </main>
 
         {% block footer %}{% endblock %}
@@ -710,6 +791,467 @@
             console.error('Xatolik:', error);
         });
     }
+    </script>
+    
+    <!-- PWA and Offline Support -->
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    showUpdateAvailable();
+                                }
+                            });
+                        });
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        const installButton = document.createElement('button');
+        installButton.className = 'btn btn-primary btn-sm position-fixed';
+        installButton.style.cssText = `
+            bottom: 80px; 
+            right: 20px; 
+            z-index: 1050; 
+            border-radius: 25px; 
+            padding: 8px 16px; 
+            font-size: 0.8rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+        `;
+        installButton.innerHTML = '<i class="bi bi-download"></i> Ilovani o\'rnatish';
+        document.body.appendChild(installButton);
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+        });
+        
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                deferredPrompt = null;
+                installButton.style.display = 'none';
+            }
+        });
+        
+        // Hide install button when app is installed
+        window.addEventListener('appinstalled', () => {
+            installButton.style.display = 'none';
+            console.log('PWA was installed');
+        });
+        
+        // Connection Status Monitor
+        const connectionStatus = document.createElement('div');
+        connectionStatus.className = 'position-fixed';
+        connectionStatus.style.cssText = `
+            top: 10px; 
+            right: 10px; 
+            z-index: 1060; 
+            padding: 4px 8px; 
+            border-radius: 12px; 
+            font-size: 0.7rem; 
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: none;
+        `;
+        document.body.appendChild(connectionStatus);
+        
+        function updateConnectionStatus() {
+            if (navigator.onLine) {
+                connectionStatus.style.cssText += 'background: #d4edda; color: #155724; border: 1px solid #c3e6cb;';
+                connectionStatus.innerHTML = '<i class="bi bi-wifi"></i> Online';
+                connectionStatus.style.display = 'block';
+                setTimeout(() => {
+                    connectionStatus.style.display = 'none';
+                }, 3000);
+            } else {
+                connectionStatus.style.cssText += 'background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;';
+                connectionStatus.innerHTML = '<i class="bi bi-wifi-off"></i> Offline';
+                connectionStatus.style.display = 'block';
+            }
+        }
+        
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Show update available notification
+        function showUpdateAvailable() {
+            const updateBanner = document.createElement('div');
+            updateBanner.className = 'alert alert-info position-fixed';
+            updateBanner.style.cssText = `
+                bottom: 20px; 
+                left: 20px; 
+                right: 20px; 
+                z-index: 1055; 
+                margin: 0;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            updateBanner.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>Yangilanish mavjud!</strong><br>
+                        <small>Ilovani yangilash uchun sahifani qayta yuklang.</small>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="window.location.reload()">
+                        Yangilash
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(updateBanner);
+            
+            setTimeout(() => {
+                updateBanner.remove();
+            }, 10000);
+        }
+        
+        // Background Sync Registration
+        if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+            navigator.serviceWorker.ready.then(function(registration) {
+                return registration.sync.register('background-sync');
+            }).catch(function(err) {
+                console.log('Background sync registration failed:', err);
+            });
+        }
+        
+        // Push Notification Support
+        if ('Notification' in window && 'serviceWorker' in navigator) {
+            // Request notification permission on user interaction
+            document.addEventListener('click', function requestNotificationPermission() {
+                if (Notification.permission === 'default') {
+                    Notification.requestPermission().then(function(permission) {
+                        console.log('Notification permission:', permission);
+                    });
+                }
+                document.removeEventListener('click', requestNotificationPermission);
+            }, { once: true });
+        }
+        
+        // Cache Management
+        function clearOldCaches() {
+            if ('caches' in window) {
+                caches.keys().then(function(cacheNames) {
+                    cacheNames.forEach(function(cacheName) {
+                        if (cacheName.includes('eduself-v1')) {
+                            caches.delete(cacheName);
+                            console.log('Deleted old cache:', cacheName);
+                        }
+                    });
+                });
+            }
+        }
+        
+        // Service Worker Update Notification
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered successfully');
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+        
+        function showUpdateNotification() {
+            const updateNotification = document.createElement('div');
+            updateNotification.innerHTML = `
+                <div id="updateNotification" style="
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: linear-gradient(135deg, #f59e0b, #d97706);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+                    z-index: 1001;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    backdrop-filter: blur(10px);
+                    animation: slideDown 0.3s ease;
+                    max-width: 90vw;
+                ">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span>Yangi versiya mavjud</span>
+                    <button onclick="window.location.reload()" style="
+                        background: rgba(255, 255, 255, 0.2);
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        color: white;
+                        padding: 6px 12px;
+                        border-radius: 6px;
+                        font-size: 0.8rem;
+                        cursor: pointer;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                    ">Yangilash</button>
+                    <button onclick="this.parentElement.parentElement.remove()" style="
+                        background: transparent;
+                        border: none;
+                        color: rgba(255, 255, 255, 0.8);
+                        padding: 6px;
+                        cursor: pointer;
+                        font-size: 1rem;
+                    ">&times;</button>
+                </div>
+                <style>
+                    @keyframes slideDown {
+                        from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+                        to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                    }
+                </style>
+            `;
+            document.body.appendChild(updateNotification);
+            
+            // Auto remove after 15 seconds
+            setTimeout(() => {
+                if (updateNotification.parentNode) {
+                    updateNotification.parentNode.removeChild(updateNotification);
+                }
+            }, 15000);
+        }
+        
+        // Connection Status Monitoring
+        const connectionStatus = document.getElementById('connectionStatus');
+        const connectionDot = document.getElementById('connectionDot');
+        const connectionText = document.getElementById('connectionText');
+        
+        function updateConnectionStatus() {
+            if (!navigator.onLine) {
+                connectionStatus.style.display = 'flex';
+                connectionStatus.style.background = 'rgba(239, 68, 68, 0.9)';
+                connectionDot.style.background = '#ef4444';
+                connectionText.textContent = 'Offline';
+            } else {
+                connectionStatus.style.display = 'flex';
+                connectionStatus.style.background = 'rgba(16, 185, 129, 0.9)';
+                connectionDot.style.background = '#10b981';
+                connectionText.textContent = 'Online';
+                
+                // Hide online status after 3 seconds
+                setTimeout(() => {
+                    if (navigator.onLine) {
+                        connectionStatus.style.display = 'none';
+                    }
+                }, 3000);
+            }
+        }
+        
+        // Listen for connection changes
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Initial check - only show if offline
+        if (!navigator.onLine) {
+            updateConnectionStatus();
+        }
+        
+        // Clear old caches on load
+        window.addEventListener('load', clearOldCaches);
+        
+        // Offline data sync when back online
+        window.addEventListener('online', function() {
+            console.log('Back online - syncing data...');
+            // You can add specific sync logic here
+        });
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        let installButton = null;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA install prompt available');
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+        });
+        
+        function showInstallButton() {
+            if (installButton) return; // Already showing
+            
+            installButton = document.createElement('div');
+            installButton.innerHTML = `
+                <div id="pwaInstallPrompt" style="
+                    position: fixed;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+                    z-index: 1000;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    animation: slideUp 0.3s ease;
+                    max-width: 90vw;
+                ">
+                    <i class="bi bi-download" style="font-size: 1.1rem;"></i>
+                    <span>EduSelf ilovasini o'rnating</span>
+                    <button id="installBtn" style="
+                        background: rgba(255, 255, 255, 0.2);
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        color: white;
+                        padding: 6px 12px;
+                        border-radius: 6px;
+                        font-size: 0.8rem;
+                        cursor: pointer;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                    ">O'rnatish</button>
+                    <button id="dismissBtn" style="
+                        background: transparent;
+                        border: none;
+                        color: rgba(255, 255, 255, 0.8);
+                        padding: 6px;
+                        cursor: pointer;
+                        font-size: 1rem;
+                        line-height: 1;
+                    ">&times;</button>
+                </div>
+                <style>
+                    @keyframes slideUp {
+                        from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+                        to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                    }
+                    #installBtn:hover {
+                        background: rgba(255, 255, 255, 0.3) !important;
+                        transform: translateY(-1px);
+                    }
+                    #dismissBtn:hover {
+                        color: white !important;
+                    }
+                </style>
+            `;
+            
+            document.body.appendChild(installButton);
+            
+            // Install button click
+            document.getElementById('installBtn').addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('PWA install outcome:', outcome);
+                    deferredPrompt = null;
+                    hideInstallButton();
+                }
+            });
+            
+            // Dismiss button click
+            document.getElementById('dismissBtn').addEventListener('click', () => {
+                hideInstallButton();
+                // Don't show again for 7 days
+                localStorage.setItem('pwaInstallDismissed', Date.now() + (7 * 24 * 60 * 60 * 1000));
+            });
+            
+            // Auto hide after 10 seconds
+            setTimeout(() => {
+                if (installButton) {
+                    hideInstallButton();
+                }
+            }, 10000);
+        }
+        
+        function hideInstallButton() {
+            if (installButton) {
+                installButton.style.animation = 'slideDown 0.3s ease forwards';
+                setTimeout(() => {
+                    if (installButton && installButton.parentNode) {
+                        installButton.parentNode.removeChild(installButton);
+                    }
+                    installButton = null;
+                }, 300);
+            }
+        }
+        
+        // Check if install was dismissed recently
+        window.addEventListener('load', () => {
+            const dismissed = localStorage.getItem('pwaInstallDismissed');
+            if (dismissed && Date.now() < parseInt(dismissed)) {
+                console.log('PWA install prompt dismissed recently');
+                return;
+            }
+            
+            // Check if already installed
+            if (window.matchMedia('(display-mode: standalone)').matches || 
+                window.navigator.standalone === true) {
+                console.log('PWA already installed');
+                return;
+            }
+        });
+        
+        // Handle successful installation
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('PWA was installed successfully');
+            hideInstallButton();
+            
+            // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: linear-gradient(135deg, #10b981, #059669);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    z-index: 1001;
+                    font-size: 0.9rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    animation: slideUp 0.3s ease;
+                ">
+                    <i class="bi bi-check-circle"></i>
+                    EduSelf muvaffaqiyatli o'rnatildi!
+                </div>
+            `;
+            document.body.appendChild(successMsg);
+            
+            setTimeout(() => {
+                if (successMsg.parentNode) {
+                    successMsg.parentNode.removeChild(successMsg);
+                }
+            }, 3000);
+        });
     </script>
     
     {% block extra_js %}{% endblock %}
