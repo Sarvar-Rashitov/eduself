@@ -18,6 +18,10 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not db_user:
         # Yangi foydalanuvchi - avtomatik ro'yxatdan o'tkazish
         db_user = await create_user_from_telegram(tg_user)
+    else:
+        # Mavjud foydalanuvchi uchun chat_id ni yangilash
+        from telegram_bot.utils import update_user_telegram_chat_id
+        await update_user_telegram_chat_id(db_user, tg_user.id)
     
     # start parametrini tekshirish (login yoki register)
     args = context.args

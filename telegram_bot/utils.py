@@ -44,6 +44,10 @@ def create_user_from_telegram(tg_user: TelegramUser) -> User:
     # Avval mavjud foydalanuvchini tekshirish
     existing_user = User.objects.filter(telegram_id=telegram_id).first()
     if existing_user:
+        # Chat ID ni yangilash (agar o'zgargan bo'lsa)
+        if not existing_user.telegram_chat_id:
+            existing_user.telegram_chat_id = str(tg_user.id)
+            existing_user.save()
         return existing_user
     
     # Username yaratish - telegram username'ni to'liq saqlash (pastki chiziq bilan)
@@ -61,6 +65,7 @@ def create_user_from_telegram(tg_user: TelegramUser) -> User:
         username=username,
         email=None,  # NULL - unique constraint muammosini hal qiladi
         telegram_id=telegram_id,
+        telegram_chat_id=str(tg_user.id),  # Chat ID ni ham saqlash
         first_name=tg_user.first_name or '',
         last_name=tg_user.last_name or '',
         auth_provider='telegram',
@@ -163,6 +168,14 @@ def get_user_by_email(email: str) -> User | None:
 def update_user_telegram_id(user: User, telegram_id: str) -> User:
     """Foydalanuvchi telegram_id ni yangilash"""
     user.telegram_id = telegram_id
+    user.save()
+    return user
+
+
+@sync_to_async
+def update_user_telegram_chat_id(user: User, chat_id: str) -> User:
+    """Foydalanuvchi telegram_chat_id ni yangilash"""
+    user.telegram_chat_id = str(chat_id)
     user.save()
     return user
 

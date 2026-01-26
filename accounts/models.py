@@ -18,6 +18,7 @@ class User(AbstractUser):
     # Social auth
     google_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
     telegram_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    telegram_chat_id = models.CharField(max_length=255, blank=True, null=True, verbose_name="Telegram Chat ID")
     auth_provider = models.CharField(max_length=50, default='email')  # email, google, telegram
     
     # Certificate file

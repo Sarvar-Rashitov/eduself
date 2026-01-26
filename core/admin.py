@@ -481,14 +481,6 @@ class NotificationAdmin(admin.ModelAdmin):
     list_filter = ['notification_type', 'is_global', 'is_read', 'created_at']
     search_fields = ['title', 'message']
     readonly_fields = ['created_at']
-
-
-@admin.register(NotificationRead)
-class NotificationReadAdmin(admin.ModelAdmin):
-    list_display = ['notification', 'user', 'read_at']
-    list_filter = ['read_at']
-    search_fields = ['notification__title', 'user__username']
-    readonly_fields = ['read_at']
     
     fieldsets = (
         ('Asosiy ma\'lumotlar', {
@@ -498,10 +490,28 @@ class NotificationReadAdmin(admin.ModelAdmin):
             'fields': ('user', 'is_global'),
             'description': 'Agar "Barcha foydalanuvchilar uchun" belgilansa, "Foydalanuvchi" maydoni e\'tiborga olinmaydi.'
         }),
-        ('Holat', {
-            'fields': ('is_read', 'created_at')
-        }),
+        ('Vaqt', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        })
     )
+    
+    def save_model(self, request, obj, form, change):
+        """Bildirishnoma saqlanayotganda qo'shimcha tekshiruvlar"""
+        super().save_model(request, obj, form, change)
+        
+        # Agar yangi bildirishnoma yaratilgan bo'lsa, Telegram orqali yuborish
+        if not change:  # Yangi obyekt
+            from django.contrib import messages
+            messages.success(request, f"Bildirishnoma yaratildi va Telegram orqali yuborildi: {obj.title}")
+
+
+@admin.register(NotificationRead)
+class NotificationReadAdmin(admin.ModelAdmin):
+    list_display = ['notification', 'user', 'read_at']
+    list_filter = ['read_at']
+    search_fields = ['notification__title', 'user__username']
+    readonly_fields = ['read_at']
 
 
 # ==================== Yo'nalish Imtihon Admin ====================
