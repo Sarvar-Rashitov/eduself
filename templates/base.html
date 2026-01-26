@@ -1041,6 +1041,120 @@
             }, 15000);
         }
         
+        // Offline Link Click Handler
+        function handleOfflineClicks() {
+            if (!navigator.onLine) {
+                // Add click listeners to all links
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a');
+                    if (link && link.href && !link.href.startsWith('javascript:') && !link.href.startsWith('#')) {
+                        // Check if it's an external link
+                        const isExternal = link.hostname !== window.location.hostname;
+                        
+                        if (isExternal || !isCachedPage(link.href)) {
+                            e.preventDefault();
+                            showOfflineMessage(link.textContent || 'Bu sahifa');
+                        }
+                    }
+                });
+                
+                // Add click listeners to buttons that might trigger navigation
+                document.addEventListener('click', function(e) {
+                    const button = e.target.closest('button');
+                    if (button && button.onclick && !navigator.onLine) {
+                        // Don't prevent default for reload buttons
+                        if (!button.onclick.toString().includes('reload')) {
+                            e.preventDefault();
+                            showOfflineMessage('Bu funksiya');
+                        }
+                    }
+                });
+            }
+        }
+        
+        function isCachedPage(url) {
+            const cachedPages = [
+                '/',
+                '/subjects/',
+                '/certificates/',
+                '/mock_exams/',
+                '/institutions/',
+                '/courses/',
+                '/news/'
+            ];
+            
+            const path = new URL(url).pathname;
+            return cachedPages.includes(path);
+        }
+        
+        function showOfflineMessage(itemName) {
+            // Remove existing message
+            const existing = document.getElementById('offlineMessage');
+            if (existing) {
+                existing.remove();
+            }
+            
+            const message = document.createElement('div');
+            message.id = 'offlineMessage';
+            message.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(239, 68, 68, 0.95);
+                    color: white;
+                    padding: 20px 30px;
+                    border-radius: 12px;
+                    z-index: 10000;
+                    text-align: center;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                    animation: messageSlideIn 0.3s ease;
+                    max-width: 90vw;
+                    font-family: 'Inter', sans-serif;
+                ">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">📡</div>
+                    <h3 style="margin: 0 0 10px 0; font-size: 1.1rem; font-weight: 600;">Siz offline rejimdasiz</h3>
+                    <p style="margin: 0 0 15px 0; opacity: 0.9; font-size: 0.9rem;">${itemName} uchun internet aloqasi kerak</p>
+                    <button onclick="this.parentElement.parentElement.remove()" style="
+                        background: rgba(255, 255, 255, 0.2);
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        color: white;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                        Tushundim
+                    </button>
+                </div>
+                <style>
+                    @keyframes messageSlideIn {
+                        from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+                        to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    }
+                </style>
+            `;
+            
+            document.body.appendChild(message);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (message.parentNode) {
+                    message.style.animation = 'messageSlideIn 0.3s ease reverse';
+                    setTimeout(() => {
+                        if (message.parentNode) {
+                            message.parentNode.removeChild(message);
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
+        
         // Connection Status Monitoring
         const connectionStatus = document.getElementById('connectionStatus');
         const connectionDot = document.getElementById('connectionDot');
@@ -1074,7 +1188,22 @@
         // Initial check - only show if offline
         if (!navigator.onLine) {
             updateConnectionStatus();
+            handleOfflineClicks();
         }
+        
+        // Listen for offline events
+        window.addEventListener('offline', function() {
+            updateConnectionStatus();
+            handleOfflineClicks();
+        });
+        
+        window.addEventListener('online', function() {
+            updateConnectionStatus();
+            // Remove offline click handlers by reloading
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
         
         // Clear old caches on load
         window.addEventListener('load', clearOldCaches);
