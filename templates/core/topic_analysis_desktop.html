@@ -1,7 +1,7 @@
 {% extends 'base_desktop.html' %}
 {% load static %}
 
-{% block title %}Tahlil - {{ topic.name }} - EduSelf{% endblock %}
+{% block title %}AI Tahlil - {{ topic.name }} - EduSelf{% endblock %}
 
 {% block content %}
 <section class="analysis-section">
@@ -20,67 +20,148 @@
             </div>
         </div>
         
-        <div class="analysis-actions mb-4">
-            <a href="{% url 'core:topic_result' topic.pk %}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Natijaga qaytish</a>
-            <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary"><i class="fas fa-redo"></i> Qayta urinish</a>
-        </div>
-        
-        <div class="analysis-container">
-            {% for item in analysis_data %}
-            <div class="question-analysis-card {% if item.is_correct %}correct{% else %}incorrect{% endif %}">
-                <div class="question-header">
-                    <div class="question-badge">
-                        <i class="fas {% if item.is_correct %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                        Savol {{ forloop.counter }}
-                        {% if item.question.points %}<span class="points">({{ item.question.points }} ball)</span>{% endif %}
-                    </div>
-                    <span class="question-status">
-                        {% if item.is_correct %}
-                            <i class="fas fa-check"></i> To'g'ri
-                            {% if item.question.points %}<span class="earned">+{{ item.question.points }} ball</span>{% endif %}
-                        {% else %}
-                            <i class="fas fa-times"></i> Noto'g'ri
-                            <span class="missed">0 ball</span>
-                        {% endif %}
-                    </span>
+        <!-- AI Tahlil Kartasi -->
+        <div class="ai-analysis-card" id="ai-analysis-card">
+            <div class="ai-header">
+                <div class="ai-icon">
+                    <i class="fas fa-robot"></i>
                 </div>
-                
-                <div class="question-text">{{ item.question.text }}</div>
-                {% if item.question.image %}
-                <img src="{{ item.question.image.url }}" alt="Question image" class="img-fluid mb-3 rounded">
-                {% endif %}
-                
-                <div class="answers-analysis">
-                    {% for answer in item.all_answers %}
-                    <div class="answer-item {% if answer.is_correct %}correct{% endif %} {% if item.user_answer and item.user_answer.selected_answer_id == answer.id %}selected{% endif %} {% if item.user_answer and item.user_answer.selected_answer_id == answer.id and not answer.is_correct %}wrong{% endif %}">
-                        <div class="answer-indicator">
-                            {% if answer.is_correct %}<i class="fas fa-check-circle text-success"></i>
-                            {% elif item.user_answer and item.user_answer.selected_answer_id == answer.id %}<i class="fas fa-times-circle text-danger"></i>
-                            {% else %}<i class="far fa-circle"></i>{% endif %}
-                        </div>
-                        <div class="answer-text">
-                            {{ answer.text }}
-                            {% if answer.is_correct %}<span class="badge bg-success">To'g'ri javob</span>{% endif %}
-                            {% if item.user_answer and item.user_answer.selected_answer_id == answer.id %}
-                            <span class="badge {% if answer.is_correct %}bg-success{% else %}bg-danger{% endif %}">Sizning javobingiz</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% if not item.user_answer or not item.user_answer.selected_answer_id %}
-                    <div class="alert alert-warning mt-2"><i class="fas fa-exclamation-triangle"></i> Siz bu savolga javob bermadingiz.</div>
-                    {% endif %}
+                <div class="ai-title">
+                    <h3>AI Hamroh Tavsiyalari</h3>
+                    <p>Sizning natijangiz asosida shaxsiy tavsiyalar</p>
                 </div>
             </div>
-            {% endfor %}
+            <div class="ai-content" id="ai-analysis-content">
+                <div class="loading-state">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Tahlil qilinmoqda...</span>
+                    </div>
+                    <p class="mt-3">AI Hamroh sizning natijangizni tahlil qilmoqda...</p>
+                </div>
+            </div>
         </div>
         
-        <div class="analysis-actions mt-4">
+        <div class="analysis-actions mb-4">
             <a href="{% url 'core:topic_result' topic.pk %}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Natijaga qaytish</a>
             <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary"><i class="fas fa-redo"></i> Qayta urinish</a>
         </div>
     </div>
 </section>
+
+<script>
+// Sahifa yuklanganda darhol AI tahlilni boshlash
+document.addEventListener('DOMContentLoaded', function() {
+    getAIAnalysis();
+});
+
+function getAIAnalysis() {
+    const aiContent = document.getElementById('ai-analysis-content');
+    
+    // AI tahlil so'rovi
+    fetch(`/ai-hamroh/api/analyze/topic/{{ result.id }}/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': window.csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // AI tavsiyasini ko'rsatish (markdown formatini HTML ga o'girish)
+            let aiContent = data.ai_recommendation;
+            
+            // Markdown formatini HTML ga o'girish
+            aiContent = aiContent
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // **bold** -> <strong>
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')              // *italic* -> <em>
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')             // # Header -> <h1>
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')            // ## Header -> <h2>
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')           // ### Header -> <h3>
+                .replace(/^#### (.*$)/gm, '<h4>$1</h4>')          // #### Header -> <h4>
+                .replace(/^##### (.*$)/gm, '<h5>$1</h5>')         // ##### Header -> <h5>
+                .replace(/^###### (.*$)/gm, '<h6>$1</h6>');       // ###### Header -> <h6>
+            
+            // List itemlarni alohida qayta ishlash
+            let lines = aiContent.split('\n');
+            let processedLines = [];
+            let inUnorderedList = false;
+            let inOrderedList = false;
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                
+                // Unordered list items (- item)
+                if (line.match(/^- (.+)/)) {
+                    if (!inUnorderedList) {
+                        processedLines.push('<ul>');
+                        inUnorderedList = true;
+                        inOrderedList = false;
+                    }
+                    processedLines.push('<li>' + line.replace(/^- /, '') + '</li>');
+                }
+                // Ordered list items (1. item)
+                else if (line.match(/^\d+\. (.+)/)) {
+                    if (!inOrderedList) {
+                        if (inUnorderedList) {
+                            processedLines.push('</ul>');
+                            inUnorderedList = false;
+                        }
+                        processedLines.push('<ol>');
+                        inOrderedList = true;
+                    }
+                    processedLines.push('<li>' + line.replace(/^\d+\. /, '') + '</li>');
+                }
+                // Regular lines
+                else {
+                    if (inUnorderedList) {
+                        processedLines.push('</ul>');
+                        inUnorderedList = false;
+                    }
+                    if (inOrderedList) {
+                        processedLines.push('</ol>');
+                        inOrderedList = false;
+                    }
+                    processedLines.push(line);
+                }
+            }
+            
+            // Close any remaining lists
+            if (inUnorderedList) {
+                processedLines.push('</ul>');
+            }
+            if (inOrderedList) {
+                processedLines.push('</ol>');
+            }
+            
+            aiContent = processedLines.join('\n').replace(/\n/g, '<br>');
+            
+            document.getElementById('ai-analysis-content').innerHTML = `
+                <div class="ai-recommendation">
+                    ${aiContent}
+                </div>
+            `;
+        } else {
+            // Xatolik holatida
+            document.getElementById('ai-analysis-content').innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    ${data.ai_recommendation || 'Tahlil qilishda xatolik yuz berdi. Keyinroq qayta urinib ko\'ring.'}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('AI tahlil xatosi:', error);
+        document.getElementById('ai-analysis-content').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                Tahlil qilishda texnik xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring.
+            </div>
+        `;
+    });
+}
+</script>
 {% endblock %}
 
 {% block extra_css %}
@@ -94,6 +175,117 @@
 .analysis-score.fail .score-value { color: #dc3545; }
 .score-value { font-size: 2.5rem; font-weight: 700; }
 .score-details, .score-points { color: var(--text-color); font-size: 0.9rem; }
+
+/* AI Tahlil Kartasi */
+.ai-analysis-card {
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 2px solid #0d6efd;
+}
+
+.ai-header {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ai-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.ai-title h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.ai-title p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.ai-content {
+    padding: 2rem;
+}
+
+.loading-state {
+    text-align: center;
+    color: #6c757d;
+}
+
+.ai-recommendation {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #212529;
+}
+
+.ai-recommendation h1,
+.ai-recommendation h2,
+.ai-recommendation h3,
+.ai-recommendation h4,
+.ai-recommendation h5,
+.ai-recommendation h6 {
+    color: #0d6efd;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.ai-recommendation strong {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.ai-recommendation ul,
+.ai-recommendation ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.ai-recommendation ul li {
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.ai-recommendation ul li::before {
+    content: "•";
+    color: #0d6efd;
+    font-weight: bold;
+    position: absolute;
+    left: -1.2rem;
+}
+
+.ai-recommendation ol {
+    counter-reset: item;
+}
+
+.ai-recommendation ol li {
+    margin-bottom: 0.5rem;
+    position: relative;
+    counter-increment: item;
+}
+
+.ai-recommendation ol li::before {
+    content: counter(item) ".";
+    color: #0d6efd;
+    font-weight: bold;
+    position: absolute;
+    left: -1.5rem;
+}
+
 .question-analysis-card { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; border-left: 4px solid #dee2e6; }
 .question-analysis-card.correct { border-left-color: #28a745; }
 .question-analysis-card.incorrect { border-left-color: #dc3545; }

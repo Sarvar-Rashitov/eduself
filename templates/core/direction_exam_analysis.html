@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Tahlil - {{ exam.title }}{% endblock %}
+{% block title %}AI Tahlil - {{ exam.title }}{% endblock %}
 
 {% block content %}
 <div class="analysis-page">
@@ -10,51 +10,26 @@
             <i class="fas fa-arrow-left"></i>
         </a>
         <div>
-            <h1>Tahlil</h1>
+            <h1>AI Tahlil</h1>
             <p>{{ result.score|floatformat:1 }}% - {{ result.correct_answers }}/{{ result.total_questions }} to'g'ri</p>
         </div>
     </div>
     
-    <div class="questions-list">
-        {% for item in analysis_data %}
-        <div class="question-item {% if item.is_correct %}correct{% else %}incorrect{% endif %}">
-            <div class="q-header">
-                <span class="q-num">{{ forloop.counter }}</span>
-                {% if item.is_correct %}
-                <i class="fas fa-check-circle text-success"></i>
-                {% else %}
-                <i class="fas fa-times-circle text-danger"></i>
-                {% endif %}
-                <span class="q-points">{{ item.points|floatformat:1 }} ball</span>
-            </div>
-            
-            <div class="q-text">{{ item.question.text|safe }}</div>
-            
-            <div class="answers-list">
-                {% for answer in item.all_answers %}
-                <div class="answer {% if answer.is_correct %}correct{% endif %} {% if item.user_answer.selected_answer_id == answer.id and not answer.is_correct %}wrong{% endif %}">
-                    <span class="marker">{% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}</span>
-                    <span class="text">{{ answer.text|safe }}</span>
-                    {% if answer.is_correct %}
-                    <span class="badge correct"><i class="fas fa-check"></i></span>
-                    {% elif item.user_answer.selected_answer_id == answer.id %}
-                    <span class="badge wrong"><i class="fas fa-times"></i></span>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-            
-            {% if not item.user_answer.selected_answer_id %}
-            <div class="no-answer"><i class="fas fa-exclamation-triangle"></i> Javob berilmagan</div>
-            {% endif %}
+    <!-- AI Tahlil Kartasi -->
+    <div class="ai-analysis-card" id="ai-analysis-card">
+        <div class="ai-header">
+            <i class="fas fa-robot"></i>
+            <span>AI Hamroh Tavsiyalari</span>
         </div>
-        {% endfor %}
+        <div class="ai-content" id="ai-analysis-content">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>AI Hamroh sizning natijangizni tahlil qilmoqda...</p>
+            </div>
+        </div>
     </div>
     
     <div class="analysis-actions">
-        <a href="{% url 'core:direction_exam_result' exam.pk %}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Natijaga
-        </a>
         {% if not result.passed %}
         <a href="{% url 'core:direction_exam_intro' exam.pk %}" class="btn btn-primary">
             <i class="fas fa-redo"></i> Qayta urinish
@@ -62,6 +37,121 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+// Sahifa yuklanganda darhol AI tahlilni boshlash
+document.addEventListener('DOMContentLoaded', function() {
+    getAIAnalysis();
+});
+
+function getAIAnalysis() {
+    const aiContent = document.getElementById('ai-analysis-content');
+    
+    // AI tahlil so'rovi
+    fetch(`/ai-hamroh/api/analyze/direction_exam/{{ result.id }}/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': window.csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // AI tavsiyasini ko'rsatish (markdown formatini HTML ga o'girish)
+            let aiContent = data.ai_recommendation;
+            
+            // Markdown formatini HTML ga o'girish
+            aiContent = aiContent
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // **bold** -> <strong>
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')              // *italic* -> <em>
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')             // # Header -> <h1>
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')            // ## Header -> <h2>
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')           // ### Header -> <h3>
+                .replace(/^#### (.*$)/gm, '<h4>$1</h4>')          // #### Header -> <h4>
+                .replace(/^##### (.*$)/gm, '<h5>$1</h5>')         // ##### Header -> <h5>
+                .replace(/^###### (.*$)/gm, '<h6>$1</h6>');       // ###### Header -> <h6>
+            
+            // List itemlarni alohida qayta ishlash
+            let lines = aiContent.split('\n');
+            let processedLines = [];
+            let inUnorderedList = false;
+            let inOrderedList = false;
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                
+                // Unordered list items (- item)
+                if (line.match(/^- (.+)/)) {
+                    if (!inUnorderedList) {
+                        processedLines.push('<ul>');
+                        inUnorderedList = true;
+                        inOrderedList = false;
+                    }
+                    processedLines.push('<li>' + line.replace(/^- /, '') + '</li>');
+                }
+                // Ordered list items (1. item)
+                else if (line.match(/^\d+\. (.+)/)) {
+                    if (!inOrderedList) {
+                        if (inUnorderedList) {
+                            processedLines.push('</ul>');
+                            inUnorderedList = false;
+                        }
+                        processedLines.push('<ol>');
+                        inOrderedList = true;
+                    }
+                    processedLines.push('<li>' + line.replace(/^\d+\. /, '') + '</li>');
+                }
+                // Regular lines
+                else {
+                    if (inUnorderedList) {
+                        processedLines.push('</ul>');
+                        inUnorderedList = false;
+                    }
+                    if (inOrderedList) {
+                        processedLines.push('</ol>');
+                        inOrderedList = false;
+                    }
+                    processedLines.push(line);
+                }
+            }
+            
+            // Close any remaining lists
+            if (inUnorderedList) {
+                processedLines.push('</ul>');
+            }
+            if (inOrderedList) {
+                processedLines.push('</ol>');
+            }
+            
+            aiContent = processedLines.join('\n').replace(/\n/g, '<br>');
+            
+            document.getElementById('ai-analysis-content').innerHTML = `
+                <div class="ai-recommendation">
+                    ${aiContent}
+                </div>
+            `;
+        } else {
+            // Xatolik holatida
+            document.getElementById('ai-analysis-content').innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    ${data.ai_recommendation || 'Tahlil qilishda xatolik yuz berdi. Keyinroq qayta urinib ko\'ring.'}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('AI tahlil xatosi:', error);
+        document.getElementById('ai-analysis-content').innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                Tahlil qilishda texnik xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring.
+            </div>
+        `;
+    });
+}
+</script>
 {% endblock %}
 
 {% block extra_css %}
@@ -71,6 +161,171 @@
 .back-btn { width: 40px; height: 40px; background: #f3f4f6; border-radius: 10px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #64748b; }
 .analysis-header h1 { font-size: 1.2rem; margin-bottom: 2px; }
 .analysis-header p { font-size: 0.85rem; color: #64748b; }
+
+/* AI Tahlil Kartasi */
+.ai-analysis-card {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.ai-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.ai-content {
+    padding: 20px;
+}
+
+.loading-state {
+    text-align: center;
+    color: #64748b;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f4f6;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.ai-recommendation {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.ai-recommendation h1 {
+    color: #667eea;
+    font-size: 1.4rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ai-recommendation h2 {
+    color: #667eea;
+    font-size: 1.2rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.ai-recommendation h3 {
+    color: #667eea;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.ai-recommendation strong {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.ai-recommendation em {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.ai-recommendation ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    padding-left: 0;
+}
+
+.ai-recommendation ul li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+    position: relative;
+}
+
+.ai-recommendation ul li::before {
+    content: "•";
+    color: #667eea;
+    font-weight: bold;
+    position: absolute;
+    left: -1.2rem;
+}
+
+.ai-recommendation ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    padding-left: 0;
+    counter-reset: item;
+}
+
+.ai-recommendation ol li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+    position: relative;
+    counter-increment: item;
+}
+
+.ai-recommendation ol li::before {
+    content: counter(item) ".";
+    color: #667eea;
+    font-weight: bold;
+    position: absolute;
+    left: -1.5rem;
+}
+
+.error-message {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-buttons {
+    margin-bottom: 20px;
+}
+
+.action-buttons .btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-info {
+    background: #0ea5e9;
+    color: white;
+}
+
+.btn-info:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}
+
 .questions-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
 .question-item { background: white; border-radius: 12px; padding: 15px; border-left: 4px solid; }
 .question-item.correct { border-left-color: #10b981; }
@@ -94,7 +349,7 @@
 .badge.wrong { background: #ef4444; color: white; }
 .no-answer { margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 8px; color: #92400e; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
 .analysis-actions { display: flex; gap: 12px; }
-.btn { flex: 1; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.analysis-actions .btn { flex: 1; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-secondary { background: #f3f4f6; color: #64748b; }
 .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
 </style>

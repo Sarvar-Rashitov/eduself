@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 import json
 from .models import ChatSession, ChatMessage, MessageType
-from .services import ChatService, InstitutionRecommendationService
+from .services import ChatService, InstitutionRecommendationService, TestAnalysisService
 from core.models import Subject, Institution, Certificate
 
 
@@ -366,3 +366,49 @@ def create_new_session(request):
     chat_service = ChatService()
     session = chat_service.create_chat_session(request.user, "Yangi suhbat")
     return redirect(reverse('ai_assistant:chat') + f'?session={session.id}')
+
+
+@login_required
+def analyze_test_result(request, test_type, result_id):
+    """Test natijasini AI bilan tahlil qilish"""
+    try:
+        # Test turini aniqlash va natijani olish
+        if test_type == 'topic':
+            from core.models import TopicResult
+            result = get_object_or_404(TopicResult, id=result_id, user=request.user)
+        elif test_type == 'certificate':
+            from core.models import CertificateResult
+            result = get_object_or_404(CertificateResult, id=result_id, user=request.user)
+        elif test_type == 'mock_exam':
+            from core.models import MockExamResult
+            result = get_object_or_404(MockExamResult, id=result_id, user=request.user)
+        elif test_type == 'direction_exam':
+            from core.models import DirectionExamResult
+            result = get_object_or_404(DirectionExamResult, id=result_id, user=request.user)
+        else:
+            return JsonResponse({'success': False, 'error': 'Noto\'g\'ri test turi'}, status=400)
+        
+        # Test tahlil service'ni ishlatish
+        analysis_service = TestAnalysisService()
+        analysis_result = analysis_service.analyze_test_result(result, test_type)
+        
+        if analysis_result['success']:
+            return JsonResponse({
+                'success': True,
+                'ai_recommendation': analysis_result['ai_recommendation'],
+                'recommendations': analysis_result.get('recommendations', []),
+                'analysis': analysis_result.get('analysis', {})
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': analysis_result.get('error', 'Tahlil qilishda xatolik'),
+                'ai_recommendation': analysis_result.get('ai_recommendation', 'Tahlil mavjud emas')
+            })
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': 'Tahlil qilishda xatolik yuz berdi',
+            'ai_recommendation': 'Kechirasiz, hozir tahlil qilish imkoni yo\'q. Keyinroq qayta urinib ko\'ring.'
+        }, status=500)

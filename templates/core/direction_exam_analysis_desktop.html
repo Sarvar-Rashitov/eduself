@@ -1,314 +1,595 @@
 {% extends 'base_desktop.html' %}
 {% load static %}
 
-{% block title %}Tahlil - {{ exam.title }} - EduSelf{% endblock %}
+{% block title %}AI Tahlil - {{ exam.title }} - EduSelf{% endblock %}
 
 {% block content %}
-<div class="analysis-page">
-    <div class="analysis-container">
-        <!-- Header -->
+<section class="analysis-section">
+    <div class="container">
         <div class="analysis-header">
-            <div class="header-content">
-                <a href="{% url 'core:direction_exam_result' exam.pk %}" class="back-btn">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-                <div>
-                    <h1>Imtihon tahlili</h1>
-                    <p>{{ exam.title }}</p>
+            <div class="analysis-info">
+                <a href="{% url 'core:direction_exam_result' exam.pk %}" class="back-link"><i class="fas fa-arrow-left"></i> Natijaga qaytish</a>
+                <h1>{{ exam.title }}</h1>
+                <p>{{ exam.direction_questions.count }} savol | O'tish balli: {{ exam.passing_score }} ball</p>
+            </div>
+            <div class="analysis-score">
+                <div class="score-value {% if result.passed %}success{% else %}fail{% endif %}">{{ result.score|floatformat:1 }}%</div>
+                <p>{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri</p>
+                <p class="score-points">{{ result.earned_points|floatformat:1 }} ball</p>
+            </div>
+        </div>
+        
+        <!-- AI Tahlil Kartasi -->
+        <div class="ai-analysis-card" id="ai-analysis-card">
+            <div class="ai-header">
+                <div class="ai-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="ai-title">
+                    <h3>AI Hamroh Tavsiyalari</h3>
+                    <p>Yo'nalish imtihon natijangiz asosida shaxsiy tavsiyalar</p>
                 </div>
             </div>
-            <div class="header-stats">
-                <div class="header-stat">
-                    <span class="stat-value {% if result.passed %}text-success{% else %}text-danger{% endif %}">{{ result.score|floatformat:1 }}%</span>
-                    <span class="stat-label">Natija</span>
-                </div>
-                <div class="header-stat">
-                    <span class="stat-value">{{ result.correct_answers }}/{{ result.total_questions }}</span>
-                    <span class="stat-label">To'g'ri</span>
-                </div>
-                <div class="header-stat">
-                    <span class="stat-value">{{ result.earned_points|floatformat:1 }}</span>
-                    <span class="stat-label">Ball</span>
+            <div class="ai-content" id="ai-analysis-content">
+                <div class="loading-state">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Tahlil qilinmoqda...</span>
+                    </div>
+                    <p class="mt-3">AI Hamroh sizning natijangizni tahlil qilmoqda...</p>
                 </div>
             </div>
         </div>
         
-        <!-- Questions Analysis -->
+        <div class="analysis-actions">
+            {% if not result.passed %}
+            <a href="{% url 'core:direction_exam_intro' exam.pk %}" class="btn btn-primary"><i class="fas fa-redo"></i> Qayta urinish</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<script>
+// Sahifa yuklanganda darhol AI tahlilni boshlash
+document.addEventListener('DOMContentLoaded', function() {
+    getAIAnalysis();
+});
+
+function getAIAnalysis() {
+    const aiContent = document.getElementById('ai-analysis-content');
+    
+    // AI tahlil so'rovi
+    fetch(`/ai-hamroh/api/analyze/direction_exam/{{ result.id }}/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': window.csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // AI tavsiyasini ko'rsatish (markdown formatini HTML ga o'girish)
+            let aiContent = data.ai_recommendation;
+            
+            // Markdown formatini HTML ga o'girish
+            aiContent = aiContent
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // **bold** -> <strong>
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')              // *italic* -> <em>
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')             // # Header -> <h1>
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')            // ## Header -> <h2>
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')           // ### Header -> <h3>
+                .replace(/^#### (.*$)/gm, '<h4>$1</h4>')          // #### Header -> <h4>
+                .replace(/^##### (.*$)/gm, '<h5>$1</h5>')         // ##### Header -> <h5>
+                .replace(/^###### (.*$)/gm, '<h6>$1</h6>');       // ###### Header -> <h6>
+            
+            // List itemlarni alohida qayta ishlash
+            let lines = aiContent.split('\n');
+            let processedLines = [];
+            let inUnorderedList = false;
+            let inOrderedList = false;
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                
+                // Unordered list items (- item)
+                if (line.match(/^- (.+)/)) {
+                    if (!inUnorderedList) {
+                        processedLines.push('<ul>');
+                        inUnorderedList = true;
+                        inOrderedList = false;
+                    }
+                    processedLines.push('<li>' + line.replace(/^- /, '') + '</li>');
+                }
+                // Ordered list items (1. item)
+                else if (line.match(/^\d+\. (.+)/)) {
+                    if (!inOrderedList) {
+                        if (inUnorderedList) {
+                            processedLines.push('</ul>');
+                            inUnorderedList = false;
+                        }
+                        processedLines.push('<ol>');
+                        inOrderedList = true;
+                    }
+                    processedLines.push('<li>' + line.replace(/^\d+\. /, '') + '</li>');
+                }
+                // Regular lines
+                else {
+                    if (inUnorderedList) {
+                        processedLines.push('</ul>');
+                        inUnorderedList = false;
+                    }
+                    if (inOrderedList) {
+                        processedLines.push('</ol>');
+                        inOrderedList = false;
+                    }
+                    processedLines.push(line);
+                }
+            }
+            
+            // Close any remaining lists
+            if (inUnorderedList) {
+                processedLines.push('</ul>');
+            }
+            if (inOrderedList) {
+                processedLines.push('</ol>');
+            }
+            
+            aiContent = processedLines.join('\n').replace(/\n/g, '<br>');
+            
+            document.getElementById('ai-analysis-content').innerHTML = `
+                <div class="ai-recommendation">
+                    ${aiContent}
+                </div>
+            `;
+        } else {
+            // Xatolik holatida
+            document.getElementById('ai-analysis-content').innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    ${data.ai_recommendation || 'Tahlil qilishda xatolik yuz berdi. Keyinroq qayta urinib ko\'ring.'}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('AI tahlil xatosi:', error);
+        document.getElementById('ai-analysis-content').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                Tahlil qilishda texnik xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring.
+            </div>
+        `;
+    });
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="analysis-section">
+    <div class="container">
+        <div class="analysis-header">
+            <div class="analysis-info">
+                <a href="{% url 'core:direction_exam_result' exam.pk %}" class="back-link"><i class="fas fa-arrow-left"></i> Natijaga qaytish</a>
+                <h1>{{ exam.title }}</h1>
+                <p>{{ exam.direction_questions.count }} savol | O'tish balli: {{ exam.passing_score }} ball</p>
+            </div>
+            <div class="analysis-score">
+                <div class="score-value {% if result.passed %}success{% else %}fail{% endif %}">{{ result.score|floatformat:1 }}%</div>
+                <p>{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri</p>
+                <p class="score-points">{{ result.earned_points|floatformat:1 }} ball</p>
+            </div>
+        </div>
+        
+        <!-- AI Tahlil Kartasi -->
+        <div class="ai-analysis-card" id="ai-analysis-card" style="display: none;">
+            <div class="ai-header">
+                <div class="ai-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="ai-title">
+                    <h3>AI Hamroh Tavsiyalari</h3>
+                    <p>Yo'nalish imtihon natijangiz asosida shaxsiy tavsiyalar</p>
+                </div>
+            </div>
+            <div class="ai-content" id="ai-analysis-content">
+                <div class="loading-state">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Tahlil qilinmoqda...</span>
+                    </div>
+                    <p class="mt-3">AI Hamroh sizning natijangizni tahlil qilmoqda...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="analysis-actions">
+            {% if not result.passed %}
+            <a href="{% url 'core:direction_exam_intro' exam.pk %}" class="btn btn-primary"><i class="fas fa-redo"></i> Qayta urinish</a>
+            {% endif %}
+            <button class="btn btn-info" id="ai-analysis-btn" onclick="getAIAnalysis()">
+                <i class="fas fa-robot"></i> AI Tahlil
+            </button>
+        </div>
+        
         <div class="questions-analysis">
             {% for item in analysis_data %}
-            <div class="analysis-card {% if item.is_correct %}correct{% else %}incorrect{% endif %}">
-                <div class="card-header">
-                    <div class="question-number">
-                        <span class="number">{{ forloop.counter }}</span>
-                        {% if item.is_correct %}
-                        <i class="fas fa-check-circle text-success"></i>
-                        {% else %}
-                        <i class="fas fa-times-circle text-danger"></i>
-                        {% endif %}
+            <div class="question-card {% if item.is_correct %}correct{% else %}incorrect{% endif %}">
+                <div class="question-header">
+                    <span class="question-badge {% if item.is_correct %}correct{% else %}incorrect{% endif %}">
+                        <i class="fas {% if item.is_correct %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i> 
+                        Savol {{ forloop.counter }}
+                    </span>
+                    <div class="question-info">
+                        <span class="question-status {% if item.is_correct %}correct{% else %}incorrect{% endif %}">
+                            {% if item.is_correct %}To'g'ri{% else %}Noto'g'ri{% endif %}
+                        </span>
+                        <span class="question-points">{{ item.points|floatformat:1 }} ball</span>
                     </div>
-                    <span class="question-points">{{ item.points|floatformat:1 }} ball</span>
                 </div>
+                <div class="question-text">{{ item.question.text|safe }}</div>
                 
-                <div class="question-text">
-                    {{ item.question.text|safe }}
+                {% if item.question.long_text %}
+                <div class="long-text-container">
+                    <div class="long-text-header">
+                        <i class="fas fa-file-text"></i> Matn
+                    </div>
+                    <div class="long-text-content">
+                        {{ item.question.long_text|linebreaks }}
+                    </div>
                 </div>
+                {% endif %}
                 
                 {% if item.question.image %}
-                <div class="question-image">
-                    <img src="{{ item.question.image.url }}" alt="Savol rasmi">
-                </div>
+                <img src="{{ item.question.image.url }}" alt="Question image" class="img-fluid mb-3 rounded">
                 {% endif %}
                 
                 <div class="answers-list">
                     {% for answer in item.all_answers %}
-                    <div class="answer-item 
-                        {% if answer.is_correct %}correct-answer{% endif %}
-                        {% if item.user_answer.selected_answer_id == answer.id and not answer.is_correct %}wrong-answer{% endif %}
-                        {% if item.user_answer.selected_answer_id == answer.id %}selected{% endif %}">
-                        <span class="answer-marker">
+                    <div class="answer-item {% if answer.is_correct %}correct{% endif %} {% if item.user_answer.selected_answer_id == answer.id %}selected{% endif %} {% if item.user_answer.selected_answer_id == answer.id and not answer.is_correct %}wrong{% endif %}">
+                        <div class="answer-marker">
                             {% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}
-                        </span>
-                        <span class="answer-text">{{ answer.text|safe }}</span>
-                        {% if answer.is_correct %}
-                        <span class="answer-badge correct"><i class="fas fa-check"></i> To'g'ri</span>
-                        {% elif item.user_answer.selected_answer_id == answer.id %}
-                        <span class="answer-badge wrong"><i class="fas fa-times"></i> Sizning javobingiz</span>
-                        {% endif %}
+                        </div>
+                        <div class="answer-text">{{ answer.text|safe }}</div>
+                        <div class="answer-status">
+                            {% if answer.is_correct %}
+                                <span class="badge correct"><i class="fas fa-check"></i> To'g'ri</span>
+                            {% elif item.user_answer.selected_answer_id == answer.id %}
+                                <span class="badge wrong"><i class="fas fa-times"></i> Sizning javobingiz</span>
+                            {% endif %}
+                        </div>
                     </div>
                     {% endfor %}
+                    
+                    {% if not item.user_answer.selected_answer_id %}
+                    <div class="no-answer">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Javob berilmagan
+                    </div>
+                    {% endif %}
                 </div>
-                
-                {% if not item.user_answer.selected_answer_id %}
-                <div class="no-answer-warning">
-                    <i class="fas fa-exclamation-triangle"></i> Bu savolga javob berilmagan
-                </div>
-                {% endif %}
             </div>
             {% endfor %}
         </div>
-        
-        <!-- Bottom Actions -->
-        <div class="analysis-actions">
-            <a href="{% url 'core:direction_exam_result' exam.pk %}" class="btn-action btn-back">
-                <i class="fas fa-arrow-left"></i> Natijaga qaytish
-            </a>
-            {% if not result.passed %}
-            <a href="{% url 'core:direction_exam_intro' exam.pk %}" class="btn-action btn-retry">
-                <i class="fas fa-redo"></i> Qayta urinish
-            </a>
-            {% endif %}
-            <a href="{% url 'core:direction_detail' exam.direction.pk %}" class="btn-action btn-direction">
-                <i class="fas fa-building"></i> Yo'nalishga qaytish
-            </a>
-        </div>
     </div>
-</div>
+</section>
+
+<script>
+function getAIAnalysis() {
+    const aiCard = document.getElementById('ai-analysis-card');
+    const aiContent = document.getElementById('ai-analysis-content');
+    const aiBtn = document.getElementById('ai-analysis-btn');
+    
+    // Kartani ko'rsatish
+    aiCard.style.display = 'block';
+    aiBtn.disabled = true;
+    aiBtn.innerHTML = '<i class="fas fa-hourglass-half"></i> Tahlil qilinmoqda...';
+    
+    // Sahifani AI karta joyiga scroll qilish
+    aiCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // AI tahlil so'rovi
+    fetch(`/ai-hamroh/api/analyze/direction_exam/{{ result.id }}/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': window.csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // AI tavsiyasini ko'rsatish (markdown formatini HTML ga o'girish)
+            let aiContent = data.ai_recommendation;
+            
+            // Markdown formatini HTML ga o'girish
+            aiContent = aiContent
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // **bold** -> <strong>
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')              // *italic* -> <em>
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')             // # Header -> <h1>
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')            // ## Header -> <h2>
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')           // ### Header -> <h3>
+                .replace(/^#### (.*$)/gm, '<h4>$1</h4>')          // #### Header -> <h4>
+                .replace(/^##### (.*$)/gm, '<h5>$1</h5>')         // ##### Header -> <h5>
+                .replace(/^###### (.*$)/gm, '<h6>$1</h6>');       // ###### Header -> <h6>
+            
+            // List itemlarni alohida qayta ishlash
+            let lines = aiContent.split('\n');
+            let processedLines = [];
+            let inUnorderedList = false;
+            let inOrderedList = false;
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                
+                // Unordered list items (- item)
+                if (line.match(/^- (.+)/)) {
+                    if (!inUnorderedList) {
+                        processedLines.push('<ul>');
+                        inUnorderedList = true;
+                        inOrderedList = false;
+                    }
+                    processedLines.push('<li>' + line.replace(/^- /, '') + '</li>');
+                }
+                // Ordered list items (1. item)
+                else if (line.match(/^\d+\. (.+)/)) {
+                    if (!inOrderedList) {
+                        if (inUnorderedList) {
+                            processedLines.push('</ul>');
+                            inUnorderedList = false;
+                        }
+                        processedLines.push('<ol>');
+                        inOrderedList = true;
+                    }
+                    processedLines.push('<li>' + line.replace(/^\d+\. /, '') + '</li>');
+                }
+                // Regular lines
+                else {
+                    if (inUnorderedList) {
+                        processedLines.push('</ul>');
+                        inUnorderedList = false;
+                    }
+                    if (inOrderedList) {
+                        processedLines.push('</ol>');
+                        inOrderedList = false;
+                    }
+                    processedLines.push(line);
+                }
+            }
+            
+            // Close any remaining lists
+            if (inUnorderedList) {
+                processedLines.push('</ul>');
+            }
+            if (inOrderedList) {
+                processedLines.push('</ol>');
+            }
+            
+            aiContent = processedLines.join('\n').replace(/\n/g, '<br>');
+            
+            document.getElementById('ai-analysis-content').innerHTML = `
+                <div class="ai-recommendation">
+                    ${aiContent}
+                </div>
+            `;
+        } else {
+            // Xatolik holatida
+            document.getElementById('ai-analysis-content').innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    ${data.ai_recommendation || 'Tahlil qilishda xatolik yuz berdi. Keyinroq qayta urinib ko\'ring.'}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('AI tahlil xatosi:', error);
+        document.getElementById('ai-analysis-content').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                Tahlil qilishda texnik xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring.
+            </div>
+        `;
+    })
+    .finally(() => {
+        aiBtn.disabled = false;
+        aiBtn.innerHTML = '<i class="fas fa-robot"></i> AI Tahlil';
+    });
+}
+</script>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-.analysis-page {
-    min-height: calc(100vh - 80px);
-    background: var(--light-color);
-    padding: 40px 20px;
-}
+.analysis-section { padding: 40px 0 80px; }
+.analysis-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+.analysis-info h1 { font-size: 1.75rem; margin: 0.5rem 0; }
+.back-link { color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+.score-value { font-size: 3rem; font-weight: 700; }
+.score-value.success { color: #10b981; }
+.score-value.fail { color: #ef4444; }
+.score-points { color: #6c757d; font-size: 0.9rem; margin: 0; }
 
-.analysis-container {
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.analysis-header {
+/* AI Tahlil Kartasi */
+.ai-analysis-card {
     background: white;
     border-radius: 16px;
-    padding: 24px 32px;
-    margin-bottom: 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 2px solid #667eea;
 }
 
-.header-content {
+.ai-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 1rem;
 }
 
-.back-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: #f3f4f6;
+.ai-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-color);
-    text-decoration: none;
-    transition: all 0.3s;
-}
-
-.back-btn:hover {
-    background: #667eea;
-    color: white;
-}
-
-.header-content h1 {
     font-size: 1.5rem;
-    margin-bottom: 4px;
 }
 
-.header-content p {
-    color: var(--text-color);
+.ai-title h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.ai-title p {
+    margin: 0;
+    opacity: 0.9;
     font-size: 0.9rem;
 }
 
-.header-stats {
-    display: flex;
-    gap: 32px;
+.ai-content {
+    padding: 2rem;
 }
 
-.header-stat {
+.loading-state {
     text-align: center;
+    color: #6c757d;
 }
 
-.header-stat .stat-value {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.header-stat .stat-label {
-    font-size: 0.85rem;
-    color: var(--text-color);
-}
-
-.text-success { color: #10b981; }
-.text-danger { color: #ef4444; }
-
-.questions-analysis {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-bottom: 24px;
-}
-
-.analysis-card {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid;
-}
-
-.analysis-card.correct {
-    border-left-color: #10b981;
-}
-
-.analysis-card.incorrect {
-    border-left-color: #ef4444;
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-}
-
-.question-number {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.question-number .number {
-    width: 32px;
-    height: 32px;
-    background: #f3f4f6;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-}
-
-.question-number i {
-    font-size: 1.2rem;
-}
-
-.question-points {
-    background: #fef3c7;
-    color: #d97706;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-.question-text {
-    font-size: 1.1rem;
+.ai-recommendation {
+    font-size: 16px;
     line-height: 1.7;
-    margin-bottom: 16px;
-    color: #1e293b;
+    color: #212529;
 }
 
-.question-image {
-    margin-bottom: 16px;
+.ai-recommendation h1,
+.ai-recommendation h2,
+.ai-recommendation h3,
+.ai-recommendation h4,
+.ai-recommendation h5,
+.ai-recommendation h6 {
+    color: #667eea;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
 }
 
-.question-image img {
-    max-width: 100%;
-    border-radius: 12px;
+.ai-recommendation strong {
+    color: #667eea;
+    font-weight: 600;
 }
 
-.answers-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.ai-recommendation ul,
+.ai-recommendation ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
 }
 
-.answer-item {
+.ai-recommendation ul li {
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.ai-recommendation ul li::before {
+    content: "•";
+    color: #667eea;
+    font-weight: bold;
+    position: absolute;
+    left: -1.2rem;
+}
+
+.ai-recommendation ol {
+    counter-reset: item;
+}
+
+.ai-recommendation ol li {
+    margin-bottom: 0.5rem;
+    position: relative;
+    counter-increment: item;
+}
+
+.ai-recommendation ol li::before {
+    content: counter(item) ".";
+    color: #667eea;
+    font-weight: bold;
+    position: absolute;
+    left: -1.5rem;
+}
+
+.analysis-actions { margin-bottom: 2rem; }
+.question-card { background: var(--white); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); border-left: 4px solid var(--light-color); }
+.question-card.correct { border-left-color: #10b981; }
+.question-card.incorrect { border-left-color: #ef4444; }
+.question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.question-badge { padding: 6px 14px; border-radius: 20px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+.question-badge.correct { background: #d4edda; color: #155724; }
+.question-badge.incorrect { background: #f8d7da; color: #721c24; }
+.question-info { display: flex; align-items: center; gap: 1rem; }
+.question-status.correct { color: #10b981; font-weight: 600; }
+.question-status.incorrect { color: #ef4444; font-weight: 600; }
+.question-points { background: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+.question-text { font-size: 1.1rem; margin-bottom: 1rem; line-height: 1.6; }
+
+.long-text-container {
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.long-text-header {
+    background: #e9ecef;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: #495057;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
+    gap: 0.5rem;
+}
+
+.long-text-content {
+    padding: 1rem;
+    line-height: 1.6;
+}
+
+.answer-item { 
+    display: flex; 
+    align-items: flex-start; 
+    gap: 1rem; 
+    padding: 1rem; 
+    margin-bottom: 0.75rem; 
+    border-radius: 10px; 
+    border: 2px solid #e9ecef; 
     background: #f8fafc;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    transition: all 0.3s;
 }
-
-.answer-item.correct-answer {
-    background: #d1fae5;
-    border-color: #10b981;
-}
-
-.answer-item.wrong-answer {
-    background: #fee2e2;
-    border-color: #ef4444;
-}
+.answer-item.correct { background: #d1fae5; border-color: #10b981; }
+.answer-item.selected { background: #fff3cd; border-color: #ffc107; }
+.answer-item.wrong { background: #fee2e2; border-color: #ef4444; }
+.answer-item.correct.selected { background: #d1fae5; border-color: #10b981; }
 
 .answer-marker {
     width: 32px;
     height: 32px;
-    border-radius: 8px;
     background: white;
     border: 2px solid #e5e7eb;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
+    font-size: 0.9rem;
     flex-shrink: 0;
 }
 
-.answer-item.correct-answer .answer-marker {
+.answer-item.correct .answer-marker {
     background: #10b981;
     border-color: #10b981;
     color: white;
 }
 
-.answer-item.wrong-answer .answer-marker {
+.answer-item.wrong .answer-marker {
     background: #ef4444;
     border-color: #ef4444;
     color: white;
@@ -317,107 +598,37 @@
 .answer-text {
     flex: 1;
     font-size: 0.95rem;
+    line-height: 1.5;
 }
 
-.answer-badge {
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.8rem;
+.answer-status {
+    display: flex;
+    align-items: center;
+}
+
+.badge { 
+    padding: 4px 10px; 
+    border-radius: 10px; 
+    font-size: 0.75rem; 
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.25rem;
 }
+.badge.correct { background: #10b981; color: white; }
+.badge.wrong { background: #ef4444; color: white; }
 
-.answer-badge.correct {
-    background: #10b981;
-    color: white;
-}
-
-.answer-badge.wrong {
-    background: #ef4444;
-    color: white;
-}
-
-.no-answer-warning {
-    margin-top: 12px;
-    padding: 12px 16px;
+.no-answer {
+    margin-top: 1rem;
+    padding: 1rem;
     background: #fef3c7;
-    border: 1px solid #fcd34d;
     border-radius: 8px;
     color: #92400e;
     font-size: 0.9rem;
     display: flex;
     align-items: center;
-    gap: 8px;
-}
-
-.analysis-actions {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.btn-action {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s;
-}
-
-.btn-back {
-    background: white;
-    color: var(--text-color);
-    border: 2px solid #e5e7eb;
-}
-
-.btn-back:hover {
-    border-color: #94a3b8;
-}
-
-.btn-retry {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
-}
-
-.btn-retry:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-}
-
-.btn-direction {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-}
-
-.btn-direction:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-@media (max-width: 768px) {
-    .analysis-header {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-    
-    .header-content {
-        flex-direction: column;
-    }
-    
-    .analysis-actions {
-        flex-direction: column;
-    }
-    
-    .btn-action {
-        justify-content: center;
-    }
+    gap: 0.5rem;
+    font-weight: 500;
 }
 </style>
 {% endblock %}

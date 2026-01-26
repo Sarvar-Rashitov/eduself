@@ -535,6 +535,449 @@ Qanday yordam kerak?"""
         return message
 
 
+class TestAnalysisService:
+    """Test natijalarini tahlil qilish va tavsiyalar berish uchun service"""
+    
+    def __init__(self):
+        self.ai_service = DeepSeekAIService()
+    
+    def analyze_test_result(self, test_result, test_type='topic') -> Dict:
+        """Test natijasini tahlil qilib, AI tavsiyalar berish"""
+        try:
+            # Test ma'lumotlarini to'plash
+            analysis_data = self._prepare_test_data(test_result, test_type)
+            
+            # AI tavsiya olish
+            ai_recommendation = self._get_ai_recommendation(analysis_data)
+            
+            return {
+                'success': True,
+                'analysis': analysis_data,
+                'ai_recommendation': ai_recommendation,
+                'recommendations': self._generate_specific_recommendations(analysis_data)
+            }
+        
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'ai_recommendation': self._get_fallback_recommendation(test_result, test_type)
+            }
+    
+    def _prepare_test_data(self, test_result, test_type) -> Dict:
+        """Test ma'lumotlarini tayyorlash"""
+        data = {
+            'test_type': test_type,
+            'score': test_result.score,
+            'total_questions': test_result.total_questions,
+            'correct_answers': test_result.correct_answers,
+            'incorrect_answers': test_result.total_questions - test_result.correct_answers,
+            'passed': test_result.passed,
+            'earned_points': getattr(test_result, 'earned_points', 0),
+            'topics_analysis': {},
+            'difficulty_analysis': {},
+            'subject_performance': {}
+        }
+        
+        # Test turiga qarab qo'shimcha ma'lumotlar
+        if test_type == 'topic':
+            data['topic_name'] = test_result.topic.name
+            data['subject_name'] = test_result.topic.subject.name
+            data['passing_score'] = test_result.topic.passing_score
+            
+            # Savollar bo'yicha tahlil
+            questions_analysis = self._analyze_topic_questions(test_result)
+            data.update(questions_analysis)
+            
+        elif test_type == 'certificate':
+            data['test_name'] = test_result.test.title
+            data['topic_name'] = test_result.test.topic.name
+            data['certificate_name'] = test_result.test.topic.certificate.name
+            data['passing_score'] = test_result.test.passing_score
+            
+            # Sertifikat test tahlili
+            questions_analysis = self._analyze_certificate_questions(test_result)
+            data.update(questions_analysis)
+            
+        elif test_type == 'mock_exam':
+            data['exam_name'] = test_result.exam.title
+            data['category_name'] = test_result.exam.category.name if test_result.exam.category else "Umumiy"
+            data['passing_score'] = test_result.exam.passing_score
+            
+            # Mock exam tahlili
+            questions_analysis = self._analyze_mock_exam_questions(test_result)
+            data.update(questions_analysis)
+            
+        elif test_type == 'direction_exam':
+            data['exam_name'] = test_result.exam.title
+            data['direction_name'] = test_result.exam.direction.name
+            data['institution_name'] = test_result.exam.direction.institution.name
+            data['passing_score'] = test_result.exam.passing_score
+            data['subjects_list'] = test_result.exam.get_subjects_list()
+            
+            # Direction exam tahlili
+            questions_analysis = self._analyze_direction_exam_questions(test_result)
+            data.update(questions_analysis)
+        
+        return data
+    
+    def _analyze_topic_questions(self, result) -> Dict:
+        """Mavzu test savollarini tahlil qilish"""
+        from core.models import Question
+        
+        analysis = {
+            'correct_topics': [],
+            'incorrect_topics': [],
+            'weak_areas': [],
+            'strong_areas': []
+        }
+        
+        try:
+            questions = result.topic.questions.all()
+            
+            for question in questions:
+                question_id = str(question.id)
+                user_answer = result.user_answers.get(question_id, {})
+                is_correct = user_answer.get('is_correct', False)
+                
+                question_info = {
+                    'question_text': question.text[:100] + "..." if len(question.text) > 100 else question.text,
+                    'points': question.points,
+                    'is_correct': is_correct
+                }
+                
+                if is_correct:
+                    analysis['correct_topics'].append(question_info)
+                    analysis['strong_areas'].append(f"Savol #{question.order}: {question.text[:50]}...")
+                else:
+                    analysis['incorrect_topics'].append(question_info)
+                    analysis['weak_areas'].append(f"Savol #{question.order}: {question.text[:50]}...")
+        
+        except Exception:
+            pass
+        
+        return analysis
+    
+    def _analyze_certificate_questions(self, result) -> Dict:
+        """Sertifikat test savollarini tahlil qilish"""
+        analysis = {
+            'correct_topics': [],
+            'incorrect_topics': [],
+            'weak_areas': [],
+            'strong_areas': []
+        }
+        
+        try:
+            questions = result.test.cert_questions.all()
+            
+            for question in questions:
+                question_id = str(question.id)
+                user_answer = result.user_answers.get(question_id, {})
+                is_correct = user_answer.get('is_correct', False)
+                
+                question_info = {
+                    'question_text': question.text[:100] + "..." if len(question.text) > 100 else question.text,
+                    'points': question.points,
+                    'is_correct': is_correct
+                }
+                
+                if is_correct:
+                    analysis['correct_topics'].append(question_info)
+                    analysis['strong_areas'].append(f"Savol #{question.order}: {question.text[:50]}...")
+                else:
+                    analysis['incorrect_topics'].append(question_info)
+                    analysis['weak_areas'].append(f"Savol #{question.order}: {question.text[:50]}...")
+        
+        except Exception:
+            pass
+        
+        return analysis
+    
+    def _analyze_mock_exam_questions(self, result) -> Dict:
+        """Mock exam savollarini tahlil qilish"""
+        analysis = {
+            'correct_topics': [],
+            'incorrect_topics': [],
+            'weak_areas': [],
+            'strong_areas': []
+        }
+        
+        try:
+            questions = result.exam.mock_questions.all()
+            
+            for question in questions:
+                question_id = str(question.id)
+                user_answer = result.user_answers.get(question_id, {})
+                is_correct = user_answer.get('is_correct', False)
+                
+                question_info = {
+                    'question_text': question.text[:100] + "..." if len(question.text) > 100 else question.text,
+                    'points': question.points,
+                    'is_correct': is_correct
+                }
+                
+                if is_correct:
+                    analysis['correct_topics'].append(question_info)
+                    analysis['strong_areas'].append(f"Savol #{question.order}: {question.text[:50]}...")
+                else:
+                    analysis['incorrect_topics'].append(question_info)
+                    analysis['weak_areas'].append(f"Savol #{question.order}: {question.text[:50]}...")
+        
+        except Exception:
+            pass
+        
+        return analysis
+    
+    def _analyze_direction_exam_questions(self, result) -> Dict:
+        """Direction exam savollarini tahlil qilish"""
+        analysis = {
+            'correct_topics': [],
+            'incorrect_topics': [],
+            'weak_areas': [],
+            'strong_areas': [],
+            'subject_performance': {}
+        }
+        
+        try:
+            questions = result.exam.direction_questions.all()
+            subjects_list = result.exam.get_subjects_list()
+            
+            # Har bir fan bo'yicha performance hisoblash
+            for subject in subjects_list:
+                analysis['subject_performance'][subject] = {
+                    'correct': 0,
+                    'total': 0,
+                    'percentage': 0
+                }
+            
+            for question in questions:
+                question_id = str(question.id)
+                user_answer = result.user_answers.get(question_id, {})
+                is_correct = user_answer.get('is_correct', False)
+                
+                question_info = {
+                    'question_text': question.text[:100] + "..." if len(question.text) > 100 else question.text,
+                    'points': question.points,
+                    'is_correct': is_correct
+                }
+                
+                if is_correct:
+                    analysis['correct_topics'].append(question_info)
+                    analysis['strong_areas'].append(f"Savol #{question.order}: {question.text[:50]}...")
+                else:
+                    analysis['incorrect_topics'].append(question_info)
+                    analysis['weak_areas'].append(f"Savol #{question.order}: {question.text[:50]}...")
+            
+            # Subject performance hisoblash
+            for subject in analysis['subject_performance']:
+                total = analysis['subject_performance'][subject]['total']
+                correct = analysis['subject_performance'][subject]['correct']
+                if total > 0:
+                    analysis['subject_performance'][subject]['percentage'] = round((correct / total) * 100, 1)
+        
+        except Exception:
+            pass
+        
+        return analysis
+    
+    def _get_ai_recommendation(self, analysis_data) -> str:
+        """AI dan tavsiya olish"""
+        try:
+            # AI uchun prompt tayyorlash
+            prompt = self._build_analysis_prompt(analysis_data)
+            
+            # AI dan javob olish
+            ai_response = self.ai_service.generate_response(
+                user_message=prompt,
+                chat_history=[],
+                context_data={}
+            )
+            
+            if ai_response.get('success') and ai_response.get('content'):
+                return ai_response['content']
+            
+        except Exception:
+            pass
+        
+        # Fallback tavsiya
+        return self._get_fallback_recommendation(analysis_data)
+    
+    def _build_analysis_prompt(self, data) -> str:
+        """AI uchun tahlil prompt'ini yaratish"""
+        test_type = data.get('test_type', 'test')
+        score = data.get('score', 0)
+        correct = data.get('correct_answers', 0)
+        total = data.get('total_questions', 0)
+        incorrect = data.get('incorrect_answers', 0)
+        
+        prompt = f"""Foydalanuvchi {test_type} testini topshirdi. Natijalar:
+
+📊 **Test natijalari:**
+- Umumiy ball: {score}%
+- To'g'ri javoblar: {correct}/{total}
+- Noto'g'ri javoblar: {incorrect}
+- Test o'tdi: {'Ha' if data.get('passed') else 'Yo\'q'}
+
+"""
+        
+        # Test turiga qarab qo'shimcha ma'lumotlar
+        if test_type == 'topic':
+            prompt += f"📚 **Fan va mavzu:** {data.get('subject_name')} - {data.get('topic_name')}\n"
+        elif test_type == 'certificate':
+            prompt += f"🏆 **Sertifikat:** {data.get('certificate_name')} - {data.get('topic_name')}\n"
+        elif test_type == 'mock_exam':
+            prompt += f"📝 **Mock imtihon:** {data.get('exam_name')} ({data.get('category_name')})\n"
+        elif test_type == 'direction_exam':
+            prompt += f"🎓 **Yo'nalish imtihoni:** {data.get('direction_name')} - {data.get('institution_name')}\n"
+            if data.get('subjects_list'):
+                prompt += f"📖 **Fanlar:** {', '.join(data['subjects_list'])}\n"
+        
+        prompt += f"""
+🎯 **O'tish balli:** {data.get('passing_score', 60)}%
+
+Iltimos, bu natijalar asosida foydalanuvchiga:
+1. Kuchli tomonlarini ta'kidlang
+2. Zaif tomonlarini aniqlang  
+3. Yaxshilash uchun aniq tavsiyalar bering
+4. Keyingi qadamlar bo'yicha yo'riqnoma bering
+5. Motivatsion so'zlar bilan yakunlang
+
+Javobingiz o'zbek tilida, qisqa va amaliy bo'lsin."""
+        
+        return prompt
+    
+    def _get_fallback_recommendation(self, data, test_type=None) -> str:
+        """AI ishlamasa, standart tavsiya"""
+        if isinstance(data, dict):
+            score = data.get('score', 0)
+            correct = data.get('correct_answers', 0)
+            total = data.get('total_questions', 0)
+            passed = data.get('passed', False)
+        else:
+            # Agar data test result obyekti bo'lsa
+            score = data.score
+            correct = data.correct_answers
+            total = data.total_questions
+            passed = data.passed
+        
+        if score >= 90:
+            return f"""🎉 **Ajoyib natija!**
+
+Siz {score}% ball to'pladingiz - bu juda yuqori natija!
+
+✅ **Kuchli tomonlaringiz:**
+- {correct}/{total} savolga to'g'ri javob berdingiz
+- Mavzuni juda yaxshi egallabsiz
+- Testni muvaffaqiyatli yakunladingiz
+
+🚀 **Keyingi qadamlar:**
+- Ushbu darajangizni saqlab qoling
+- Yangi mavzularga o'ting
+- Boshqa testlarni ham sinab ko'ring
+- Bilimlaringizni amaliyotda qo'llang
+
+Tabriklaymiz! Davom eting! 💪"""
+        
+        elif score >= 70:
+            return f"""👍 **Yaxshi natija!**
+
+Siz {score}% ball to'pladingiz - bu yaxshi ko'rsatkich.
+
+✅ **Kuchli tomonlaringiz:**
+- {correct}/{total} savolga to'g'ri javob berdingiz
+- Asosiy mavzularni yaxshi bilasiz
+- {'Testni muvaffaqiyatli o\'tdingiz' if passed else 'Deyarli o\'tish balliga yetdingiz'}
+
+📚 **Yaxshilash uchun:**
+- Noto'g'ri javob bergan savollarni qayta ko'rib chiqing
+- Zaif mavzularni takrorlang
+- Qo'shimcha mashq qiling
+- Testni qayta topshirib ko'ring
+
+Siz to'g'ri yo'ldasiz! 🎯"""
+        
+        elif score >= 50:
+            return f"""📖 **O'rtacha natija**
+
+Siz {score}% ball to'pladingiz. Yaxshilash uchun ish bor.
+
+✅ **Kuchli tomonlaringiz:**
+- {correct}/{total} savolga to'g'ri javob berdingiz
+- Ba'zi mavzularni yaxshi bilasiz
+
+📚 **Tavsiyalar:**
+- Noto'g'ri javoblarni diqqat bilan tahlil qiling
+- Zaif mavzularni batafsil o'rganing
+- Har kuni 30-60 daqiqa o'qishga vaqt ajrating
+- Qo'shimcha testlar ishlang
+- Darslik va qo'shimcha manbalardan foydalaning
+
+Taslim bo'lmang, davom eting! 💪"""
+        
+        else:
+            return f"""📚 **Takrorlash kerak**
+
+Siz {score}% ball to'pladingiz. Asosiy mavzularni qayta o'rganish kerak.
+
+🎯 **Tavsiyalar:**
+- Barcha mavzularni boshidan o'rganing
+- Asosiy tushunchalarni mustahkamlang
+- Har kuni muntazam o'qing
+- O'qituvchi yoki do'stlaringizdan yordam so'rang
+- Oddiy savollardan boshlab, asta-sekin qiyinlashtiring
+
+📖 **O'rganish rejasi:**
+1. Asosiy nazariyani o'rganing
+2. Misollar ustida ishlang  
+3. Oddiy testlar ishlang
+4. Bilimingizni tekshiring
+5. Takrorlang va mustahkamlang
+
+Har bir katta muvaffaqiyat kichik qadamlardan boshlanadi! 🌟"""
+    
+    def _generate_specific_recommendations(self, analysis_data) -> List[str]:
+        """Aniq tavsiyalar ro'yxatini yaratish"""
+        recommendations = []
+        
+        score = analysis_data.get('score', 0)
+        weak_areas = analysis_data.get('weak_areas', [])
+        strong_areas = analysis_data.get('strong_areas', [])
+        
+        # Ball asosida umumiy tavsiyalar
+        if score >= 90:
+            recommendations.extend([
+                "Ajoyib! Ushbu darajangizni saqlab qoling",
+                "Yangi mavzularga o'ting",
+                "Boshqa testlarni ham sinab ko'ring"
+            ])
+        elif score >= 70:
+            recommendations.extend([
+                "Yaxshi natija! Zaif tomonlarni mustahkamlang",
+                "Noto'g'ri javoblarni qayta ko'rib chiqing",
+                "Qo'shimcha mashq qiling"
+            ])
+        elif score >= 50:
+            recommendations.extend([
+                "Asosiy mavzularni takrorlang",
+                "Har kuni 30-60 daqiqa o'qing",
+                "Qo'shimcha testlar ishlang"
+            ])
+        else:
+            recommendations.extend([
+                "Barcha mavzularni qayta o'rganing",
+                "Asosiy tushunchalarni mustahkamlang",
+                "O'qituvchidan yordam so'rang"
+            ])
+        
+        # Zaif tomonlar bo'yicha tavsiyalar
+        if weak_areas:
+            recommendations.append("Quyidagi mavzularni takrorlang:")
+            for area in weak_areas[:3]:  # Faqat birinchi 3 tasini ko'rsatish
+                recommendations.append(f"• {area}")
+        
+        return recommendations
+
+
 class InstitutionRecommendationService:
     """Muassasa tavsiya qilish uchun service"""
     

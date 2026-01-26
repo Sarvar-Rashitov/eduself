@@ -20,4 +20,6 @@ urlpatterns = [
     path('help/', views.ai_help_center, name='help_center'),
     path('quick-question/', views.quick_question, name='quick_question'),
     path('recommendations/', views.institution_recommendations, name='institution_recommendations'),
+    # AI tahlil
+    path('api/analyze/<str:test_type>/<int:result_id>/', views.analyze_test_result, name='analyze_test_result'),
 ]
