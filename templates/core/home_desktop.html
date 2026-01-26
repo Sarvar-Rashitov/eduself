@@ -354,6 +354,75 @@
 </section>
 {% endif %}
 
+<!-- Partners Section -->
+{% if partners %}
+<section id="partners" class="section partners-section">
+    <div class="container">
+        <h2 class="section-title">Bizga Ishonadigan Hamkorlar</h2>
+        <p class="section-subtitle">Ishonchli hamkorlar bilan birga</p>
+        <div class="partners-carousel-container">
+            <div class="partners-carousel">
+                {% for partner in partners %}
+                <div class="partner-item">
+                    {% if partner.website_url %}
+                    <a href="{{ partner.website_url }}" target="_blank" rel="noopener noreferrer" class="partner-link">
+                    {% endif %}
+                        <div class="partner-card-content">
+                            <div class="partner-logo">
+                                {% if partner.logo %}
+                                <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" loading="lazy">
+                                {% else %}
+                                <div class="partner-placeholder">
+                                    <i class="fas fa-handshake"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="partner-info">
+                                <h3>{{ partner.name }}</h3>
+                                {% if partner.description %}
+                                <p>{{ partner.description|truncatewords:8 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% if partner.website_url %}
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <!-- Duplicate items for seamless loop -->
+                {% for partner in partners %}
+                <div class="partner-item">
+                    {% if partner.website_url %}
+                    <a href="{{ partner.website_url }}" target="_blank" rel="noopener noreferrer" class="partner-link">
+                    {% endif %}
+                        <div class="partner-card-content">
+                            <div class="partner-logo">
+                                {% if partner.logo %}
+                                <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" loading="lazy">
+                                {% else %}
+                                <div class="partner-placeholder">
+                                    <i class="fas fa-handshake"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="partner-info">
+                                <h3>{{ partner.name }}</h3>
+                                {% if partner.description %}
+                                <p>{{ partner.description|truncatewords:8 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% if partner.website_url %}
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <!-- CTA Section -->
 <section class="cta-section">
     <div class="container">
@@ -923,6 +992,200 @@
 .ai-suggestion-btn:hover {
     transform: translateY(-5px) scale(1.05);
     box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+}
+
+/* ===== PARTNERS SECTION ANIMATIONS ===== */
+.partners-section {
+    position: relative;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-top: 1px solid rgba(99, 102, 241, 0.1);
+    overflow: hidden;
+    padding: 4rem 0;
+}
+
+.partners-section .section-title,
+.partners-section .section-subtitle {
+    animation: sectionTitleFade 0.7s ease both;
+}
+
+.partners-section .section-subtitle {
+    animation-delay: 0.2s;
+}
+
+.partners-carousel-container {
+    margin-top: 3rem;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.partners-carousel {
+    display: flex;
+    align-items: center;
+    animation: partnersScroll 40s linear infinite;
+    width: fit-content;
+}
+
+.partners-carousel:hover {
+    animation-play-state: paused;
+}
+
+@keyframes partnersScroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.partner-item {
+    flex: 0 0 auto;
+    margin-right: 3rem;
+    transition: all 0.3s ease;
+}
+
+.partner-item:hover {
+    transform: scale(1.05);
+}
+
+.partner-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.partner-card-content {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    width: 280px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.partner-card-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.05), transparent);
+    transition: left 0.5s;
+}
+
+.partner-item:hover .partner-card-content::before {
+    left: 100%;
+}
+
+.partner-item:hover .partner-card-content {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.partner-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.partner-logo img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    transition: all 0.3s ease;
+    filter: grayscale(20%);
+}
+
+.partner-item:hover .partner-logo img {
+    filter: grayscale(0%);
+    transform: scale(1.05);
+}
+
+.partner-placeholder {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    transition: all 0.3s ease;
+    margin: 0 auto;
+}
+
+.partner-item:hover .partner-placeholder {
+    transform: rotate(5deg);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+}
+
+.partner-info {
+    text-align: center;
+}
+
+.partner-info h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.partner-item:hover .partner-info h3 {
+    color: #6366f1;
+}
+
+.partner-info p {
+    color: #64748b;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Responsive Partners */
+@media (max-width: 768px) {
+    .partners-section {
+        padding: 2rem 0;
+    }
+    
+    .partners-carousel {
+        animation-duration: 30s;
+    }
+    
+    .partner-item {
+        margin-right: 2rem;
+    }
+    
+    .partner-card-content {
+        width: 220px;
+        padding: 1.5rem;
+    }
+    
+    .partner-logo {
+        height: 80px;
+        margin-bottom: 1rem;
+    }
+    
+    .partner-placeholder {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+    
+    .partner-info h3 {
+        font-size: 1.1rem;
+    }
 }
 
 /* ===== CTA SECTION ANIMATIONS ===== */

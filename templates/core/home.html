@@ -298,6 +298,149 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
 }
+
+/* Partners Mobile Styles */
+.partners-mobile-carousel-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.partners-mobile-carousel {
+    display: flex;
+    align-items: center;
+    animation: partnersMobileScroll 35s linear infinite;
+    width: fit-content;
+}
+
+.partners-mobile-carousel:hover {
+    animation-play-state: paused;
+}
+
+@keyframes partnersMobileScroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.partner-mobile-item {
+    flex: 0 0 auto;
+    margin-right: 2rem;
+    transition: all 0.3s ease;
+}
+
+.partner-mobile-item:hover {
+    transform: scale(1.05);
+}
+
+.partner-mobile-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.partner-mobile-card-content {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    width: 180px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.partner-mobile-card-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.05), transparent);
+    transition: left 0.5s;
+}
+
+.partner-mobile-item:hover .partner-mobile-card-content::before {
+    left: 100%;
+}
+
+.partner-mobile-item:hover .partner-mobile-card-content {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.1);
+}
+
+.partner-mobile-logo {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.partner-mobile-logo img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    filter: grayscale(20%);
+    transition: filter 0.3s ease;
+}
+
+.partner-mobile-item:hover .partner-mobile-logo img {
+    filter: grayscale(0%);
+    transform: scale(1.05);
+}
+
+.partner-mobile-placeholder {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    margin: 0 auto;
+}
+
+.partner-mobile-item:hover .partner-mobile-placeholder {
+    transform: rotate(5deg);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+}
+
+.partner-mobile-info {
+    text-align: center;
+}
+
+.partner-mobile-info h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+    transition: color 0.3s ease;
+}
+
+.partner-mobile-item:hover .partner-mobile-info h4 {
+    color: #6366f1;
+}
+
+.partner-mobile-info p {
+    font-size: 0.7rem;
+    color: #64748b;
+    line-height: 1.3;
+    margin: 0;
+}
 </style>
 {% endblock %}
 
@@ -325,6 +468,72 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endblock %}
 
 {% block footer %}
+<!-- Partners Section -->
+{% if partners %}
+<section class="partners-section" style="padding: 30px 15px; background: #f8f9fa; margin-top: 20px; overflow: hidden;">
+    <div class="section-title text-center mb-3" style="font-size: 1rem; font-weight: 600;">Bizga Ishonadigan Hamkorlar</div>
+    <div class="partners-mobile-carousel-container">
+        <div class="partners-mobile-carousel">
+            {% for partner in partners %}
+            <div class="partner-mobile-item">
+                {% if partner.website_url %}
+                <a href="{{ partner.website_url }}" target="_blank" rel="noopener noreferrer" class="partner-mobile-link">
+                {% endif %}
+                    <div class="partner-mobile-card-content">
+                        <div class="partner-mobile-logo">
+                            {% if partner.logo %}
+                            <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" loading="lazy">
+                            {% else %}
+                            <div class="partner-mobile-placeholder">
+                                <i class="bi bi-handshake"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="partner-mobile-info">
+                            <h4>{{ partner.name }}</h4>
+                            {% if partner.description %}
+                            <p>{{ partner.description|truncatewords:6 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% if partner.website_url %}
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <!-- Duplicate for seamless loop -->
+            {% for partner in partners %}
+            <div class="partner-mobile-item">
+                {% if partner.website_url %}
+                <a href="{{ partner.website_url }}" target="_blank" rel="noopener noreferrer" class="partner-mobile-link">
+                {% endif %}
+                    <div class="partner-mobile-card-content">
+                        <div class="partner-mobile-logo">
+                            {% if partner.logo %}
+                            <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" loading="lazy">
+                            {% else %}
+                            <div class="partner-mobile-placeholder">
+                                <i class="bi bi-handshake"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="partner-mobile-info">
+                            <h4>{{ partner.name }}</h4>
+                            {% if partner.description %}
+                            <p>{{ partner.description|truncatewords:6 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% if partner.website_url %}
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <footer class="app-footer" style="padding: 20px 15px;">
     <div class="footer-content">
         <div class="footer-brand">

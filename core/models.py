@@ -1,3 +1,5 @@
+
+
 from django.db import models
 from django.conf import settings
 import json
@@ -972,3 +974,22 @@ class DirectionExamResult(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.exam.title} - {self.score:.1f}%"
+
+
+class Partner(models.Model):
+    """Hamkorlar modeli"""
+    name = models.CharField(max_length=200, verbose_name="Hamkor nomi")
+    description = models.TextField(blank=True, verbose_name="Tavsif")
+    logo = models.ImageField(upload_to='partners/', verbose_name="Logo")
+    website_url = models.URLField(blank=True, verbose_name="Veb-sayt havolasi")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
+    
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = "Hamkor"
+        verbose_name_plural = "Hamkorlar"
+    
+    def __str__(self):
+        return self.name

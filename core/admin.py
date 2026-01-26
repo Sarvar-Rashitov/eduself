@@ -5,7 +5,7 @@ from .models import (
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     InstitutionCategory, Institution, InstitutionDirection, Advertisement, Statistic, NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment, Notification, NotificationRead,
-    DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult
+    DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult, Partner
 )
 
 
@@ -581,3 +581,23 @@ class DirectionExamResultAdmin(admin.ModelAdmin):
     list_filter = ['passed', 'completed_at', 'exam__direction__institution']
     search_fields = ['user__username', 'exam__title']
     readonly_fields = ['user', 'exam', 'score', 'earned_points', 'correct_answers', 'total_questions', 'passed', 'time_taken', 'user_answers', 'completed_at']
+
+
+@admin.register(Partner)
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = ['name', 'website_url', 'order', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name', 'description']
+    list_editable = ['order', 'is_active']
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('name', 'description', 'logo')
+        }),
+        ('Havola', {
+            'fields': ('website_url',)
+        }),
+        ('Sozlamalar', {
+            'fields': ('order', 'is_active')
+        }),
+    )

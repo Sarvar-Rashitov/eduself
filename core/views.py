@@ -12,7 +12,7 @@ from .models import (
     NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment,
     Notification, NotificationRead,
-    DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult
+    DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult, Partner
 )
 
 def is_mobile(request):
@@ -27,6 +27,7 @@ def home_view(request):
     certificates = Certificate.objects.filter(is_active=True)[:3]
     institutions = Institution.objects.filter(is_featured=True, is_active=True)[:4]
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
+    partners = Partner.objects.filter(is_active=True).order_by('order')  # Hamkorlar
     
     # Dinamik statistikalar
     from accounts.models import User
@@ -73,6 +74,7 @@ def home_view(request):
         'user_stats': user_stats,
         'top_users': top_users,
         'user_position': user_position,
+        'partners': partners,  # Hamkorlar qo'shildi
     }
     
     # Mobil yoki Desktop shablonni tanlash

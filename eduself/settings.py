@@ -89,6 +89,7 @@ JAZZMIN_SETTINGS = {
         "core.NewsCategory": "fas fa-tags",
         "core.UserTestResult": "fas fa-chart-bar",
         "core.SiteSettings": "fas fa-cog",
+        "core.Partner": "fas fa-handshake",
         "accounts.Profile": "fas fa-id-card",
         "ai_assistant.AIConversation": "fas fa-robot",
     },
