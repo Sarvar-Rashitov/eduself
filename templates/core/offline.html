@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+
+{% block title %}Offline - EduSelf{% endblock %}
+
+{% block content %}
+<div class="offline-page">
+    <div class="offline-container">
+        <!-- Connection Status -->
+        <div class="connection-status" id="connectionStatus">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Offline</span>
+        </div>
+        
+        <!-- Main Offline Content -->
+        <div class="offline-content">
+            <div class="offline-icon">
+                <i class="bi bi-wifi-off"></i>
+            </div>
+            
+            <h1 class="offline-title">Internet aloqasi yo'q</h1>
+            <p class="offline-message">
+                Hozirda internet aloqangiz yo'q. Ba'zi sahifalar va ma'lumotlar cache'dan mavjud bo'lishi mumkin.
+            </p>
+            
+            <!-- Action Buttons -->
+            <div class="offline-actions">
+                <button class="btn btn-primary" onclick="window.location.reload()">
+                    <i class="bi bi-arrow-clockwise"></i> Qayta urinish
+                </button>
+                <a href="/" class="btn btn-secondary">
+                    <i class="bi bi-house"></i> Bosh sahifa
+                </a>
+            </div>
+            
+            <!-- Cached Content -->
+            <div class="cached-content">
+                <h3 class="cached-title">
+                    <i class="bi bi-download"></i> Offline mavjud sahifalar:
+                </h3>
+                <div class="cached-links">
+                    <a href="/" class="cached-link">
+                        <i class="bi bi-house"></i> Bosh sahifa
+                    </a>
+                    <a href="{% url 'core:subjects' %}" class="cached-link">
+                        <i class="bi bi-book"></i> Fanlar
+                    </a>
+                    <a href="{% url 'core:certificates' %}" class="cached-link">
+                        <i class="bi bi-award"></i> Sertifikatlar
+                    </a>
+                    <a href="{% url 'core:mock_exams' %}" class="cached-link">
+                        <i class="bi bi-clipboard-check"></i> Mock Imtihonlar
+                    </a>
+                    <a href="{% url 'core:institutions' %}" class="cached-link">
+                        <i class="bi bi-building"></i> Muassasalar
+                    </a>
+                    <a href="{% url 'core:courses' %}" class="cached-link">
+                        <i class="bi bi-play-circle"></i> Kurslar
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Tips for Offline Usage -->
+            <div class="offline-tips">
+                <h4 class="tips-title">
+                    <i class="bi bi-lightbulb"></i> Offline rejimda:
+                </h4>
+                <ul class="tips-list">
+                    <li>Avval ko'rilgan sahifalar mavjud</li>
+                    <li>Yuklab olingan testlar ishlaydi</li>
+                    <li>Natijalar keyinroq sinxronlanadi</li>
+                    <li>Internet qaytganda avtomatik yangilanadi</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.offline-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+}
+
+.offline-container {
+    max-width: 500px;
+    width: 100%;
+    animation: fadeInUp 0.6s ease;
+}
+
+.connection-status {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    backdrop-filter: blur(10px);
+    color: white;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff4757;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.online {
+    background: #2ed573;
+}
+
+.offline-content {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2.5rem;
+    text-align: center;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.offline-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+}
+
+.offline-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.offline-message {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.offline-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.cached-content {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cached-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+}
+
+.cached-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+}
+
+.cached-link {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.cached-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    transform: translateX(5px);
+}
+
+.offline-tips {
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: left;
+}
+
+.tips-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffd700;
+}
+
+.tips-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tips-list li {
+    padding: 8px 0;
+    position: relative;
+    padding-left: 20px;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.tips-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #2ed573;
+    font-weight: bold;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.5; 
+        transform: scale(1.1);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .offline-content {
+        padding: 1.5rem;
+        margin: 10px;
+    }
+    
+    .offline-title {
+        font-size: 1.5rem;
+    }
+    
+    .offline-message {
+        font-size: 1rem;
+    }
+    
+    .offline-actions {
+        flex-direction: column;
+    }
+    
+    .cached-links {
+        grid-template-columns: 1fr;
+    }
+    
+    .connection-status {
+        top: 10px;
+        right: 10px;
+        font-size: 0.7rem;
+        padding: 6px 12px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .offline-page {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .offline-container {
+        animation: none;
+    }
+    
+    .status-dot {
+        animation: none;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
+    
+    .cached-link:hover {
+        transform: none;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const connectionStatus = document.getElementById('connectionStatus');
+    
+    // Update connection status
+    function updateConnectionStatus() {
+        if (navigator.onLine) {
+            statusDot.classList.add('online');
+            statusText.textContent = 'Online';
+            connectionStatus.style.background = 'rgba(46, 213, 115, 0.2)';
+            
+            // Auto reload when back online
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            statusDot.classList.remove('online');
+            statusText.textContent = 'Offline';
+            connectionStatus.style.background = 'rgba(255, 71, 87, 0.2)';
+        }
+    }
+    
+    // Listen for connection changes
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+    
+    // Initial check
+    updateConnectionStatus();
+    
+    // Auto-retry connection every 30 seconds
+    setInterval(() => {
+        if (!navigator.onLine) {
+            fetch('/', { 
+                method: 'HEAD', 
+                cache: 'no-cache',
+                mode: 'no-cors'
+            })
+            .then(() => {
+                // Connection restored
+                updateConnectionStatus();
+            })
+            .catch(() => {
+                console.log('Still offline');
+            });
+        }
+    }, 30000);
+    
+    // Service Worker update check
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // New version available
+                        showUpdateNotification();
+                    }
+                });
+            });
+        });
+    }
+    
+    function showUpdateNotification() {
+        const notification = document.createElement('div');
+        notification.innerHTML = `
+            <div style="
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(99, 102, 241, 0.9);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                backdrop-filter: blur(10px);
+                z-index: 1001;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            ">
+                <i class="bi bi-arrow-clockwise"></i>
+                Yangi versiya mavjud
+                <button onclick="window.location.reload()" style="
+                    background: white;
+                    color: #6366f1;
+                    border: none;
+                    padding: 4px 12px;
+                    border-radius: 4px;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                    font-weight: 600;
+                ">Yangilash</button>
+            </div>
+        `;
+        document.body.appendChild(notification);
+        
+        // Auto remove after 10 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 10000);
+    }
+});
+</script>
+{% endblock %}
