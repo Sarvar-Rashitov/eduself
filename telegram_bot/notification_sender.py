@@ -31,6 +31,16 @@ def get_user_by_id(user_id: int):
         return None
 
 
+def get_notification_bot():
+    """Bildirishnoma yuborish uchun alohida Bot instance"""
+    bot_token = getattr(settings, 'TELEGRAM_BOT_TOKEN', None)
+    if not bot_token:
+        logger.error("TELEGRAM_BOT_TOKEN sozlamasi topilmadi!")
+        return None
+    
+    return Bot(token=bot_token)
+
+
 class TelegramNotificationSender:
     """Telegram bot orqali bildirishnoma yuborish klassi"""
     
@@ -39,12 +49,15 @@ class TelegramNotificationSender:
         if not self.bot_token:
             logger.error("TELEGRAM_BOT_TOKEN sozlamasi topilmadi!")
             return
-        
-        self.bot = Bot(token=self.bot_token)
     
     async def send_notification_to_user(self, user_id: int, title: str, message: str, link: str = None):
         """Bitta foydalanuvchiga bildirishnoma yuborish"""
         if not self.bot_token:
+            return False
+        
+        # Har safar yangi Bot instance yaratish (webhook rejimi uchun)
+        bot = get_notification_bot()
+        if not bot:
             return False
         
         try:
@@ -61,7 +74,7 @@ class TelegramNotificationSender:
                 text += f"\n\n🔗 <a href='{link}'>Batafsil ko'rish</a>"
             
             # Xabarni yuborish
-            await self.bot.send_message(
+            await bot.send_message(
                 chat_id=user.telegram_chat_id,
                 text=text,
                 parse_mode='HTML',
@@ -83,6 +96,11 @@ class TelegramNotificationSender:
         if not self.bot_token:
             return 0
         
+        # Har safar yangi Bot instance yaratish (webhook rejimi uchun)
+        bot = get_notification_bot()
+        if not bot:
+            return 0
+        
         # Telegram chat_id si bor foydalanuvchilarni olish
         users = await get_users_with_telegram_chat_id()
         
@@ -97,7 +115,7 @@ class TelegramNotificationSender:
                     text += f"\n\n🔗 <a href='{link}'>Batafsil ko'rish</a>"
                 
                 # Xabarni yuborish
-                await self.bot.send_message(
+                await bot.send_message(
                     chat_id=user.telegram_chat_id,
                     text=text,
                     parse_mode='HTML',
@@ -158,6 +176,7 @@ class TelegramNotificationSender:
             thread.start()
             thread.join(timeout=30)  # 30 soniya kutish
             
+            logger.info(f"Bildirishnoma yuborish thread ishga tushdi: {title}")
             return True  # Thread muvaffaqiyatli ishga tushdi
                 
         except Exception as e:
