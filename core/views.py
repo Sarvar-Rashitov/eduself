@@ -25,7 +25,7 @@ def is_mobile(request):
 def home_view(request):
     subjects = Subject.objects.filter(is_active=True)[:3]  # 3 ta fan ko'rsatish
     certificates = Certificate.objects.filter(is_active=True)[:3]
-    institutions = Institution.objects.filter(is_featured=True, is_active=True)[:4]
+    institutions = Institution.objects.filter(is_featured=True, is_active=True)[:3]
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
     partners = Partner.objects.filter(is_active=True).order_by('order')  # Hamkorlar
     
