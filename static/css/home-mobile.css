@@ -2121,6 +2121,14 @@
     overflow: hidden;
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -8px 32px rgba(102, 126, 234, 0.2);
+    /* PWA visibility fixes */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 100 !important;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 .partners-section::before {
@@ -2405,6 +2413,14 @@
     position: relative;
     overflow: hidden;
     margin-top: 0 !important;
+    /* PWA visibility fixes */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 100 !important;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 .app-footer::before {
@@ -2816,3 +2832,167 @@
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+/* ========================================
+   PWA SPECIFIC FIXES
+   ======================================== */
+
+/* PWA detection and fixes */
+@media all and (display-mode: standalone) {
+    /* PWA mode specific styles */
+    
+    /* Ensure partners section is visible in PWA */
+    .partners-section {
+        position: relative !important;
+        z-index: 10 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: none !important;
+        margin-bottom: 0 !important;
+        min-height: auto !important;
+    }
+    
+    /* Ensure footer is visible in PWA */
+    .app-footer {
+        position: relative !important;
+        z-index: 10 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: none !important;
+        bottom: auto !important;
+        margin-top: 0 !important;
+        padding-bottom: env(safe-area-inset-bottom, 20px) !important;
+    }
+    
+    /* Fix for PWA viewport issues */
+    body {
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    }
+    
+    /* Ensure content doesn't get cut off */
+    .container-fluid,
+    .main-content {
+        padding-bottom: env(safe-area-inset-bottom, 20px) !important;
+    }
+}
+
+/* Additional PWA fixes for iOS */
+@supports (-webkit-touch-callout: none) {
+    @media all and (display-mode: standalone) {
+        /* iOS PWA specific fixes */
+        
+        .partners-section {
+            -webkit-transform: translateZ(0) !important;
+            transform: translateZ(0) !important;
+            will-change: transform !important;
+        }
+        
+        .app-footer {
+            -webkit-transform: translateZ(0) !important;
+            transform: translateZ(0) !important;
+            will-change: transform !important;
+        }
+        
+        /* Fix for iOS PWA safe areas */
+        body {
+            padding-bottom: max(env(safe-area-inset-bottom), 20px) !important;
+        }
+    }
+}
+
+/* Force visibility for PWA environments */
+@media (max-height: 800px) and (display-mode: standalone) {
+    /* For shorter PWA screens */
+    
+    .partners-section {
+        padding: 1rem 1rem !important;
+        margin-top: 1rem !important;
+    }
+    
+    .app-footer {
+        padding: 1.5rem 1rem 1rem !important;
+    }
+    
+    .partner-mobile-card-content {
+        width: 150px !important;
+        padding: 0.8rem !important;
+    }
+    
+    .partner-mobile-logo {
+        height: 50px !important;
+        margin-bottom: 0.5rem !important;
+    }
+}
+
+/* Universal PWA visibility fix */
+.partners-section,
+.app-footer {
+    /* Force hardware acceleration */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    
+    /* Ensure proper stacking */
+    isolation: isolate;
+    contain: layout style paint;
+}
+
+/* PWA specific media query for better detection */
+@media (display-mode: standalone), 
+       (display-mode: fullscreen), 
+       (display-mode: minimal-ui) {
+    
+    /* Ensure sections are always visible in PWA */
+    .partners-section,
+    .app-footer {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 999 !important;
+    }
+    
+    /* Fix potential overflow issues */
+    html, body {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+    
+    /* Ensure proper scrolling */
+    .main-content,
+    #content {
+        min-height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    /* Force footer to bottom but visible */
+    .app-footer {
+        margin-top: auto !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+/* Fallback for older PWA implementations */
+@media screen and (max-width: 768px) {
+    /* Mobile PWA fallback */
+    
+    .partners-section {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .app-footer {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        clear: both !important;
+    }
+}
+

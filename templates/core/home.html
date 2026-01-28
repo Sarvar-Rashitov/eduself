@@ -647,6 +647,68 @@ document.addEventListener('DOMContentLoaded', function() {
         
         slide.style.cursor = 'pointer';
     });
+    
+    // PWA specific fixes
+    function fixPWAVisibility() {
+        // Check if running in PWA mode
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                     window.navigator.standalone === true ||
+                     document.referrer.includes('android-app://');
+        
+        if (isPWA) {
+            console.log('PWA mode detected, applying fixes...');
+            
+            // Force visibility of partners and footer sections
+            const partnersSection = document.querySelector('.partners-section');
+            const footer = document.querySelector('.app-footer');
+            
+            if (partnersSection) {
+                partnersSection.style.display = 'block';
+                partnersSection.style.visibility = 'visible';
+                partnersSection.style.opacity = '1';
+                partnersSection.style.position = 'relative';
+                partnersSection.style.zIndex = '999';
+                partnersSection.style.transform = 'translateZ(0)';
+                console.log('Partners section visibility fixed');
+            }
+            
+            if (footer) {
+                footer.style.display = 'block';
+                footer.style.visibility = 'visible';
+                footer.style.opacity = '1';
+                footer.style.position = 'relative';
+                footer.style.zIndex = '999';
+                footer.style.transform = 'translateZ(0)';
+                footer.style.paddingBottom = 'max(env(safe-area-inset-bottom), 20px)';
+                console.log('Footer visibility fixed');
+            }
+            
+            // Fix body padding for safe areas
+            document.body.style.paddingBottom = 'max(env(safe-area-inset-bottom), 20px)';
+            
+            // Force repaint
+            setTimeout(() => {
+                if (partnersSection) partnersSection.style.transform = 'translateZ(0)';
+                if (footer) footer.style.transform = 'translateZ(0)';
+            }, 100);
+        }
+    }
+    
+    // Apply fixes immediately
+    fixPWAVisibility();
+    
+    // Apply fixes after page load
+    window.addEventListener('load', fixPWAVisibility);
+    
+    // Apply fixes on orientation change
+    window.addEventListener('orientationchange', function() {
+        setTimeout(fixPWAVisibility, 500);
+    });
+    
+    // Apply fixes on resize
+    window.addEventListener('resize', function() {
+        setTimeout(fixPWAVisibility, 100);
+    });
 });
 </script>
 {% endblock %}
