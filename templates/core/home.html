@@ -654,12 +654,12 @@ document.addEventListener('DOMContentLoaded', function() {
 {% block footer %}
 <!-- Partners Section -->
 {% if partners %}
-<section class="partners-section" style="padding: 30px 15px; background: #f8f9fa; margin-top: 20px; overflow: hidden;">
-    <div class="section-title text-center mb-3" style="font-size: 1rem; font-weight: 600;">Bizga Ishonadigan Hamkorlar</div>
+<section class="partners-section" style="padding: 30px 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 20px; overflow: hidden;">
+    <div class="section-title text-center mb-3" style="font-size: 1rem; font-weight: 600; color: white;">Bizga Ishonadigan Hamkorlar</div>
     <div class="partners-mobile-carousel-container">
         <div class="partners-mobile-carousel">
             {% for partner in partners %}
-            <div class="partner-mobile-item">
+            <div class="partner-mobile-item" style="--i: {{ forloop.counter0 }};">
                 {% if partner.website_url %}
                 <a href="{{ partner.website_url }}" target="_blank" rel="noopener noreferrer" class="partner-mobile-link">
                 {% endif %}
@@ -687,7 +687,7 @@ document.addEventListener('DOMContentLoaded', function() {
             {% endfor %}
             <!-- Duplicate for seamless loop -->
             {% for partner in partners %}
-            <div class="partner-mobile-item">
+            <div class="partner-mobile-item" style="--i: {{ forloop.counter0|add:partners|length }};">
                 {% if partner.website_url %}
                 <a href="{{ partner.website_url }}" target="_blank" rel="noopener noreferrer" class="partner-mobile-link">
                 {% endif %}
