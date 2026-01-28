@@ -53,6 +53,11 @@ def home_view(request):
     
     user_stats = {}
     user_position = None
+    last_test_result = None
+    next_test = None
+    last_cert_result = None
+    next_cert_test = None
+    
     if request.user.is_authenticated:
         user_stats = {
             'total_tests': request.user.get_total_tests_taken(),
@@ -64,6 +69,64 @@ def home_view(request):
         if request.user.total_points > 0:
             higher_users_count = User.objects.filter(total_points__gt=request.user.total_points).count()
             user_position = higher_users_count + 1
+        
+        # Oxirgi ishlangan testni topish (Topic)
+        last_test_result = TopicResult.objects.filter(
+            user=request.user
+        ).select_related('topic', 'topic__subject').order_by('-completed_at').first()
+        
+        # Keyingi testni topish (Topic)
+        if last_test_result:
+            if last_test_result.passed:
+                next_test = Topic.objects.filter(
+                    subject=last_test_result.topic.subject,
+                    is_active=True,
+                    order__gt=last_test_result.topic.order
+                ).order_by('order').first()
+                
+                if not next_test:
+                    next_test = Topic.objects.filter(
+                        is_active=True
+                    ).exclude(
+                        id__in=TopicResult.objects.filter(
+                            user=request.user,
+                            passed=True
+                        ).values_list('topic_id', flat=True)
+                    ).order_by('subject__order', 'order').first()
+            else:
+                next_test = last_test_result.topic
+        else:
+            next_test = Topic.objects.filter(is_active=True).order_by('subject__order', 'order').first()
+        
+        # Oxirgi sertifikat testini topish
+        last_cert_result = CertificateResult.objects.filter(
+            user=request.user
+        ).select_related('test', 'test__topic').order_by('-completed_at').first()
+        
+        # Keyingi sertifikat testini topish
+        if last_cert_result:
+            if last_cert_result.passed:
+                # Bir xil topic ichida keyingi testni topish
+                next_cert_test = CertificateTest.objects.filter(
+                    topic=last_cert_result.test.topic,
+                    is_active=True,
+                    order__gt=last_cert_result.test.order
+                ).order_by('order').first()
+                
+                if not next_cert_test:
+                    # Boshqa topicdan birinchi testni topish
+                    next_cert_test = CertificateTest.objects.filter(
+                        is_active=True
+                    ).exclude(
+                        id__in=CertificateResult.objects.filter(
+                            user=request.user,
+                            passed=True
+                        ).values_list('test_id', flat=True)
+                    ).order_by('topic__order', 'order').first()
+            else:
+                next_cert_test = last_cert_result.test
+        else:
+            next_cert_test = CertificateTest.objects.filter(is_active=True).order_by('topic__order', 'order').first()
     
     context = {
         'subjects': subjects,
@@ -74,7 +137,11 @@ def home_view(request):
         'user_stats': user_stats,
         'top_users': top_users,
         'user_position': user_position,
-        'partners': partners,  # Hamkorlar qo'shildi
+        'partners': partners,
+        'last_test_result': last_test_result,
+        'next_test': next_test,
+        'last_cert_result': last_cert_result,
+        'next_cert_test': next_cert_test,
     }
     
     # Mobil yoki Desktop shablonni tanlash

@@ -1,447 +1,631 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}EduSelf - Bosh sahifa{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home-mobile.css' %}">
+{% endblock %}
+
 {% block content %}
+
+<!-- Hero Section - Login qilinmagan foydalanuvchilar uchun -->
 {% if not user.is_authenticated %}
-<div class="hero-section" style="padding: 20px 15px;">
-    <h1 class="hero-title" style="font-size: 1.5rem;">EduSelf</h1>
-    <p class="hero-subtitle" style="font-size: 0.8rem;">O'zbekiston ta'lim platformasi</p>
-    <div class="d-flex gap-2 justify-content-center flex-wrap">
-        <a href="{% url 'accounts:register' %}" class="btn btn-light btn-sm" style="font-size: 0.75rem; padding: 6px 12px;">
-            <i class="bi bi-person-plus"></i> Ro'yxatdan o'tish
-        </a>
-        <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-sm" style="font-size: 0.75rem; padding: 6px 12px;">
-            <i class="bi bi-box-arrow-in-right"></i> Kirish
-        </a>
-    </div>
-</div>
-{% endif %}
-
-{% if user.is_authenticated and user_stats %}
-<div class="stats-grid mb-3">
-    <div class="stat-card" style="padding: 12px 10px;">
-        <div class="stat-value" style="font-size: 1.2rem;">{{ user_stats.total_tests }}</div>
-        <div class="stat-label" style="font-size: 0.7rem;">Jami testlar</div>
-    </div>
-    <div class="stat-card secondary" style="padding: 12px 10px;">
-        <div class="stat-value" style="font-size: 1.2rem;">{{ user_stats.passed_tests }}</div>
-        <div class="stat-label" style="font-size: 0.7rem;">Muvaffaqiyatli</div>
-    </div>
-    <div class="stat-card accent" style="padding: 12px 10px;">
-        <div class="stat-value" style="font-size: 1.2rem;">{{ user_stats.progress }}%</div>
-        <div class="stat-label" style="font-size: 0.7rem;">Progress</div>
-    </div>
-</div>
-{% endif %}
-
-{% if advertisements %}
-<div class="section-title" style="font-size: 0.9rem;">Mashhurlar</div>
-<div id="adCarousel" class="carousel slide ad-carousel" data-bs-ride="carousel">
-    <div class="carousel-inner">
-        {% for ad in advertisements %}
-        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            {% if ad.link_url %}
-            <div class="ad-slide clickable-slide" style="background-image: url('{{ ad.image.url }}');" data-url="{{ ad.link_url }}">
-            {% else %}
-            <div class="ad-slide" style="background-image: url('{{ ad.image.url }}');">
-            {% endif %}
-                <div class="ad-overlay">
-                    <h5>{{ ad.title }}</h5>
-                    {% if ad.description %}
-                    <p class="mb-0 small">{{ ad.description|truncatewords:10 }}</p>
-                    {% endif %}
+<div class="hero-welcome">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="bi bi-stars"></i>
+            <span>O'zbekiston #1 Ta'lim Platformasi</span>
+        </div>
+        <h1 class="hero-title">EduSelf bilan o'z kelajagingizni quring</h1>
+        <p class="hero-description">
+            AI yordamchi, 10,000+ test savollari, sertifikatlar va eng yaxshi ta'lim muassasalari haqida to'liq ma'lumot
+        </p>
+        
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="feature-text">
+                    <h4>AI Hamroh</h4>
+                    <p>24/7 shaxsiy yordamchi</p>
                 </div>
             </div>
-        </div>
-        {% endfor %}
-    </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#adCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#adCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-    </button>
-</div>
-{% endif %}
-
-<!-- Action Buttons -->
-<div class="action-buttons-section" style="gap: 8px; margin-top: 12px;">
-    <a href="{% url 'core:courses' %}" class="action-button courses-button" style="padding: 10px 12px;">
-        <div class="action-button-icon" style="width: 32px; height: 32px;">
-            <i class="bi bi-play-circle-fill" style="font-size: 1rem;"></i>
-        </div>
-        <div class="action-button-content">
-            <h3 class="action-button-title" style="font-size: 0.8rem;">Online Kurslar</h3>
-        </div>
-        <div class="action-button-arrow">
-            <i class="bi bi-arrow-right" style="font-size: 0.9rem;"></i>
-        </div>
-    </a>
-    
-    <a href="{% url 'core:news_list' %}" class="action-button news-button" style="padding: 10px 12px;">
-        <div class="action-button-icon" style="width: 32px; height: 32px;">
-            <i class="bi bi-newspaper" style="font-size: 1rem;"></i>
-        </div>
-        <div class="action-button-content">
-            <h3 class="action-button-title" style="font-size: 0.8rem;">Yangiliklar</h3>
-        </div>
-        <div class="action-button-arrow">
-            <i class="bi bi-arrow-right" style="font-size: 0.9rem;"></i>
-        </div>
-    </a>
-</div>
-
-{% if institutions %}
-<div class="d-flex justify-content-between align-items-center mb-2 mt-3">
-    <div class="section-title mb-0" style="font-size: 0.85rem;">Ta'lim muassasalari</div>
-    <a href="{% url 'core:institutions' %}" class="text-primary text-decoration-none" style="font-size: 0.7rem;">Barchasi <i class="bi bi-arrow-right"></i></a>
-</div>
-{% for inst in institutions %}
-<a href="{% url 'core:institution_detail' inst.pk %}" class="text-decoration-none mb-2 d-block">
-    <div class="institution-card-new" style="padding: 10px;">
-        <div class="institution-header">
-            <div class="institution-logo-wrapper" style="width: 48px; height: 48px;">
-                {% if inst.logo %}
-                <img src="{{ inst.logo.url }}" alt="{{ inst.name }}" class="institution-logo-new" style="width: 48px; height: 48px;">
-                {% else %}
-                <div class="institution-logo-new d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                    <i class="bi bi-building text-muted" style="font-size: 1.2rem;"></i>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="bi bi-trophy"></i>
                 </div>
-                {% endif %}
+                <div class="feature-text">
+                    <h4>Gamefikatsiya</h4>
+                    <p>Ball to'plang, raqobatlashing</p>
+                </div>
             </div>
-            <div class="institution-main-info">
-                <h6 class="institution-name-new" style="font-size: 0.8rem;">{{ inst.name }}</h6>
-                {% if inst.short_description %}
-                <p class="institution-short-desc" style="font-size: 0.65rem;">{{ inst.short_description|truncatewords:8 }}</p>
-                {% endif %}
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="feature-text">
+                    <h4>Progress Tracking</h4>
+                    <p>Rivojlanishingizni kuzating</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="bi bi-award"></i>
+                </div>
+                <div class="feature-text">
+                    <h4>Sertifikatlar</h4>
+                    <p>Bilimingizni tasdiqlang</p>
+                </div>
             </div>
         </div>
         
-        <div class="institution-details">
-            <div class="institution-meta-row">
-                <div class="meta-item" style="font-size: 0.65rem;">
-                    <i class="bi bi-mortarboard"></i>
-                    <span>{{ inst.get_directions_count }} yo'nalish</span>
-                </div>
-                {% if inst.category %}
-                <div class="meta-item" style="font-size: 0.65rem;">
-                    <i class="{{ inst.category.icon }}"></i>
-                    <span>{{ inst.category.name }}</span>
-                </div>
-                {% endif %}
+        <div class="hero-actions">
+            <a href="{% url 'accounts:register' %}" class="btn-hero-primary">
+                <i class="bi bi-rocket-takeoff"></i>
+                <span>Bepul Boshlash</span>
+            </a>
+            <a href="{% url 'accounts:login' %}" class="btn-hero-secondary">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <span>Kirish</span>
+            </a>
+        </div>
+        
+        <!-- Stats Preview -->
+        <div class="stats-preview">
+            <div class="stat-preview-item">
+                <div class="stat-preview-value">{{ statistics.0.value }}</div>
+                <div class="stat-preview-label">Foydalanuvchilar</div>
             </div>
-            <div class="institution-arrow">
-                <i class="bi bi-chevron-right" style="font-size: 0.8rem;"></i>
+            <div class="stat-preview-item">
+                <div class="stat-preview-value">{{ statistics.1.value }}</div>
+                <div class="stat-preview-label">Test Savollari</div>
+            </div>
+            <div class="stat-preview-item">
+                <div class="stat-preview-value">{{ statistics.2.value }}</div>
+                <div class="stat-preview-label">Sertifikatlar</div>
             </div>
         </div>
     </div>
-</a>
-{% endfor %}
+</div>
 {% endif %}
 
-{% if subjects %}
-<div class="d-flex justify-content-between align-items-center mb-2 mt-3">
-    <div class="section-title mb-0" style="font-size: 0.85rem;">Fanlar</div>
-    <a href="{% url 'core:subjects' %}" class="text-primary text-decoration-none" style="font-size: 0.7rem;">Barchasi <i class="bi bi-arrow-right"></i></a>
-</div>
-{% for subject in subjects %}
-<a href="{% url 'core:subject_detail' subject.pk %}" class="subject-card" style="padding: 10px;">
-    <div class="subject-icon" style="width: 42px; height: 42px;">
-        <i class="{{ subject.icon }}" style="font-size: 1.15rem;"></i>
-    </div>
-    <div class="subject-info">
-        <div class="subject-name" style="font-size: 0.8rem;">{{ subject.name }}</div>
-        <div class="subject-meta" style="font-size: 0.65rem;">{{ subject.get_topics_count }} mavzu | {{ subject.get_tests_count }} test</div>
-    </div>
-    <div class="subject-arrow">
-        <i class="bi bi-chevron-right" style="font-size: 0.8rem;"></i>
-    </div>
-</a>
-{% endfor %}
-{% endif %}
-
-{% if certificates %}
-<div class="d-flex justify-content-between align-items-center mb-2 mt-3">
-    <div class="section-title mb-0" style="font-size: 0.85rem;">Sertifikatlar</div>
-    <a href="{% url 'core:certificates' %}" class="text-primary text-decoration-none" style="font-size: 0.7rem;">Barchasi <i class="bi bi-arrow-right"></i></a>
-</div>
-{% for cert in certificates %}
-<a href="{% url 'core:certificate_detail' cert.pk %}" class="subject-card" style="padding: 10px;">
-    <div class="subject-icon" style="background: linear-gradient(135deg, #10B981, #34D399); width: 42px; height: 42px;">
-        <i class="bi bi-award" style="font-size: 1.15rem;"></i>
-    </div>
-    <div class="subject-info">
-        <div class="subject-name" style="font-size: 0.8rem;">{{ cert.name }}</div>
-        <div class="subject-meta" style="font-size: 0.65rem;">{{ cert.description|truncatewords:5 }}</div>
-    </div>
-    <div class="subject-arrow">
-        <i class="bi bi-chevron-right" style="font-size: 0.8rem;"></i>
-    </div>
-</a>
-{% endfor %}
-{% endif %}
-
-<!-- Global Leaderboard Section -->
-{% if top_users %}
-<div class="d-flex justify-content-between align-items-center mb-2 mt-3">
-    <div class="section-title mb-0" style="font-size: 0.85rem;">
-        <i class="bi bi-trophy me-1 text-warning"></i>Top Reyting
-    </div>
-    <a href="{% url 'core:global_leaderboard' %}" class="text-primary text-decoration-none" style="font-size: 0.7rem;">Barchasi <i class="bi bi-arrow-right"></i></a>
-</div>
-
-<div class="card border-0 shadow-sm mb-3">
-    <div class="card-body p-2">
-        {% for user_item in top_users|slice:":5" %}
-        <div class="d-flex align-items-center justify-content-between py-1 {% if not forloop.last %}border-bottom{% endif %}">
-            <div class="d-flex align-items-center">
-                <div class="position-badge me-2">
-                    {% if forloop.counter <= 3 %}
-                        <span class="badge 
-                            {% if forloop.counter == 1 %}bg-warning text-dark{% elif forloop.counter == 2 %}bg-secondary{% else %}bg-dark{% endif %} 
-                            rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px; font-size: 0.65rem;">
-                            {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}
-                        </span>
-                    {% else %}
-                        <span class="badge bg-light text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px; font-size: 0.65rem;">
-                            {{ forloop.counter }}
-                        </span>
-                    {% endif %}
+<!-- User Dashboard - Login qilingan foydalanuvchilar uchun -->
+{% if user.is_authenticated %}
+<div class="user-dashboard">
+    <!-- User Stats Card -->
+    <div class="stats-card">
+        <div class="stats-header">
+            <h1 class="stats-greeting">Salom, EduSelf! 👋</h1>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="quick-stat-item">
+                <div class="quick-stat-icon">
+                    <i class="bi bi-clipboard-check"></i>
                 </div>
-                <div class="user-avatar me-2">
-                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
-                        <i class="bi bi-person-fill" style="font-size: 0.75rem;"></i>
-                    </div>
-                </div>
-                <div class="user-info">
-                    <h6 class="mb-0" style="font-size: 0.75rem;">{{ user_item.first_name|default:user_item.username }}</h6>
+                <div class="quick-stat-content">
+                    <div class="quick-stat-value">{{ user_stats.total_tests }}</div>
+                    <div class="quick-stat-label">Testlar</div>
                 </div>
             </div>
-            <div class="user-points">
-                <span class="badge bg-success" style="font-size: 0.65rem; padding: 3px 6px;">{{ user_item.total_points }}</span>
+            <div class="quick-stat-item">
+                <div class="quick-stat-icon success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="quick-stat-content">
+                    <div class="quick-stat-value">{{ user_stats.passed_tests }}</div>
+                    <div class="quick-stat-label">Muvaffaqiyatli</div>
+                </div>
+            </div>
+            <div class="quick-stat-item">
+                <div class="quick-stat-icon warning">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <div class="quick-stat-content">
+                    <div class="quick-stat-value">{{ user.total_points }}</div>
+                    <div class="quick-stat-label">Ballar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Last Tests Section -->
+    <div class="test-progress-section">
+        <!-- Last Topic Test -->
+        {% if last_test_result %}
+        <div class="last-test-card">
+            <div class="test-card-header">
+                <div class="test-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="test-info">
+                    <h3>Oxirgi Test</h3>
+                    <p>{{ last_test_result.topic.name }}</p>
+                </div>
+            </div>
+            <div class="test-card-body">
+                <div class="test-result">
+                    <div class="result-score {% if last_test_result.passed %}success{% else %}danger{% endif %}">
+                        {{ last_test_result.score }}%
+                    </div>
+                    <div class="result-details">
+                        <span class="result-label">
+                            {% if last_test_result.passed %}
+                            <i class="bi bi-check-circle-fill text-success"></i> O'tdingiz
+                            {% else %}
+                            <i class="bi bi-x-circle-fill text-danger"></i> O'tmadingiz
+                            {% endif %}
+                        </span>
+                        <span class="result-points">{{ last_test_result.earned_points }} ball</span>
+                    </div>
+                </div>
+                <div class="test-actions">
+                    <a href="{% url 'core:topic_analysis' last_test_result.topic.pk %}" class="btn-test-action">
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Tahlil Ko'rish</span>
+                    </a>
+                    {% if next_test %}
+                    <a href="{% url 'core:take_topic_test' next_test.pk %}" class="btn-test-action primary">
+                        {% if last_test_result.passed %}
+                        <i class="bi bi-play-circle"></i>
+                        <span>Keyingi Testni Boshlash</span>
+                        {% else %}
+                        <i class="bi bi-arrow-clockwise"></i>
+                        <span>Qayta Urinish</span>
+                        {% endif %}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Last Certificate Test -->
+        {% if last_cert_result %}
+        <div class="last-test-card">
+            <div class="test-card-header">
+                <div class="test-icon cert">
+                    <i class="bi bi-award"></i>
+                </div>
+                <div class="test-info">
+                    <h3>Oxirgi Sertifikat Testi</h3>
+                    <p>{{ last_cert_result.test.title }}</p>
+                </div>
+            </div>
+            <div class="test-card-body">
+                <div class="test-result">
+                    <div class="result-score {% if last_cert_result.passed %}success{% else %}danger{% endif %}">
+                        {{ last_cert_result.score }}%
+                    </div>
+                    <div class="result-details">
+                        <span class="result-label">
+                            {% if last_cert_result.passed %}
+                            <i class="bi bi-check-circle-fill text-success"></i> O'tdingiz
+                            {% else %}
+                            <i class="bi bi-x-circle-fill text-danger"></i> O'tmadingiz
+                            {% endif %}
+                        </span>
+                        <span class="result-points">{{ last_cert_result.earned_points }} ball</span>
+                    </div>
+                </div>
+                <div class="test-actions">
+                    <a href="{% url 'core:cert_test_analysis' last_cert_result.test.pk %}" class="btn-test-action">
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Tahlil Ko'rish</span>
+                    </a>
+                    {% if next_cert_test %}
+                    <a href="{% url 'core:take_cert_test' next_cert_test.pk %}" class="btn-test-action primary">
+                        {% if last_cert_result.passed %}
+                        <i class="bi bi-play-circle"></i>
+                        <span>Keyingi Testni Boshlash</span>
+                        {% else %}
+                        <i class="bi bi-arrow-clockwise"></i>
+                        <span>Qayta Urinish</span>
+                        {% endif %}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- AI Assistant Quick Access -->
+    <div class="ai-quick-access">
+        <div class="ai-card">
+            <div class="ai-card-header">
+                <div class="ai-icon-large">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="ai-card-content">
+                    <h3>AI Hamroh</h3>
+                    <p>Savollaringizga javob oling, tavsiyalar oling</p>
+                </div>
+            </div>
+            <div class="ai-card-actions">
+                <a href="{% url 'ai_assistant:chat_redirect' %}" class="btn-ai-primary">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>Suhbat Boshlash</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Main Features Carousel -->
+<div class="main-features">
+    <div class="section-header">
+        <h2 class="section-title-main">
+            <i class="bi bi-grid-3x3-gap"></i>
+            Platformaning Imkoniyatlari
+        </h2>
+    </div>
+    
+    <div class="features-carousel-container">
+        <div class="features-carousel">
+            <!-- Online Kurslar -->
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:courses' %}" class="feature-card courses">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-play-circle-fill"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>Online Kurslar</h3>
+                        <p>Video darslar</p>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Fanlar va Testlar -->
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:subjects' %}" class="feature-card subjects">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>Fanlar</h3>
+                        <p>Barcha fanlar</p>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Sertifikatlar -->
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:certificates' %}" class="feature-card certificates">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-award"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>Sertifikatlar</h3>
+                        <p>Bilimingizni tasdiqlang</p>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Mock Imtihonlar -->
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:mock_exams' %}" class="feature-card mock-exams">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-clipboard-check"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>Mock Imtihonlar</h3>
+                        <p>Real tajriba</p>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Ta'lim Muassasalari -->
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:institutions' %}" class="feature-card institutions">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>Muassasalar</h3>
+                        <p>Universitet va maktablar</p>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Reyting -->
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:global_leaderboard' %}" class="feature-card leaderboard">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-trophy"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>Reyting</h3>
+                        <p>Top o'quvchilar</p>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Duplicate for seamless loop -->
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:courses' %}" class="feature-card courses">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-play-circle-fill"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>Online Kurslar</h3>
+                        <p>Video darslar</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:subjects' %}" class="feature-card subjects">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>Fanlar</h3>
+                        <p>Barcha fanlar</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:certificates' %}" class="feature-card certificates">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-award"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>Sertifikatlar</h3>
+                        <p>Bilimingizni tasdiqlang</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Content Carousel -->
+{% if advertisements %}
+<div class="featured-section">
+    <div class="section-header">
+        <h2 class="section-title-main">
+            <i class="bi bi-star-fill"></i>
+            Tavsiya Etamiz
+        </h2>
+    </div>
+    
+    <div id="adCarousel" class="carousel slide featured-carousel" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            {% for ad in advertisements %}
+            <button type="button" data-bs-target="#adCarousel" data-bs-slide-to="{{ forloop.counter0 }}" 
+                    {% if forloop.first %}class="active"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+            {% endfor %}
+        </div>
+        <div class="carousel-inner">
+            {% for ad in advertisements %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                {% if ad.link_url %}
+                <div class="featured-slide clickable-slide" style="background-image: url('{{ ad.image.url }}');" data-url="{{ ad.link_url }}">
+                {% else %}
+                <div class="featured-slide" style="background-image: url('{{ ad.image.url }}');">
+                {% endif %}
+                    <div class="featured-overlay">
+                        <div class="featured-content">
+                            <h3>{{ ad.title }}</h3>
+                            {% if ad.description %}
+                            <p>{{ ad.description|truncatewords:15 }}</p>
+                            {% endif %}
+                            {% if ad.link_url %}
+                            <span class="featured-link">Batafsil <i class="bi bi-arrow-right"></i></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#adCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#adCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+</div>
+{% endif %}
+
+<!-- Top Institutions -->
+{% if institutions %}
+<div class="content-section">
+    <div class="section-header">
+        <h2 class="section-title-main">
+            <i class="bi bi-building"></i>
+            Ta'lim Muassasalari
+        </h2>
+        <a href="{% url 'core:institutions' %}" class="section-link">
+            Barchasi <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    
+    <div class="institutions-grid">
+        {% for inst in institutions %}
+        <a href="{% url 'core:institution_detail' inst.pk %}" class="institution-card-modern">
+            <div class="institution-card-header">
+                <div class="institution-logo">
+                    {% if inst.logo %}
+                    <img src="{{ inst.logo.url }}" alt="{{ inst.name }}">
+                    {% else %}
+                    <div class="institution-logo-placeholder">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if inst.is_featured %}
+                <div class="featured-badge">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="institution-card-body">
+                <h3>{{ inst.name }}</h3>
+                {% if inst.short_description %}
+                <p>{{ inst.short_description|truncatewords:10 }}</p>
+                {% endif %}
+                <div class="institution-meta">
+                    <span class="meta-badge">
+                        <i class="bi bi-mortarboard"></i>
+                        {{ inst.get_directions_count }} yo'nalish
+                    </span>
+                    {% if inst.category %}
+                    <span class="meta-badge">
+                        <i class="{{ inst.category.icon }}"></i>
+                        {{ inst.category.name }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Subjects Section -->
+{% if subjects %}
+<div class="content-section">
+    <div class="section-header">
+        <h2 class="section-title-main">
+            <i class="bi bi-book"></i>
+            Fanlar
+        </h2>
+        <a href="{% url 'core:subjects' %}" class="section-link">
+            Barchasi <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    
+    <div class="subjects-list">
+        {% for subject in subjects %}
+        <a href="{% url 'core:subject_detail' subject.pk %}" class="subject-card-modern">
+            <div class="subject-icon-wrapper">
+                <i class="{{ subject.icon }}"></i>
+            </div>
+            <div class="subject-content">
+                <h3>{{ subject.name }}</h3>
+                <p>{{ subject.get_topics_count }} mavzu • {{ subject.get_questions_count }} savol</p>
+            </div>
+            <div class="subject-arrow">
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Certificates Section -->
+{% if certificates %}
+<div class="content-section">
+    <div class="section-header">
+        <h2 class="section-title-main">
+            <i class="bi bi-award"></i>
+            Sertifikatlar
+        </h2>
+        <a href="{% url 'core:certificates' %}" class="section-link">
+            Barchasi <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    
+    <div class="certificates-grid">
+        {% for cert in certificates %}
+        <a href="{% url 'core:certificate_detail' cert.pk %}" class="certificate-card-modern">
+            <div class="certificate-icon">
+                <i class="bi bi-award"></i>
+            </div>
+            <div class="certificate-content">
+                <h3>{{ cert.name }}</h3>
+                {% if cert.description %}
+                <p>{{ cert.description|truncatewords:8 }}</p>
+                {% endif %}
+            </div>
+            <div class="certificate-badge">
+                <i class="bi bi-arrow-right-circle"></i>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Leaderboard Section -->
+{% if top_users %}
+<div class="content-section">
+    <div class="section-header">
+        <h2 class="section-title-main">
+            <i class="bi bi-trophy-fill text-warning"></i>
+            Top Reyting
+        </h2>
+        <a href="{% url 'core:global_leaderboard' %}" class="section-link">
+            Barchasi <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    
+    <div class="leaderboard-modern">
+        {% for user_item in top_users|slice:":5" %}
+        <div class="leaderboard-item {% if forloop.counter <= 3 %}top-{{ forloop.counter }}{% endif %}">
+            <div class="leaderboard-rank">
+                {% if forloop.counter == 1 %}
+                <div class="rank-badge gold">
+                    <i class="bi bi-trophy-fill"></i>
+                </div>
+                {% elif forloop.counter == 2 %}
+                <div class="rank-badge silver">
+                    <i class="bi bi-trophy-fill"></i>
+                </div>
+                {% elif forloop.counter == 3 %}
+                <div class="rank-badge bronze">
+                    <i class="bi bi-trophy-fill"></i>
+                </div>
+                {% else %}
+                <div class="rank-number">{{ forloop.counter }}</div>
+                {% endif %}
+            </div>
+            <div class="leaderboard-user">
+                <div class="user-avatar-small">
+                    {% if user_item.profile_image %}
+                    <img src="{{ user_item.profile_image.url }}" alt="{{ user_item.username }}">
+                    {% else %}
+                    <div class="avatar-placeholder-small">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="user-info-small">
+                    <h4>{{ user_item.first_name|default:user_item.username }}</h4>
+                    <p>{{ user_item.get_total_tests_taken }} test</p>
+                </div>
+            </div>
+            <div class="leaderboard-points">
+                <span class="points-value">{{ user_item.total_points }}</span>
+                <span class="points-label">ball</span>
             </div>
         </div>
         {% endfor %}
         
         {% if user.is_authenticated and user_position and user_position > 5 %}
-        <div class="text-center mt-2 pt-1 border-top">
-            <small class="text-muted" style="font-size: 0.65rem;">
-                Siz: <strong>#{{ user_position }}</strong> ({{ user.total_points }} ball)
-            </small>
+        <div class="leaderboard-user-position">
+            <div class="user-position-content">
+                <i class="bi bi-person-circle"></i>
+                <span>Sizning o'rningiz: <strong>#{{ user_position }}</strong></span>
+                <span class="user-position-points">{{ user.total_points }} ball</span>
+            </div>
         </div>
         {% endif %}
     </div>
 </div>
 {% endif %}
 
-<!-- AI Assistant Section -->
-{% if user.is_authenticated %}
-<div class="d-flex justify-content-between align-items-center mb-2 mt-3">
-    <div class="section-title mb-0" style="font-size: 0.85rem;">
-        <i class="bi bi-robot me-1 text-primary"></i>AI Hamroh
-    </div>
-    <a href="{% url 'ai_assistant:chat_redirect' %}" class="text-primary text-decoration-none" style="font-size: 0.7rem;">Suhbat <i class="bi bi-arrow-right"></i></a>
-</div>
-
-<div class="card border-0 shadow-sm mb-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-    <div class="card-body text-white p-3">
-        <div class="d-flex align-items-center mb-2">
-            <div class="ai-icon me-2">
-                <i class="bi bi-robot" style="font-size: 1.5rem;"></i>
-            </div>
-            <div>
-                <h6 class="mb-0" style="font-size: 0.85rem;">AI Hamroh</h6>
-                <p class="mb-0 opacity-75" style="font-size: 0.7rem;">Savollaringizga javob oling</p>
-            </div>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{% url 'ai_assistant:chat_redirect' %}" class="btn btn-light btn-sm" style="font-size: 0.7rem; padding: 4px 10px;">
-                <i class="bi bi-chat-dots me-1"></i>Suhbat
-            </a>
-            <a href="{% url 'ai_assistant:help_center' %}" class="btn btn-outline-light btn-sm" style="font-size: 0.7rem; padding: 4px 10px;">
-                <i class="bi bi-question-circle me-1"></i>Yordam
-            </a>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<style>
-.position-badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.user-avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.user-info h6 {
-    font-weight: 600;
-}
-
-.ai-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
-}
-
-/* Partners Mobile Styles */
-.partners-mobile-carousel-container {
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-    margin-top: 20px;
-}
-
-.partners-mobile-carousel {
-    display: flex;
-    align-items: center;
-    animation: partnersMobileScroll 35s linear infinite;
-    width: fit-content;
-}
-
-.partners-mobile-carousel:hover {
-    animation-play-state: paused;
-}
-
-@keyframes partnersMobileScroll {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-50%);
-    }
-}
-
-.partner-mobile-item {
-    flex: 0 0 auto;
-    margin-right: 2rem;
-    transition: all 0.3s ease;
-}
-
-.partner-mobile-item:hover {
-    transform: scale(1.05);
-}
-
-.partner-mobile-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-}
-
-.partner-mobile-card-content {
-    background: white;
-    border-radius: 12px;
-    padding: 1.25rem;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    width: 180px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.partner-mobile-card-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.05), transparent);
-    transition: left 0.5s;
-}
-
-.partner-mobile-item:hover .partner-mobile-card-content::before {
-    left: 100%;
-}
-
-.partner-mobile-item:hover .partner-mobile-card-content {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
-    border-color: rgba(99, 102, 241, 0.1);
-}
-
-.partner-mobile-logo {
-    height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
-}
-
-.partner-mobile-logo img {
-    max-height: 100%;
-    max-width: 100%;
-    object-fit: contain;
-    filter: grayscale(20%);
-    transition: filter 0.3s ease;
-}
-
-.partner-mobile-item:hover .partner-mobile-logo img {
-    filter: grayscale(0%);
-    transform: scale(1.05);
-}
-
-.partner-mobile-placeholder {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.5rem;
-    transition: all 0.3s ease;
-    margin: 0 auto;
-}
-
-.partner-mobile-item:hover .partner-mobile-placeholder {
-    transform: rotate(5deg);
-    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
-}
-
-.partner-mobile-info {
-    text-align: center;
-}
-
-.partner-mobile-info h4 {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
-    transition: color 0.3s ease;
-}
-
-.partner-mobile-item:hover .partner-mobile-info h4 {
-    color: #6366f1;
-}
-
-.partner-mobile-info p {
-    font-size: 0.7rem;
-    color: #64748b;
-    line-height: 1.3;
-    margin: 0;
-}
-</style>
 {% endblock %}
 
 {% block extra_js %}
