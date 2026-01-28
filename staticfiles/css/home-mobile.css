@@ -3,6 +3,29 @@
    Modern UI/UX Design
    ======================================== */
 
+/* Base HTML and Body fixes for PWA */
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    background: white !important; /* Force white background */
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main container fixes */
+.main-container {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background: white !important; /* Force white background */
+}
+
 /* ========================================
    HERO SECTION - Login qilinmagan foydalanuvchilar
    ======================================== */
@@ -1290,14 +1313,23 @@
 .content-section {
     padding: 1.75rem 1rem;
     position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    background: white !important; /* Always white background */
 }
 
+/* Remove alternating backgrounds - keep all white */
 .content-section:nth-child(even) {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: white !important;
 }
 
 .content-section:nth-child(odd) {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    background: white !important;
+}
+
+/* Override background for specific sections */
+.content-section[style*="background: white"] {
+    background: white !important;
 }
 
 .content-section::before {
@@ -1315,7 +1347,7 @@
 /* Institutions Grid */
 .institutions-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr; /* Always vertical layout for all phones */
     gap: 1rem;
 }
 
@@ -2013,6 +2045,36 @@
 /* ========================================
    RESPONSIVE
    ======================================== */
+
+/* Fix for Infinix phones and narrow screens */
+@media (max-width: 400px) {
+    .quick-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.6rem;
+    }
+    
+    .quick-stat-item {
+        padding: 0.7rem 0.5rem;
+        min-height: 85px;
+    }
+    
+    .quick-stat-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+        margin-bottom: 0.4rem;
+    }
+    
+    .quick-stat-value {
+        font-size: 1.2rem;
+        margin-bottom: 0.2rem;
+    }
+    
+    .quick-stat-label {
+        font-size: 0.65rem;
+    }
+}
+
 @media (max-width: 360px) {
     .features-grid {
         grid-template-columns: 1fr;
@@ -2022,31 +2084,171 @@
         grid-template-columns: 1fr;
     }
     
-    .institutions-grid {
-        grid-template-columns: 1fr;
+    /* Ensure 3-column layout even on very narrow screens */
+    .quick-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
     }
     
+    .quick-stat-item {
+        padding: 0.6rem 0.4rem;
+        min-height: 80px;
+    }
+    
+    .quick-stat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .quick-stat-value {
+        font-size: 1.1rem;
+        margin-bottom: 0.15rem;
+    }
+    
+    .quick-stat-label {
+        font-size: 0.6rem;
+    }
+}
+
+/* Specific fix for Infinix and similar narrow phones */
+@media (max-width: 320px) {
     .quick-stats {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.4rem;
+    }
+    
+    .quick-stat-item {
+        padding: 0.5rem 0.3rem;
+        min-height: 75px;
+    }
+    
+    .quick-stat-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .quick-stat-value {
+        font-size: 1rem;
+        margin-bottom: 0.1rem;
+    }
+    
+    .quick-stat-label {
+        font-size: 0.55rem;
     }
 }
 
 
 /* ========================================
-   PARTNERS SECTION
+   PARTNERS SECTION - Enhanced for PWA visibility
    ======================================== */
+.partners-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.2rem 1rem !important;
+    margin-top: 0 !important; /* No margin top - connect directly to previous section */
+    margin-bottom: 0 !important;
+    padding-bottom: calc(1.2rem + 80px) !important; /* Add space for bottom nav */
+    position: relative !important;
+    overflow: hidden;
+    border-radius: 0 !important; /* Remove border radius to connect seamlessly */
+    box-shadow: 0 -8px 32px rgba(102, 126, 234, 0.2);
+    /* PWA visibility fixes - Enhanced */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 1 !important; /* Lower than bottom nav */
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    will-change: transform !important;
+    isolation: isolate !important;
+    contain: layout style paint !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.partners-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,101.3C1248,85,1344,75,1392,69.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat top;
+    background-size: cover;
+    opacity: 0.3;
+    animation: partnersWave 8s ease-in-out infinite;
+}
+
+@keyframes partnersWave {
+    0%, 100% {
+        transform: translateX(0) scaleX(1);
+    }
+    50% {
+        transform: translateX(2%) scaleX(1.02);
+    }
+}
+
+.partners-section .section-title {
+    color: white !important;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.1rem !important; /* Reduced from 1.3rem to 1.1rem */
+    margin-bottom: 1rem; /* Reduced from 1.5rem to 1rem */
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 2;
+    animation: titleGlow 3s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+    0%, 100% {
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    50% {
+        text-shadow: 0 4px 16px rgba(255, 255, 255, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+}
+
 .partners-mobile-carousel-container {
     overflow: hidden;
     position: relative;
     width: 100%;
-    margin-top: 20px;
+    margin-top: 1rem;
+    z-index: 2;
+}
+
+.partners-mobile-carousel-container::before,
+.partners-mobile-carousel-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.partners-mobile-carousel-container::before {
+    left: 0;
+    background: linear-gradient(90deg, rgba(102, 126, 234, 1), transparent);
+}
+
+.partners-mobile-carousel-container::after {
+    right: 0;
+    background: linear-gradient(270deg, rgba(118, 75, 162, 1), transparent);
 }
 
 .partners-mobile-carousel {
     display: flex;
     align-items: center;
-    animation: partnersMobileScroll 35s linear infinite;
+    animation: partnersMobileScroll 40s linear infinite;
     width: fit-content;
+    padding: 0.5rem 0;
 }
 
 .partners-mobile-carousel:hover {
@@ -2064,12 +2266,24 @@
 
 .partner-mobile-item {
     flex: 0 0 auto;
-    margin-right: 2rem;
-    transition: all 0.3s ease;
+    margin-right: 1.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: partnerFloat 6s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * 0.2s);
+}
+
+@keyframes partnerFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
 .partner-mobile-item:hover {
-    transform: scale(1.05);
+    transform: scale(1.08) translateY(-5px);
+    z-index: 10;
 }
 
 .partner-mobile-link {
@@ -2079,13 +2293,14 @@
 }
 
 .partner-mobile-card-content {
-    background: white;
-    border-radius: 12px;
-    padding: 1.25rem;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    width: 180px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 16px; /* Reduced from 18px to 16px */
+    padding: 1rem; /* Reduced from 1.5rem to 1rem */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    width: 170px; /* Reduced from 200px to 170px */
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -2094,85 +2309,803 @@
 .partner-mobile-card-content::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.05), transparent);
-    transition: left 0.5s;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+    opacity: 0;
 }
 
 .partner-mobile-item:hover .partner-mobile-card-content::before {
-    left: 100%;
+    opacity: 1;
+    animation: partnerShimmer 1.5s ease-in-out;
+}
+
+@keyframes partnerShimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
 }
 
 .partner-mobile-item:hover .partner-mobile-card-content {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
-    border-color: rgba(99, 102, 241, 0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(255, 255, 255, 0.2), 0 8px 32px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 1);
 }
 
 .partner-mobile-logo {
-    height: 70px;
+    height: 60px; /* Reduced from 80px to 60px */
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
+    margin-bottom: 0.75rem; /* Reduced from 1rem to 0.75rem */
+    transition: all 0.4s ease;
+    position: relative;
+    z-index: 1;
 }
 
 .partner-mobile-logo img {
     max-height: 100%;
     max-width: 100%;
     object-fit: contain;
-    filter: grayscale(20%);
-    transition: filter 0.3s ease;
+    filter: grayscale(10%) brightness(1.1);
+    transition: all 0.4s ease;
+    border-radius: 8px;
 }
 
 .partner-mobile-item:hover .partner-mobile-logo img {
-    filter: grayscale(0%);
-    transform: scale(1.05);
+    filter: grayscale(0%) brightness(1.2);
+    transform: scale(1.1) rotate(2deg);
 }
 
 .partner-mobile-placeholder {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border-radius: 8px;
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 1.5rem;
-    transition: all 0.3s ease;
+    color: #667eea;
+    font-size: 2rem;
+    transition: all 0.4s ease;
     margin: 0 auto;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.partner-mobile-placeholder::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+    transform: rotate(45deg);
+    animation: placeholderShine 3s infinite;
+}
+
+@keyframes placeholderShine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
 }
 
 .partner-mobile-item:hover .partner-mobile-placeholder {
-    transform: rotate(5deg);
-    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+    transform: rotate(-5deg) scale(1.1);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.9));
 }
 
 .partner-mobile-info {
     text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
 .partner-mobile-info h4 {
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 800;
     color: #1e293b;
     margin-bottom: 0.5rem;
-    line-height: 1.2;
-    transition: color 0.3s ease;
+    line-height: 1.3;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .partner-mobile-item:hover .partner-mobile-info h4 {
-    color: #6366f1;
+    color: #667eea;
+    transform: translateY(-2px);
+    text-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);
 }
 
 .partner-mobile-info p {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     color: #64748b;
-    line-height: 1.3;
+    line-height: 1.4;
     margin: 0;
+    transition: color 0.3s ease;
 }
+
+.partner-mobile-item:hover .partner-mobile-info p {
+    color: #475569;
+}
+
+/* ========================================
+   FOOTER SECTION - Enhanced with gradients and animations
+   ======================================== */
+.app-footer {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+    padding: 2.5rem 1rem 1.5rem !important;
+    padding-bottom: calc(1.5rem + 80px) !important; /* Add space for bottom nav */
+    color: white;
+    position: relative !important;
+    overflow: hidden;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    /* PWA visibility fixes - Enhanced */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 1 !important; /* Lower than bottom nav */
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    will-change: transform !important;
+    isolation: isolate !important;
+    contain: layout style paint !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    clear: both !important;
+}
+
+.app-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(102,126,234,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,101.3C1248,85,1344,75,1392,69.3L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path></svg>') no-repeat top;
+    background-size: cover;
+    opacity: 0.6;
+    animation: footerWave 10s ease-in-out infinite;
+}
+
+@keyframes footerWave {
+    0%, 100% {
+        transform: translateX(0) scaleY(1);
+    }
+    50% {
+        transform: translateX(-2%) scaleY(1.1);
+    }
+}
+
+.app-footer::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
+    animation: footerGlow 8s ease-in-out infinite;
+}
+
+@keyframes footerGlow {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: translate(-10%, -10%) scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+.footer-content {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.footer-brand {
+    text-align: center;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.footer-logo {
+    background: linear-gradient(135deg, #667eea, #764ba2, #667eea);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: logoGradient 3s ease-in-out infinite;
+    font-weight: 900 !important;
+    font-size: 1.4rem !important;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+@keyframes logoGradient {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.footer-logo i {
+    font-size: 1.6rem;
+    animation: logoIcon 4s ease-in-out infinite;
+}
+
+@keyframes logoIcon {
+    0%, 100% {
+        transform: rotate(0deg) scale(1);
+    }
+    25% {
+        transform: rotate(-5deg) scale(1.05);
+    }
+    75% {
+        transform: rotate(5deg) scale(1.05);
+    }
+}
+
+.footer-tagline {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8rem !important;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 0;
+    animation: taglineFade 4s ease-in-out infinite;
+}
+
+@keyframes taglineFade {
+    0%, 100% {
+        opacity: 0.9;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.footer-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.footer-section {
+    text-align: center;
+    position: relative;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.4s ease;
+    overflow: hidden;
+}
+
+.footer-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.footer-section:hover::before {
+    left: 100%;
+}
+
+.footer-section:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.footer-title {
+    color: white;
+    font-weight: 800 !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.footer-title::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 2px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 1px;
+    animation: titleUnderline 3s ease-in-out infinite;
+}
+
+@keyframes titleUnderline {
+    0%, 100% {
+        width: 30px;
+        opacity: 0.7;
+    }
+    50% {
+        width: 50px;
+        opacity: 1;
+    }
+}
+
+.footer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.footer-list li {
+    margin-bottom: 0.6rem;
+    transition: transform 0.3s ease;
+}
+
+.footer-list li:hover {
+    transform: translateX(5px);
+}
+
+.footer-list a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.75rem !important;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    padding: 0.3rem 0.5rem;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.footer-list a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.footer-list a:hover::before {
+    left: 100%;
+}
+
+.footer-list a:hover {
+    color: white;
+    background: rgba(102, 126, 234, 0.2);
+    transform: scale(1.05);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.footer-list a i {
+    font-size: 0.9rem;
+    transition: transform 0.3s ease;
+}
+
+.footer-list a:hover i {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.social-link {
+    width: 40px !important;
+    height: 40px !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.social-link::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.social-link:active::before {
+    width: 100px;
+    height: 100px;
+}
+
+.social-link:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.social-link i {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.social-link:hover i {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.footer-bottom {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.footer-bottom::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.5), transparent);
+    animation: borderGlow 3s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+    0%, 100% {
+        width: 100px;
+        opacity: 0.5;
+    }
+    50% {
+        width: 200px;
+        opacity: 1;
+    }
+}
+
+.copyright {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.7rem !important;
+    font-weight: 500;
+    margin: 0;
+    animation: copyrightPulse 4s ease-in-out infinite;
+}
+
+@keyframes copyrightPulse {
+    0%, 100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 0.9;
+    }
+}
+
+/* Responsive footer */
+@media (min-width: 480px) {
+    .footer-links {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .footer-section {
+        text-align: left;
+    }
+    
+    .footer-list a {
+        justify-content: flex-start;
+    }
+    
+    .social-links {
+        justify-content: flex-start;
+    }
+}
+
+@media (min-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr 2fr;
+        gap: 3rem;
+        align-items: start;
+    }
+    
+    .footer-brand {
+        text-align: left;
+        margin-bottom: 0;
+    }
+    
+    .footer-logo {
+        justify-content: flex-start;
+    }
+    
+    .footer-links {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ========================================
+   PWA SPECIFIC FIXES - Enhanced
+   ======================================== */
+
+/* PWA detection and fixes */
+@media all and (display-mode: standalone) {
+    /* PWA mode specific styles */
+    
+    /* Ensure partners section is visible in PWA */
+    .partners-section {
+        position: relative !important;
+        z-index: 1 !important; /* Lower than bottom nav */
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translate3d(0, 0, 0) !important;
+        -webkit-transform: translate3d(0, 0, 0) !important;
+        margin-bottom: 0 !important;
+        min-height: auto !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding-bottom: calc(1.2rem + 80px) !important; /* Space for bottom nav */
+    }
+    
+    /* Ensure footer is visible in PWA */
+    .app-footer {
+        position: relative !important;
+        z-index: 1 !important; /* Lower than bottom nav */
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translate3d(0, 0, 0) !important;
+        -webkit-transform: translate3d(0, 0, 0) !important;
+        bottom: auto !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-bottom: calc(1.5rem + max(env(safe-area-inset-bottom), 80px)) !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        clear: both !important;
+    }
+    
+    /* Fix for PWA viewport issues */
+    body {
+        padding-bottom: 0 !important; /* Remove body padding, use section padding instead */
+        overflow-x: hidden !important;
+    }
+    
+    /* Ensure content doesn't get cut off */
+    .container-fluid,
+    .main-content {
+        padding-bottom: 0 !important; /* Remove padding, sections handle it */
+    }
+}
+
+/* Additional PWA fixes for iOS */
+@supports (-webkit-touch-callout: none) {
+    @media all and (display-mode: standalone) {
+        /* iOS PWA specific fixes */
+        
+        .partners-section {
+            -webkit-transform: translate3d(0, 0, 0) !important;
+            transform: translate3d(0, 0, 0) !important;
+            will-change: transform !important;
+            -webkit-backface-visibility: hidden !important;
+            backface-visibility: hidden !important;
+        }
+        
+        .app-footer {
+            -webkit-transform: translate3d(0, 0, 0) !important;
+            transform: translate3d(0, 0, 0) !important;
+            will-change: transform !important;
+            -webkit-backface-visibility: hidden !important;
+            backface-visibility: hidden !important;
+        }
+        
+        /* Fix for iOS PWA safe areas */
+        body {
+            padding-bottom: max(env(safe-area-inset-bottom), 20px) !important;
+        }
+    }
+}
+
+/* Force visibility for PWA environments */
+@media (max-height: 800px) and (display-mode: standalone) {
+    /* For shorter PWA screens */
+    
+    .partners-section {
+        padding: 1rem 1rem !important;
+        margin-top: 1rem !important;
+    }
+    
+    .app-footer {
+        padding: 1.5rem 1rem 1rem !important;
+    }
+    
+    .partner-mobile-card-content {
+        width: 150px !important;
+        padding: 0.8rem !important;
+    }
+    
+    .partner-mobile-logo {
+        height: 50px !important;
+        margin-bottom: 0.5rem !important;
+    }
+}
+
+/* Universal PWA visibility fix - Enhanced */
+.partners-section,
+.app-footer {
+    /* Force hardware acceleration */
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    
+    /* Ensure proper stacking */
+    isolation: isolate !important;
+    contain: layout style paint !important;
+    
+    /* Prevent any hiding */
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* PWA specific media query for better detection */
+@media (display-mode: standalone), 
+       (display-mode: fullscreen), 
+       (display-mode: minimal-ui) {
+    
+    /* Ensure sections are always visible in PWA */
+    .partners-section,
+    .app-footer {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 1 !important; /* Lower than bottom nav (z-index: 1000) */
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .partners-section {
+        padding-bottom: calc(1.2rem + 80px) !important;
+    }
+    
+    .app-footer {
+        padding-bottom: calc(1.5rem + 80px) !important;
+    }
+    
+    /* Fix potential overflow issues */
+    html, body {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        width: 100% !important;
+    }
+    
+    /* Ensure proper scrolling */
+    .main-container,
+    #content {
+        min-height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        padding-bottom: 0 !important;
+    }
+    
+    /* Force footer to bottom but visible */
+    .app-footer {
+        margin-top: auto !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+/* Fallback for older PWA implementations */
+@media screen and (max-width: 768px) {
+    /* Mobile PWA fallback */
+    
+    .partners-section {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .app-footer {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        clear: both !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Android PWA specific fixes */
+@media screen and (max-width: 768px) and (display-mode: standalone) {
+    .partners-section,
+    .app-footer {
+        /* Force visibility on Android PWA */
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 999 !important;
+        transform: translate3d(0, 0, 0) !important;
+        -webkit-transform: translate3d(0, 0, 0) !important;
+    }
+}
+
+/* iOS Safari PWA specific fixes */
+@supports (-webkit-touch-callout: none) {
+    .partners-section,
+    .app-footer {
+        /* iOS specific rendering fixes */
+        -webkit-transform: translate3d(0, 0, 0) !important;
+        transform: translate3d(0, 0, 0) !important;
+        -webkit-backface-visibility: hidden !important;
+        backface-visibility: hidden !important;
+        -webkit-perspective: 1000 !important;
+        perspective: 1000 !important;
+    }
+}
+

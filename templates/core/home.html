@@ -560,7 +560,7 @@
 
 <!-- Leaderboard Section -->
 {% if top_users %}
-<div class="content-section">
+<div class="content-section" style="background: white !important; margin-bottom: 0 !important; padding-bottom: 1.75rem !important;">
     <div class="section-header">
         <h2 class="section-title-main">
             <i class="bi bi-trophy-fill text-warning"></i>
@@ -648,67 +648,146 @@ document.addEventListener('DOMContentLoaded', function() {
         slide.style.cursor = 'pointer';
     });
     
-    // PWA specific fixes
+    // PWA specific fixes - Enhanced version
     function fixPWAVisibility() {
         // Check if running in PWA mode
         const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                     window.matchMedia('(display-mode: fullscreen)').matches ||
+                     window.matchMedia('(display-mode: minimal-ui)').matches ||
                      window.navigator.standalone === true ||
                      document.referrer.includes('android-app://');
         
+        console.log('PWA Detection:', isPWA);
+        
         if (isPWA) {
-            console.log('PWA mode detected, applying fixes...');
+            console.log('PWA mode detected, applying comprehensive fixes...');
             
             // Force visibility of partners and footer sections
             const partnersSection = document.querySelector('.partners-section');
             const footer = document.querySelector('.app-footer');
             
             if (partnersSection) {
-                partnersSection.style.display = 'block';
-                partnersSection.style.visibility = 'visible';
-                partnersSection.style.opacity = '1';
-                partnersSection.style.position = 'relative';
-                partnersSection.style.zIndex = '999';
-                partnersSection.style.transform = 'translateZ(0)';
+                // Apply multiple visibility fixes
+                partnersSection.style.cssText = `
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    position: relative !important;
+                    z-index: 1 !important;
+                    transform: translate3d(0, 0, 0) !important;
+                    -webkit-transform: translate3d(0, 0, 0) !important;
+                    backface-visibility: hidden !important;
+                    -webkit-backface-visibility: hidden !important;
+                    will-change: transform !important;
+                    isolation: isolate !important;
+                    contain: layout style paint !important;
+                    padding-bottom: calc(1.2rem + 80px) !important;
+                    margin-bottom: 0 !important;
+                `;
                 console.log('Partners section visibility fixed');
+            } else {
+                console.warn('Partners section not found!');
             }
             
             if (footer) {
-                footer.style.display = 'block';
-                footer.style.visibility = 'visible';
-                footer.style.opacity = '1';
-                footer.style.position = 'relative';
-                footer.style.zIndex = '999';
-                footer.style.transform = 'translateZ(0)';
-                footer.style.paddingBottom = 'max(env(safe-area-inset-bottom), 20px)';
+                // Apply multiple visibility fixes
+                footer.style.cssText = `
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    position: relative !important;
+                    z-index: 1 !important;
+                    transform: translate3d(0, 0, 0) !important;
+                    -webkit-transform: translate3d(0, 0, 0) !important;
+                    backface-visibility: hidden !important;
+                    -webkit-backface-visibility: hidden !important;
+                    will-change: transform !important;
+                    isolation: isolate !important;
+                    contain: layout style paint !important;
+                    padding-bottom: calc(1.5rem + 80px) !important;
+                    margin-bottom: 0 !important;
+                `;
                 console.log('Footer visibility fixed');
+            } else {
+                console.warn('Footer not found!');
             }
             
-            // Fix body padding for safe areas
-            document.body.style.paddingBottom = 'max(env(safe-area-inset-bottom), 20px)';
+            // Fix body padding for safe areas - remove padding, sections handle it
+            document.body.style.paddingBottom = '0';
+            document.body.style.overflowX = 'hidden';
             
-            // Force repaint
+            // Ensure main content allows scrolling
+            const mainContent = document.querySelector('.main-container') || document.querySelector('#content');
+            if (mainContent) {
+                mainContent.style.minHeight = '100vh';
+                mainContent.style.display = 'flex';
+                mainContent.style.flexDirection = 'column';
+                mainContent.style.paddingBottom = '0';
+            }
+            
+            // Force multiple repaints with different methods
             setTimeout(() => {
-                if (partnersSection) partnersSection.style.transform = 'translateZ(0)';
-                if (footer) footer.style.transform = 'translateZ(0)';
+                if (partnersSection) {
+                    partnersSection.style.transform = 'translate3d(0, 0, 0)';
+                    partnersSection.offsetHeight; // Force reflow
+                }
+                if (footer) {
+                    footer.style.transform = 'translate3d(0, 0, 0)';
+                    footer.offsetHeight; // Force reflow
+                }
             }, 100);
+            
+            setTimeout(() => {
+                if (partnersSection) partnersSection.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+            }, 300);
         }
     }
     
     // Apply fixes immediately
     fixPWAVisibility();
     
+    // Apply fixes after DOM is fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fixPWAVisibility);
+    }
+    
     // Apply fixes after page load
-    window.addEventListener('load', fixPWAVisibility);
+    window.addEventListener('load', function() {
+        fixPWAVisibility();
+        // Additional delayed fix
+        setTimeout(fixPWAVisibility, 500);
+        setTimeout(fixPWAVisibility, 1000);
+    });
     
     // Apply fixes on orientation change
     window.addEventListener('orientationchange', function() {
-        setTimeout(fixPWAVisibility, 500);
+        setTimeout(fixPWAVisibility, 300);
+        setTimeout(fixPWAVisibility, 800);
     });
     
     // Apply fixes on resize
+    let resizeTimer;
     window.addEventListener('resize', function() {
-        setTimeout(fixPWAVisibility, 100);
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(fixPWAVisibility, 150);
     });
+    
+    // Apply fixes on scroll (for lazy loading issues)
+    let scrollTimer;
+    window.addEventListener('scroll', function() {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(function() {
+            const partnersSection = document.querySelector('.partners-section');
+            const footer = document.querySelector('.app-footer');
+            
+            if (partnersSection && partnersSection.getBoundingClientRect().top < window.innerHeight) {
+                fixPWAVisibility();
+            }
+            if (footer && footer.getBoundingClientRect().top < window.innerHeight) {
+                fixPWAVisibility();
+            }
+        }, 200);
+    }, { passive: true });
 });
 </script>
 {% endblock %}
@@ -716,7 +795,7 @@ document.addEventListener('DOMContentLoaded', function() {
 {% block footer %}
 <!-- Partners Section -->
 {% if partners %}
-<section class="partners-section" style="padding: 30px 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 20px; overflow: hidden;">
+<section class="partners-section" style="padding: 30px 15px; padding-bottom: calc(30px + 80px); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 0 !important; margin-bottom: 0; overflow: hidden; display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important; z-index: 1 !important; transform: translate3d(0, 0, 0) !important; -webkit-transform: translate3d(0, 0, 0) !important;">
     <div class="section-title text-center mb-3" style="font-size: 1rem; font-weight: 600; color: white;">Bizga Ishonadigan Hamkorlar</div>
     <div class="partners-mobile-carousel-container">
         <div class="partners-mobile-carousel">
@@ -780,7 +859,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </section>
 {% endif %}
 
-<footer class="app-footer" style="padding: 20px 15px;">
+<footer class="app-footer" style="padding: 20px 15px; padding-bottom: calc(20px + 80px); display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important; z-index: 1 !important; transform: translate3d(0, 0, 0) !important; -webkit-transform: translate3d(0, 0, 0) !important; margin-bottom: 0;">
     <div class="footer-content">
         <div class="footer-brand">
             <h3 class="footer-logo" style="font-size: 1.1rem;">

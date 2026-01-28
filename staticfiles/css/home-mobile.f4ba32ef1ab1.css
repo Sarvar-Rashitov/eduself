@@ -8,7 +8,6 @@ html, body {
     width: 100%;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    background: white !important; /* Force white background */
 }
 
 body {
@@ -23,7 +22,6 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
-    background: white !important; /* Force white background */
 }
 
 /* ========================================
@@ -1315,21 +1313,14 @@ body {
     position: relative;
     width: 100%;
     box-sizing: border-box;
-    background: white !important; /* Always white background */
 }
 
-/* Remove alternating backgrounds - keep all white */
 .content-section:nth-child(even) {
-    background: white !important;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 .content-section:nth-child(odd) {
-    background: white !important;
-}
-
-/* Override background for specific sections */
-.content-section[style*="background: white"] {
-    background: white !important;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
 }
 
 .content-section::before {
@@ -2148,18 +2139,16 @@ body {
 .partners-section {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 1.2rem 1rem !important;
-    margin-top: 0 !important; /* No margin top - connect directly to previous section */
-    margin-bottom: 0 !important;
-    padding-bottom: calc(1.2rem + 80px) !important; /* Add space for bottom nav */
+    margin-top: 1.5rem !important;
     position: relative !important;
     overflow: hidden;
-    border-radius: 0 !important; /* Remove border radius to connect seamlessly */
+    border-radius: 20px 20px 0 0;
     box-shadow: 0 -8px 32px rgba(102, 126, 234, 0.2);
     /* PWA visibility fixes - Enhanced */
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
-    z-index: 1 !important; /* Lower than bottom nav */
+    z-index: 999 !important;
     -webkit-transform: translate3d(0, 0, 0) !important;
     transform: translate3d(0, 0, 0) !important;
     -webkit-backface-visibility: hidden !important;
@@ -2449,17 +2438,15 @@ body {
 .app-footer {
     background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
     padding: 2.5rem 1rem 1.5rem !important;
-    padding-bottom: calc(1.5rem + 80px) !important; /* Add space for bottom nav */
     color: white;
     position: relative !important;
     overflow: hidden;
     margin-top: 0 !important;
-    margin-bottom: 0 !important;
     /* PWA visibility fixes - Enhanced */
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
-    z-index: 1 !important; /* Lower than bottom nav */
+    z-index: 999 !important;
     -webkit-transform: translate3d(0, 0, 0) !important;
     transform: translate3d(0, 0, 0) !important;
     -webkit-backface-visibility: hidden !important;
@@ -2893,7 +2880,7 @@ body {
     /* Ensure partners section is visible in PWA */
     .partners-section {
         position: relative !important;
-        z-index: 1 !important; /* Lower than bottom nav */
+        z-index: 999 !important;
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -2903,13 +2890,12 @@ body {
         min-height: auto !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        padding-bottom: calc(1.2rem + 80px) !important; /* Space for bottom nav */
     }
     
     /* Ensure footer is visible in PWA */
     .app-footer {
         position: relative !important;
-        z-index: 1 !important; /* Lower than bottom nav */
+        z-index: 999 !important;
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -2917,8 +2903,7 @@ body {
         -webkit-transform: translate3d(0, 0, 0) !important;
         bottom: auto !important;
         margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding-bottom: calc(1.5rem + max(env(safe-area-inset-bottom), 80px)) !important;
+        padding-bottom: max(env(safe-area-inset-bottom), 20px) !important;
         width: 100% !important;
         box-sizing: border-box !important;
         clear: both !important;
@@ -2926,14 +2911,14 @@ body {
     
     /* Fix for PWA viewport issues */
     body {
-        padding-bottom: 0 !important; /* Remove body padding, use section padding instead */
+        padding-bottom: max(env(safe-area-inset-bottom), 20px) !important;
         overflow-x: hidden !important;
     }
     
     /* Ensure content doesn't get cut off */
     .container-fluid,
     .main-content {
-        padding-bottom: 0 !important; /* Remove padding, sections handle it */
+        padding-bottom: max(env(safe-area-inset-bottom), 20px) !important;
     }
 }
 
@@ -3019,17 +3004,9 @@ body {
         visibility: visible !important;
         opacity: 1 !important;
         position: relative !important;
-        z-index: 1 !important; /* Lower than bottom nav (z-index: 1000) */
+        z-index: 999 !important;
         width: 100% !important;
         box-sizing: border-box !important;
-    }
-    
-    .partners-section {
-        padding-bottom: calc(1.2rem + 80px) !important;
-    }
-    
-    .app-footer {
-        padding-bottom: calc(1.5rem + 80px) !important;
     }
     
     /* Fix potential overflow issues */
@@ -3040,13 +3017,12 @@ body {
     }
     
     /* Ensure proper scrolling */
-    .main-container,
+    .main-content,
     #content {
         min-height: 100vh !important;
         display: flex !important;
         flex-direction: column !important;
         width: 100% !important;
-        padding-bottom: 0 !important;
     }
     
     /* Force footer to bottom but visible */

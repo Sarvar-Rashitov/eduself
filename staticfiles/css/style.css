@@ -554,7 +554,7 @@ body {
     padding: 8px 0 12px;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
     border-radius: 24px 24px 0 0;
-    z-index: 100;
+    z-index: 1000; /* Higher than content sections */
     transition: background-color 0.3s ease;
 }
 
@@ -3979,7 +3979,7 @@ body {
     padding: 12px 6px 16px;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
     border-radius: 24px 24px 0 0;
-    z-index: 100;
+    z-index: 1000; /* Higher than content sections */
     transition: background-color 0.3s ease;
 }
 
