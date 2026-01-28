@@ -1,7 +1,7 @@
 // Service Worker for EduSelf PWA
-const CACHE_NAME = 'eduself-v2';
-const STATIC_CACHE = 'eduself-static-v2';
-const DYNAMIC_CACHE = 'eduself-dynamic-v2';
+const CACHE_NAME = 'eduself-v3';
+const STATIC_CACHE = 'eduself-static-v3';
+const DYNAMIC_CACHE = 'eduself-dynamic-v3';
 
 const urlsToCache = [
   '/',
