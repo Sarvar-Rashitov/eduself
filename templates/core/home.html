@@ -647,35 +647,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         slide.style.cursor = 'pointer';
     });
-    
-    // PWA specific fixes - Simplified
-    function fixPWAVisibility() {
-        const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
-                     window.navigator.standalone === true;
-        
-        if (isPWA) {
-            console.log('PWA mode detected');
-            
-            const partnersSection = document.querySelector('.partners-section');
-            const footer = document.querySelector('.app-footer');
-            
-            if (partnersSection) {
-                partnersSection.style.display = 'block';
-                partnersSection.style.visibility = 'visible';
-                partnersSection.style.opacity = '1';
-            }
-            
-            if (footer) {
-                footer.style.display = 'block';
-                footer.style.visibility = 'visible';
-                footer.style.opacity = '1';
-            }
-        }
-    }
-    
-    // Apply fixes
-    fixPWAVisibility();
-    window.addEventListener('load', fixPWAVisibility);
 });
 </script>
 {% endblock %}
