@@ -3,10 +3,12 @@
   "short_name": "EduSelf",
   "description": "O'zbekiston uchun zamonaviy ta'lim platformasi",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#4F46E5",
   "theme_color": "#4F46E5",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/static/icons/icon-72x72.png",
@@ -55,9 +57,38 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/apple-icon-180x180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "categories": ["education", "learning"],
   "lang": "uz",
-  "dir": "ltr"
+  "dir": "ltr",
+  "shortcuts": [
+    {
+      "name": "Fanlar",
+      "short_name": "Fanlar",
+      "description": "Barcha fanlarni ko'rish",
+      "url": "/subjects/",
+      "icons": [{ "src": "/static/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Sertifikatlar",
+      "short_name": "Sertifikatlar",
+      "description": "Sertifikatlar bo'limi",
+      "url": "/certificates/",
+      "icons": [{ "src": "/static/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mock Exam",
+      "short_name": "Mock Exam",
+      "description": "Sinov imtihonlari",
+      "url": "/mock-exams/",
+      "icons": [{ "src": "/static/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
 }

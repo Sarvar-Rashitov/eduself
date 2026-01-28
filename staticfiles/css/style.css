@@ -5281,3 +5281,336 @@ body {
     background-color: var(--warning) !important;
     color: var(--dark) !important;
 }
+
+/* iOS PWA Specific Styles */
+@supports (padding: max(0px)) {
+    .mobile-app {
+        padding-top: max(env(safe-area-inset-top), 0px);
+        padding-bottom: max(env(safe-area-inset-bottom), 0px);
+        padding-left: max(env(safe-area-inset-left), 0px);
+        padding-right: max(env(safe-area-inset-right), 0px);
+    }
+    
+    .top-bar {
+        padding-top: max(env(safe-area-inset-top), 0px);
+    }
+    
+    .bottom-nav {
+        padding-bottom: max(env(safe-area-inset-bottom), 0px);
+    }
+}
+
+/* iOS Safari specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait) {
+    .mobile-app {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+    }
+    
+    .main-container {
+        min-height: calc(100vh - 140px);
+        min-height: calc(-webkit-fill-available - 140px);
+    }
+}
+
+/* iOS PWA status bar handling */
+@media (display-mode: standalone) {
+    .top-bar {
+        padding-top: max(20px, env(safe-area-inset-top));
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+    
+    .mobile-app {
+        background: var(--background-color);
+    }
+}
+
+/* iOS specific touch improvements */
+.nav-btn, .btn, .notification-btn, .user-avatar, .menu-btn {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* iOS bounce scroll prevention */
+body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.main-container {
+    overscroll-behavior: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* iOS PWA splash screen compatibility */
+@media (display-mode: standalone) and (orientation: portrait) {
+    body {
+        background: var(--primary-color);
+    }
+    
+    .mobile-app {
+        background: var(--background-color);
+        border-radius: 0;
+    }
+}
+
+/* iOS keyboard handling */
+@media (max-height: 500px) and (orientation: landscape) {
+    .bottom-nav {
+        display: none;
+    }
+    
+    .main-container {
+        padding-bottom: 20px;
+    }
+}
+
+/* iOS PWA install prompt specific styles */
+.ios-install-prompt {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    animation: slideUp 0.3s ease-out;
+    border: 1px solid var(--border-color);
+}
+
+.ios-install-content {
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.ios-install-icon {
+    font-size: 24px;
+    color: var(--primary-color);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.ios-install-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.ios-install-text h6 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ios-install-text p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.ios-install-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.ios-install-close:hover {
+    background: var(--gray-light);
+    color: var(--text-primary);
+}
+
+/* iOS PWA viewport fixes */
+@media (display-mode: standalone) {
+    html {
+        height: 100%;
+        height: -webkit-fill-available;
+    }
+    
+    body {
+        height: 100%;
+        height: -webkit-fill-available;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .mobile-app {
+        height: 100%;
+        height: -webkit-fill-available;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .main-container {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* iOS specific animations */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* iOS dark mode improvements */
+@media (prefers-color-scheme: dark) {
+    .ios-install-prompt {
+        background: var(--card-bg);
+        border-color: var(--border-color);
+    }
+    
+    .ios-install-text h6 {
+        color: var(--text-primary);
+    }
+    
+    .ios-install-text p {
+        color: var(--text-secondary);
+    }
+    
+    .ios-install-close {
+        color: var(--text-muted);
+    }
+    
+    .ios-install-close:hover {
+        background: var(--gray-light);
+        color: var(--text-primary);
+    }
+}
+
+/* iOS PWA home screen icon mask */
+@media (display-mode: standalone) {
+    .logo-mini i {
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+}
+
+/* iOS specific touch feedback */
+@media (hover: none) and (pointer: coarse) {
+    .btn:active,
+    .nav-btn:active,
+    .notification-btn:active,
+    .user-avatar:active,
+    .menu-btn:active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease;
+    }
+}
+
+/* iOS PWA navigation improvements */
+@media (display-mode: standalone) and (max-width: 768px) {
+    .bottom-nav {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .top-bar {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border-color);
+    }
+}
+
+/* iOS PWA offline indicator */
+.offline-indicator {
+    position: fixed;
+    top: max(10px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--warning);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    box-shadow: var(--shadow);
+    display: none;
+}
+
+.offline-indicator.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* iOS PWA loading states */
+.pwa-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.pwa-loading.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.pwa-loading-content {
+    text-align: center;
+    color: white;
+}
+
+.pwa-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
