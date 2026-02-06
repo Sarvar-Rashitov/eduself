@@ -11,8 +11,7 @@ def main_menu_keyboard():
     keyboard = [
         [KeyboardButton("📚 Fanlar"), KeyboardButton("🏆 Sertifikatlar")],
         [KeyboardButton("📝 Mock Imtihonlar"), KeyboardButton("🏫 Muassasalar")],
-        [KeyboardButton("🤖 AI Hamroh"), KeyboardButton("👤 Profil")],
-        [KeyboardButton("📊 Reyting"), KeyboardButton("⚙️ Sozlamalar")]
+        [KeyboardButton("🤖 AI Hamroh"), KeyboardButton("👤 Profil")]
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
@@ -156,9 +155,7 @@ def profile_keyboard():
 def ai_chat_keyboard():
     """AI chat klaviaturasi"""
     keyboard = [
-        [InlineKeyboardButton("💬 Yangi suhbat", callback_data="ai_new_chat")],
-        [InlineKeyboardButton("📚 Fan bo'yicha yordam", callback_data="ai_subject_help")],
-        [InlineKeyboardButton("🏫 Muassasa tanlash", callback_data="ai_institution_help")],
+        [InlineKeyboardButton("💬 Savol berish", callback_data="ai_new_chat")],
         [InlineKeyboardButton("🏠 Asosiy menyu", callback_data="main_menu")]
     ]
     return InlineKeyboardMarkup(keyboard)

@@ -72,12 +72,6 @@ def get_test_history(user):
     return results[:10]
 
 
-@sync_to_async
-def get_top_users():
-    from accounts.models import User
-    return list(User.objects.filter(total_points__gt=0).order_by('-total_points')[:20])
-
-
 @require_subscription("profile")
 async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Profil menyusi"""
@@ -149,67 +143,14 @@ async def profile_history(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.edit_message_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
-@require_subscription("leaderboard")
-async def global_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Global reyting"""
-    if update.callback_query:
-        query = update.callback_query
-        await query.answer()
-        message = query.message
-        edit = True
-    else:
-        message = update.message
-        edit = False
-
-    current_user = await get_user_or_none(update.effective_user.id)
-    top_users = await get_top_users()
-
-    text = "🏆 *Global Reyting*\n\n"
-
-    medals = ['🥇', '🥈', '🥉']
-    for i, user in enumerate(top_users):
-        medal = medals[i] if i < 3 else f"{i+1}."
-        name = user.first_name or user.username
-
-        if current_user and user.id == current_user.id:
-            text += f"*{medal} {name}: {user.total_points} ball* ⬅️\n"
-        else:
-            text += f"{medal} {name}: {user.total_points} ball\n"
-
-    if not top_users:
-        text += "Hali natijalar yo'q."
-
-    if current_user and current_user.total_points > 0:
-        position = await get_user_position(current_user)
-        if position and position > 20:
-            text += f"\n━━━━━━━━━━━━━━━\n"
-            text += f"*Sizning o'rningiz: {position}*\n"
-            text += f"Ball: {current_user.total_points}\n"
-
-    keyboard = [[InlineKeyboardButton("🏠 Asosiy menyu", callback_data="main_menu")]]
-
-    if edit:
-        await message.edit_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
-    else:
-        await message.reply_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
-
-
 async def handle_profile_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Profil tugmasi"""
     if update.message.text == "👤 Profil":
         await profile_menu(update, context)
 
 
-async def handle_leaderboard_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Reyting tugmasi"""
-    if update.message.text == "📊 Reyting":
-        await global_leaderboard(update, context)
-
-
 def register_handlers(app):
     """Profile handlerlarini ro'yxatdan o'tkazish"""
     app.add_handler(CallbackQueryHandler(profile_menu, pattern="^profile$"))
     app.add_handler(CallbackQueryHandler(profile_history, pattern="^profile_history$"))
-    app.add_handler(CallbackQueryHandler(global_leaderboard, pattern="^leaderboard$"))
     app.add_handler(MessageHandler(filters.Regex("^👤 Profil$"), handle_profile_text))
-    app.add_handler(MessageHandler(filters.Regex("^📊 Reyting$"), handle_leaderboard_text))

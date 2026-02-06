@@ -816,7 +816,7 @@ class TestAnalysisService:
 - Umumiy ball: {score}%
 - To'g'ri javoblar: {correct}/{total}
 - Noto'g'ri javoblar: {incorrect}
-- Test o'tdi: {'Ha' if data.get('passed') else 'Yo\'q'}
+- Test o'tdi: {'Ha' if data.get('passed') else "Yo'q"}
 
 """
         
@@ -879,6 +879,7 @@ Siz {score}% ball to'pladingiz - bu juda yuqori natija!
 Tabriklaymiz! Davom eting! 💪"""
         
         elif score >= 70:
+            test_status = "Testni muvaffaqiyatli o'tdingiz" if passed else "Deyarli o'tish balliga yetdingiz"
             return f"""👍 **Yaxshi natija!**
 
 Siz {score}% ball to'pladingiz - bu yaxshi ko'rsatkich.
@@ -886,7 +887,7 @@ Siz {score}% ball to'pladingiz - bu yaxshi ko'rsatkich.
 ✅ **Kuchli tomonlaringiz:**
 - {correct}/{total} savolga to'g'ri javob berdingiz
 - Asosiy mavzularni yaxshi bilasiz
-- {'Testni muvaffaqiyatli o\'tdingiz' if passed else 'Deyarli o\'tish balliga yetdingiz'}
+- {test_status}
 
 📚 **Yaxshilash uchun:**
 - Noto'g'ri javob bergan savollarni qayta ko'rib chiqing

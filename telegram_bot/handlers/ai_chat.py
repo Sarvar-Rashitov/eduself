@@ -20,12 +20,12 @@ async def ai_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         edit = False
 
     text = "🤖 *AI Hamroh*\n\n"
-    text += "Men sizga quyidagilarda yordam bera olaman:\n\n"
+    text += "Men sizga har qanday savollaringizga javob bera olaman:\n\n"
     text += "📚 Fanlar bo'yicha savollar\n"
     text += "🏫 Ta'lim muassasalarini tanlash\n"
     text += "🏆 Sertifikatlar haqida ma'lumot\n"
     text += "📝 Test va imtihonlarga tayyorgarlik\n\n"
-    text += "Quyidagi tugmalardan birini tanlang yoki to'g'ridan-to'g'ri savol yozing:"
+    text += "Savol berish uchun tugmani bosing:"
 
     if edit:
         await message.edit_text(text, parse_mode='Markdown', reply_markup=ai_chat_keyboard())
@@ -41,7 +41,7 @@ async def start_ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['ai_mode'] = True
 
     await query.edit_message_text(
-        "💬 *AI Hamroh bilan suhbat*\n\n"
+        "💬 *Savol berish*\n\n"
         "Savolingizni yozing, men javob beraman!\n\n"
         "Suhbatni tugatish uchun /stop buyrug'ini yuboring.",
         parse_mode='Markdown'
@@ -137,51 +137,6 @@ async def stop_ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
-async def ai_subject_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Fan bo'yicha yordam"""
-    query = update.callback_query
-    await query.answer()
-
-    context.user_data['ai_mode'] = True
-    context.user_data['ai_history'] = [{
-        'role': 'system',
-        'content': 'Foydalanuvchi fan bo\'yicha yordam so\'ramoqda. Unga o\'zbek tilida yordam ber.'
-    }]
-
-    await query.edit_message_text(
-        "📚 *Fan bo'yicha yordam*\n\n"
-        "Qaysi fan bo'yicha savol bor?\n"
-        "Masalan: Matematika, Fizika, Kimyo, Biologiya...\n\n"
-        "Savolingizni yozing:",
-        parse_mode='Markdown'
-    )
-    return AI_CHAT
-
-
-async def ai_institution_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Muassasa tanlash bo'yicha yordam"""
-    query = update.callback_query
-    await query.answer()
-
-    context.user_data['ai_mode'] = True
-    context.user_data['ai_history'] = [{
-        'role': 'system',
-        'content': 'Foydalanuvchi ta\'lim muassasasi tanlashda yordam so\'ramoqda.'
-    }]
-
-    await query.edit_message_text(
-        "🏫 *Muassasa tanlash bo'yicha yordam*\n\n"
-        "Qanday muassasa qidiryapsiz?\n"
-        "Masalan:\n"
-        "- Qaysi yo'nalishda o'qimoqchisiz?\n"
-        "- Qaysi shaharda?\n"
-        "- Byudjet yoki kontrakt?\n\n"
-        "Savolingizni yozing:",
-        parse_mode='Markdown'
-    )
-    return AI_CHAT
-
-
 async def handle_ai_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """AI Hamroh tugmasi"""
     if update.message.text == "🤖 AI Hamroh":
@@ -198,8 +153,6 @@ def register_handlers(app):
     ai_conv = ConversationHandler(
         entry_points=[
             CallbackQueryHandler(start_ai_chat, pattern="^ai_new_chat$"),
-            CallbackQueryHandler(ai_subject_help, pattern="^ai_subject_help$"),
-            CallbackQueryHandler(ai_institution_help, pattern="^ai_institution_help$"),
         ],
         states={
             AI_CHAT: [

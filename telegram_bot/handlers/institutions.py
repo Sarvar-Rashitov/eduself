@@ -250,11 +250,30 @@ async def institution_detail(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     keyboard.append([InlineKeyboardButton("⬅️ Orqaga", callback_data="institutions")])
 
-    await query.edit_message_text(
-        text,
-        parse_mode='Markdown',
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+    # Agar muassasada rasm bo'lsa, rasm bilan birga ma'lumotlarni yuborish
+    if inst.image:
+        try:
+            await query.message.delete()
+            await query.message.reply_photo(
+                photo=inst.image.url,
+                caption=text,
+                parse_mode='Markdown',
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+        except Exception as e:
+            # Agar rasm yuborishda xatolik bo'lsa, oddiy matn yuborish
+            await query.edit_message_text(
+                text,
+                parse_mode='Markdown',
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+    else:
+        # Rasm yo'q bo'lsa, oddiy matn
+        await query.edit_message_text(
+            text,
+            parse_mode='Markdown',
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
 
 
 async def institution_directions(update: Update, context: ContextTypes.DEFAULT_TYPE):

@@ -60,43 +60,6 @@ async def check_subscription_callback(update: Update, context: ContextTypes.DEFA
         await query.answer("❌ Siz hali kanalga obuna bo'lmagansiz!", show_alert=True)
 
 
-async def settings_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Sozlamalar menyusi"""
-    if update.callback_query:
-        query = update.callback_query
-        await query.answer()
-        message = query.message
-    else:
-        message = update.message
-
-    user = await get_user_or_none(update.effective_user.id)
-
-    text = "⚙️ *Sozlamalar*\n\n"
-    if user:
-        text += f"👤 Username: @{user.username}\n"
-        text += f"📧 Email: {user.email}\n"
-        text += f"📱 Telegram ID: {user.telegram_id}\n\n"
-    text += "Quyidagi amallarni bajarishingiz mumkin:"
-
-    keyboard = [
-        [InlineKeyboardButton("🔗 Saytda profilni tahrirlash", url="https://eduself.uz/accounts/profile/")],
-        [InlineKeyboardButton("📊 Statistika", callback_data="profile_stats")],
-        [InlineKeyboardButton("🏠 Asosiy menyu", callback_data="main_menu")]
-    ]
-
-    await message.reply_text(
-        text,
-        parse_mode='Markdown',
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
-
-
-async def handle_settings_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Sozlamalar tugmasi"""
-    if update.message.text == "⚙️ Sozlamalar":
-        await settings_menu(update, context)
-
-
 async def progress_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Progress info callback"""
     query = update.callback_query
@@ -110,4 +73,3 @@ def register_handlers(app):
     app.add_handler(CallbackQueryHandler(check_subscription_callback, pattern="^check_subscription$"))
     app.add_handler(CallbackQueryHandler(check_subscription_callback, pattern="^retry_"))
     app.add_handler(MessageHandler(filters.Regex("^🏠 Asosiy menyu$"), main_menu_text))
-    app.add_handler(MessageHandler(filters.Regex("^⚙️ Sozlamalar$"), handle_settings_text))
