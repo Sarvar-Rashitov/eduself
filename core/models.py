@@ -356,55 +356,7 @@ class MockExam(models.Model):
         )['total_points'] or 0
     
     def is_unlocked_for_user(self, user):
-        """Foydalanuvchi uchun imtihon ochilganligini tekshirish"""
-        if not user.is_authenticated:
-            return False
-        
-        # Birinchi imtihon har doim ochiq
-        if self.category:
-            first_exam = self.category.mock_exams.filter(is_active=True).order_by('order', 'created_at').first()
-        else:
-            first_exam = MockExam.objects.filter(is_active=True, category__isnull=True).order_by('order', 'created_at').first()
-        
-        if self == first_exam:
-            return True
-        
-        # Oldingi imtihonlarni topish
-        if self.category:
-            previous_exams = self.category.mock_exams.filter(
-                is_active=True,
-                order__lt=self.order
-            ).order_by('order', 'created_at')
-            
-            if not previous_exams.exists():
-                previous_exams = self.category.mock_exams.filter(
-                    is_active=True,
-                    created_at__lt=self.created_at
-                ).order_by('order', 'created_at')
-        else:
-            previous_exams = MockExam.objects.filter(
-                is_active=True,
-                category__isnull=True,
-                order__lt=self.order
-            ).order_by('order', 'created_at')
-            
-            if not previous_exams.exists():
-                previous_exams = MockExam.objects.filter(
-                    is_active=True,
-                    category__isnull=True,
-                    created_at__lt=self.created_at
-                ).order_by('order', 'created_at')
-        
-        # Barcha oldingi imtihonlar o'tilganligini tekshirish
-        for prev_exam in previous_exams:
-            best_result = MockExamResult.objects.filter(
-                user=user,
-                exam=prev_exam
-            ).order_by('-score').first()
-            
-            if not best_result or best_result.score < prev_exam.unlock_score:
-                return False
-        
+        """Mock imtihonlar uchun barcha imtihonlar ochiq"""
         return True
 
 

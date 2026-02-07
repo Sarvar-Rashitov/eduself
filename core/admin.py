@@ -216,11 +216,23 @@ class MockExamCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(MockExam)
 class MockExamAdmin(admin.ModelAdmin):
-    list_display = ['title', 'category', 'time_limit', 'passing_score', 'unlock_score', 'order', 'is_active', 'created_at']
+    list_display = ['title', 'category', 'time_limit', 'passing_score', 'order', 'is_active', 'created_at']
     list_filter = ['category', 'is_active', 'created_at']
     search_fields = ['title', 'description']
-    list_editable = ['unlock_score', 'order', 'is_active']
+    list_editable = ['order', 'is_active']
     inlines = [MockQuestionInline]
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('category', 'title', 'description', 'image')
+        }),
+        ('Imtihon sozlamalari', {
+            'fields': ('time_limit', 'passing_score')
+        }),
+        ('Sozlamalar', {
+            'fields': ('order', 'is_active')
+        }),
+    )
 
 
 @admin.register(MockExamQuestion)

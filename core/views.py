@@ -696,8 +696,8 @@ def mock_exams_view(request):
             result = MockExamResult.objects.filter(user=request.user, exam=exam).order_by('-completed_at').first()
             if result:
                 user_results[exam.id] = result
-            # Imtihon ochilganligini tekshirish
-            exam.is_unlocked = exam.is_unlocked_for_user(request.user)
+            # Mock imtihonlar uchun barcha imtihonlar ochiq
+            exam.is_unlocked = True
     else:
         # Mehmonlar uchun ham imtihonlar ochiq ko'rinadi
         for exam in exams:
@@ -786,10 +786,7 @@ def check_mock_answer_view(request, question_id, answer_id):
 def take_mock_exam_view(request, pk):
     exam = get_object_or_404(MockExam, pk=pk, is_active=True)
     
-    # Imtihon ochilganligini tekshirish
-    if not exam.is_unlocked_for_user(request.user):
-        messages.error(request, "Bu imtihonni yechish uchun oldingi imtihonlarni muvaffaqiyatli yakunlashingiz kerak.")
-        return redirect('core:mock_exams')
+    # Mock imtihonlar uchun barcha imtihonlar ochiq
     
     questions = exam.mock_questions.all().prefetch_related('mock_answers')
     
