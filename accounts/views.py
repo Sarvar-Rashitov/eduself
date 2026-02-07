@@ -901,14 +901,8 @@ def profile_view(request):
     weekly_activity_json = json.dumps(weekly_activity)
     monthly_activity_json = json.dumps(monthly_activity)
     
-    # Notifications
-    from core.models import Notification
-    from django.db.models import Q
-    notifications_qs = Notification.objects.filter(
-        Q(user=request.user) | Q(is_global=True)
-    ).order_by('-created_at')
-    unread_notifications_count = notifications_qs.filter(is_read=False).count()
-    notifications = notifications_qs[:20]
+    # Notifications context processor orqali avtomatik keladi, 
+    # shuning uchun bu yerda qayta hisoblash shart emas
     
     context = {
         'form': form,
@@ -918,8 +912,6 @@ def profile_view(request):
         'user_stats': user_stats,
         'user_position': user_position,
         'test_results': test_results,
-        'notifications': notifications,
-        'unread_notifications_count': unread_notifications_count,
         'weekly_activity': weekly_activity_json,
         'monthly_activity': monthly_activity_json,
     }

@@ -256,7 +256,7 @@
                             {% endif %}
                         </div>
                         <div class="notifications-list">
-                            {% for notification in notifications %}
+                            {% for notification in notifications|slice:":50" %}
                             <div class="notification-item {% if not notification.is_read %}unread{% endif %}" data-id="{{ notification.id }}">
                                 <div class="notification-icon {{ notification.notification_type }}">
                                     <i class="{{ notification.icon }}"></i>

@@ -23,7 +23,7 @@ def notifications(request):
         # Barcha bildirishnomalarni olish
         all_notifications = Notification.objects.filter(
             models.Q(user=request.user) | models.Q(is_global=True)
-        ).select_related('user').order_by('-created_at')[:10]
+        ).select_related('user').order_by('-created_at')
         
         # Har bir bildirishnoma uchun o'qilganligini tekshirish
         notifications_with_read_status = []
