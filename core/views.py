@@ -22,6 +22,16 @@ def is_mobile(request):
     return any(keyword in user_agent for keyword in mobile_keywords)
 
 
+def custom_404_view(request, exception=None):
+    """Custom 404 sahifa - Desktop va Mobile uchun"""
+    if is_mobile(request):
+        # Mobil uchun oddiy 404 sahifa
+        return render(request, '404.html', status=404)
+    else:
+        # Desktop uchun interaktiv 404 sahifa
+        return render(request, '404_desktop.html', status=404)
+
+
 def home_view(request):
     subjects = Subject.objects.filter(is_active=True)[:3]  # 3 ta fan ko'rsatish
     certificates = Certificate.objects.filter(is_active=True)[:3]
