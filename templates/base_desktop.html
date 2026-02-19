@@ -19,7 +19,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Desktop Styles -->
     <link rel="stylesheet" href="{% static 'css/desktop.css' %}">
@@ -430,6 +430,49 @@
 
     <!-- Telegram Mini App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Header Scroll Hide/Show -->
+    <script>
+        (function() {
+            let lastScrollTop = 0;
+            let scrollThreshold = 5; // Minimal scroll distance
+            const header = document.querySelector('.header');
+            const filterSection = document.querySelector('.filter-section');
+            let ticking = false;
+            
+            function updateHeader(scrollTop) {
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // Scrolling down & past threshold
+                    header.classList.add('header-hidden');
+                    header.classList.remove('header-visible');
+                    if (filterSection) {
+                        filterSection.classList.add('filter-hidden');
+                    }
+                } else if (scrollTop < lastScrollTop) {
+                    // Scrolling up
+                    header.classList.remove('header-hidden');
+                    header.classList.add('header-visible');
+                    if (filterSection) {
+                        filterSection.classList.remove('filter-hidden');
+                    }
+                }
+                
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            }
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (!ticking) {
+                    window.requestAnimationFrame(function() {
+                        updateHeader(scrollTop);
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+        })();
+    </script>
     
     <!-- Telegram Mini App Auto Login -->
     <script>

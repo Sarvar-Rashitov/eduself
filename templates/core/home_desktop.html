@@ -153,7 +153,58 @@
                 <a href="{% url 'core:certificates' %}" class="btn btn-primary">Sertifikatlarni ko'rish</a>
             </div>
             <div class="certificate-image">
-                <i class="fas fa-certificate"></i>
+                <div class="antique-clock">
+                    <div class="clock-ornament top-ornament">⚜</div>
+                    <div class="clock-frame">
+                        <div class="clock-glow"></div>
+                        <div class="clock-face">
+                            <div class="clock-brand">TEMPUS</div>
+                            <div class="clock-center"></div>
+                            <div class="clock-hand hour-hand">
+                                <div class="hand-decoration"></div>
+                            </div>
+                            <div class="clock-hand minute-hand">
+                                <div class="hand-decoration"></div>
+                            </div>
+                            <div class="clock-hand second-hand"></div>
+                            <!-- Clock numbers -->
+                            <div class="clock-number" style="--i:1;"><span>I</span></div>
+                            <div class="clock-number" style="--i:2;"><span>II</span></div>
+                            <div class="clock-number" style="--i:3;"><span>III</span></div>
+                            <div class="clock-number" style="--i:4;"><span>IV</span></div>
+                            <div class="clock-number" style="--i:5;"><span>V</span></div>
+                            <div class="clock-number" style="--i:6;"><span>VI</span></div>
+                            <div class="clock-number" style="--i:7;"><span>VII</span></div>
+                            <div class="clock-number" style="--i:8;"><span>VIII</span></div>
+                            <div class="clock-number" style="--i:9;"><span>IX</span></div>
+                            <div class="clock-number" style="--i:10;"><span>X</span></div>
+                            <div class="clock-number" style="--i:11;"><span>XI</span></div>
+                            <div class="clock-number" style="--i:12;"><span>XII</span></div>
+                            <!-- Decorative elements -->
+                            <div class="clock-tick" style="--i:1;"></div>
+                            <div class="clock-tick" style="--i:2;"></div>
+                            <div class="clock-tick" style="--i:3;"></div>
+                            <div class="clock-tick" style="--i:4;"></div>
+                            <div class="clock-tick" style="--i:5;"></div>
+                            <div class="clock-tick" style="--i:6;"></div>
+                            <div class="clock-tick" style="--i:7;"></div>
+                            <div class="clock-tick" style="--i:8;"></div>
+                            <div class="clock-tick" style="--i:9;"></div>
+                            <div class="clock-tick" style="--i:10;"></div>
+                            <div class="clock-tick" style="--i:11;"></div>
+                            <div class="clock-tick" style="--i:12;"></div>
+                        </div>
+                        <div class="clock-chain left-chain"></div>
+                        <div class="clock-chain right-chain"></div>
+                    </div>
+                    <div class="clock-pendulum">
+                        <div class="pendulum-rod"></div>
+                        <div class="pendulum-weight">
+                            <div class="weight-shine"></div>
+                        </div>
+                    </div>
+                    <div class="clock-ornament bottom-ornament">⚜</div>
+                </div>
             </div>
         </div>
     </div>
@@ -175,10 +226,10 @@
             </div>
             <div class="card exam-card">
                 <div class="card-icon exam-icon secondary">
-                    <i class="fas fa-car"></i>
+                    <i class="fas fa-trophy"></i>
                 </div>
-                <h3>AVTO TEST</h3>
-                <p>Haydovchilik guvohnomasi uchun</p>
+                <h3>Olimpiada</h3>
+                <p>Fan olimpiadalari va tanlovlar</p>
                 <a href="{% url 'core:mock_exams' %}" class="btn btn-primary">Boshlash</a>
             </div>
             <div class="card exam-card">
@@ -289,70 +340,91 @@
 {% endif %}
 
 <!-- AI Assistant Section -->
-{% if user.is_authenticated %}
 <section id="ai-assistant" class="section ai-section">
     <div class="container">
-        <h2 class="section-title">🤖 AI Yordamchi</h2>
-        <p class="section-subtitle">Sun'iy intellekt sizning shaxsiy o'qituvchingiz</p>
-        
-        <div class="ai-features-grid">
-            <div class="ai-feature-card">
-                <i class="fas fa-brain"></i>
-                <h3>Aqlli Javoblar</h3>
-                <p>Har qanday savolingizga javob</p>
-            </div>
-            <div class="ai-feature-card">
-                <i class="fas fa-book-reader"></i>
-                <h3>Shaxsiy Dars</h3>
-                <p>Sizning darajangizga moslashadi</p>
-            </div>
-            <div class="ai-feature-card">
-                <i class="fas fa-clock"></i>
-                <h3>24/7 Mavjud</h3>
-                <p>Har doim sizga yordam beradi</p>
-            </div>
-            <div class="ai-feature-card">
-                <i class="fas fa-language"></i>
-                <h3>Ko'p Tilli</h3>
-                <p>O'zbek, Rus, Ingliz tillarida</p>
-            </div>
-        </div>
-
-        <div class="ai-chat-demo">
-            <div class="ai-chat-container">
-                <div class="ai-chat-header">
-                    <div class="ai-status">
-                        <span class="ai-status-dot"></span>
-                        <span>AI Yordamchi</span>
-                    </div>
+        <div class="ai-section-content">
+            <div class="ai-info">
+                <div class="ai-badge">
+                    <span class="ai-badge-icon">✨</span>
+                    <span>AI Yordamchi</span>
                 </div>
-                <div class="ai-chat-messages" id="aiChatMessages">
-                    <div class="ai-message ai-bot">
-                        <div class="ai-avatar">🤖</div>
-                        <div class="ai-message-content">
-                            <p>Salom! Men sizning AI yordamchingizman. Qanday yordam bera olaman?</p>
+                <h2 class="ai-title">Sun'iy intellekt bilan o'rganing</h2>
+                <p class="ai-description">Sizning shaxsiy AI o'qituvchingiz har doim yordam berishga tayyor. Savollar bering, tushuntirishlar oling va bilimingizni oshiring.</p>
+                
+                <div class="ai-features-list">
+                    <div class="ai-feature-item">
+                        <div class="ai-feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="ai-feature-text">
+                            <h4>Aqlli Javoblar</h4>
+                            <p>Har qanday savolingizga aniq va tushunarli javob</p>
+                        </div>
+                    </div>
+                    <div class="ai-feature-item">
+                        <div class="ai-feature-icon">
+                            <i class="fas fa-book-reader"></i>
+                        </div>
+                        <div class="ai-feature-text">
+                            <h4>Shaxsiy Yondashuv</h4>
+                            <p>Sizning darajangizga moslashgan ta'lim</p>
+                        </div>
+                    </div>
+                    <div class="ai-feature-item">
+                        <div class="ai-feature-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="ai-feature-text">
+                            <h4>24/7 Mavjud</h4>
+                            <p>Istalgan vaqtda yordam olish imkoniyati</p>
                         </div>
                     </div>
                 </div>
-                <div class="ai-chat-input">
-                    <input type="text" id="aiChatInput" placeholder="Savolingizni yozing..." />
-                    <button id="aiSendBtn"><i class="fas fa-paper-plane"></i></button>
-                </div>
+                
+                {% if user.is_authenticated %}
+                <a href="{% url 'ai_assistant:chat_redirect' %}" class="btn btn-ai-primary">
+                    <i class="fas fa-robot"></i>
+                    AI bilan suhbat boshlash
+                </a>
+                {% else %}
+                <button class="btn btn-ai-primary" id="aiStartBtn">
+                    <i class="fas fa-robot"></i>
+                    AI bilan suhbat boshlash
+                </button>
+                {% endif %}
             </div>
-        </div>
-
-        <div class="ai-suggestions">
-            <h3>Tez-tez so'raladigan savollar:</h3>
-            <div class="ai-suggestion-buttons">
-                <button class="ai-suggestion-btn" data-question="Matematika bo'yicha qanday testlar bor?">📝 Matematika testlari</button>
-                <button class="ai-suggestion-btn" data-question="Qanday qilib sertifikat olish mumkin?">🎓 Sertifikat olish</button>
-                <button class="ai-suggestion-btn" data-question="Eng yaxshi universitetlar haqida ma'lumot bering">🎯 Top universitetlar</button>
-                <button class="ai-suggestion-btn" data-question="Ingliz tilini qayerdan o'rganishim mumkin?">🗣 Ingliz tili kurslari</button>
+            
+            <div class="ai-preview">
+                <div class="ai-preview-card">
+                    <div class="ai-preview-header">
+                        <div class="ai-preview-status">
+                            <span class="ai-status-dot"></span>
+                            <span>AI Yordamchi</span>
+                        </div>
+                        <div class="ai-preview-badge">Onlayn</div>
+                    </div>
+                    <div class="ai-preview-messages">
+                        <div class="ai-preview-message bot">
+                            <div class="ai-preview-avatar">🤖</div>
+                            <div class="ai-preview-bubble">
+                                <p>Salom! Men sizning AI yordamchingizman. Qanday yordam bera olaman?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-preview-input">
+                        {% if user.is_authenticated %}
+                        <input type="text" placeholder="Savolingizni yozing..." disabled />
+                        <button disabled><i class="fas fa-paper-plane"></i></button>
+                        {% else %}
+                        <input type="text" placeholder="Savolingizni yozing..." id="aiPreviewInput" />
+                        <button id="aiPreviewBtn"><i class="fas fa-paper-plane"></i></button>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
-{% endif %}
 
 <!-- Partners Section -->
 {% if partners %}
@@ -709,6 +781,9 @@
 
 .certificate-image {
     animation: certImagePop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s both;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 @keyframes certTextSlide {
@@ -736,13 +811,408 @@
     to { opacity: 1; transform: translateX(0); }
 }
 
-.certificate-image i {
-    animation: certIconFloat 4s ease-in-out infinite;
+/* Antique Clock Styles */
+.antique-clock {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
 }
 
-@keyframes certIconFloat {
+.clock-ornament {
+    font-size: 2rem;
+    color: #8b7355;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: ornamentFloat 3s ease-in-out infinite;
+}
+
+.top-ornament {
+    animation-delay: 0s;
+}
+
+.bottom-ornament {
+    animation-delay: 1s;
+}
+
+@keyframes ornamentFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.1); }
+}
+
+.clock-frame {
+    width: 300px;
+    height: 300px;
+    background: 
+        linear-gradient(145deg, #a0826d, #6b5644),
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), transparent);
+    border-radius: 50%;
+    padding: 22px;
+    box-shadow: 
+        0 0 0 3px #3a2a1a,
+        0 0 0 8px #5a4636,
+        0 0 0 12px #8b7355,
+        0 0 0 14px #3a2a1a,
+        0 25px 60px rgba(0, 0, 0, 0.5),
+        inset 0 5px 20px rgba(0, 0, 0, 0.4),
+        inset 0 -5px 20px rgba(255, 255, 255, 0.1);
+    position: relative;
+    animation: clockFloat 4s ease-in-out infinite;
+}
+
+@keyframes clockFloat {
     0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-15px) rotate(5deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+.clock-glow {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.3), transparent 70%);
+    animation: glowPulse 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes glowPulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.clock-frame::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.2), transparent 50%);
+    pointer-events: none;
+}
+
+.clock-face {
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 30% 30%, #faf8f3 0%, #f5f1e8 40%, #e8dcc8 100%);
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 
+        inset 0 0 30px rgba(0, 0, 0, 0.15),
+        inset 0 3px 8px rgba(255, 255, 255, 0.6),
+        inset 0 -3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.clock-face::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92%;
+    height: 92%;
+    border-radius: 50%;
+    border: 3px solid rgba(139, 115, 85, 0.2);
+    box-shadow: 0 0 10px rgba(139, 115, 85, 0.1);
+}
+
+.clock-face::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    height: 85%;
+    border-radius: 50%;
+    border: 1px solid rgba(139, 115, 85, 0.15);
+}
+
+.clock-brand {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Georgia', serif;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #5a4636;
+    letter-spacing: 3px;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.clock-number {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transform: rotate(calc(var(--i) * 30deg));
+    font-family: 'Georgia', serif;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #3a2a1a;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.clock-number span {
+    display: inline-block;
+    transform: rotate(calc(var(--i) * -30deg));
+    margin-top: 12px;
+    transition: all 0.3s ease;
+}
+
+.clock-tick {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform: rotate(calc(var(--i) * 30deg));
+}
+
+.clock-tick::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 8px;
+    background: linear-gradient(to bottom, #8b7355, #5a4636);
+    border-radius: 1px;
+}
+
+.clock-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    background: 
+        radial-gradient(circle at 30% 30%, #a0826d, #5a4636);
+    border-radius: 50%;
+    box-shadow: 
+        0 0 0 2px #3a2a1a,
+        0 3px 10px rgba(0, 0, 0, 0.5),
+        inset 0 2px 5px rgba(255, 255, 255, 0.3);
+    z-index: 10;
+}
+
+.clock-center::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle at 30% 30%, #d4af37, #3a2a1a);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.clock-hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    background: linear-gradient(to top, #2a1a0a, #5a4636, #3a2a1a);
+    border-radius: 4px 4px 0 0;
+    box-shadow: 
+        0 0 5px rgba(0, 0, 0, 0.5),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.hand-decoration {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #d4af37, #8b7355);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.hour-hand {
+    width: 8px;
+    height: 65px;
+    margin-left: -4px;
+    animation: rotateHour 43200s linear infinite;
+}
+
+.minute-hand {
+    width: 6px;
+    height: 85px;
+    margin-left: -3px;
+    animation: rotateMinute 3600s linear infinite;
+}
+
+.second-hand {
+    width: 3px;
+    height: 95px;
+    margin-left: -1.5px;
+    background: linear-gradient(to top, #c41e3a, #ff4444, #8b0000);
+    animation: rotateSecond 60s steps(60) infinite;
+    box-shadow: 0 0 8px rgba(196, 30, 58, 0.5);
+}
+
+@keyframes rotateHour {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes rotateMinute {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes rotateSecond {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.clock-chain {
+    position: absolute;
+    width: 4px;
+    height: 40px;
+    background: repeating-linear-gradient(
+        to bottom,
+        #8b7355 0px,
+        #5a4636 3px,
+        #8b7355 6px
+    );
+    border-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.left-chain {
+    bottom: -35px;
+    left: 25%;
+    animation: chainSwing 3s ease-in-out infinite;
+}
+
+.right-chain {
+    bottom: -35px;
+    right: 25%;
+    animation: chainSwing 3s ease-in-out infinite 1.5s;
+}
+
+@keyframes chainSwing {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+}
+
+.clock-pendulum {
+    position: relative;
+    width: 60px;
+    height: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pendulum-rod {
+    width: 4px;
+    height: 85px;
+    background: linear-gradient(to bottom, #8b7355, #5a4636, #3a2a1a);
+    border-radius: 2px;
+    transform-origin: top center;
+    animation: pendulumSwing 2s ease-in-out infinite;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.pendulum-weight {
+    width: 45px;
+    height: 45px;
+    background: 
+        radial-gradient(circle at 25% 25%, #ffd700, #d4af37, #b8941e);
+    border-radius: 50%;
+    box-shadow: 
+        0 0 0 2px #8b7355,
+        0 5px 15px rgba(0, 0, 0, 0.4),
+        inset 0 3px 8px rgba(255, 255, 255, 0.4),
+        inset 0 -3px 8px rgba(0, 0, 0, 0.3);
+    margin-top: -5px;
+    animation: pendulumSwing 2s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.weight-shine {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent);
+    border-radius: 50%;
+    animation: shineRotate 4s linear infinite;
+}
+
+@keyframes shineRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pendulumSwing {
+    0%, 100% { transform: rotate(-18deg); }
+    50% { transform: rotate(18deg); }
+}
+
+/* Responsive Clock */
+@media (max-width: 768px) {
+    .clock-frame {
+        width: 220px;
+        height: 220px;
+        padding: 16px;
+    }
+    
+    .clock-ornament {
+        font-size: 1.5rem;
+    }
+    
+    .clock-brand {
+        font-size: 0.7rem;
+    }
+    
+    .clock-number {
+        font-size: 1rem;
+    }
+    
+    .hour-hand {
+        height: 48px;
+    }
+    
+    .minute-hand {
+        height: 62px;
+    }
+    
+    .second-hand {
+        height: 70px;
+    }
+    
+    .clock-pendulum {
+        height: 90px;
+    }
+    
+    .pendulum-rod {
+        height: 55px;
+    }
+    
+    .pendulum-weight {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .clock-chain {
+        height: 30px;
+    }
 }
 
 /* ===== MOCK EXAMS SECTION ANIMATIONS ===== */
@@ -897,101 +1367,403 @@
 .ai-section {
     position: relative;
     overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 5rem 0;
 }
 
-.ai-section .section-title {
-    animation: aiTitlePop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+.ai-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    animation: aiPatternMove 30s linear infinite;
+    z-index: 0;
 }
 
-@keyframes aiTitlePop {
-    0% { opacity: 0; transform: scale(0.8); }
-    60% { transform: scale(1.05); }
-    100% { opacity: 1; transform: scale(1); }
+@keyframes aiPatternMove {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(60px) translateY(60px); }
 }
 
-.ai-feature-card {
-    animation: aiFeatureRise 0.6s ease both;
+.ai-section-content {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.ai-info {
+    color: white;
+}
+
+.ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    animation: aiBadgeFade 0.6s ease both;
+}
+
+.ai-badge-icon {
+    font-size: 1.2rem;
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    50% { transform: scale(1.2) rotate(180deg); opacity: 0.8; }
+}
+
+@keyframes aiBadgeFade {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    animation: aiTitleSlide 0.8s ease 0.2s both;
+}
+
+@keyframes aiTitleSlide {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.ai-description {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    opacity: 0.95;
+    margin-bottom: 2rem;
+    animation: aiDescFade 0.8s ease 0.4s both;
+}
+
+@keyframes aiDescFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.ai-feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    animation: aiFeatureSlide 0.6s ease both;
+}
+
+.ai-features-list .ai-feature-item:nth-child(1) { animation-delay: 0.5s; }
+.ai-features-list .ai-feature-item:nth-child(2) { animation-delay: 0.6s; }
+.ai-features-list .ai-feature-item:nth-child(3) { animation-delay: 0.7s; }
+
+@keyframes aiFeatureSlide {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.ai-feature-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.ai-feature-item:hover .ai-feature-icon {
+    transform: scale(1.1) rotate(5deg);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.ai-feature-text h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.ai-feature-text p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.btn-ai-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: white;
+    color: #667eea;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: aiBtnPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.8s both;
     position: relative;
     overflow: hidden;
 }
 
-.ai-feature-card::before {
+.btn-ai-primary::before {
     content: '';
     position: absolute;
     top: 0;
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
     transition: left 0.5s;
 }
 
-.ai-feature-card:hover::before {
+.btn-ai-primary:hover::before {
     left: 100%;
 }
 
-.ai-features-grid .ai-feature-card:nth-child(1) { animation-delay: 0.1s; }
-.ai-features-grid .ai-feature-card:nth-child(2) { animation-delay: 0.2s; }
-.ai-features-grid .ai-feature-card:nth-child(3) { animation-delay: 0.3s; }
-.ai-features-grid .ai-feature-card:nth-child(4) { animation-delay: 0.4s; }
-
-@keyframes aiFeatureRise {
-    from { opacity: 0; transform: translateY(30px) scale(0.95); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes aiBtnPop {
+    0% { opacity: 0; transform: scale(0.8); }
+    60% { transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
 }
 
-.ai-feature-card:hover {
-    transform: translateY(-10px) scale(1.05);
-    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+.btn-ai-primary:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
 }
 
-.ai-feature-card:hover i {
-    animation: aiIconSpin 0.6s ease;
+.btn-ai-primary i {
+    font-size: 1.3rem;
+    transition: transform 0.3s ease;
 }
 
-@keyframes aiIconSpin {
-    0% { transform: scale(1) rotate(0deg); }
-    50% { transform: scale(1.3) rotate(180deg); }
-    100% { transform: scale(1) rotate(360deg); }
+.btn-ai-primary:hover i {
+    transform: rotate(360deg);
 }
 
-.ai-chat-demo {
-    animation: aiChatFade 0.8s ease 0.5s both;
+.ai-preview {
+    animation: aiPreviewFade 0.8s ease 0.6s both;
 }
 
-@keyframes aiChatFade {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes aiPreviewFade {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.ai-preview-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s ease;
+}
+
+.ai-preview-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 35px 80px rgba(0, 0, 0, 0.4);
+}
+
+.ai-preview-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.ai-preview-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
 }
 
 .ai-status-dot {
+    width: 10px;
+    height: 10px;
+    background: #4ade80;
+    border-radius: 50%;
     animation: statusPulse 2s ease-in-out infinite;
 }
 
 @keyframes statusPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.2); }
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+    50% { opacity: 0.8; transform: scale(1.1); box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
 }
 
-.ai-suggestion-btn {
-    animation: suggestionFade 0.5s ease both;
-    transition: all 0.3s ease;
+.ai-preview-badge {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
-.ai-suggestion-buttons .ai-suggestion-btn:nth-child(1) { animation-delay: 0.6s; }
-.ai-suggestion-buttons .ai-suggestion-btn:nth-child(2) { animation-delay: 0.7s; }
-.ai-suggestion-buttons .ai-suggestion-btn:nth-child(3) { animation-delay: 0.8s; }
-.ai-suggestion-buttons .ai-suggestion-btn:nth-child(4) { animation-delay: 0.9s; }
+.ai-preview-messages {
+    padding: 2rem;
+    min-height: 200px;
+    background: #f8fafc;
+}
 
-@keyframes suggestionFade {
-    from { opacity: 0; transform: translateY(15px); }
+.ai-preview-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    animation: messageFadeIn 0.5s ease both;
+}
+
+@keyframes messageFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.ai-suggestion-btn:hover {
-    transform: translateY(-5px) scale(1.05);
-    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+.ai-preview-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.ai-preview-bubble {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 18px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    max-width: 80%;
+}
+
+.ai-preview-bubble p {
+    margin: 0;
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+.ai-preview-input {
+    padding: 1.5rem;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 1rem;
+}
+
+.ai-preview-input input {
+    flex: 1;
+    padding: 0.875rem 1.25rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+    cursor: pointer;
+}
+
+.ai-preview-input input:focus {
+    border-color: #667eea;
+    background: white;
+}
+
+.ai-preview-input input:disabled {
+    cursor: not-allowed;
+}
+
+.ai-preview-input button {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-preview-input button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.ai-preview-input button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.ai-preview-input button:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Responsive AI Section */
+@media (max-width: 1024px) {
+    .ai-section-content {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    
+    .ai-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .ai-section {
+        padding: 3rem 0;
+    }
+    
+    .ai-title {
+        font-size: 2rem;
+    }
+    
+    .ai-description {
+        font-size: 1rem;
+    }
+    
+    .ai-feature-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .ai-feature-text h4 {
+        font-size: 1rem;
+    }
+    
+    .ai-feature-text p {
+        font-size: 0.85rem;
+    }
 }
 
 /* ===== PARTNERS SECTION ANIMATIONS ===== */
@@ -1328,6 +2100,44 @@ if (heroLoginBtn) {
 
 if (ctaLoginBtn) {
     ctaLoginBtn.addEventListener('click', () => {
+        document.getElementById('loginModal').classList.add('active');
+        // Switch to signup tab
+        document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+        document.querySelector('[data-tab="signup"]').classList.add('active');
+        document.getElementById('signupForm').classList.add('active');
+    });
+}
+
+// AI section buttons for non-authenticated users
+const aiStartBtn = document.getElementById('aiStartBtn');
+const aiPreviewBtn = document.getElementById('aiPreviewBtn');
+const aiPreviewInput = document.getElementById('aiPreviewInput');
+
+if (aiStartBtn) {
+    aiStartBtn.addEventListener('click', () => {
+        document.getElementById('loginModal').classList.add('active');
+        // Switch to signup tab
+        document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+        document.querySelector('[data-tab="signup"]').classList.add('active');
+        document.getElementById('signupForm').classList.add('active');
+    });
+}
+
+if (aiPreviewBtn) {
+    aiPreviewBtn.addEventListener('click', () => {
+        document.getElementById('loginModal').classList.add('active');
+        // Switch to signup tab
+        document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+        document.querySelector('[data-tab="signup"]').classList.add('active');
+        document.getElementById('signupForm').classList.add('active');
+    });
+}
+
+if (aiPreviewInput) {
+    aiPreviewInput.addEventListener('click', () => {
         document.getElementById('loginModal').classList.add('active');
         // Switch to signup tab
         document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
