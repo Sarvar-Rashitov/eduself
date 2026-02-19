@@ -1472,7 +1472,9 @@ def direction_exam_analysis_view(request, pk):
 
 
 def oferta_view(request):
-    """Ommaviy oferta sahifasi"""
+    """Ommaviy oferta sahifasi - Mobile/Desktop detection"""
+    if is_mobile(request):
+        return render(request, 'core/oferta_mobile.html')
     return render(request, 'core/oferta.html')
 
 

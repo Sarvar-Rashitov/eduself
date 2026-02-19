@@ -257,7 +257,10 @@ EduSelf jamoasi''',
     else:
         form = ForgotPasswordForm()
     
-    return render(request, 'accounts/forgot_password.html', {'form': form})
+    # Mobile/Desktop detection
+    if is_mobile(request):
+        return render(request, 'accounts/forgot_password.html', {'form': form})
+    return render(request, 'accounts/forgot_password_desktop.html', {'form': form})
 
 
 def reset_password_view(request, token):

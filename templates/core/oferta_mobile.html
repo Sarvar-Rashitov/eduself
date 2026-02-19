@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ommaviy Oferta - EduSelf{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <div class="text-center mb-3">
+        <i class="bi bi-file-text text-primary" style="font-size: 2.5rem;"></i>
+        <h4 class="mt-2 mb-1">Ommaviy Oferta</h4>
+        <p class="text-muted small">Xizmat ko'rsatish shartlari</p>
+    </div>
+    
+    <div class="oferta-content">
+        <div class="alert alert-info small">
+            <i class="bi bi-info-circle"></i>
+            Ushbu hujjat EduSelf platformasidan foydalanish shartlarini belgilaydi.
+        </div>
+        
+        <div class="oferta-section">
+            <h6><i class="bi bi-1-circle text-primary"></i> Umumiy qoidalar</h6>
+            <p class="small">
+                Ushbu Ommaviy Oferta (keyingi o'rinlarda "Oferta") EduSelf platformasi (keyingi o'rinlarda "Platforma") 
+                tomonidan taqdim etiladigan xizmatlardan foydalanish shartlarini belgilaydi.
+            </p>
+            <p class="small">
+                Platformaga ro'yxatdan o'tish orqali siz ushbu Oferta shartlarini to'liq qabul qilasiz.
+            </p>
+        </div>
+        
+        <div class="oferta-section">
+            <h6><i class="bi bi-2-circle text-primary"></i> Xizmatlar</h6>
+            <p class="small">Platforma quyidagi xizmatlarni taqdim etadi:</p>
+            <ul class="small">
+                <li>Online testlar va imtihonlar</li>
+                <li>Ta'lim materiallari</li>
+                <li>Sertifikatlar</li>
+                <li>AI yordamchi</li>
+                <li>Progress monitoring</li>
+            </ul>
+        </div>
+        
+        <div class="oferta-section">
+            <h6><i class="bi bi-3-circle text-primary"></i> Foydalanuvchi majburiyatlari</h6>
+            <p class="small">Foydalanuvchi quyidagilarga majbur:</p>
+            <ul class="small">
+                <li>To'g'ri ma'lumotlar berish</li>
+                <li>Parolni maxfiy saqlash</li>
+                <li>Platformadan to'g'ri foydalanish</li>
+                <li>Boshqa foydalanuvchilarni hurmat qilish</li>
+                <li>Mualliflik huquqlarini hurmat qilish</li>
+            </ul>
+        </div>
+        
+        <div class="oferta-section">
+            <h6><i class="bi bi-4-circle text-primary"></i> To'lov shartlari</h6>
+            <p class="small">
+                Platformaning asosiy xizmatlari bepul. Premium xizmatlar uchun to'lov talab qilinadi.
+            </p>
+            <p class="small">
+                To'lovlar Click, Payme va boshqa to'lov tizimlari orqali amalga oshiriladi.
+            </p>
+        </div>
+        
+        <div class="oferta-section">
+            <h6><i class="bi bi-5-circle text-primary"></i> Maxfiylik</h6>
+            <p class="small">
+                Sizning shaxsiy ma'lumotlaringiz <a href="{% url 'core:privacy' %}">Maxfiylik Siyosati</a>ga muvofiq 
+                himoya qilinadi.
+            </p>
+        </div>
+        
+        <div class="oferta-section">
+            <h6><i class="bi bi-6-circle text-primary"></i> Mas'uliyat</h6>
+            <p class="small">
+                Platforma test natijalari va ta'lim materiallarining to'g'riligi uchun mas'uliyat oladi, 
+                lekin foydalanuvchining shaxsiy natijalari uchun mas'ul emas.
+            </p>
+        </div>
+        
+        <div class="oferta-section">
+            <h6><i class="bi bi-7-circle text-primary"></i> Shartnoma bekor qilish</h6>
+            <p class="small">
+                Foydalanuvchi istalgan vaqtda hisobini o'chirish orqali shartnomani bekor qilishi mumkin.
+            </p>
+            <p class="small">
+                Platforma Oferta shartlarini buzgan foydalanuvchilarning hisobini bloklash huquqiga ega.
+            </p>
+        </div>
+        
+        <div class="oferta-section">
+            <h6><i class="bi bi-8-circle text-primary"></i> O'zgarishlar</h6>
+            <p class="small">
+                Platforma Oferta shartlarini o'zgartirish huquqiga ega. O'zgarishlar Platformada e'lon qilinadi.
+            </p>
+        </div>
+        
+        <div class="oferta-section">
+            <h6><i class="bi bi-9-circle text-primary"></i> Bog'lanish</h6>
+            <p class="small">Savollar bo'lsa, biz bilan bog'laning:</p>
+            <ul class="small list-unstyled">
+                <li><i class="bi bi-envelope text-primary"></i> info@eduself.uz</li>
+                <li><i class="bi bi-phone text-primary"></i> +998 50 010 43 07</li>
+                <li><i class="bi bi-telegram text-primary"></i> @eduselfuz</li>
+            </ul>
+        </div>
+        
+        <div class="alert alert-success small mt-3">
+            <i class="bi bi-check-circle"></i>
+            Platformadan foydalanish orqali siz ushbu Oferta shartlarini qabul qilasiz.
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="{% url 'core:home' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-house"></i> Bosh sahifa
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.oferta-content {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.oferta-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.oferta-section:last-child {
+    border-bottom: none;
+}
+
+.oferta-section h6 {
+    color: #1e293b;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.oferta-section p {
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.oferta-section ul {
+    margin-left: 1rem;
+    color: #64748b;
+}
+
+.oferta-section ul li {
+    margin-bottom: 0.25rem;
+}
+
+.oferta-section a {
+    color: #6366f1;
+    text-decoration: none;
+}
+
+.oferta-section a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
