@@ -306,8 +306,9 @@ body {
 .auth-modal-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    max-width: 900px;
+    max-width: 1000px;
     width: 95%;
+    height: 620px;
     max-height: 90vh;
     background: var(--white);
     border-radius: 24px;
@@ -470,15 +471,15 @@ body {
 }
 
 .auth-modal-form-container h2 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color: var(--dark-color);
     margin-bottom: 0.25rem;
 }
 
 .auth-modal-form-container > p {
     color: var(--text-color);
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
 }
 
 .auth-form-group {
@@ -495,6 +496,7 @@ body {
 
 .auth-input-icon {
     position: relative;
+    display: block;
 }
 
 .auth-input-icon i:first-child {
@@ -504,15 +506,18 @@ body {
     transform: translateY(-50%);
     color: var(--text-color);
     opacity: 0.5;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .auth-input-icon input {
     width: 100%;
-    padding: 0.85rem 1rem 0.85rem 2.75rem;
+    padding: 0.85rem 3rem 0.85rem 2.75rem;
     border: 2px solid var(--light-color);
     border-radius: 12px;
     font-size: 0.95rem;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .auth-input-icon input:focus {
@@ -523,19 +528,26 @@ body {
 
 .auth-toggle-password {
     position: absolute;
-    right: 1rem;
+    right: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
     color: var(--text-color);
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: pointer;
-    padding: 0;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    width: 36px;
+    height: 36px;
 }
 
 .auth-toggle-password:hover {
     opacity: 1;
+    color: var(--primary-color);
 }
 
 .auth-form-options {
@@ -2216,4 +2228,113 @@ body {
         padding: 20px;
         max-width: 100%;
     }
+}
+
+
+/* Register Type Tabs */
+.register-type-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.register-type-tab,
+.login-type-tab {
+    flex: 1;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid var(--light-color);
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    color: var(--text-color);
+}
+
+.register-type-tab:hover:not(.active),
+.login-type-tab:hover:not(.active) {
+    border-color: var(--primary-color);
+    background: var(--light-color);
+}
+
+.register-type-tab.active,
+.login-type-tab.active {
+    background: var(--gradient);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.register-type-tab i,
+.login-type-tab i {
+    font-size: 0.9rem;
+}
+
+/* Auth form small text */
+.auth-form-group small.text-muted {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+
+/* Modal Phone Input Group */
+.phone-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.phone-input-group .country-select {
+    width: 120px;
+    padding: 0.8rem;
+    border: 2px solid var(--light-color);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: white;
+    cursor: pointer;
+    transition: border 0.3s ease;
+}
+
+.phone-input-group .country-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.phone-input-group .auth-input-icon {
+    flex: 1;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+
+/* Auth Checkbox */
+.auth-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+.auth-checkbox-label input[type="checkbox"] {
+    margin-top: 0.2rem;
+    cursor: pointer;
+}
+
+.auth-checkbox-label a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.auth-checkbox-label a:hover {
+    text-decoration: underline;
 }

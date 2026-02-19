@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SESSION_SECRET', 'django-insecure-dev-key-change-in-production')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['eduself-bqc5.onrender.com', 'eduself.uz', 'www.eduself.uz', '127.0.0.1', 'localhost']
 
@@ -179,8 +179,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eduself.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(default=env("DATABASE_URL"))
-}
+     'default': dj_database_url.config(default=env("DATABASE_URL"))
+    }
 
 
 
@@ -263,6 +263,12 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 AUTH_USER_MODEL = 'accounts.User'
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.EmailPhoneBackend',  # Email yoki telefon bilan login
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+]
 
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'core:home'

@@ -21,7 +21,7 @@
                 <div class="auth-features">
                     <div class="auth-feature">
                         <i class="fas fa-check-circle"></i>
-                        <span>1000+ testlar</span>
+                        <span>2000+ testlar</span>
                     </div>
                     <div class="auth-feature">
                         <i class="fas fa-check-circle"></i>
@@ -40,8 +40,6 @@
         
         <div class="auth-right">
             <div class="auth-form-container">
-                <h2>Tizimga kirish</h2>
-                <p>Hisobingizga kiring</p>
                 
                 {% if messages %}
                 <div class="auth-messages">
@@ -55,11 +53,41 @@
                 
                 <form method="post" action="{% url 'accounts:login' %}" class="auth-form">
                     {% csrf_token %}
-                    <div class="form-group">
-                        <label>Foydalanuvchi nomi</label>
+                    <input type="hidden" name="username" id="login_username_hidden">
+                    
+                    <!-- Login Type Tabs -->
+                    <div class="register-tabs mb-3">
+                        <button type="button" class="tab-btn active" data-type="email">
+                            <i class="fas fa-envelope"></i> Email
+                        </button>
+                        <button type="button" class="tab-btn" data-type="phone">
+                            <i class="fas fa-phone"></i> Telefon
+                        </button>
+                    </div>
+                    
+                    <!-- Email field -->
+                    <div class="form-group" id="login_email_field">
+                        <label>Email</label>
                         <div class="input-icon">
-                            <i class="fas fa-user"></i>
-                            <input type="text" name="username" placeholder="username" required>
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="login_email_input" placeholder="email@example.com" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Phone field -->
+                    <div class="form-group" id="login_phone_field" style="display: none;">
+                        <label>Telefon raqam</label>
+                        <div class="phone-input-group">
+                            <select id="login_country_code" class="country-select">
+                                <option value="+998" data-flag="🇺🇿" selected>UZ +998</option>
+                                <option value="+7" data-flag="KZ">KZ +7</option>
+                                <option value="+996" data-flag="KG">KG +996</option>
+                                <option value="+992" data-flag="TJ">TJ +992</option>
+                            </select>
+                            <div class="input-icon flex-1">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="login_phone_input" placeholder="90 123 45 67">
+                            </div>
                         </div>
                     </div>
                     
@@ -117,6 +145,69 @@
 
 {% block extra_css %}
 <style>
+.register-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid var(--light-color);
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.tab-btn.active {
+    background: var(--gradient);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.tab-btn:hover:not(.active) {
+    border-color: var(--primary-color);
+    background: var(--light-color);
+}
+
+/* Phone Input Group */
+.phone-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.country-select {
+    width: 120px;
+    padding: 0.9rem 0.8rem;
+    border: 2px solid var(--light-color);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: white;
+    cursor: pointer;
+    transition: border 0.3s ease;
+}
+
+.country-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.phone-input-group .input-icon {
+    flex: 1;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
 .auth-section {
     min-height: 100vh;
     display: flex;
@@ -262,6 +353,7 @@
 
 .input-icon {
     position: relative;
+    display: block;
 }
 
 .input-icon i:first-child {
@@ -271,15 +363,18 @@
     transform: translateY(-50%);
     color: var(--text-color);
     opacity: 0.5;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .input-icon input {
     width: 100%;
-    padding: 0.9rem 1rem 0.9rem 2.75rem;
+    padding: 0.9rem 3rem 0.9rem 2.75rem;
     border: 2px solid var(--light-color);
     border-radius: 12px;
     font-size: 1rem;
     transition: border 0.3s ease;
+    position: relative;
 }
 
 .input-icon input:focus {
@@ -289,18 +384,26 @@
 
 .toggle-password {
     position: absolute;
-    right: 1rem;
+    right: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
     color: var(--text-color);
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    width: 36px;
+    height: 36px;
 }
 
 .toggle-password:hover {
     opacity: 1;
+    color: var(--primary-color);
 }
 
 .form-options {
@@ -435,25 +538,85 @@
 
 {% block extra_js %}
 <script>
+// Login Type Tabs
+const loginTypeTabs = document.querySelectorAll('.tab-btn');
+const loginEmailField = document.getElementById('login_email_field');
+const loginPhoneField = document.getElementById('login_phone_field');
+const loginEmailInput = document.getElementById('login_email_input');
+const loginPhoneInput = document.getElementById('login_phone_input');
+
+loginTypeTabs.forEach(tab => {
+    tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        const type = this.dataset.type;
+        
+        loginTypeTabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        if (type === 'phone') {
+            loginEmailField.style.display = 'none';
+            loginPhoneField.style.display = 'block';
+            loginEmailInput.removeAttribute('required');
+            loginPhoneInput.setAttribute('required', 'required');
+        } else {
+            loginEmailField.style.display = 'block';
+            loginPhoneField.style.display = 'none';
+            loginEmailInput.setAttribute('required', 'required');
+            loginPhoneInput.removeAttribute('required');
+        }
+    });
+});
+
+// Login form submission
+document.querySelector('.auth-form').addEventListener('submit', function(e) {
+    const usernameHidden = document.getElementById('login_username_hidden');
+    const emailInput = document.getElementById('login_email_input');
+    const phoneInput = document.getElementById('login_phone_input');
+    const countryCode = document.getElementById('login_country_code');
+    
+    if (loginPhoneField && loginPhoneField.style.display !== 'none') {
+        const phone = phoneInput.value.replace(/\s/g, '');
+        usernameHidden.value = countryCode.value + phone;
+    } else {
+        usernameHidden.value = emailInput.value;
+    }
+});
+
+// Telefon raqamni formatlash
+if (loginPhoneInput) {
+    loginPhoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 9) value = value.substring(0, 9);
+        if (value.length > 2) value = value.substring(0, 2) + ' ' + value.substring(2);
+        if (value.length > 6) value = value.substring(0, 6) + ' ' + value.substring(6);
+        if (value.length > 9) value = value.substring(0, 9) + ' ' + value.substring(9);
+        e.target.value = value;
+    });
+}
+
 // Toggle password visibility
-document.querySelectorAll('.toggle-password').forEach(btn => {
-    btn.addEventListener('click', function(e) {
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.toggle-password')) {
         e.preventDefault();
         e.stopPropagation();
         
-        const input = this.parentElement.querySelector('input');
-        const icon = this.querySelector('i');
+        const button = e.target.closest('.toggle-password');
+        const container = button.closest('.input-icon');
+        const input = container.querySelector('input');
+        const icon = button.querySelector('i');
         
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
+        if (input && icon) {
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
         }
-    });
+    }
 });
 </script>
 

@@ -5,9 +5,19 @@ from datetime import timedelta
 import uuid
 
 class User(AbstractUser):
-    email = models.EmailField(unique=True, blank=True, null=True)
+    # Username ni optional qilamiz - faqat backend uchun
+    username = models.CharField(max_length=150, unique=True, blank=True, null=True)
+    
+    # Email va telefon - unique identifiers
+    email = models.EmailField(unique=True, blank=True, null=True, verbose_name="Email")
+    phone = models.CharField(max_length=20, unique=True, blank=True, null=True, verbose_name="Telefon raqam")
+    
+    # Majburiy maydonlar
+    first_name = models.CharField(max_length=150, verbose_name="Ism")
+    last_name = models.CharField(max_length=150, verbose_name="Familiya")
+    
+    # Qo'shimcha maydonlar
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True, verbose_name="Profil rasmi")
-    phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Telefon")
     bio = models.TextField(blank=True, verbose_name="Bio")
     total_points = models.PositiveIntegerField(default=0, verbose_name="Umumiy ball")
     
@@ -15,11 +25,15 @@ class User(AbstractUser):
     email_verified = models.BooleanField(default=False)
     email_verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
     
+    # Phone verification
+    phone_verified = models.BooleanField(default=False)
+    
     # Social auth
     google_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
     telegram_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    telegram_username = models.CharField(max_length=255, blank=True, null=True, verbose_name="Telegram username")
     telegram_chat_id = models.CharField(max_length=255, blank=True, null=True, verbose_name="Telegram Chat ID")
-    auth_provider = models.CharField(max_length=50, default='email')  # email, google, telegram
+    auth_provider = models.CharField(max_length=50, default='email')  # email, phone, google, telegram
     
     # Certificate file
     certificate_file = models.FileField(upload_to='user_certificates/', blank=True, null=True, verbose_name="Sertifikat fayli")
@@ -27,8 +41,51 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    # Email yoki telefon bilan login qilish uchun
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['first_name', 'last_name']
+    
+    def save(self, *args, **kwargs):
+        # Agar username bo'lmasa, email yoki telefon dan yaratamiz
+        if not self.username:
+            if self.email:
+                base_username = self.email.split('@')[0]
+            elif self.phone:
+                base_username = f"user_{self.phone[-6:]}"
+            elif self.telegram_id:
+                base_username = f"tg_{self.telegram_id}"
+            else:
+                base_username = f"user_{uuid.uuid4().hex[:8]}"
+            
+            # Unique username yaratish
+            username = base_username
+            counter = 1
+            # Exclude current instance from uniqueness check
+            qs = User.objects.filter(username=username)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            while qs.exists():
+                username = f"{base_username}{counter}"
+                counter += 1
+                qs = User.objects.filter(username=username)
+                if self.pk:
+                    qs = qs.exclude(pk=self.pk)
+            self.username = username
+        
+        super().save(*args, **kwargs)
+    
     def __str__(self):
-        return self.username
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.username or self.email or self.phone or str(self.id)
+    
+    def get_display_name(self):
+        """Foydalanuvchi nomini ko'rsatish"""
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        elif self.first_name:
+            return self.first_name
+        return self.username or self.email or self.phone
     
     def get_progress_percentage(self):
         from core.models import TopicResult, CertificateResult, MockExamResult

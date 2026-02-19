@@ -306,8 +306,9 @@ body {
 .auth-modal-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    max-width: 900px;
+    max-width: 1000px;
     width: 95%;
+    height: 620px;
     max-height: 90vh;
     background: var(--white);
     border-radius: 24px;
@@ -2216,4 +2217,108 @@ body {
         padding: 20px;
         max-width: 100%;
     }
+}
+
+
+/* Register Type Tabs */
+.register-type-tabs {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.register-type-tab {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid var(--light-color);
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--text-color);
+}
+
+.register-type-tab:hover {
+    border-color: var(--primary-color);
+    background: var(--light-color);
+}
+
+.register-type-tab.active {
+    background: var(--gradient);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.register-type-tab i {
+    font-size: 1rem;
+}
+
+/* Auth form small text */
+.auth-form-group small.text-muted {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+
+/* Modal Phone Input Group */
+.phone-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.phone-input-group .country-select {
+    width: 120px;
+    padding: 0.8rem;
+    border: 2px solid var(--light-color);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: white;
+    cursor: pointer;
+    transition: border 0.3s ease;
+}
+
+.phone-input-group .country-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.phone-input-group .auth-input-icon {
+    flex: 1;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+
+/* Auth Checkbox */
+.auth-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+.auth-checkbox-label input[type="checkbox"] {
+    margin-top: 0.2rem;
+    cursor: pointer;
+}
+
+.auth-checkbox-label a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.auth-checkbox-label a:hover {
+    text-decoration: underline;
 }

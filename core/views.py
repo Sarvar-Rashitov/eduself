@@ -1468,3 +1468,18 @@ def direction_exam_analysis_view(request, pk):
         return render(request, 'core/direction_exam_analysis.html', context)
     else:
         return render(request, 'core/direction_exam_analysis_desktop.html', context)
+
+
+
+def oferta_view(request):
+    """Ommaviy oferta sahifasi"""
+    return render(request, 'core/oferta.html')
+
+
+def privacy_view(request):
+    """Maxfiylik siyosati sahifasi"""
+    from datetime import datetime
+    context = {
+        'current_date': datetime.now().strftime('%d %B %Y')
+    }
+    return render(request, 'core/privacy.html', context)

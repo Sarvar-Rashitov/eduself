@@ -1,0 +1,338 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}Maxfiylik Siyosati - EduSelf{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">Maxfiylik Siyosati</h1>
+        <p class="page-subtitle">Shaxsiy ma'lumotlaringiz xavfsizligi bizning ustuvor vazifamiz</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="content-wrapper" style="max-width: 900px; margin: 0 auto;">
+            <div class="legal-content">
+                <p class="intro-text">
+                    EduSelf platformasi foydalanuvchilarining shaxsiy ma'lumotlarini himoya qilishga alohida e'tibor beradi. 
+                    Ushbu Maxfiylik Siyosati sizning ma'lumotlaringiz qanday to'planishi, ishlatilishi va himoya qilinishi haqida ma'lumot beradi.
+                </p>
+
+                <div class="legal-section">
+                    <h2><i class="fas fa-database"></i> 1. To'planadigan Ma'lumotlar</h2>
+                    <p>Biz quyidagi ma'lumotlarni to'playmiz:</p>
+                    <ul>
+                        <li><strong>Shaxsiy ma'lumotlar:</strong> Ism, familiya, email manzil yoki telefon raqam</li>
+                        <li><strong>Profil ma'lumotlari:</strong> Profil rasmi, tug'ilgan sana, jinsi</li>
+                        <li><strong>Ta'lim ma'lumotlari:</strong> Test natijalari, o'quv yutuqlari, sertifikatlar</li>
+                        <li><strong>Texnik ma'lumotlar:</strong> IP manzil, brauzer turi, qurilma ma'lumotlari</li>
+                        <li><strong>Foydalanish ma'lumotlari:</strong> Platformadan foydalanish statistikasi</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2><i class="fas fa-bullseye"></i> 2. Ma'lumotlardan Foydalanish Maqsadlari</h2>
+                    <p>Sizning ma'lumotlaringiz quyidagi maqsadlarda ishlatiladi:</p>
+                    <ul>
+                        <li>Hisobingizni yaratish va boshqarish</li>
+                        <li>Ta'lim xizmatlarini taqdim etish</li>
+                        <li>Test natijalari va yutuqlarni saqlash</li>
+                        <li>Sertifikatlar berish</li>
+                        <li>Platformani yaxshilash va yangi xizmatlar taqdim etish</li>
+                        <li>Xavfsizlikni ta'minlash va firibgarlikni oldini olish</li>
+                        <li>Qonuniy talablarga rioya qilish</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2><i class="fas fa-share-alt"></i> 3. Ma'lumotlarni Ulashish</h2>
+                    <p>Biz sizning ma'lumotlaringizni quyidagi hollarda ulashishimiz mumkin:</p>
+                    <ul>
+                        <li><strong>Ta'lim muassasalari:</strong> Siz tanlagan ta'lim muassasalari bilan test natijalaringiz</li>
+                        <li><strong>Xizmat ko'rsatuvchilar:</strong> Texnik xizmatlar uchun ishonchli hamkorlar bilan</li>
+                        <li><strong>Qonuniy talablar:</strong> Sud qarorlari yoki qonun talablariga binoan</li>
+                        <li><strong>Sizning roziligingiz bilan:</strong> Boshqa hollarda faqat sizning roziligingiz bilan</li>
+                    </ul>
+                    <p class="note">
+                        <i class="fas fa-info-circle"></i>
+                        Biz sizning ma'lumotlaringizni hech qachon uchinchi shaxslarga sotmaymiz.
+                    </p>
+                </div>
+
+                <div class="legal-section">
+                    <h2><i class="fas fa-shield-alt"></i> 4. Ma'lumotlar Xavfsizligi</h2>
+                    <p>Sizning ma'lumotlaringizni himoya qilish uchun quyidagi choralarni ko'ramiz:</p>
+                    <ul>
+                        <li>SSL/TLS shifrlash texnologiyasi</li>
+                        <li>Xavfsiz serverlar va ma'lumotlar bazalari</li>
+                        <li>Muntazam xavfsizlik tekshiruvlari</li>
+                        <li>Cheklangan kirish huquqlari</li>
+                        <li>Parollarni shifrlangan holda saqlash</li>
+                        <li>Ikki faktorli autentifikatsiya (2FA)</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2><i class="fas fa-user-check"></i> 5. Sizning Huquqlaringiz</h2>
+                    <p>Siz quyidagi huquqlarga egasiz:</p>
+                    <ul>
+                        <li><strong>Kirish huquqi:</strong> O'z ma'lumotlaringizni ko'rish</li>
+                        <li><strong>Tuzatish huquqi:</strong> Noto'g'ri ma'lumotlarni tuzatish</li>
+                        <li><strong>O'chirish huquqi:</strong> Hisobingizni va ma'lumotlaringizni o'chirish</li>
+                        <li><strong>Cheklash huquqi:</strong> Ma'lumotlar ishlatilishini cheklash</li>
+                        <li><strong>Ko'chirish huquqi:</strong> Ma'lumotlaringizni boshqa platformaga ko'chirish</li>
+                        <li><strong>E'tiroz bildirish huquqi:</strong> Ma'lumotlar ishlatilishiga qarshi chiqish</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2><i class="fas fa-cookie-bite"></i> 6. Cookie va Kuzatuv Texnologiyalari</h2>
+                    <p>Biz quyidagi texnologiyalardan foydalanamiz:</p>
+                    <ul>
+                        <li><strong>Zaruriy cookie:</strong> Platformaning ishlashi uchun</li>
+                        <li><strong>Funksional cookie:</strong> Sizning sozlamalaringizni eslab qolish uchun</li>
+                        <li><strong>Analitik cookie:</strong> Platformadan foydalanishni tahlil qilish uchun</li>
+                        <li><strong>Marketing cookie:</strong> Moslashtirilgan reklama uchun (faqat rozilik bilan)</li>
+                    </ul>
+                    <p>Siz brauzer sozlamalarida cookie-larni boshqarishingiz mumkin.</p>
+                </div>
+
+                <div class="legal-section">
+                    <h2><i class="fas fa-child"></i> 7. Bolalar Maxfiyligi</h2>
+                    <p>
+                        Platformamiz 13 yoshdan kichik bolalar uchun mo'ljallanmagan. Agar siz 13 yoshdan kichik bo'lsangiz, 
+                        ota-onangiz yoki vasiyingiz roziligi bilan ro'yxatdan o'ting.
+                    </p>
+                    <p>
+                        Agar biz 13 yoshdan kichik boladan ongsiz ravishda ma'lumot to'plaganimizni bilsak, 
+                        darhol o'chirib tashlaymiz.
+                    </p>
+                </div>
+
+                <div class="legal-section">
+                    <h2><i class="fas fa-clock"></i> 8. Ma'lumotlarni Saqlash Muddati</h2>
+                    <p>Biz sizning ma'lumotlaringizni quyidagi muddatlarda saqlaymiz:</p>
+                    <ul>
+                        <li><strong>Faol hisoblar:</strong> Hisob faol bo'lgan vaqt davomida</li>
+                        <li><strong>O'chirilgan hisoblar:</strong> O'chirilgandan keyin 30 kun ichida</li>
+                        <li><strong>Test natijalari:</strong> 5 yil davomida (sertifikatlar uchun)</li>
+                        <li><strong>Qonuniy talablar:</strong> Qonun talab qilgan muddatda</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2><i class="fas fa-globe"></i> 9. Xalqaro Ma'lumot O'tkazish</h2>
+                    <p>
+                        Sizning ma'lumotlaringiz O'zbekiston Respublikasida joylashgan serverlarda saqlanadi. 
+                        Ba'zi hollarda, xizmat ko'rsatuvchilar orqali ma'lumotlar boshqa mamlakatlarga o'tkazilishi mumkin. 
+                        Bunday hollarda biz ma'lumotlar xavfsizligini ta'minlaymiz.
+                    </p>
+                </div>
+
+                <div class="legal-section">
+                    <h2><i class="fas fa-edit"></i> 10. Siyosatdagi O'zgarishlar</h2>
+                    <p>
+                        Biz ushbu Maxfiylik Siyosatini vaqti-vaqti bilan yangilashimiz mumkin. 
+                        Muhim o'zgarishlar bo'lganda sizga email orqali xabar beramiz.
+                    </p>
+                    <p>
+                        Oxirgi yangilanish sanasi: <strong>{{ current_date|default:"19 Fevral 2026" }}</strong>
+                    </p>
+                </div>
+
+                <div class="legal-section contact-section">
+                    <h2><i class="fas fa-envelope"></i> 11. Biz Bilan Bog'lanish</h2>
+                    <p>Maxfiylik bilan bog'liq savollaringiz bo'lsa, biz bilan bog'laning:</p>
+                    <div class="contact-info">
+                        <p><i class="fas fa-envelope"></i> <strong>Email:</strong> privacy@eduself.uz</p>
+                        <p><i class="fas fa-phone"></i> <strong>Telefon:</strong> +998 50 010 43 07</p>
+                        <p><i class="fas fa-map-marker-alt"></i> <strong>Manzil:</strong> Toshkent, O'zbekiston</p>
+                        <p><i class="fab fa-telegram"></i> <strong>Telegram:</strong> @eduselfuz</p>
+                    </div>
+                </div>
+
+                <div class="legal-footer">
+                    <p>
+                        <i class="fas fa-check-circle"></i>
+                        Platformamizdan foydalanish orqali siz ushbu Maxfiylik Siyosatiga rozilik bildirasiz.
+                    </p>
+                    <div class="action-buttons">
+                        <a href="{% url 'core:oferta' %}" class="btn btn-outline">
+                            <i class="fas fa-file-contract"></i> Ommaviy Oferta
+                        </a>
+                        <a href="{% url 'core:home' %}" class="btn btn-primary">
+                            <i class="fas fa-home"></i> Bosh Sahifa
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.legal-content {
+    background: var(--white);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+.intro-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--light-color);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.legal-section {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--light-color);
+}
+
+.legal-section:last-child {
+    border-bottom: none;
+}
+
+.legal-section h2 {
+    color: var(--dark-color);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.legal-section h2 i {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+}
+
+.legal-section p {
+    line-height: 1.8;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.legal-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.legal-section ul li {
+    padding: 0.75rem 0;
+    padding-left: 2rem;
+    position: relative;
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+.legal-section ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--success-color);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.legal-section ul li strong {
+    color: var(--dark-color);
+}
+
+.note {
+    background: #dbeafe;
+    border-left: 4px solid #3b82f6;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.note i {
+    color: #3b82f6;
+    margin-right: 0.5rem;
+}
+
+.contact-section {
+    background: var(--light-color);
+    padding: 2rem;
+    border-radius: 12px;
+}
+
+.contact-info {
+    margin-top: 1rem;
+}
+
+.contact-info p {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.contact-info i {
+    color: var(--primary-color);
+    width: 20px;
+}
+
+.legal-footer {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--light-color);
+    text-align: center;
+}
+
+.legal-footer p {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.legal-footer i {
+    color: var(--success-color);
+    margin-right: 0.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    padding: 0.75rem 2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .legal-content {
+        padding: 1.5rem;
+    }
+    
+    .legal-section h2 {
+        font-size: 1.25rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

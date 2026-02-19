@@ -3,12 +3,13 @@
 {% block title %}Kirish - EduSelf{% endblock %}
 
 {% block content %}
-<div class="auth-container" style="padding: 15px;">
-    <div class="text-center mb-3">
-        <i class="bi bi-mortarboard-fill text-primary" style="font-size: 2rem;"></i>
-    </div>
-    <h5 class="auth-title" style="font-size: 1.1rem;">Xush kelibsiz!</h5>
-    <p class="auth-subtitle" style="font-size: 0.8rem;">Hisobingizga kiring</p>
+<div class="auth-page">
+    <div class="auth-container-mobile">
+        <div class="text-center mb-3">
+            <i class="bi bi-mortarboard-fill text-primary" style="font-size: 2.5rem;"></i>
+        </div>
+        <h5 class="auth-title">Xush kelibsiz!</h5>
+        <p class="auth-subtitle">Hisobingizga kiring</p>
     
     <!-- Social Login -->
     {% if google_client_id %}
@@ -43,32 +44,49 @@
     </div>
     {% endif %}
     
-    <form method="post">
+    <!-- Login Type Tabs -->
+    <div class="login-tabs mb-3">
+        <button type="button" class="tab-btn active" data-type="email">
+            <i class="bi bi-envelope"></i> Email
+        </button>
+        <button type="button" class="tab-btn" data-type="phone">
+            <i class="bi bi-telephone"></i> Telefon
+        </button>
+    </div>
+    
+    <form method="post" id="loginForm">
         {% csrf_token %}
+        <input type="hidden" name="username" id="login_username_hidden">
         
-        <div class="mb-2">
-            <label class="form-label small">{{ form.username.label }}</label>
-            {{ form.username }}
-            {% if form.username.errors %}
-            <div class="text-danger" style="font-size: 0.7rem;">
-                <i class="bi bi-exclamation-circle"></i> {{ form.username.errors.0 }}
+        <!-- Email field -->
+        <div class="mb-2" id="login_email_field">
+            <label class="form-label small">Email</label>
+            <input type="email" id="login_email_input" class="form-control" placeholder="email@example.com" required>
+        </div>
+        
+        <!-- Phone field -->
+        <div class="mb-2" id="login_phone_field" style="display: none;">
+            <label class="form-label small">Telefon raqam</label>
+            <div class="phone-input-group-mobile">
+                <select id="login_country_code" class="country-select-mobile">
+                    <option value="+998" selected>🇺🇿 +998</option>
+                    <option value="+7">🇷🇺 +7</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+90">🇹🇷 +90</option>
+                </select>
+                <input type="tel" id="login_phone_input" class="form-control flex-1" placeholder="90 123 45 67">
             </div>
-            {% endif %}
         </div>
         
         <div class="mb-2">
-            <label class="form-label small">{{ form.password.label }}</label>
+            <label class="form-label small">Parol</label>
             <div class="input-group input-group-sm">
-                {{ form.password }}
+                <input type="password" name="password" id="id_password" class="form-control" placeholder="••••••••" required>
                 <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('id_password', this)">
                     <i class="bi bi-eye"></i>
                 </button>
             </div>
-            {% if form.password.errors %}
-            <div class="text-danger" style="font-size: 0.7rem;">
-                <i class="bi bi-exclamation-circle"></i> {{ form.password.errors.0 }}
-            </div>
-            {% endif %}
         </div>
         
         {% if form.non_field_errors %}
@@ -82,7 +100,13 @@
         </div>
         {% endif %}
         
-        <div class="text-end mb-2">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                <label class="form-check-label small" for="remember">
+                    Eslab qol
+                </label>
+            </div>
             <a href="{% url 'accounts:forgot_password' %}" class="text-decoration-none" style="font-size: 0.75rem;">Parolni unutdingizmi?</a>
         </div>
         
@@ -95,6 +119,62 @@
 </div>
 
 <script>
+// Login Type Tabs
+const loginTypeTabs = document.querySelectorAll('.tab-btn');
+const loginEmailField = document.getElementById('login_email_field');
+const loginPhoneField = document.getElementById('login_phone_field');
+const loginEmailInput = document.getElementById('login_email_input');
+const loginPhoneInput = document.getElementById('login_phone_input');
+
+loginTypeTabs.forEach(tab => {
+    tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        const type = this.dataset.type;
+        
+        loginTypeTabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        if (type === 'phone') {
+            loginEmailField.style.display = 'none';
+            loginPhoneField.style.display = 'block';
+            loginEmailInput.removeAttribute('required');
+            loginPhoneInput.setAttribute('required', 'required');
+        } else {
+            loginEmailField.style.display = 'block';
+            loginPhoneField.style.display = 'none';
+            loginEmailInput.setAttribute('required', 'required');
+            loginPhoneInput.removeAttribute('required');
+        }
+    });
+});
+
+// Login form submission
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const usernameHidden = document.getElementById('login_username_hidden');
+    const emailInput = document.getElementById('login_email_input');
+    const phoneInput = document.getElementById('login_phone_input');
+    const countryCode = document.getElementById('login_country_code');
+    
+    if (loginPhoneField && loginPhoneField.style.display !== 'none') {
+        const phone = phoneInput.value.replace(/\s/g, '');
+        usernameHidden.value = countryCode.value + phone;
+    } else {
+        usernameHidden.value = emailInput.value;
+    }
+});
+
+// Telefon raqamni formatlash
+if (loginPhoneInput) {
+    loginPhoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 9) value = value.substring(0, 9);
+        if (value.length > 2) value = value.substring(0, 2) + ' ' + value.substring(2);
+        if (value.length > 6) value = value.substring(0, 6) + ' ' + value.substring(6);
+        if (value.length > 9) value = value.substring(0, 9) + ' ' + value.substring(9);
+        e.target.value = value;
+    });
+}
+
 function togglePassword(inputId, btn) {
     const input = document.getElementById(inputId);
     const icon = btn.querySelector('i');
@@ -152,6 +232,117 @@ function handleGoogleCredential(response) {
 {% endif %}
 
 <style>
+/* Auth Page - Full Screen */
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 0;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.auth-container-mobile {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    width: 90%;
+    max-width: 400px;
+    margin: 1rem auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.auth-subtitle {
+    font-size: 0.95rem;
+    color: #64748b;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.auth-footer a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 8px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.tab-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.tab-btn:hover:not(.active) {
+    border-color: var(--primary-color);
+}
+
+/* Phone Input Mobile */
+.phone-input-group-mobile {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.country-select-mobile {
+    width: 90px;
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    background: white;
+}
+
+.phone-input-group-mobile .form-control {
+    flex: 1;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
 .social-login {
     display: flex;
     flex-direction: column;
