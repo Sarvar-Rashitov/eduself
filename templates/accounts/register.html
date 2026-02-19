@@ -3,13 +3,12 @@
 {% block title %}Ro'yxatdan o'tish - EduSelf{% endblock %}
 
 {% block content %}
-<div class="auth-page">
-    <div class="auth-container-mobile">
-        <div class="text-center mb-3">
-            <i class="bi bi-mortarboard-fill text-primary" style="font-size: 2.5rem;"></i>
-        </div>
-        <h5 class="auth-title">Ro'yxatdan o'ting</h5>
-        <p class="auth-subtitle">EduSelf ga qo'shiling</p>
+<div class="auth-container">
+    <div class="text-center mb-3">
+        <i class="bi bi-mortarboard-fill text-primary" style="font-size: 2rem;"></i>
+    </div>
+    <h5 class="auth-title" style="font-size: 1.1rem;">Ro'yxatdan o'ting</h5>
+    <p class="auth-subtitle" style="font-size: 0.8rem;">EduSelf ga qo'shiling</p>
     
     <!-- Social Login -->
     {% if google_client_id %}
@@ -212,68 +211,6 @@ function handleGoogleCredential(response) {
 {% endif %}
 
 <style>
-/* Auth Page - Full Screen */
-.auth-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-    padding: 0;
-    margin: 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.auth-container-mobile {
-    background: white;
-    border-radius: 20px;
-    padding: 2rem 1.5rem;
-    width: 90%;
-    max-width: 400px;
-    margin: 1rem auto;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
-.auth-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 0.5rem;
-    text-align: center;
-}
-
-.auth-subtitle {
-    font-size: 0.95rem;
-    color: #64748b;
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-.auth-footer {
-    text-align: center;
-    margin-top: 1.5rem;
-    font-size: 0.9rem;
-    color: #64748b;
-}
-
-.auth-footer a {
-    color: #10b981;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.auth-container {
-    max-height: 100vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
 .register-tabs {
     display: flex;
     gap: 8px;
