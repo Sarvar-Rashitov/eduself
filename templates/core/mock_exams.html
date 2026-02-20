@@ -161,9 +161,10 @@
     justify-content: center;
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
     transition: all 0.3s ease;
-    animation: pulse 2s infinite;
+    animation: searchPulse 2s infinite;
     flex-shrink: 0;
     margin-left: 8px;
+    z-index: 10;
 }
 
 .search-icon-btn:hover {
@@ -187,10 +188,10 @@
     background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
     opacity: 0;
     z-index: -1;
-    animation: glow 2s infinite;
+    animation: searchGlow 2s infinite;
 }
 
-@keyframes pulse {
+@keyframes searchPulse {
     0%, 100% {
         transform: scale(1);
     }
@@ -199,7 +200,7 @@
     }
 }
 
-@keyframes glow {
+@keyframes searchGlow {
     0%, 100% {
         opacity: 0;
         transform: scale(1);
