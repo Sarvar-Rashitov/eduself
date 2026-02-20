@@ -48,12 +48,23 @@
 {% if topics %}
     {% for topic in topics %}
     <div class="topic-card {% if not topic.questions.count %}disabled{% endif %}">
-        <div class="topic-icon">
+        <div class="topic-icon" style="width: 40px; height: 40px; font-size: 1.1rem;">
             <i class="bi bi-bookmark"></i>
         </div>
         <div class="topic-info">
-            <div class="topic-name">{{ topic.name }}</div>
-            <div class="topic-meta">{{ topic.questions.count }} savol</div>
+            <div class="topic-name" style="font-size: 0.95rem;">{{ topic.name }}</div>
+            <div class="topic-meta" style="display: flex; gap: 8px; align-items: center; font-size: 0.7rem;">
+                <span style="display: flex; align-items: center; gap: 3px; color: #6366f1;">
+                    <i class="bi bi-question-circle" style="font-size: 0.75rem;"></i>
+                    {{ topic.questions.count }}
+                </span>
+                {% if topic.time_limit %}
+                <span style="display: flex; align-items: center; gap: 3px; color: #3b82f6;">
+                    <i class="bi bi-clock" style="font-size: 0.75rem;"></i>
+                    {{ topic.time_limit }}d
+                </span>
+                {% endif %}
+            </div>
         </div>
         {% if topic.questions.count %}
             {% if user.is_authenticated %}

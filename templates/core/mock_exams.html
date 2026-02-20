@@ -70,18 +70,27 @@
         <div class="card-body">
             <div class="d-flex align-items-center">
                 {% if exam.image %}
-                <img src="{{ exam.image.url }}" alt="{{ exam.title }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                <img src="{{ exam.image.url }}" alt="{{ exam.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
                 {% else %}
-                <div class="subject-icon me-3" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">
+                <div class="subject-icon me-2" style="width: 40px; height: 40px; font-size: 1.1rem; background: linear-gradient(135deg, #F59E0B, #FBBF24);">
                     <i class="bi bi-clipboard-check"></i>
                 </div>
                 {% endif %}
                 <div class="flex-grow-1">
-                    <h5 class="mb-1">{{ exam.title }}</h5>
-                    <p class="text-muted small mb-2">{{ exam.mock_questions.count }} savol | {{ exam.time_limit }} daqiqa</p>
+                    <h5 class="mb-1" style="font-size: 0.95rem;">{{ exam.title }}</h5>
+                    <div class="text-muted small mb-0" style="display: flex; gap: 8px; align-items: center; font-size: 0.7rem;">
+                        <span style="display: flex; align-items: center; gap: 3px; color: #f59e0b;">
+                            <i class="bi bi-question-circle" style="font-size: 0.75rem;"></i>
+                            {{ exam.mock_questions.count }}
+                        </span>
+                        <span style="display: flex; align-items: center; gap: 3px; color: #3b82f6;">
+                            <i class="bi bi-clock" style="font-size: 0.75rem;"></i>
+                            {{ exam.time_limit }}d
+                        </span>
+                    </div>
                     {% if exam.id in user_results %}
-                    <span class="badge {% if user_results|get_item:exam.id|get_item:'passed' %}badge-success{% else %}badge-danger{% endif %}">
-                        Oxirgi natija: {{ user_results|get_item:exam.id|get_item:'score' }}%
+                    <span class="badge {% if user_results|get_item:exam.id|get_item:'passed' %}badge-success{% else %}badge-danger{% endif %}" style="font-size: 0.65rem; padding: 2px 6px; margin-top: 4px;">
+                        {{ user_results|get_item:exam.id|get_item:'score' }}%
                     </span>
                     {% endif %}
                 </div>
@@ -96,7 +105,7 @@
                 {% endif %}
             </div>
             {% if exam.description %}
-            <p class="text-muted small mt-3 mb-0">{{ exam.description | safe }}</p>
+            <p class="text-muted small mt-2 mb-0" style="font-size: 0.75rem;">{{ exam.description | safe }}</p>
             {% endif %}
         </div>
     </div>

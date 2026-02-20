@@ -23,7 +23,7 @@
 {% if tests %}
     {% for test in tests %}
     <div class="test-card {% if not test.is_unlocked %}locked{% endif %}">
-        <div class="test-icon" style="background: {% if test.is_unlocked %}linear-gradient(135deg, #10B981, #34D399){% else %}#6c757d{% endif %};">
+        <div class="test-icon" style="width: 40px; height: 40px; font-size: 1.1rem; background: {% if test.is_unlocked %}linear-gradient(135deg, #10B981, #34D399){% else %}#6c757d{% endif %};">
             {% if test.is_unlocked %}
                 <i class="bi bi-file-text"></i>
             {% else %}
@@ -31,21 +31,30 @@
             {% endif %}
         </div>
         <div class="test-info flex-grow-1">
-            <div class="test-name">
+            <div class="test-name" style="font-size: 0.95rem;">
                 {{ test.title }}
                 {% if not test.is_unlocked %}
-                    <i class="bi bi-lock-fill text-muted ms-2"></i>
+                    <i class="bi bi-lock-fill text-muted ms-2" style="font-size: 0.8rem;"></i>
                 {% endif %}
             </div>
-            <div class="test-meta">{{ test.cert_questions.count }} savol | {{ test.time_limit }} daqiqa</div>
+            <div class="test-meta" style="display: flex; gap: 8px; align-items: center; font-size: 0.7rem;">
+                <span style="display: flex; align-items: center; gap: 3px; color: #10b981;">
+                    <i class="bi bi-question-circle" style="font-size: 0.75rem;"></i>
+                    {{ test.cert_questions.count }}
+                </span>
+                <span style="display: flex; align-items: center; gap: 3px; color: #3b82f6;">
+                    <i class="bi bi-clock" style="font-size: 0.75rem;"></i>
+                    {{ test.time_limit }}d
+                </span>
+            </div>
             {% if not test.is_unlocked %}
                 <div class="mt-1">
-                    <small class="text-muted">Ochish uchun: {{ test.unlock_score }}% ball kerak</small>
+                    <small class="text-muted" style="font-size: 0.65rem;">Ochish: {{ test.unlock_score }}%</small>
                 </div>
             {% endif %}
             {% if test.id in user_results %}
-            <div class="mt-2">
-                <span class="badge {% if user_results|get_item:test.id|get_item:'passed' %}badge-success{% else %}badge-danger{% endif %}">
+            <div class="mt-1">
+                <span class="badge {% if user_results|get_item:test.id|get_item:'passed' %}badge-success{% else %}badge-danger{% endif %}" style="font-size: 0.65rem; padding: 2px 6px;">
                     {{ user_results|get_item:test.id|get_item:'score' }}%
                 </span>
             </div>
