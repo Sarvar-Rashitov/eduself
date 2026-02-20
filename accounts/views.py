@@ -673,11 +673,106 @@ def profile_view(request):
         higher_users_count = User.objects.filter(total_points__gt=request.user.total_points).count()
         user_position = higher_users_count + 1
     
+    # Haftalik va oylik faollik
+    from django.utils import timezone
+    from datetime import timedelta
+    import json
+    from core.models import LessonProgress
+    
+    now = timezone.now()
+    today = now.date()
+    
+    # Haftalik faollik (oxirgi 7 kun)
+    weekly_activity = []
+    day_names = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya']
+    
+    for i in range(7):
+        day_date = today - timedelta(days=6-i)
+        day_start = timezone.make_aware(timezone.datetime.combine(day_date, timezone.datetime.min.time()))
+        day_end = timezone.make_aware(timezone.datetime.combine(day_date, timezone.datetime.max.time()))
+        
+        # Shu kundagi testlar soni
+        day_activity = TopicResult.objects.filter(
+            user=request.user, 
+            completed_at__gte=day_start, 
+            completed_at__lte=day_end
+        ).count()
+        day_activity += CertificateResult.objects.filter(
+            user=request.user, 
+            completed_at__gte=day_start, 
+            completed_at__lte=day_end
+        ).count()
+        day_activity += MockExamResult.objects.filter(
+            user=request.user, 
+            completed_at__gte=day_start, 
+            completed_at__lte=day_end
+        ).count()
+        
+        # Shu kundagi ko'rilgan darslar soni
+        day_activity += LessonProgress.objects.filter(
+            user=request.user,
+            completed=True,
+            completed_at__gte=day_start,
+            completed_at__lte=day_end
+        ).count()
+        
+        weekly_activity.append({
+            'date': day_date.isoformat(),
+            'day_name': day_names[day_date.weekday()],
+            'activity': day_activity,
+            'is_today': day_date == today,
+            'is_future': day_date > today
+        })
+    
+    # Oylik faollik (oxirgi 30 kun)
+    monthly_activity = []
+    month_names = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek']
+    
+    for i in range(30):
+        day_date = today - timedelta(days=29-i)
+        day_start = timezone.make_aware(timezone.datetime.combine(day_date, timezone.datetime.min.time()))
+        day_end = timezone.make_aware(timezone.datetime.combine(day_date, timezone.datetime.max.time()))
+        
+        # Shu kundagi testlar soni
+        day_activity = TopicResult.objects.filter(
+            user=request.user, 
+            completed_at__gte=day_start, 
+            completed_at__lte=day_end
+        ).count()
+        day_activity += CertificateResult.objects.filter(
+            user=request.user, 
+            completed_at__gte=day_start, 
+            completed_at__lte=day_end
+        ).count()
+        day_activity += MockExamResult.objects.filter(
+            user=request.user, 
+            completed_at__gte=day_start, 
+            completed_at__lte=day_end
+        ).count()
+        
+        # Shu kundagi ko'rilgan darslar soni
+        day_activity += LessonProgress.objects.filter(
+            user=request.user,
+            completed=True,
+            completed_at__gte=day_start,
+            completed_at__lte=day_end
+        ).count()
+        
+        monthly_activity.append({
+            'date': day_date.isoformat(),
+            'day': day_date.day,
+            'month': month_names[day_date.month - 1],
+            'activity': day_activity,
+            'is_today': day_date == today
+        })
+    
     context = {
         'form': form,
         'subjects_progress': subjects_progress,
         'user_stats': user_stats,
         'user_position': user_position,
+        'weekly_activity': json.dumps(weekly_activity),
+        'monthly_activity': json.dumps(monthly_activity),
     }
     
     if is_mobile(request):

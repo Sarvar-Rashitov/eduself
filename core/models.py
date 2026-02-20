@@ -634,6 +634,8 @@ class News(models.Model):
     content = models.TextField(verbose_name="To'liq mazmuni")
     image = models.ImageField(upload_to='news/', verbose_name="Asosiy rasm")
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Muallif")
+    external_link = models.URLField(max_length=500, blank=True, null=True, verbose_name="Tashqi havola", help_text="Yangilik uchun qo'shimcha havola (masalan: telegram kanal, website)")
+    external_link_text = models.CharField(max_length=100, blank=True, null=True, verbose_name="Havola matni", help_text="Havola tugmasida ko'rsatiladigan matn")
     views_count = models.PositiveIntegerField(default=0, verbose_name="Ko'rishlar soni")
     is_featured = models.BooleanField(default=False, verbose_name="Asosiy yangilik")
     is_published = models.BooleanField(default=True, verbose_name="Nashr qilingan")

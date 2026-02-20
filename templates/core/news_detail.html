@@ -37,6 +37,14 @@
             {{ news.content|linebreaks }}
         </div>
         
+        {% if news.external_link %}
+        <div class="news-external-link mt-4">
+            <a href="{{ news.external_link }}" target="_blank" class="btn btn-primary w-100">
+                <i class="bi bi-link-45deg"></i> {{ news.external_link_text|default:"Batafsil ma'lumot" }}
+            </a>
+        </div>
+        {% endif %}
+        
         <div class="news-share mt-4 pt-4 border-top">
             <div class="d-flex align-items-center gap-2 mb-3">
                 <span class="fw-bold" style="font-size: 0.9rem;">Ulashish:</span>

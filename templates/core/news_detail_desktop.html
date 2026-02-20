@@ -38,6 +38,14 @@
                         {{ news.content|linebreaks }}
                     </div>
 
+                    {% if news.external_link %}
+                    <div class="news-external-link">
+                        <a href="{{ news.external_link }}" target="_blank" class="btn btn-primary btn-lg">
+                            <i class="fas fa-external-link-alt"></i> {{ news.external_link_text|default:"Batafsil ma'lumot" }}
+                        </a>
+                    </div>
+                    {% endif %}
+
                     <div class="news-article-share">
                         <span>Ulashish:</span>
                         <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}&text={{ news.title }}" target="_blank" class="share-btn telegram">
@@ -188,6 +196,15 @@
 
 .news-article-content p {
     margin-bottom: 1.5rem;
+}
+
+.news-external-link {
+    padding: 24px 32px;
+    text-align: center;
+}
+
+.news-external-link .btn {
+    min-width: 250px;
 }
 
 .news-article-share {
