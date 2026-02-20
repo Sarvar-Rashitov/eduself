@@ -1142,7 +1142,14 @@ def lesson_detail_view(request, course_slug, lesson_id):
     
     # Kurs darslarini olish
     all_lessons = course.lessons.filter(is_active=True).order_by('order')
-    first_lesson = all_lessons.first()
+    all_lessons_list = list(all_lessons)
+    first_lesson = all_lessons_list[0] if all_lessons_list else None
+    
+    # Keyingi darsni topish
+    current_index = next((i for i, l in enumerate(all_lessons_list) if l.id == lesson.id), None)
+    next_lesson = None
+    if current_index is not None and current_index + 1 < len(all_lessons_list):
+        next_lesson = all_lessons_list[current_index + 1]
     
     # Foydalanuvchi kursga yozilganmi va to'lov tasdiqlanganmi?
     enrollment = CourseEnrollment.objects.filter(
@@ -1197,6 +1204,7 @@ def lesson_detail_view(request, course_slug, lesson_id):
         'course': course,
         'lesson': lesson,
         'all_lessons': all_lessons,
+        'next_lesson': next_lesson,
         'is_enrolled': is_enrolled,
         'payment_confirmed': payment_confirmed,
         'is_first_lesson': lesson == first_lesson,

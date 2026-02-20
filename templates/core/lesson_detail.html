@@ -10,7 +10,6 @@
 <div class="card mb-4">
     <div class="card-body">
         <h3 class="card-title mb-3">{{ lesson.title }}</h3>
-        <p class="text-muted">{{ lesson.description | safe }}</p>
         
         {% if lesson.video_url or lesson.video_file %}
         <div class="video-container mb-4">
@@ -36,37 +35,92 @@
         
         <div class="lesson-content">
             <h5>Dars matni</h5>
-            {{ lesson.content|linebreaks }}
+            {{ lesson.content|safe }}
         </div>
+        
+        {% if lesson.practice_topic %}
+        <div class="practice-section mt-4 pt-4" style="border-top: 2px solid #e5e7eb;">
+            <h5 class="mb-3">
+                <i class="bi bi-pencil-square text-primary"></i> Amaliy mashq
+            </h5>
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h6 class="card-title">{{ lesson.practice_topic.name }}</h6>
+                    <p class="card-text text-muted small">{{ lesson.practice_topic.description }}</p>
+                    <div class="d-flex gap-3 mb-3 flex-wrap">
+                        <small class="text-muted">
+                            <i class="bi bi-book"></i> {{ lesson.practice_topic.subject.name }}
+                        </small>
+                        <small class="text-muted">
+                            <i class="bi bi-question-circle"></i> {{ lesson.practice_topic.get_questions_count }} ta savol
+                        </small>
+                        <small class="text-muted">
+                            <i class="bi bi-clock"></i> {{ lesson.practice_topic.time_limit }} daqiqa
+                        </small>
+                    </div>
+                    <a href="{% url 'core:take_topic_test' lesson.practice_topic.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-play-circle" style="font-size: 0.875rem;"></i> <span style="font-size: 0.875rem;">Testni boshlash</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 
-<div class="section-title">Barcha darslar</div>
-
-<div class="lessons-list">
-    {% for l in all_lessons %}
-    <a href="{% if is_enrolled or l.is_free or course.is_free %}{% url 'core:lesson_detail' course.slug l.id %}{% else %}#{% endif %}" 
-       class="lesson-list-item {% if l.id == lesson.id %}active{% endif %} {% if not is_enrolled and not l.is_free and not course.is_free %}disabled{% endif %}">
-        <div class="d-flex align-items-center">
-            <div class="lesson-number">{{ forloop.counter }}</div>
-            <div class="flex-grow-1">
-                <div class="lesson-list-title">{{ l.title }}</div>
-                {% if l.duration %}
-                <small class="text-muted">
-                    <i class="bi bi-clock"></i> {{ l.duration }}
-                </small>
-                {% endif %}
-            </div>
-            {% if l.id == lesson.id %}
-            <i class="bi bi-play-circle-fill text-primary"></i>
-            {% elif not is_enrolled and not l.is_free and not course.is_free %}
-            <i class="bi bi-lock text-muted"></i>
-            {% else %}
-            <i class="bi bi-play-circle text-muted"></i>
-            {% endif %}
-        </div>
+<!-- Keyingi darsga o'tish -->
+{% if next_lesson %}
+<div class="d-grid gap-2 mb-4">
+    {% if is_enrolled or next_lesson.is_free or course.is_free %}
+    <a href="{% url 'core:lesson_detail' course.slug next_lesson.id %}" class="btn btn-primary">
+        Keyingi darsga o'tish <i class="bi bi-arrow-right ms-2"></i>
     </a>
-    {% endfor %}
+    {% else %}
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#paymentModal">
+        <i class="bi bi-lock me-2"></i>Keyingi dars uchun to'lov kerak
+    </button>
+    {% endif %}
+</div>
+{% else %}
+<div class="alert alert-success text-center">
+    <i class="bi bi-check-circle-fill me-2"></i>Siz kursning barcha darslarini tugatdingiz!
+</div>
+{% endif %}
+
+<!-- To'lov Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">
+                    <i class="bi bi-lock-fill text-warning me-2"></i>Pullik kurs
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Yopish"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="bi bi-credit-card-2-front display-1 text-primary"></i>
+                    <h5 class="mt-3">{{ course.title }}</h5>
+                    <p class="text-muted">Keyingi darslarni ko'rish uchun kursga to'lov qilishingiz kerak.</p>
+                    {% if course.price %}
+                    <h4 class="text-success">{{ course.price|floatformat:0 }} so'm</h4>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer d-flex flex-column gap-2">
+                {% if course.payment_url %}
+                <a href="{{ course.payment_url }}" target="_blank" class="btn btn-warning btn-lg w-100">
+                    <i class="bi bi-credit-card me-2"></i>To'lov qilish
+                </a>
+                {% else %}
+                <div class="alert alert-warning w-100 mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>To'lov havolasi hali qo'shilmagan
+                </div>
+                {% endif %}
+                <button type="button" class="btn btn-light w-100" data-bs-dismiss="modal">Yopish</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% block extra_js %}

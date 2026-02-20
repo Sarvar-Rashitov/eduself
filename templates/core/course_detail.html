@@ -98,36 +98,42 @@
 
 <div class="section-title">Darslar</div>
 
-{% if lessons %}
-    {% for lesson in lessons %}
-    <div class="card mb-3 lesson-card">
+{% if lessons_with_status %}
+    {% for item in lessons_with_status %}
+    <div class="card mb-3 lesson-card {% if not item.is_unlocked %}locked-lesson{% endif %}">
         <div class="card-body">
             <div class="d-flex align-items-center">
                 <div class="lesson-icon me-3">
+                    {% if item.is_completed %}
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    {% elif item.is_unlocked %}
                     <i class="bi bi-play-circle-fill"></i>
+                    {% else %}
+                    <i class="bi bi-lock-fill text-muted"></i>
+                    {% endif %}
                 </div>
                 <div class="flex-grow-1">
-                    <h6 class="mb-1">{{ forloop.counter }}. {{ lesson.title }}</h6>
-                    <p class="text-muted small mb-0">{{ lesson.description|truncatewords:15 }}</p>
-                    {% if lesson.duration %}
-                    <small class="text-muted">
-                        <i class="bi bi-clock"></i> {{ lesson.duration }}
+                    <div class="lesson-title-small mb-1">{{ forloop.counter }}. {{ item.lesson.title }}</div>
+                    {% if item.lesson.duration %}
+                    <small class="text-muted lesson-meta-small">
+                        <i class="bi bi-clock"></i> {{ item.lesson.duration }}
                     </small>
                     {% endif %}
-                    {% if lesson.is_free %}
-                    <span class="badge bg-success ms-2">Bepul</span>
+                    {% if item.lesson.is_free %}
+                    <span class="badge bg-success badge-xs ms-2">Bepul</span>
+                    {% endif %}
+                    {% if item.is_completed %}
+                    <span class="badge bg-info badge-xs ms-2">Tugallangan</span>
                     {% endif %}
                 </div>
-                {% if course.is_free or lesson.is_free or forloop.counter == 1 or payment_confirmed %}
-                <a href="{% url 'core:lesson_detail' course.slug lesson.id %}" class="btn btn-primary btn-sm">
-                    <i class="bi bi-play"></i> Ko'rish
+                {% if item.is_unlocked %}
+                <a href="{% url 'core:lesson_detail' course.slug item.lesson.id %}" class="btn btn-primary btn-xs">
+                    <i class="bi bi-play" style="font-size: 0.75rem;"></i> <span style="font-size: 0.75rem;">Ko'rish</span>
                 </a>
-                {% elif forloop.counter == 1 %}
-                <span class="badge bg-success">Bepul dars</span>
                 {% else %}
-                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#paymentModal">
-                    <i class="bi bi-lock"></i> To'lov kerak
-                </button>
+                <span class="text-muted">
+                    <i class="bi bi-lock"></i>
+                </span>
                 {% endif %}
             </div>
         </div>
@@ -180,4 +186,45 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.locked-lesson {
+    opacity: 0.6;
+}
+
+.locked-lesson .lesson-icon i {
+    color: #9ca3af !important;
+}
+
+.lesson-title-small {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.lesson-meta-small {
+    font-size: 0.75rem;
+}
+
+.badge-xs {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+}
+
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+}
+
+.lesson-card .card-body {
+    padding: 0.75rem 1rem;
+}
+
+.lesson-icon {
+    font-size: 1.25rem;
+}
+</style>
 {% endblock %}

@@ -44,45 +44,39 @@
 {% if featured_courses %}
 <div class="mb-3">
     <h6 class="section-subtitle">⭐ Mashhur kurslar</h6>
-    <div id="featuredCoursesList">
-    {% for course in featured_courses %}
-    <div class="course-card-compact" data-title="{{ course.title|lower }}" data-category="{{ course.category.name|lower }}" data-instructor="{{ course.instructor|lower }}">
-        <div class="course-card-image">
-            {% if course.image %}
-            <img src="{{ course.image.url }}" alt="{{ course.title }}">
-            {% else %}
-            <div class="course-placeholder">
-                <i class="bi bi-play-circle"></i>
-            </div>
-            {% endif %}
-            <span class="course-badge-featured">Mashhur</span>
-        </div>
-        <div class="course-card-content">
-            <div class="course-card-header">
-                <span class="course-category">{{ course.category.name }}</span>
-                {% if course.is_free %}
-                <span class="course-price free">Bepul</span>
+    <div class="featured-courses-scroll">
+        <div class="featured-courses-container" id="featuredCoursesList">
+        {% for course in featured_courses %}
+        <a href="{% url 'core:course_detail' course.slug %}" class="course-card-horizontal" data-title="{{ course.title|lower }}" data-category="{{ course.category.name|lower }}" data-instructor="{{ course.instructor|lower }}">
+            <div class="course-card-image-horizontal">
+                {% if course.image %}
+                <img src="{{ course.image.url }}" alt="{{ course.title }}">
                 {% else %}
-                <span class="course-price">{{ course.price|floatformat:0 }} so'm</span>
+                <div class="course-placeholder">
+                    <i class="bi bi-play-circle"></i>
+                </div>
                 {% endif %}
+                <span class="course-badge-featured">Mashhur</span>
             </div>
-            <h6 class="course-title">{{ course.title }}</h6>
-            <p class="course-desc">{{ course.description|truncatewords:10 }}</p>
-            <div class="course-meta">
-                <span><i class="bi bi-person"></i> {{ course.instructor }}</span>
-                <span><i class="bi bi-play-circle"></i> {{ course.get_lessons_count }} dars</span>
+            <div class="course-card-content-horizontal">
+                <div class="course-card-header">
+                    <span class="course-category">{{ course.category.name }}</span>
+                    {% if course.is_free %}
+                    <span class="course-price free">Bepul</span>
+                    {% else %}
+                    <span class="course-price">{{ course.price|floatformat:0 }} so'm</span>
+                    {% endif %}
+                </div>
+                <h6 class="course-title">{{ course.title }}</h6>
+                <p class="course-desc">{{ course.description|truncatewords:8 }}</p>
+                <div class="course-meta">
+                    <span><i class="bi bi-person"></i> {{ course.instructor }}</span>
+                    <span><i class="bi bi-play-circle"></i> {{ course.get_lessons_count }} dars</span>
+                </div>
             </div>
-            <div class="course-actions">
-                <a href="{% url 'core:course_detail' course.slug %}" class="btn-compact btn-outline">
-                    Ko'rish
-                </a>
-                <button class="btn-compact btn-primary" onclick="showEnrollModal('{{ course.title }}', '{{ course.payment_url }}', {{ course.price|default:0 }}, {{ course.is_free|yesno:'true,false' }})">
-                    Yozilish
-                </button>
-            </div>
+        </a>
+        {% endfor %}
         </div>
-    </div>
-    {% endfor %}
     </div>
 </div>
 {% endif %}
@@ -92,7 +86,7 @@
 <h6 class="section-subtitle">📚 Barcha kurslar</h6>
 <div id="coursesList">
     {% for course in courses %}
-    <div class="course-card-compact" data-title="{{ course.title|lower }}" data-category="{{ course.category.name|lower }}" data-instructor="{{ course.instructor|lower }}">
+    <a href="{% url 'core:course_detail' course.slug %}" class="course-card-compact" data-title="{{ course.title|lower }}" data-category="{{ course.category.name|lower }}" data-instructor="{{ course.instructor|lower }}">
         <div class="course-card-image">
             {% if course.image %}
             <img src="{{ course.image.url }}" alt="{{ course.title }}">
@@ -117,16 +111,8 @@
                 <span><i class="bi bi-person"></i> {{ course.instructor }}</span>
                 <span><i class="bi bi-play-circle"></i> {{ course.get_lessons_count }} dars</span>
             </div>
-            <div class="course-actions">
-                <a href="{% url 'core:course_detail' course.slug %}" class="btn-compact btn-outline">
-                    Ko'rish
-                </a>
-                <button class="btn-compact btn-primary" onclick="showEnrollModal('{{ course.title }}', '{{ course.payment_url }}', {{ course.price|default:0 }}, {{ course.is_free|yesno:'true,false' }})">
-                    Yozilish
-                </button>
-            </div>
         </div>
-    </div>
+    </a>
     {% endfor %}
 </div>
 
@@ -361,6 +347,19 @@
     margin: 0 1rem 1rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course-card-compact:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.course-card-compact:active {
+    transform: translateY(-2px);
 }
 
 .course-card-image {
@@ -552,6 +551,69 @@
     padding: 1rem;
     border-top: 1px solid #f3f4f6;
 }
+
+/* Horizontal Scroll for Featured Courses */
+.featured-courses-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 -16px;
+    padding: 0 16px;
+}
+
+.featured-courses-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.featured-courses-container {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+}
+
+.course-card-horizontal {
+    flex: 0 0 280px;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    scroll-snap-align: start;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course-card-horizontal:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.course-card-horizontal:active {
+    transform: translateY(-2px);
+}
+
+.course-card-image-horizontal {
+    position: relative;
+    height: 140px;
+    overflow: hidden;
+}
+
+.course-card-image-horizontal img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.course-card-content-horizontal {
+    padding: 1rem;
+}
+
+.course-actions-horizontal {
+    display: flex;
+    gap: 0.5rem;
+}
 </style>
 
 <script>
@@ -570,11 +632,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const noResults = document.getElementById('noCourseResults');
     const coursesList = document.getElementById('coursesList');
     const featuredCoursesList = document.getElementById('featuredCoursesList');
-    const allCourseCards = document.querySelectorAll('.course-card-compact');
+    const allCourseCards = document.querySelectorAll('.course-card-compact, .course-card-horizontal');
     
     let searchTimeout;
     let isSearchOpen = false;
-    let autoOpenedByScroll = false;
 
     // Toggle search bar
     searchToggleBtn.addEventListener('click', function() {
@@ -587,31 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
             searchBar.style.display = 'none';
             this.innerHTML = '<i class="bi bi-search"></i>';
             clearSearch();
-            autoOpenedByScroll = false;
         }
-    });
-    
-    // Auto-open search on scroll
-    let lastScroll = 0;
-    window.addEventListener('scroll', function() {
-        const currentScroll = window.pageYOffset;
-        
-        // Auto-open when scrolling down past 150px
-        if (currentScroll > 150 && !isSearchOpen && !autoOpenedByScroll) {
-            isSearchOpen = true;
-            autoOpenedByScroll = true;
-            searchBar.style.display = 'block';
-            searchToggleBtn.innerHTML = '<i class="bi bi-x"></i>';
-        }
-        
-        // Add shadow when scrolled
-        if (isSearchOpen && currentScroll > 100) {
-            searchBar.classList.add('scrolled');
-        } else {
-            searchBar.classList.remove('scrolled');
-        }
-        
-        lastScroll = currentScroll;
     });
 
     searchInput.addEventListener('input', function() {
@@ -635,6 +672,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function performSearch(query) {
         let visibleCount = 0;
+        const featuredCoursesContainer = document.querySelector('.featured-courses-scroll');
         
         allCourseCards.forEach(card => {
             const title = card.getAttribute('data-title');
@@ -657,7 +695,7 @@ document.addEventListener('DOMContentLoaded', function() {
             searchResults.style.display = 'none';
             noResults.style.display = 'block';
             if (coursesList) coursesList.style.display = 'none';
-            if (featuredCoursesList) featuredCoursesList.style.display = 'none';
+            if (featuredCoursesContainer) featuredCoursesContainer.parentElement.style.display = 'none';
         }
     }
     
@@ -666,13 +704,14 @@ document.addEventListener('DOMContentLoaded', function() {
         clearButton.style.display = 'none';
         searchResults.style.display = 'none';
         noResults.style.display = 'none';
+        const featuredCoursesContainer = document.querySelector('.featured-courses-scroll');
         
         allCourseCards.forEach(card => {
             card.style.display = 'block';
         });
         
         if (coursesList) coursesList.style.display = 'block';
-        if (featuredCoursesList) featuredCoursesList.style.display = 'block';
+        if (featuredCoursesContainer) featuredCoursesContainer.parentElement.style.display = 'block';
     }
 
     // Modal functions
