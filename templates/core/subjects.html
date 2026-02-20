@@ -35,8 +35,27 @@
     </div>
 </div>
 
-<!-- Qidiruv -->
-<div class="search-container mb-4">
+<!-- Qidiruv va Kategoriyalar -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    {% if categories %}
+    <div class="filter-tabs flex-grow-1" style="margin-bottom: 0;">
+        <a href="{% url 'core:subjects' %}" class="filter-tab {% if not current_category %}active{% endif %}">
+            <i class="bi bi-grid"></i> Barchasi
+        </a>
+        {% for cat in categories %}
+        <a href="{% url 'core:subjects' %}?category={{ cat.slug }}" class="filter-tab {% if current_category and current_category.id == cat.id %}active{% endif %}">
+            <i class="{{ cat.icon }}"></i> {{ cat.name }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <button type="button" id="searchToggleBtn" class="search-icon-btn">
+        <i class="bi bi-search"></i>
+    </button>
+</div>
+
+<!-- Qidiruv (yashirin) -->
+<div id="searchBar" class="search-bar-sticky" style="display: none;">
     <div class="search-input-wrapper">
         <i class="bi bi-search search-icon"></i>
         <input type="text" id="subjectSearch" class="form-control search-input" placeholder="Fanlarni qidiring...">
@@ -52,19 +71,6 @@
         <button type="button" id="showAllSubjects" class="btn btn-link btn-sm">Barcha fanlarni ko'rsatish</button>
     </div>
 </div>
-
-{% if categories %}
-<div class="filter-tabs mb-4">
-    <a href="{% url 'core:subjects' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-        <i class="bi bi-grid"></i> Barchasi
-    </a>
-    {% for cat in categories %}
-    <a href="{% url 'core:subjects' %}?category={{ cat.slug }}" class="filter-tab {% if current_category and current_category.id == cat.id %}active{% endif %}">
-        <i class="{{ cat.icon }}"></i> {{ cat.name }}
-    </a>
-    {% endfor %}
-</div>
-{% endif %}
 
 <div id="subjectsList">
 {% if subjects %}
@@ -97,9 +103,109 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+.search-icon-btn {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+}
+
+.search-icon-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    animation: none;
+}
+
+.search-icon-btn:active {
+    transform: scale(0.95);
+}
+
+.search-icon-btn::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    opacity: 0;
+    z-index: -1;
+    animation: glow 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.3;
+        transform: scale(1.2);
+    }
+}
+
+.search-bar-sticky {
+    position: sticky;
+    top: 60px;
+    z-index: 100;
+    background: var(--background-color);
+    padding: 12px 0;
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    transition: all 0.3s ease;
+}
+
+.search-bar-sticky.scrolled {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-input-wrapper {
+    position: relative;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const searchToggleBtn = document.getElementById('searchToggleBtn');
+    const searchBar = document.getElementById('searchBar');
     const searchInput = document.getElementById('subjectSearch');
     const clearButton = document.getElementById('clearSearch');
     const searchResults = document.getElementById('searchResults');
@@ -109,6 +215,46 @@ document.addEventListener('DOMContentLoaded', function() {
     const subjectCards = document.querySelectorAll('.subject-card');
     
     let searchTimeout;
+    let isSearchOpen = false;
+    let autoOpenedByScroll = false;
+    
+    // Toggle search bar
+    searchToggleBtn.addEventListener('click', function() {
+        isSearchOpen = !isSearchOpen;
+        if (isSearchOpen) {
+            searchBar.style.display = 'block';
+            setTimeout(() => searchInput.focus(), 100);
+            this.innerHTML = '<i class="bi bi-x"></i>';
+        } else {
+            searchBar.style.display = 'none';
+            this.innerHTML = '<i class="bi bi-search"></i>';
+            clearSearch();
+            autoOpenedByScroll = false;
+        }
+    });
+    
+    // Auto-open search on scroll
+    let lastScroll = 0;
+    window.addEventListener('scroll', function() {
+        const currentScroll = window.pageYOffset;
+        
+        // Auto-open when scrolling down past 150px
+        if (currentScroll > 150 && !isSearchOpen && !autoOpenedByScroll) {
+            isSearchOpen = true;
+            autoOpenedByScroll = true;
+            searchBar.style.display = 'block';
+            searchToggleBtn.innerHTML = '<i class="bi bi-x"></i>';
+        }
+        
+        // Add shadow when scrolled
+        if (isSearchOpen && currentScroll > 100) {
+            searchBar.classList.add('scrolled');
+        } else {
+            searchBar.classList.remove('scrolled');
+        }
+        
+        lastScroll = currentScroll;
+    });
     
     searchInput.addEventListener('input', function() {
         clearTimeout(searchTimeout);
