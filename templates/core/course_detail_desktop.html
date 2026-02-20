@@ -5,39 +5,56 @@
 
 {% block content %}
 <!-- Course Header -->
-<section class="page-header course-detail-header">
+<section class="course-detail-header">
     <div class="container">
-        <div class="breadcrumb">
-            <a href="{% url 'core:home' %}">Bosh sahifa</a>
-            <i class="fas fa-chevron-right"></i>
-            <a href="{% url 'core:courses' %}">Kurslar</a>
-            <i class="fas fa-chevron-right"></i>
+        <div class="breadcrumb-simple">
+            <a href="{% url 'core:courses' %}"><i class="fas fa-arrow-left"></i> Kurslar</a>
+            <span>/</span>
             <span>{{ course.title }}</span>
         </div>
-        <div class="course-header-content">
-            <div class="course-header-info">
-                <span class="course-category-badge">{{ course.category.name }}</span>
-                {% if course.is_free %}
-                <span class="course-price-badge free">Bepul</span>
-                {% else %}
-                <span class="course-price-badge paid">{{ course.price|floatformat:0 }} so'm</span>
-                {% endif %}
-                <h1>{{ course.title }}</h1>
-                <p>{{ course.description|safe }}</p>
-                <div class="course-meta-header">
-                    <span><i class="fas fa-user"></i> {{ course.instructor }}</span>
-                    <span><i class="fas fa-play-circle"></i> {{ lessons|length }} dars</span>
-                    <span><i class="fas fa-clock"></i> {{ course.duration|default:'10+ soat' }}</span>
-                </div>
-            </div>
-            <div class="course-header-image">
+        
+        <div class="course-header-card">
+            <div class="course-header-left">
                 {% if course.image %}
-                <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                <div class="course-thumbnail">
+                    <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                    <div class="play-overlay">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                </div>
                 {% else %}
-                <div class="course-placeholder-large">
-                    <i class="fas fa-play-circle"></i>
+                <div class="course-thumbnail no-image">
+                    <i class="fas fa-graduation-cap"></i>
                 </div>
                 {% endif %}
+            </div>
+            
+            <div class="course-header-right">
+                <div class="course-badges">
+                    <span class="badge-category">{{ course.category.name }}</span>
+                    {% if course.is_free %}
+                    <span class="badge-price free">Bepul</span>
+                    {% else %}
+                    <span class="badge-price">{{ course.price|floatformat:0 }} so'm</span>
+                    {% endif %}
+                </div>
+                
+                <h1 class="course-title">{{ course.title }}</h1>
+                
+                <div class="course-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>{{ course.instructor }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-book-open"></i>
+                        <span>{{ lessons|length }} dars</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-clock"></i>
+                        <span>{{ course.duration|default:'10+ soat' }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -58,40 +75,42 @@
                 </div>
                 
                 <!-- Lessons -->
-                <div class="content-card">
+                <div class="content-card lessons-card">
                     <h2><i class="fas fa-list"></i> Darslar ({{ lessons|length }})</h2>
-                    <div class="lessons-list">
-                        {% for lesson in lessons %}
-                        <div class="lesson-item {% if not course.is_free and not lesson.is_free and not payment_confirmed and not forloop.first %}locked{% endif %}">
-                            <div class="lesson-number">{{ forloop.counter }}</div>
-                            <div class="lesson-info">
-                                <h4>{{ lesson.title }}</h4>
-                                <p>{{ lesson.description|truncatewords:15|safe }}</p>
-                                <div class="lesson-meta">
-                                    {% if lesson.duration %}
-                                    <span><i class="fas fa-clock"></i> {{ lesson.duration }} daqiqa</span>
-                                    {% endif %}
-                                    {% if lesson.is_free %}
-                                    <span class="free-badge"><i class="fas fa-unlock"></i> Bepul</span>
+                    <div class="lessons-list-wrapper">
+                        <div class="lessons-list">
+                            {% for lesson in lessons %}
+                            <div class="lesson-item {% if not course.is_free and not lesson.is_free and not payment_confirmed and not forloop.first %}locked{% endif %}">
+                                <div class="lesson-number">{{ forloop.counter }}</div>
+                                <div class="lesson-info">
+                                    <h4>{{ lesson.title }}</h4>
+                                    <p>{{ lesson.description|truncatewords:15|safe }}</p>
+                                    <div class="lesson-meta">
+                                        {% if lesson.duration %}
+                                        <span><i class="fas fa-clock"></i> {{ lesson.duration }} daqiqa</span>
+                                        {% endif %}
+                                        {% if lesson.is_free %}
+                                        <span class="free-badge"><i class="fas fa-unlock"></i> Bepul</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="lesson-action">
+                                    {% if course.is_free or lesson.is_free or payment_confirmed or forloop.first %}
+                                    <a href="{% url 'core:lesson_detail' course.slug lesson.id %}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-play"></i> Ko'rish
+                                    </a>
+                                    {% else %}
+                                    <span class="locked-badge"><i class="fas fa-lock"></i></span>
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="lesson-action">
-                                {% if course.is_free or lesson.is_free or payment_confirmed or forloop.first %}
-                                <a href="{% url 'core:lesson_detail' course.slug lesson.id %}" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-play"></i> Ko'rish
-                                </a>
-                                {% else %}
-                                <span class="locked-badge"><i class="fas fa-lock"></i></span>
-                                {% endif %}
+                            {% empty %}
+                            <div class="empty-state">
+                                <i class="fas fa-play-circle"></i>
+                                <p>Hozircha darslar mavjud emas</p>
                             </div>
+                            {% endfor %}
                         </div>
-                        {% empty %}
-                        <div class="empty-state">
-                            <i class="fas fa-play-circle"></i>
-                            <p>Hozircha darslar mavjud emas</p>
-                        </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -188,92 +207,168 @@
 {% block extra_css %}
 <style>
 .course-detail-header {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    padding: 30px 0 40px;
+    background: #f8f9fa;
+    padding: 30px 0 20px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.course-header-content {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 3rem;
+.breadcrumb-simple {
+    display: flex;
     align-items: center;
-}
-
-.course-category-badge,
-.course-price-badge {
-    display: inline-block;
-    padding: 6px 16px;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-right: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.course-category-badge {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.course-price-badge.free {
-    background: #10b981;
-}
-
-.course-price-badge.paid {
-    background: #f59e0b;
-}
-
-.course-header-info h1 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-.course-header-info p {
-    font-size: 1.1rem;
-    opacity: 0.9;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #6b7280;
     margin-bottom: 1.5rem;
 }
 
-.course-meta-header {
+.breadcrumb-simple a {
+    color: #6366f1;
+    text-decoration: none;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.breadcrumb-simple a:hover {
+    color: #4f46e5;
+}
+
+.breadcrumb-simple span {
+    color: #9ca3af;
+}
+
+.course-header-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.course-header-left {
+    flex-shrink: 0;
+}
+
+.course-thumbnail {
+    width: 200px;
+    height: 130px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background: #f3f4f6;
+}
+
+.course-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.course-thumbnail.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+.course-thumbnail.no-image i {
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.play-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.course-thumbnail:hover .play-overlay {
+    opacity: 1;
+}
+
+.play-overlay i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.course-header-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.course-badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.badge-category,
+.badge-price {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-category {
+    background: #ede9fe;
+    color: #6366f1;
+}
+
+.badge-price {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.badge-price.free {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.course-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+}
+
+.course-stats {
     display: flex;
     gap: 2rem;
     flex-wrap: wrap;
 }
 
-.course-meta-header span {
+.stat-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    opacity: 0.9;
+    color: #6b7280;
+    font-size: 0.9rem;
 }
 
-.course-header-image {
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-}
-
-.course-header-image img {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-}
-
-.course-placeholder-large {
-    width: 100%;
-    height: 250px;
-    background: rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.course-placeholder-large i {
-    font-size: 5rem;
-    opacity: 0.5;
+.stat-item i {
+    color: #6366f1;
+    font-size: 1rem;
 }
 
 .course-content-section {
-    padding: 40px 0;
+    padding: 30px 0;
+    background: #ffffff;
 }
 
 .course-content-grid {
@@ -301,6 +396,35 @@
 
 .content-card h2 i {
     color: #6366f1;
+}
+
+.lessons-card {
+    position: relative;
+}
+
+.lessons-list-wrapper {
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.5rem;
+}
+
+.lessons-list-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.lessons-list-wrapper::-webkit-scrollbar-track {
+    background: var(--light-color);
+    border-radius: 10px;
+}
+
+.lessons-list-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 10px;
+}
+
+.lessons-list-wrapper::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
 }
 
 .lessons-list {
