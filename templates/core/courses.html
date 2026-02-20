@@ -5,79 +5,131 @@
 {% block content %}
 <div class="section-title">{{ title }}</div>
 
+<!-- Qidiruv va Kategoriyalar -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="filter-tabs-scroll flex-grow-1" style="margin-bottom: 0;">
+        <a href="{% url 'core:courses' %}" class="filter-tab-compact {% if not current_category %}active{% endif %}">
+            Barchasi
+        </a>
+        {% for cat in categories %}
+        <a href="{% url 'core:courses' %}?category={{ cat.slug }}" class="filter-tab-compact {% if current_category.id == cat.id %}active{% endif %}">
+            {{ cat.name }}
+        </a>
+        {% endfor %}
+    </div>
+    <button type="button" id="searchToggleBtn" class="search-icon-btn">
+        <i class="bi bi-search"></i>
+    </button>
+</div>
+
+<!-- Qidiruv (yashirin) -->
+<div id="searchBar" class="search-bar-sticky" style="display: none;">
+    <div class="search-input-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" id="courseSearch" class="form-control search-input" placeholder="Kurslarni qidiring...">
+        <button type="button" id="clearCourseSearch" class="search-clear" style="display: none;">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+</div>
+
+<div id="courseSearchResults" style="display: none;">
+    <div class="search-results-header">
+        <span class="course-results-count"></span>
+        <button type="button" id="showAllCourses" class="btn btn-link btn-sm">Barcha kurslarni ko'rsatish</button>
+    </div>
+</div>
+
+<!-- Featured Courses -->
 {% if featured_courses %}
-<div class="mb-4">
-    <h6 class="mb-3 text-muted">Mashhur kurslar</h6>
+<div class="mb-3">
+    <h6 class="section-subtitle">⭐ Mashhur kurslar</h6>
+    <div id="featuredCoursesList">
     {% for course in featured_courses %}
-    <a href="{% url 'core:course_detail' course.slug %}" class="text-decoration-none">
-        <div class="card mb-3 course-featured-card">
+    <div class="course-card-compact" data-title="{{ course.title|lower }}" data-category="{{ course.category.name|lower }}" data-instructor="{{ course.instructor|lower }}">
+        <div class="course-card-image">
             {% if course.image %}
-            <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 180px; object-fit: cover;">
-            {% endif %}
-            <div class="card-body">
-                <span class="badge bg-primary mb-2">{{ course.category.name }}</span>
-                <h5 class="card-title text-dark">{{ course.title }}</h5>
-                <p class="card-text text-muted small">{{ course.description|truncatewords:15 }}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
-                        <i class="bi bi-person"></i> {{ course.instructor }}
-                    </small>
-                    <small class="text-muted">
-                        <i class="bi bi-play-circle"></i> {{ course.get_lessons_count }} dars
-                    </small>
-                </div>
-            </div>
-        </div>
-    </a>
-    {% endfor %}
-</div>
-{% endif %}
-
-<div class="filter-tabs mb-4">
-    <a href="{% url 'core:courses' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-        Barchasi
-    </a>
-    {% for cat in categories %}
-    <a href="{% url 'core:courses' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.id == cat.id %}active{% endif %}">
-        <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}
-    </a>
-    {% endfor %}
-</div>
-
-{% if courses %}
-    {% for course in courses %}
-    <div class="card mb-3 course-featured-card">
-        {% if course.image %}
-        <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 180px; object-fit: cover;">
-        {% endif %}
-        <div class="card-body">
-            <span class="badge bg-primary mb-2">{{ course.category.name }}</span>
-            {% if course.is_free %}
-            <span class="badge bg-success mb-2">Bepul</span>
+            <img src="{{ course.image.url }}" alt="{{ course.title }}">
             {% else %}
-            <span class="badge bg-warning text-dark mb-2">{{ course.price|floatformat:0 }} so'm</span>
-            {% endif %}
-            <h5 class="card-title text-dark">{{ course.title }}</h5>
-            <p class="card-text text-muted small">{{ course.description|truncatewords:15 }}</p>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <small class="text-muted">
-                    <i class="bi bi-person"></i> {{ course.instructor }}
-                </small>
-                <small class="text-muted">
-                    <i class="bi bi-play-circle"></i> {{ course.get_lessons_count }} dars
-                </small>
+            <div class="course-placeholder">
+                <i class="bi bi-play-circle"></i>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{% url 'core:course_detail' course.slug %}" class="btn btn-outline-primary btn-sm flex-fill">
-                    <i class="bi bi-eye"></i> Ko'rish
+            {% endif %}
+            <span class="course-badge-featured">Mashhur</span>
+        </div>
+        <div class="course-card-content">
+            <div class="course-card-header">
+                <span class="course-category">{{ course.category.name }}</span>
+                {% if course.is_free %}
+                <span class="course-price free">Bepul</span>
+                {% else %}
+                <span class="course-price">{{ course.price|floatformat:0 }} so'm</span>
+                {% endif %}
+            </div>
+            <h6 class="course-title">{{ course.title }}</h6>
+            <p class="course-desc">{{ course.description|truncatewords:10 }}</p>
+            <div class="course-meta">
+                <span><i class="bi bi-person"></i> {{ course.instructor }}</span>
+                <span><i class="bi bi-play-circle"></i> {{ course.get_lessons_count }} dars</span>
+            </div>
+            <div class="course-actions">
+                <a href="{% url 'core:course_detail' course.slug %}" class="btn-compact btn-outline">
+                    Ko'rish
                 </a>
-                <button class="btn btn-primary btn-sm flex-fill" onclick="showEnrollModal('{{ course.title }}', '{{ course.payment_url }}', {{ course.price|default:0 }}, {{ course.is_free|yesno:'true,false' }})">
-                    <i class="bi bi-plus-circle"></i> Yozilish
+                <button class="btn-compact btn-primary" onclick="showEnrollModal('{{ course.title }}', '{{ course.payment_url }}', {{ course.price|default:0 }}, {{ course.is_free|yesno:'true,false' }})">
+                    Yozilish
                 </button>
             </div>
         </div>
     </div>
     {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- All Courses -->
+{% if courses %}
+<h6 class="section-subtitle">📚 Barcha kurslar</h6>
+<div id="coursesList">
+    {% for course in courses %}
+    <div class="course-card-compact" data-title="{{ course.title|lower }}" data-category="{{ course.category.name|lower }}" data-instructor="{{ course.instructor|lower }}">
+        <div class="course-card-image">
+            {% if course.image %}
+            <img src="{{ course.image.url }}" alt="{{ course.title }}">
+            {% else %}
+            <div class="course-placeholder">
+                <i class="bi bi-play-circle"></i>
+            </div>
+            {% endif %}
+        </div>
+        <div class="course-card-content">
+            <div class="course-card-header">
+                <span class="course-category">{{ course.category.name }}</span>
+                {% if course.is_free %}
+                <span class="course-price free">Bepul</span>
+                {% else %}
+                <span class="course-price">{{ course.price|floatformat:0 }} so'm</span>
+                {% endif %}
+            </div>
+            <h6 class="course-title">{{ course.title }}</h6>
+            <p class="course-desc">{{ course.description|truncatewords:10 }}</p>
+            <div class="course-meta">
+                <span><i class="bi bi-person"></i> {{ course.instructor }}</span>
+                <span><i class="bi bi-play-circle"></i> {{ course.get_lessons_count }} dars</span>
+            </div>
+            <div class="course-actions">
+                <a href="{% url 'core:course_detail' course.slug %}" class="btn-compact btn-outline">
+                    Ko'rish
+                </a>
+                <button class="btn-compact btn-primary" onclick="showEnrollModal('{{ course.title }}', '{{ course.payment_url }}', {{ course.price|default:0 }}, {{ course.is_free|yesno:'true,false' }})">
+                    Yozilish
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 {% else %}
     <div class="empty-state">
         <i class="bi bi-play-circle"></i>
@@ -85,94 +137,592 @@
     </div>
 {% endif %}
 
+<div id="noCourseResults" class="empty-state" style="display: none;">
+    <i class="bi bi-search"></i>
+    <p>Qidiruv bo'yicha kurs topilmadi</p>
+    <small class="text-muted">Boshqa kalit so'zlar bilan qidirib ko'ring</small>
+</div>
+
 <!-- Enrollment Modal -->
 <div class="enrollment-modal" id="enrollmentModal">
     <div class="enrollment-modal-content">
         <div class="enrollment-modal-header">
-            <h5 class="modal-title" id="enrollmentModalTitle">Kursga yozilish</h5>
+            <h6 id="enrollmentModalTitle">Kursga yozilish</h6>
             <button type="button" class="btn-close" onclick="hideEnrollModal()">
                 <i class="bi bi-x"></i>
             </button>
         </div>
         <div class="enrollment-modal-body">
-            <div class="text-center mb-4">
-                <i class="bi bi-credit-card text-primary" style="font-size: 3rem;"></i>
-                <h6 class="mt-3" id="courseTitle">Kurs nomi</h6>
-                <p class="text-muted" id="coursePrice">Narx: 0 so'm</p>
+            <div class="text-center mb-3">
+                <i class="bi bi-credit-card text-primary" style="font-size: 2.5rem;"></i>
+                <h6 class="mt-2" id="courseTitle">Kurs nomi</h6>
+                <p class="text-muted small" id="coursePrice">Narx: 0 so'm</p>
             </div>
-            <p class="text-center text-muted mb-4">
-                Kursga yozilish uchun to'lovni amalga oshiring yoki bekor qiling.
-            </p>
         </div>
         <div class="enrollment-modal-footer">
-            <div class="d-flex gap-2 w-100">
-                <button type="button" class="btn btn-secondary flex-fill" onclick="hideEnrollModal()">
-                    <i class="bi bi-x-circle"></i> Bekor qilish
-                </button>
-                <button type="button" class="btn btn-success flex-fill" id="paymentBtn" onclick="proceedToPayment()">
-                    <i class="bi bi-credit-card"></i> To'lov qilish
-                </button>
-            </div>
+            <button type="button" class="btn-compact btn-outline w-100 mb-2" onclick="hideEnrollModal()">
+                Bekor qilish
+            </button>
+            <button type="button" class="btn-compact btn-primary w-100" id="paymentBtn" onclick="proceedToPayment()">
+                To'lov qilish
+            </button>
         </div>
     </div>
 </div>
 
+<style>
+.search-icon-btn {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
+    animation: searchPulse 2s infinite;
+    flex-shrink: 0;
+    margin-left: 8px;
+    z-index: 10;
+}
+
+.search-icon-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    animation: none;
+}
+
+.search-icon-btn:active {
+    transform: scale(0.95);
+}
+
+.search-icon-btn::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    opacity: 0;
+    z-index: -1;
+    animation: searchGlow 2s infinite;
+}
+
+@keyframes searchPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes searchGlow {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.3;
+        transform: scale(1.2);
+    }
+}
+
+.search-bar-sticky {
+    position: sticky;
+    top: 60px;
+    z-index: 100;
+    background: var(--background-color);
+    padding: 12px 0;
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    transition: all 0.3s ease;
+}
+
+.search-bar-sticky.scrolled {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-input-wrapper {
+    position: relative;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: #9ca3af;
+    font-size: 1rem;
+}
+
+.search-input {
+    padding-left: 40px;
+    padding-right: 40px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    font-size: 0.9rem;
+}
+
+.search-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.search-clear {
+    position: absolute;
+    right: 8px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+.search-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #f9fafb;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.course-results-count {
+    font-weight: 600;
+}
+
+.filter-tabs-scroll {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0 1rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.filter-tabs-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-tab-compact {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: var(--white);
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.filter-tab-compact.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.section-subtitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.75rem;
+    padding: 0 1rem;
+}
+
+.course-card-compact {
+    background: var(--white);
+    border-radius: 12px;
+    margin: 0 1rem 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.course-card-image {
+    position: relative;
+    height: 140px;
+    overflow: hidden;
+}
+
+.course-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.course-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.course-placeholder i {
+    font-size: 3rem;
+    color: rgba(255,255,255,0.5);
+}
+
+.course-badge-featured {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: #f59e0b;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.course-card-content {
+    padding: 1rem;
+}
+
+.course-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.course-category {
+    background: #ede9fe;
+    color: #6366f1;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.course-price {
+    background: #fef3c7;
+    color: #d97706;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.course-price.free {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.course-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.course-desc {
+    font-size: 0.8rem;
+    color: var(--text-color);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.course-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.course-meta span {
+    font-size: 0.75rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.course-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-compact {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-compact.btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--primary-color);
+    color: var(--primary-color);
+    flex: 1;
+}
+
+.btn-compact.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    flex: 1;
+}
+
+.enrollment-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.enrollment-modal.active {
+    display: flex;
+}
+
+.enrollment-modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.enrollment-modal-header {
+    padding: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.enrollment-modal-header h6 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.enrollment-modal-body {
+    padding: 1.5rem 1rem;
+}
+
+.enrollment-modal-footer {
+    padding: 1rem;
+    border-top: 1px solid #f3f4f6;
+}
+</style>
+
 <script>
-let currentPaymentUrl = '';
-let currentCoursePrice = 0;
-let currentCourseFree = false;
+document.addEventListener('DOMContentLoaded', function() {
+    let currentPaymentUrl = '';
+    let currentCoursePrice = 0;
+    let currentCourseFree = false;
 
-function showEnrollModal(courseTitle, paymentUrl, price, isFree) {
-    currentPaymentUrl = paymentUrl;
-    currentCoursePrice = price;
-    currentCourseFree = isFree;
+    // Search functionality
+    const searchToggleBtn = document.getElementById('searchToggleBtn');
+    const searchBar = document.getElementById('searchBar');
+    const searchInput = document.getElementById('courseSearch');
+    const clearButton = document.getElementById('clearCourseSearch');
+    const searchResults = document.getElementById('courseSearchResults');
+    const showAllButton = document.getElementById('showAllCourses');
+    const noResults = document.getElementById('noCourseResults');
+    const coursesList = document.getElementById('coursesList');
+    const featuredCoursesList = document.getElementById('featuredCoursesList');
+    const allCourseCards = document.querySelectorAll('.course-card-compact');
     
-    document.getElementById('courseTitle').textContent = courseTitle;
-    document.getElementById('enrollmentModalTitle').textContent = 'Kursga yozilish - ' + courseTitle;
+    let searchTimeout;
+    let isSearchOpen = false;
+    let autoOpenedByScroll = false;
+
+    // Toggle search bar
+    searchToggleBtn.addEventListener('click', function() {
+        isSearchOpen = !isSearchOpen;
+        if (isSearchOpen) {
+            searchBar.style.display = 'block';
+            setTimeout(() => searchInput.focus(), 100);
+            this.innerHTML = '<i class="bi bi-x"></i>';
+        } else {
+            searchBar.style.display = 'none';
+            this.innerHTML = '<i class="bi bi-search"></i>';
+            clearSearch();
+            autoOpenedByScroll = false;
+        }
+    });
     
-    const priceElement = document.getElementById('coursePrice');
-    const paymentBtn = document.getElementById('paymentBtn');
+    // Auto-open search on scroll
+    let lastScroll = 0;
+    window.addEventListener('scroll', function() {
+        const currentScroll = window.pageYOffset;
+        
+        // Auto-open when scrolling down past 150px
+        if (currentScroll > 150 && !isSearchOpen && !autoOpenedByScroll) {
+            isSearchOpen = true;
+            autoOpenedByScroll = true;
+            searchBar.style.display = 'block';
+            searchToggleBtn.innerHTML = '<i class="bi bi-x"></i>';
+        }
+        
+        // Add shadow when scrolled
+        if (isSearchOpen && currentScroll > 100) {
+            searchBar.classList.add('scrolled');
+        } else {
+            searchBar.classList.remove('scrolled');
+        }
+        
+        lastScroll = currentScroll;
+    });
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim().toLowerCase();
+        
+        if (query.length === 0) {
+            clearSearch();
+            return;
+        }
+        
+        clearButton.style.display = 'block';
+        
+        searchTimeout = setTimeout(() => {
+            performSearch(query);
+        }, 300);
+    });
+
+    clearButton.addEventListener('click', clearSearch);
+    showAllButton.addEventListener('click', clearSearch);
     
-    if (isFree) {
-        priceElement.textContent = 'Bepul kurs';
-        priceElement.className = 'text-success mb-4';
-        paymentBtn.innerHTML = '<i class="bi bi-check-circle"></i> Bepul yozilish';
-        paymentBtn.className = 'btn btn-success flex-fill';
-    } else {
-        priceElement.textContent = 'Narx: ' + price.toLocaleString() + ' so\'m';
-        priceElement.className = 'text-warning mb-4';
-        paymentBtn.innerHTML = '<i class="bi bi-credit-card"></i> To\'lov qilish';
-        paymentBtn.className = 'btn btn-success flex-fill';
+    function performSearch(query) {
+        let visibleCount = 0;
+        
+        allCourseCards.forEach(card => {
+            const title = card.getAttribute('data-title');
+            const category = card.getAttribute('data-category');
+            const instructor = card.getAttribute('data-instructor');
+            
+            if (title.includes(query) || category.includes(query) || instructor.includes(query)) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        if (visibleCount > 0) {
+            searchResults.style.display = 'block';
+            document.querySelector('.course-results-count').textContent = visibleCount + ' ta kurs topildi';
+            noResults.style.display = 'none';
+        } else {
+            searchResults.style.display = 'none';
+            noResults.style.display = 'block';
+            if (coursesList) coursesList.style.display = 'none';
+            if (featuredCoursesList) featuredCoursesList.style.display = 'none';
+        }
     }
     
-    document.getElementById('enrollmentModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function hideEnrollModal() {
-    document.getElementById('enrollmentModal').classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
-function proceedToPayment() {
-    if (currentCourseFree) {
-        // Bepul kurs uchun to'g'ridan-to'g'ri yozilish
-        alert('Siz bepul kursga muvaffaqiyatli yozildingiz!');
-        hideEnrollModal();
-    } else if (currentPaymentUrl) {
-        // To'lov URL'ga yo'naltirish
-        window.open(currentPaymentUrl, '_blank');
-        hideEnrollModal();
-    } else {
-        alert('To\'lov URL manzili mavjud emas. Admin bilan bog\'laning.');
+    function clearSearch() {
+        searchInput.value = '';
+        clearButton.style.display = 'none';
+        searchResults.style.display = 'none';
+        noResults.style.display = 'none';
+        
+        allCourseCards.forEach(card => {
+            card.style.display = 'block';
+        });
+        
+        if (coursesList) coursesList.style.display = 'block';
+        if (featuredCoursesList) featuredCoursesList.style.display = 'block';
     }
-}
 
-// Modal tashqarisiga bosganda yopish
-document.getElementById('enrollmentModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        hideEnrollModal();
-    }
+    // Modal functions
+    window.showEnrollModal = function(courseTitle, paymentUrl, price, isFree) {
+        currentPaymentUrl = paymentUrl;
+        currentCoursePrice = price;
+        currentCourseFree = isFree;
+        
+        document.getElementById('courseTitle').textContent = courseTitle;
+        document.getElementById('enrollmentModalTitle').textContent = 'Kursga yozilish';
+        
+        const priceElement = document.getElementById('coursePrice');
+        const paymentBtn = document.getElementById('paymentBtn');
+        
+        if (isFree) {
+            priceElement.textContent = 'Bepul kurs';
+            priceElement.className = 'text-success small';
+            paymentBtn.textContent = 'Bepul yozilish';
+        } else {
+            priceElement.textContent = 'Narx: ' + price.toLocaleString() + ' so\'m';
+            priceElement.className = 'text-warning small';
+            paymentBtn.textContent = 'To\'lov qilish';
+        }
+        
+        document.getElementById('enrollmentModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.hideEnrollModal = function() {
+        document.getElementById('enrollmentModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    };
+
+    window.proceedToPayment = function() {
+        if (currentCourseFree) {
+            alert('Siz bepul kursga muvaffaqiyatli yozildingiz!');
+            hideEnrollModal();
+        } else if (currentPaymentUrl) {
+            window.open(currentPaymentUrl, '_blank');
+            hideEnrollModal();
+        } else {
+            alert('To\'lov URL manzili mavjud emas. Admin bilan bog\'laning.');
+        }
+    };
+
+    document.getElementById('enrollmentModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideEnrollModal();
+        }
+    });
 });
 </script>
 
