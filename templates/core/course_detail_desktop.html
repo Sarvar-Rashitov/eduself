@@ -79,24 +79,27 @@
                     <h2><i class="fas fa-list"></i> Darslar ({{ lessons|length }})</h2>
                     <div class="lessons-list-wrapper">
                         <div class="lessons-list">
-                            {% for lesson in lessons %}
-                            <div class="lesson-item {% if not course.is_free and not lesson.is_free and not payment_confirmed and not forloop.first %}locked{% endif %}">
+                            {% for item in lessons_with_status %}
+                            <div class="lesson-item {% if not item.is_unlocked %}locked{% endif %}">
                                 <div class="lesson-number">{{ forloop.counter }}</div>
                                 <div class="lesson-info">
-                                    <h4>{{ lesson.title }}</h4>
-                                    <p>{{ lesson.description|truncatewords:15|safe }}</p>
+                                    <h4>{{ item.lesson.title }}</h4>
+                                    <p>{{ item.lesson.description|truncatewords:15|safe }}</p>
                                     <div class="lesson-meta">
-                                        {% if lesson.duration %}
-                                        <span><i class="fas fa-clock"></i> {{ lesson.duration }} daqiqa</span>
+                                        {% if item.lesson.duration %}
+                                        <span><i class="fas fa-clock"></i> {{ item.lesson.duration }} daqiqa</span>
                                         {% endif %}
-                                        {% if lesson.is_free %}
+                                        {% if item.lesson.is_free %}
                                         <span class="free-badge"><i class="fas fa-unlock"></i> Bepul</span>
+                                        {% endif %}
+                                        {% if item.is_completed %}
+                                        <span class="completed-badge"><i class="fas fa-check-circle"></i> Tugallangan</span>
                                         {% endif %}
                                     </div>
                                 </div>
                                 <div class="lesson-action">
-                                    {% if course.is_free or lesson.is_free or payment_confirmed or forloop.first %}
-                                    <a href="{% url 'core:lesson_detail' course.slug lesson.id %}" class="btn btn-primary btn-sm">
+                                    {% if item.is_unlocked %}
+                                    <a href="{% url 'core:lesson_detail' course.slug item.lesson.id %}" class="btn btn-primary btn-sm">
                                         <i class="fas fa-play"></i> Ko'rish
                                     </a>
                                     {% else %}
@@ -379,16 +382,18 @@
 
 .content-card {
     background: var(--white);
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: var(--shadow);
-    margin-bottom: 2rem;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
 }
 
 .content-card h2 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     color: var(--dark-color);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--light-color);
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -495,6 +500,11 @@
     color: #10b981 !important;
 }
 
+.completed-badge {
+    color: #6366f1 !important;
+    font-weight: 600;
+}
+
 .locked-badge {
     color: var(--text-color);
     opacity: 0.5;
@@ -503,9 +513,9 @@
 
 .sidebar-card {
     background: var(--white);
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 1.5rem;
-    box-shadow: var(--shadow);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 1.5rem;
 }
 

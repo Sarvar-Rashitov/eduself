@@ -4,7 +4,7 @@ from .models import (
     Certificate, CertificateTopic, CertificateTest, CertificateQuestion, CertificateAnswer, CertificateResult,
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     InstitutionCategory, Institution, InstitutionDirection, Advertisement, Statistic, NewsCategory, News,
-    CourseCategory, Course, Lesson, CourseEnrollment, Notification, NotificationRead,
+    CourseCategory, Course, Lesson, CourseEnrollment, LessonProgress, Notification, NotificationRead,
     DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult, Partner
 )
 
@@ -471,6 +471,10 @@ class LessonAdmin(admin.ModelAdmin):
         }),
         ('Kontent', {
             'fields': ('content', 'video_url', 'video_file', 'duration')
+        }),
+        ('Amaliy mashq', {
+            'fields': ('practice_topic',),
+            'description': 'Darsga amaliy mashq sifatida mavzu ulang'
         }),
         ('Sozlamalar', {
             'fields': ('order', 'is_free', 'is_active')

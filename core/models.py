@@ -714,6 +714,7 @@ class Lesson(models.Model):
     video_url = models.URLField(max_length=500, blank=True, verbose_name="Video URL (YouTube, Vimeo)")
     video_file = models.FileField(upload_to='lessons/videos/', blank=True, null=True, verbose_name="Video fayl")
     duration = models.CharField(max_length=50, blank=True, verbose_name="Davomiyligi")
+    practice_topic = models.ForeignKey('Topic', on_delete=models.SET_NULL, null=True, blank=True, related_name='practice_lessons', verbose_name="Amaliy mashq (Mavzu)")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
     is_free = models.BooleanField(default=False, verbose_name="Bepul dars")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
@@ -769,6 +770,24 @@ class CourseEnrollment(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.course.title}"
+
+
+class LessonProgress(models.Model):
+    """Dars ko'rish progressi"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lesson_progress')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='progress')
+    completed = models.BooleanField(default=False, verbose_name="Tugallangan")
+    completed_at = models.DateTimeField(null=True, blank=True, verbose_name="Tugallangan vaqt")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'lesson']
+        ordering = ['-created_at']
+        verbose_name = "Dars progressi"
+        verbose_name_plural = "Dars progresslari"
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson.title}"
 
 
 class NotificationType(models.TextChoices):

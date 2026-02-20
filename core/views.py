@@ -1065,11 +1065,13 @@ def courses_view(request):
 
 def course_detail_view(request, slug):
     course = get_object_or_404(Course, slug=slug, is_active=True)
-    lessons = course.lessons.filter(is_active=True)
+    lessons = course.lessons.filter(is_active=True).order_by('order')
     
     # Foydalanuvchi kursga yozilganmi va to'lov tasdiqlanganmi?
     is_enrolled = False
     payment_confirmed = False
+    completed_lessons = []
+    
     if request.user.is_authenticated:
         enrollment = CourseEnrollment.objects.filter(
             user=request.user,
@@ -1078,10 +1080,49 @@ def course_detail_view(request, slug):
         if enrollment:
             is_enrolled = True
             payment_confirmed = enrollment.payment_confirmed
+            
+            # Tugallangan darslar ro'yxatini olish
+            from core.models import LessonProgress
+            completed_lessons = list(LessonProgress.objects.filter(
+                user=request.user,
+                lesson__course=course,
+                completed=True
+            ).values_list('lesson_id', flat=True))
+    
+    # Har bir dars uchun ochilganligini aniqlash
+    lessons_with_status = []
+    for i, lesson in enumerate(lessons):
+        is_unlocked = False
+        
+        # Bepul kurs yoki to'lov tasdiqlangan bo'lsa
+        if course.is_free or payment_confirmed:
+            # Birinchi dars har doim ochiq
+            if i == 0:
+                is_unlocked = True
+            # Bepul dars har doim ochiq
+            elif lesson.is_free:
+                is_unlocked = True
+            # Oldingi dars tugallangan bo'lsa
+            elif i > 0:
+                previous_lesson = lessons[i-1]
+                is_unlocked = previous_lesson.id in completed_lessons
+        # Birinchi dars har doim ochiq (demo uchun)
+        elif i == 0:
+            is_unlocked = True
+        # Bepul dars har doim ochiq
+        elif lesson.is_free:
+            is_unlocked = True
+            
+        lessons_with_status.append({
+            'lesson': lesson,
+            'is_unlocked': is_unlocked,
+            'is_completed': lesson.id in completed_lessons
+        })
     
     context = {
         'course': course,
         'lessons': lessons,
+        'lessons_with_status': lessons_with_status,
         'is_enrolled': is_enrolled,
         'payment_confirmed': payment_confirmed,
     }
@@ -1093,6 +1134,9 @@ def course_detail_view(request, slug):
 
 @login_required
 def lesson_detail_view(request, course_slug, lesson_id):
+    from core.models import LessonProgress
+    from django.utils import timezone
+    
     course = get_object_or_404(Course, slug=course_slug, is_active=True)
     lesson = get_object_or_404(Lesson, id=lesson_id, course=course, is_active=True)
     
@@ -1109,21 +1153,45 @@ def lesson_detail_view(request, course_slug, lesson_id):
     is_enrolled = enrollment is not None
     payment_confirmed = enrollment.payment_confirmed if enrollment else False
     
-    # Ruxsat tekshirish: 
-    # 1. Bepul kurs bo'lsa
-    # 2. Birinchi dars bo'lsa
-    # 3. To'lov tasdiqlangan bo'lsa
-    # 4. Dars bepul bo'lsa
-    can_access = (
-        course.is_free or 
-        lesson.is_free or 
-        (lesson == first_lesson) or 
-        payment_confirmed
-    )
+    # Tugallangan darslar
+    completed_lessons = list(LessonProgress.objects.filter(
+        user=request.user,
+        lesson__course=course,
+        completed=True
+    ).values_list('lesson_id', flat=True))
+    
+    # Ketma-ket ochish logikasi
+    lesson_index = list(all_lessons).index(lesson)
+    can_access = False
+    
+    # Birinchi dars har doim ochiq
+    if lesson_index == 0:
+        can_access = True
+    # Bepul dars har doim ochiq
+    elif lesson.is_free:
+        can_access = True
+    # Bepul kurs yoki to'lov tasdiqlangan bo'lsa
+    elif course.is_free or payment_confirmed:
+        # Oldingi dars tugallangan bo'lsa
+        if lesson_index > 0:
+            previous_lesson = all_lessons[lesson_index - 1]
+            can_access = previous_lesson.id in completed_lessons
     
     if not can_access:
-        messages.error(request, "Bu darsni ko'rish uchun to'lovingiz tasdiqlanishi kerak.")
+        messages.error(request, "Bu darsni ko'rish uchun oldingi darsni tugallashingiz kerak.")
         return redirect('core:course_detail', slug=course_slug)
+    
+    # Darsni ko'rilgan deb belgilash (avtomatik)
+    progress, created = LessonProgress.objects.get_or_create(
+        user=request.user,
+        lesson=lesson
+    )
+    
+    # Agar dars tugallanmagan bo'lsa, tugallangan deb belgilash
+    if not progress.completed:
+        progress.completed = True
+        progress.completed_at = timezone.now()
+        progress.save()
     
     context = {
         'course': course,
