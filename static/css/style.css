@@ -671,6 +671,51 @@ body {
     flex-shrink: 0;
 }
 
+/* Badge Styles for Leaderboard Info */
+.badge.bg-primary-subtle {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+    color: var(--primary-color) !important;
+    font-weight: 500;
+}
+
+.badge.bg-success-subtle {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    color: var(--secondary-color) !important;
+    font-weight: 500;
+}
+
+.badge.bg-warning-subtle {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    color: var(--accent-color) !important;
+    font-weight: 500;
+}
+
+.badge.bg-info-subtle {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    color: #3b82f6 !important;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .badge.bg-primary-subtle {
+    background-color: rgba(129, 140, 248, 0.15) !important;
+    color: var(--primary-color) !important;
+}
+
+[data-theme="dark"] .badge.bg-success-subtle {
+    background-color: rgba(52, 211, 153, 0.15) !important;
+    color: var(--secondary-color) !important;
+}
+
+[data-theme="dark"] .badge.bg-warning-subtle {
+    background-color: rgba(251, 191, 36, 0.15) !important;
+    color: var(--accent-color) !important;
+}
+
+[data-theme="dark"] .badge.bg-info-subtle {
+    background-color: rgba(96, 165, 250, 0.15) !important;
+    color: #60a5fa !important;
+}
+
 .subject-info, .topic-info, .test-info {
     flex: 1;
 }

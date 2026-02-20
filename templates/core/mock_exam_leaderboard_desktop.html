@@ -8,8 +8,28 @@
     <div class="container">
         <div class="leaderboard-header">
             <a href="{% url 'core:mock_exams' %}" class="back-link"><i class="fas fa-arrow-left"></i> Orqaga</a>
-            <h1>{{ exam.title }}</h1>
-            <p>{{ exam.mock_questions.count }} savol | {{ exam.time_limit }} daqiqa | O'tish balli: {{ exam.passing_score }}%</p>
+            <div class="test-info-card">
+                <div class="test-icon-large" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="test-details">
+                    <h1>{{ exam.title }}</h1>
+                    <div class="test-meta-badges">
+                        <span class="meta-badge warning">
+                            <i class="fas fa-question-circle"></i> {{ exam.mock_questions.count }} savol
+                        </span>
+                        <span class="meta-badge info">
+                            <i class="fas fa-clock"></i> {{ exam.time_limit }} daqiqa
+                        </span>
+                        <span class="meta-badge success">
+                            <i class="fas fa-trophy"></i> O'tish: {{ exam.passing_score }}%
+                        </span>
+                    </div>
+                </div>
+                <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-start-test">
+                    <i class="fas fa-play"></i> Boshlash
+                </a>
+            </div>
         </div>
         <div class="leaderboard-grid">
             <div class="leaderboard-main">
@@ -38,7 +58,7 @@
                     </div>
                     {% else %}<div class="empty-leaderboard"><i class="fas fa-inbox"></i><p>Hali hech kim bu imtihonni ishlamagan</p></div>{% endif %}
                 </div>
-                <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-primary btn-lg btn-block"><i class="fas fa-play"></i> Imtihonni boshlash</a>
+                <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-lg btn-block"><i class="fas fa-play"></i> Imtihonni boshlash</a>
             </div>
         </div>
     </div>
@@ -48,9 +68,90 @@
 {% block extra_css %}
 <style>
 .leaderboard-section { padding: 40px 0 80px; }
-.leaderboard-header { text-align: center; margin-bottom: 2rem; }
-.leaderboard-header h1 { font-size: 2rem; margin: 1rem 0 0.5rem; }
-.back-link { color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+.leaderboard-header { margin-bottom: 2rem; }
+.leaderboard-header h1 { font-size: 2rem; margin: 0 0 0.75rem; }
+.back-link { color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+
+.test-info-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--white);
+    padding: 1.5rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+.btn-start-test {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    transition: all 0.3s ease;
+}
+
+.btn-start-test:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.test-icon-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.test-details {
+    flex: 1;
+}
+
+.test-meta-badges {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+}
+
+.meta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.meta-badge.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.meta-badge.info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.meta-badge.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.meta-badge i {
+    font-size: 0.85rem;
+}
+
 .leaderboard-grid { max-width: 800px; margin: 0 auto; }
 .user-best-card, .leaderboard-card { background: var(--white); border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
 .user-best-card { border: 2px solid var(--primary-color); }
