@@ -49,6 +49,9 @@
                         <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ news.title }}" target="_blank" class="share-btn twitter">
                             <i class="fab fa-twitter"></i>
                         </a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" class="share-btn linkedin">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
                     </div>
                 </article>
             </div>
@@ -227,6 +230,10 @@
 
 .share-btn.twitter {
     background: #1da1f2;
+}
+
+.share-btn.linkedin {
+    background: #0077b5;
 }
 
 .news-detail-sidebar {
