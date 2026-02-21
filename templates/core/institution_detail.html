@@ -207,6 +207,20 @@
             </div>
             {% endif %}
             
+            {% if institution.website %}
+            <div class="col-md-6 mb-3">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-globe text-primary me-3 fs-5"></i>
+                    <div>
+                        <small class="text-muted d-block">Vebsayt</small>
+                        <a href="{{ institution.website }}" class="text-decoration-none" target="_blank">
+                            {{ institution.website }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
             {% if institution.address %}
             <div class="col-12 mb-3">
                 <div class="d-flex align-items-start">
@@ -236,16 +250,6 @@
             {{ institution.address_iframe|safe }}
         </div>
     </div>
-</div>
-{% endif %}
-
-<!-- Universitet website -->
-{% if institution.website %}
-<div class="text-center mb-4">
-    <a href="{{ institution.website }}" class="btn btn-primary" target="_blank">
-        <i class="bi bi-globe me-2"></i>
-        Universitet vebsaytiga o'tish
-    </a>
 </div>
 {% endif %}
 {% endblock %}
