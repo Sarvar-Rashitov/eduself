@@ -1,0 +1,48 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}{{ title }} - EduSelf{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Assalomu alaykum, {{ user_name }}! 👋
+</div>
+
+<div class="message">
+    <p><strong>{{ notification_type }}</strong></p>
+    <p style="font-size: 20px; font-weight: 600; color: #1a1a1a; margin: 15px 0;">
+        {{ title }}
+    </p>
+</div>
+
+<div class="message" style="font-size: 16px; line-height: 1.8; color: #555;">
+    {{ message|linebreaks }}
+</div>
+
+{% if link %}
+<div class="button-container">
+    <a href="{{ link }}" class="button">
+        🔗 Batafsil ko'rish
+    </a>
+</div>
+{% endif %}
+
+<div class="divider"></div>
+
+<div class="message" style="font-size: 14px; color: #666;">
+    <p><strong>📱 EduSelf platformasi:</strong></p>
+    <p>• Yangi testlar va savollar</p>
+    <p>• Video darslar va kurslar</p>
+    <p>• Sertifikatlar va imtihonlar</p>
+    <p>• AI yordamchi</p>
+</div>
+
+<div class="message" style="margin-top: 20px; font-size: 14px; color: #666;">
+    <p>Savollaringiz bo'lsa, biz bilan bog'laning:</p>
+    <p>📧 Email: support@eduself.uz</p>
+    <p>📱 Telegram: @eduselfuz</p>
+</div>
+
+<div class="message" style="margin-top: 20px; font-size: 12px; color: #999;">
+    <p><em>Bu bildirishnoma admin tomonidan yuborildi.</em></p>
+</div>
+{% endblock %}

@@ -520,10 +520,37 @@ class NotificationAdmin(admin.ModelAdmin):
         """Bildirishnoma saqlanayotganda qo'shimcha tekshiruvlar"""
         super().save_model(request, obj, form, change)
         
-        # Agar yangi bildirishnoma yaratilgan bo'lsa, Telegram orqali yuborish
+        # Agar yangi bildirishnoma yaratilgan bo'lsa
         if not change:  # Yangi obyekt
             from django.contrib import messages
-            messages.success(request, f"Bildirishnoma yaratildi va Telegram orqali yuborildi: {obj.title}")
+            
+            if obj.is_global:
+                from accounts.models import User
+                email_count = User.objects.filter(
+                    is_active=True,
+                    email__isnull=False,
+                    email_verified=True
+                ).exclude(email='').count()
+                
+                telegram_count = User.objects.filter(
+                    is_active=True,
+                    telegram_chat_id__isnull=False
+                ).exclude(telegram_chat_id='').count()
+                
+                messages.success(
+                    request, 
+                    f"✅ Global bildirishnoma yaratildi!\n"
+                    f"📧 Email: {email_count} ta foydalanuvchiga yuborilmoqda\n"
+                    f"📱 Telegram: {telegram_count} ta foydalanuvchiga yuborilmoqda"
+                )
+            else:
+                user_info = f"{obj.user.first_name} ({obj.user.email})" if obj.user else "Noma'lum"
+                messages.success(
+                    request, 
+                    f"✅ Shaxsiy bildirishnoma yaratildi!\n"
+                    f"👤 Foydalanuvchi: {user_info}\n"
+                    f"📧 Email va 📱 Telegram orqali yuborilmoqda"
+                )
 
 
 @admin.register(NotificationRead)

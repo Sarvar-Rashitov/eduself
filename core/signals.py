@@ -1,104 +1,95 @@
+"""
+Core app signals - Notification yaratilganda email yuborish
+"""
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db.models import Sum
-from .models import TopicResult, CertificateResult, MockExamResult, Notification
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from .models import Notification
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-def calculate_user_total_points(user):
-    """
-    Foydalanuvchining barcha test turlaridan umumiy ballini hisoblash
-    """
-    # Mavzu testlaridan balllar (earned_points maydoni)
-    topic_points = TopicResult.objects.filter(user=user).aggregate(
-        total=Sum('earned_points')
-    )['total'] or 0
-    
-    # Sertifikat testlaridan balllar (earned_points maydoni)
-    cert_points = CertificateResult.objects.filter(user=user).aggregate(
-        total=Sum('earned_points')
-    )['total'] or 0
-    
-    # Mock exam testlaridan balllar (earned_points maydoni)
-    mock_points = MockExamResult.objects.filter(user=user).aggregate(
-        total=Sum('earned_points')
-    )['total'] or 0
-    
-    return topic_points + cert_points + mock_points
-
-
-@receiver(post_save, sender=TopicResult)
-def update_user_total_points_on_topic_result(sender, instance, created, **kwargs):
-    """
-    TopicResult yaratilganda foydalanuvchining total_points ni yangilash
-    """
-    if created:  # Faqat yangi natija yaratilganda
-        user = instance.user
-        total_points = calculate_user_total_points(user)
-        user.total_points = total_points
-        user.save(update_fields=['total_points'])
-
-
-@receiver(post_save, sender=CertificateResult)
-def update_user_total_points_on_cert_result(sender, instance, created, **kwargs):
-    """
-    CertificateResult yaratilganda foydalanuvchining total_points ni yangilash
-    """
-    if created:  # Faqat yangi natija yaratilganda
-        user = instance.user
-        total_points = calculate_user_total_points(user)
-        user.total_points = total_points
-        user.save(update_fields=['total_points'])
-
-
-@receiver(post_save, sender=MockExamResult)
-def update_user_total_points_on_mock_result(sender, instance, created, **kwargs):
-    """
-    MockExamResult yaratilganda foydalanuvchining total_points ni yangilash
-    """
-    if created:  # Faqat yangi natija yaratilganda
-        user = instance.user
-        total_points = calculate_user_total_points(user)
-        user.total_points = total_points
-        user.save(update_fields=['total_points'])
-
-
 @receiver(post_save, sender=Notification)
-def send_telegram_notification_on_create(sender, instance, created, **kwargs):
+def send_notification_email(sender, instance, created, **kwargs):
     """
-    Yangi bildirishnoma yaratilganda Telegram bot orqali yuborish
+    Yangi notification yaratilganda email yuborish
     """
-    if created:  # Faqat yangi bildirishnoma yaratilganda
+    if not created:
+        return  # Faqat yangi notification uchun
+    
+    notification = instance
+    
+    # Email yuborish funksiyasi
+    def send_email_to_user(user):
+        """Bitta foydalanuvchiga email yuborish"""
+        if not user.email or not user.email_verified:
+            return False
+        
         try:
-            from telegram_bot.notification_sender import send_telegram_notification
+            # HTML email yaratish
+            html_content = render_to_string('emails/notification.html', {
+                'user_name': user.first_name,
+                'title': notification.title,
+                'message': notification.message,
+                'link': notification.link,
+                'notification_type': notification.get_notification_type_display(),
+                'icon': notification.icon,
+                'site_url': settings.SITE_URL,
+            })
             
-            # Sayt URL ni olish
-            from django.conf import settings
-            site_url = getattr(settings, 'SITE_URL', 'https://eduself.uz')
+            # Text fallback
+            text_content = f'''Assalomu alaykum, {user.first_name}!
+
+{notification.get_notification_type_display()}: {notification.title}
+
+{notification.message}
+
+{f"Havola: {notification.link}" if notification.link else ""}
+
+Hurmat bilan,
+EduSelf jamoasi'''
             
-            # Havola tayyorlash
-            link = None
-            if instance.link:
-                if instance.link.startswith('http'):
-                    link = instance.link
-                else:
-                    link = f"{site_url}{instance.link}"
-            
-            # Telegram orqali yuborish
-            success = send_telegram_notification(
-                user_id=instance.user.id if instance.user else None,
-                title=instance.title,
-                message=instance.message,
-                link=link,
-                is_global=instance.is_global
+            # Email yuborish
+            email = EmailMultiAlternatives(
+                subject=f'EduSelf - {notification.title}',
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[user.email]
             )
+            email.attach_alternative(html_content, "text/html")
+            email.send(fail_silently=True)
             
-            if success:
-                logger.info(f"Telegram bildirishnoma yuborildi: {instance.title}")
-            else:
-                logger.warning(f"Telegram bildirishnoma yuborilmadi: {instance.title}")
-                
+            logger.info(f"Notification email yuborildi: {user.email}")
+            return True
+            
         except Exception as e:
-            logger.error(f"Telegram bildirishnoma yuborishda xatolik: {e}")
+            logger.error(f"Notification email yuborishda xatolik ({user.email}): {e}")
+            return False
+    
+    # Global yoki shaxsiy notification
+    if notification.is_global:
+        # Barcha foydalanuvchilarga yuborish (email tasdiqlangan)
+        from accounts.models import User
+        users = User.objects.filter(
+            is_active=True,
+            email__isnull=False,
+            email_verified=True
+        ).exclude(email='')
+        
+        logger.info(f"Global notification: {users.count()} ta foydalanuvchiga yuborilmoqda")
+        
+        sent_count = 0
+        for user in users:
+            if send_email_to_user(user):
+                sent_count += 1
+        
+        logger.info(f"Global notification email yuborish tugadi: {sent_count}/{users.count()}")
+        
+    else:
+        # Shaxsiy notification - faqat bitta foydalanuvchiga
+        if notification.user:
+            send_email_to_user(notification.user)
+            logger.info(f"Shaxsiy notification email yuborildi: {notification.user.email}")
