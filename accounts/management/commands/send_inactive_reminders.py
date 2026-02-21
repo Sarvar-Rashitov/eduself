@@ -116,6 +116,26 @@ EduSelf jamoasi'''
                     email.attach_alternative(html_content, "text/html")
                     email.send(fail_silently=False)
                     
+                    # Telegram notification yuborish
+                    if user.telegram_chat_id:
+                        try:
+                            from telegram_bot.notification_sender import send_telegram_notification
+                            send_telegram_notification(
+                                user_id=user.id,
+                                title="📚 Sizni sog'indik!",
+                                message=f"Assalomu alaykum, {user.first_name}!\n\n"
+                                        f"Siz {days_inactive} kun faol bo'lmadingiz.\n\n"
+                                        f"📊 Natijalaringiz:\n"
+                                        f"• Jami testlar: {total_tests}\n"
+                                        f"• O'tgan testlar: {passed_tests}\n"
+                                        f"• Umumiy ball: {total_points}\n"
+                                        f"• Progress: {progress}%\n\n"
+                                        f"Qaytib kelib, o'qishni davom ettiring!",
+                                link=settings.SITE_URL
+                            )
+                        except Exception as e:
+                            self.stdout.write(self.style.WARNING(f'   ⚠️  Telegram notification xatolik: {e}'))
+                    
                     sent_count += 1
                     self.stdout.write(self.style.SUCCESS(f'   ✅ Yuborildi'))
                 else:

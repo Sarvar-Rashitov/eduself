@@ -68,7 +68,7 @@ class TelegramNotificationSender:
                 return False
             
             # Xabar matnini tayyorlash
-            text = f"🔔 <b>{title}</b>\n\n{message}"
+            text = f"<b>{title}</b>\n\n{message}"
             
             if link:
                 text += f"\n\n🔗 <a href='{link}'>Batafsil ko'rish</a>"

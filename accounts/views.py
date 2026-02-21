@@ -99,6 +99,21 @@ EduSelf jamoasi'''
             else:
                 messages.success(request, "Ro'yxatdan o'tdingiz!")
             
+            # Telegram notification yuborish (agar telegram_chat_id bo'lsa)
+            if user.telegram_chat_id:
+                try:
+                    from telegram_bot.notification_sender import send_telegram_notification
+                    send_telegram_notification(
+                        user_id=user.id,
+                        title="🎉 Xush kelibsiz!",
+                        message=f"Assalomu alaykum, {user.first_name}!\n\n"
+                                f"EduSelf platformasiga xush kelibsiz! "
+                                f"Endi siz platformaning barcha imkoniyatlaridan foydalanishingiz mumkin.",
+                        link=settings.SITE_URL
+                    )
+                except Exception as e:
+                    print(f"Telegram notification yuborishda xatolik: {e}")
+            
             login(request, user, backend='accounts.backends.EmailPhoneBackend')
             next_url = request.POST.get('next') or request.GET.get('next')
             if next_url:
@@ -193,6 +208,21 @@ EduSelf jamoasi'''
                         )
                         email.attach_alternative(html_content, "text/html")
                         email.send(fail_silently=True)
+                        
+                        # Telegram notification yuborish
+                        if user.telegram_chat_id:
+                            try:
+                                from telegram_bot.notification_sender import send_telegram_notification
+                                send_telegram_notification(
+                                    user_id=user.id,
+                                    title="👋 Qaytganingizdan xursandmiz!",
+                                    message=f"Assalomu alaykum, {user.first_name}!\n\n"
+                                            f"Siz EduSelf platformasiga qaytib keldingiz. "
+                                            f"Davom eting va bilimingizni oshiring!",
+                                    link=settings.SITE_URL
+                                )
+                            except Exception as e:
+                                print(f"Telegram notification yuborishda xatolik: {e}")
                 except Exception as e:
                     print(f"Welcome email yuborishda xatolik: {e}")
             

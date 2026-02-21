@@ -174,6 +174,24 @@ EduSelf jamoasi'''
         email.attach_alternative(html_content, "text/html")
         email.send(fail_silently=True)
         
+        # Telegram notification yuborish
+        if user.telegram_chat_id:
+            try:
+                from telegram_bot.notification_sender import send_telegram_notification
+                send_telegram_notification(
+                    user_id=user.id,
+                    title="🔒 Yangi qurilmadan kirish",
+                    message=f"Sizning hisobingizga yangi qurilmadan kirish amalga oshirildi.\n\n"
+                            f"📅 Vaqt: {login_history.login_time.strftime('%d.%m.%Y %H:%M')}\n"
+                            f"📱 Qurilma: {login_history.device_type}\n"
+                            f"🌐 Brauzer: {login_history.browser}\n"
+                            f"💻 OS: {login_history.os}\n\n"
+                            f"Bu siz bo'lmasa, darhol parolingizni o'zgartiring!",
+                    link=reset_password_url
+                )
+            except Exception as e:
+                print(f"Telegram notification yuborishda xatolik: {e}")
+        
         return True
     except Exception as e:
         print(f"New device email yuborishda xatolik: {e}")
