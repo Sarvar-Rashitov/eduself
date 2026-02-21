@@ -53,18 +53,20 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             
-            # Email bilan ro'yxatdan o'tgan bo'lsa, tasdiqlash emailini yuborish
+            # Email bilan ro'yxatdan o'tgan bo'lsa, tasdiqlash va xush kelibsiz emaillarini yuborish
             if register_type == 'email' and user.email:
-                token = EmailVerificationToken.objects.create(user=user)
-                verify_url = request.build_absolute_uri(
-                    reverse('accounts:verify_email', kwargs={'token': token.token})
-                )
+                import logging
+                logger = logging.getLogger(__name__)
+                
+                # 1. Email tasdiqlash xati yuborish
                 try:
+                    token = EmailVerificationToken.objects.create(user=user)
+                    verify_url = request.build_absolute_uri(
+                        reverse('accounts:verify_email', kwargs={'token': token.token})
+                    )
+                    
                     from django.template.loader import render_to_string
                     from django.core.mail import EmailMultiAlternatives
-                    import logging
-                    
-                    logger = logging.getLogger(__name__)
                     
                     # HTML email yaratish
                     html_content = render_to_string('emails/verify_email.html', {
@@ -94,13 +96,60 @@ EduSelf jamoasi'''
                         to=[user.email]
                     )
                     email.attach_alternative(html_content, "text/html")
-                    email.send(fail_silently=False)  # Xatoliklarni ko'rish uchun
+                    email.send(fail_silently=False)
                     
                     logger.info(f"✅ Email tasdiqlash xati yuborildi: {user.email}")
-                    messages.success(request, "Ro'yxatdan o'tdingiz! Emailingizga tasdiqlash havolasi yuborildi.")
+                    
                 except Exception as e:
-                    logger.error(f"❌ Email yuborishda xatolik ({user.email}): {e}")
-                    messages.success(request, "Ro'yxatdan o'tdingiz! Emailingizni tasdiqlash uchun profilingizga o'ting.")
+                    logger.error(f"❌ Email tasdiqlash xati yuborishda xatolik ({user.email}): {e}")
+                    import traceback
+                    logger.error(traceback.format_exc())
+                
+                # 2. Xush kelibsiz emaili yuborish
+                try:
+                    from django.template.loader import render_to_string
+                    from django.core.mail import EmailMultiAlternatives
+                    
+                    # HTML email yaratish
+                    html_content = render_to_string('emails/welcome.html', {
+                        'user_name': user.first_name,
+                        'site_url': settings.SITE_URL,
+                    })
+                    
+                    # Text fallback
+                    text_content = f'''Assalomu alaykum, {user.first_name}!
+
+EduSelf platformasiga xush kelibsiz!
+
+Endi siz platformaning barcha imkoniyatlaridan foydalanishingiz mumkin:
+- 📚 Testlar va mock imtihonlar
+- 🎓 Video darslar
+- 📊 O'z natijalaringizni kuzatish
+- 🏆 Reyting va sertifikatlar
+
+Platformaga kirish: {settings.SITE_URL}
+
+Hurmat bilan,
+EduSelf jamoasi'''
+                    
+                    # Email yuborish
+                    email = EmailMultiAlternatives(
+                        subject='EduSelf - Xush kelibsiz!',
+                        body=text_content,
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        to=[user.email]
+                    )
+                    email.attach_alternative(html_content, "text/html")
+                    email.send(fail_silently=False)
+                    
+                    logger.info(f"✅ Xush kelibsiz emaili yuborildi: {user.email}")
+                    
+                except Exception as e:
+                    logger.error(f"❌ Xush kelibsiz emaili yuborishda xatolik ({user.email}): {e}")
+                    import traceback
+                    logger.error(traceback.format_exc())
+                
+                messages.success(request, "Ro'yxatdan o'tdingiz! Emailingizga tasdiqlash havolasi yuborildi.")
             else:
                 messages.success(request, "Ro'yxatdan o'tdingiz!")
             
