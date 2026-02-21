@@ -15,13 +15,6 @@ from .models import (
     DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult, Partner
 )
 
-# Import API views for browser notifications
-from .api_views import (
-    get_unread_notifications,
-    update_notification_permission,
-    mark_notification_read as mark_notification_read_api
-)
-
 def is_mobile(request):
     """User-Agent orqali mobil qurilmani aniqlash"""
     user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
@@ -1569,10 +1562,3 @@ def privacy_view(request):
     }
     return render(request, 'core/privacy.html', context)
 
-
-# ==================== API Views ====================
-from .api_views import (
-    get_unread_notifications,
-    update_notification_permission,
-    mark_notification_read as mark_notification_read_api
-)
