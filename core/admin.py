@@ -523,18 +523,15 @@ class NotificationAdmin(admin.ModelAdmin):
         # Agar yangi bildirishnoma yaratilgan bo'lsa
         if not change:  # Yangi obyekt
             from django.contrib import messages
-            from django.db.models import Q
             
             if obj.is_global:
                 from accounts.models import User
                 
-                # Email yuborilishi kerak bo'lganlar (Google ID yoki email bilan login)
+                # Email yuborilishi kerak bo'lganlar (BARCHA email tasdiqlangan)
                 email_count = User.objects.filter(
                     is_active=True,
                     email__isnull=False,
                     email_verified=True
-                ).filter(
-                    Q(google_id__isnull=False) | Q(auth_provider='email')
                 ).exclude(email='').count()
                 
                 # Telegram yuborilishi kerak bo'lganlar (Telegram ID bor)
@@ -547,8 +544,8 @@ class NotificationAdmin(admin.ModelAdmin):
                 messages.success(
                     request, 
                     f"✅ Global bildirishnoma yaratildi! (ID: {obj.id})\n"
-                    f"📧 Email: {email_count} ta foydalanuvchiga (Google/Email login)\n"
-                    f"📱 Telegram: {telegram_count} ta foydalanuvchiga (Telegram login)\n"
+                    f"📧 Email: {email_count} ta foydalanuvchiga\n"
+                    f"📱 Telegram: {telegram_count} ta foydalanuvchiga\n"
                     f"⏳ Yuborish background'da davom etmoqda..."
                 )
             else:
@@ -557,9 +554,8 @@ class NotificationAdmin(admin.ModelAdmin):
                 # Qaysi usul bilan yuboriladi
                 send_methods = []
                 if obj.user:
-                    if obj.user.google_id or obj.user.auth_provider == 'email':
-                        if obj.user.email_verified:
-                            send_methods.append("📧 Email")
+                    if obj.user.email_verified:
+                        send_methods.append("📧 Email")
                     if obj.user.telegram_id and obj.user.telegram_chat_id:
                         send_methods.append("📱 Telegram")
                 

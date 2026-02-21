@@ -102,13 +102,11 @@ EduSelf jamoasi'''
                 # Barcha foydalanuvchilarga yuborish
                 from accounts.models import User
                 
-                # Email uchun foydalanuvchilar (Google ID bor yoki email bilan login qilgan)
+                # Email uchun foydalanuvchilar (BARCHA email tasdiqlangan)
                 email_users = User.objects.filter(
                     is_active=True,
                     email__isnull=False,
                     email_verified=True
-                ).filter(
-                    models.Q(google_id__isnull=False) | models.Q(auth_provider='email')
                 ).exclude(email='')
                 
                 # Telegram uchun foydalanuvchilar (Telegram ID bor)
@@ -118,9 +116,9 @@ EduSelf jamoasi'''
                     telegram_id__isnull=False
                 ).exclude(telegram_chat_id='')
                 
-                logger.info(f"📧 Global notification: {email_users.count()} email (Google/Email), {telegram_users.count()} telegram")
+                logger.info(f"📧 Global notification: {email_users.count()} email, {telegram_users.count()} telegram")
                 
-                # Email yuborish (Google ID yoki email bilan login qilganlarga)
+                # Email yuborish (BARCHA email tasdiqlanganlarga)
                 for user in email_users:
                     if send_email_to_user(user):
                         email_sent += 1
@@ -135,12 +133,11 @@ EduSelf jamoasi'''
             else:
                 # Shaxsiy notification - faqat bitta foydalanuvchiga
                 if notification.user:
-                    # Agar Google ID yoki email bilan login qilgan bo'lsa - email yuborish
-                    if notification.user.google_id or notification.user.auth_provider == 'email':
-                        if send_email_to_user(notification.user):
-                            email_sent = 1
+                    # Email yuborish (agar email tasdiqlangan bo'lsa)
+                    if send_email_to_user(notification.user):
+                        email_sent = 1
                     
-                    # Agar Telegram ID bor bo'lsa - Telegram yuborish
+                    # Telegram yuborish (agar Telegram ID bor bo'lsa)
                     if notification.user.telegram_id:
                         if send_telegram_to_user(notification.user):
                             telegram_sent = 1

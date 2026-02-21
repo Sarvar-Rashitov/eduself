@@ -62,11 +62,15 @@ def register_view(request):
                 try:
                     from django.template.loader import render_to_string
                     from django.core.mail import EmailMultiAlternatives
+                    import logging
+                    
+                    logger = logging.getLogger(__name__)
                     
                     # HTML email yaratish
                     html_content = render_to_string('emails/verify_email.html', {
                         'user_name': user.first_name,
                         'verify_url': verify_url,
+                        'site_url': settings.SITE_URL,
                     })
                     
                     # Text fallback
@@ -90,12 +94,13 @@ EduSelf jamoasi'''
                         to=[user.email]
                     )
                     email.attach_alternative(html_content, "text/html")
-                    email.send(fail_silently=True)
+                    email.send(fail_silently=False)  # Xatoliklarni ko'rish uchun
                     
+                    logger.info(f"✅ Email tasdiqlash xati yuborildi: {user.email}")
                     messages.success(request, "Ro'yxatdan o'tdingiz! Emailingizga tasdiqlash havolasi yuborildi.")
                 except Exception as e:
-                    print(f"Email yuborishda xatolik: {e}")
-                    messages.success(request, "Ro'yxatdan o'tdingiz!")
+                    logger.error(f"❌ Email yuborishda xatolik ({user.email}): {e}")
+                    messages.success(request, "Ro'yxatdan o'tdingiz! Emailingizni tasdiqlash uchun profilingizga o'ting.")
             else:
                 messages.success(request, "Ro'yxatdan o'tdingiz!")
             
