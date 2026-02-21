@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, PasswordResetToken
+from .models import User, PasswordResetToken, LoginHistory
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -27,3 +27,18 @@ class PasswordResetTokenAdmin(admin.ModelAdmin):
     list_filter = ['used', 'created_at']
     search_fields = ['user__username', 'user__email']
     readonly_fields = ['token', 'created_at']
+
+
+@admin.register(LoginHistory)
+class LoginHistoryAdmin(admin.ModelAdmin):
+    list_display = ['user', 'device_type', 'browser', 'os', 'ip_address', 'is_new_device', 'login_time']
+    list_filter = ['is_new_device', 'device_type', 'browser', 'os', 'login_time']
+    search_fields = ['user__username', 'user__email', 'ip_address']
+    readonly_fields = ['user', 'ip_address', 'user_agent', 'device_type', 'browser', 'os', 'location', 'is_new_device', 'login_time']
+    ordering = ['-login_time']
+    
+    def has_add_permission(self, request):
+        return False  # Faqat avtomatik yaratiladi
+    
+    def has_change_permission(self, request, obj=None):
+        return False  # O'zgartirib bo'lmaydi

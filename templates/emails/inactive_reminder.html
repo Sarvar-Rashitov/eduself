@@ -1,0 +1,62 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Sizni sog'indik - EduSelf{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Assalomu alaykum, {{ user_name }}! 👋
+</div>
+
+<div class="message">
+    <p><strong>Sizni sog'indik!</strong></p>
+    <p>Siz <strong>EduSelf</strong> platformasida {{ days_inactive }} kun faol bo'lmadingiz. Qaytib kelib, o'qishni davom ettirishni xohlamasmisiz?</p>
+</div>
+
+<div class="button-container">
+    <a href="{{ site_url }}" class="button">
+        🚀 Davom etish
+    </a>
+</div>
+
+<div class="info-box">
+    <p><strong>📊 Sizning natijalaringiz:</strong></p>
+    <p>• Jami testlar: {{ total_tests }}</p>
+    <p>• O'tgan testlar: {{ passed_tests }}</p>
+    <p>• Umumiy ball: {{ total_points }}</p>
+    <p>• Progress: {{ progress }}%</p>
+</div>
+
+<div class="divider"></div>
+
+<div class="message" style="font-size: 14px; color: #666;">
+    <p><strong>🎯 Nima qilishingiz mumkin:</strong></p>
+    <p>• Yangi testlarni yeching</p>
+    <p>• Video darslarni tomosha qiling</p>
+    <p>• Sertifikat olish uchun imtihon topshiring</p>
+    <p>• AI yordamchi bilan suhbatlashing</p>
+</div>
+
+<div class="message" style="margin-top: 20px; font-size: 14px; color: #666;">
+    <p><strong>💡 Bugungi maqsad:</strong></p>
+    <p>Kamida 10 ta test savoli yeching va bilimingizni sinab ko'ring!</p>
+</div>
+
+<div class="message" style="margin-top: 20px; font-size: 14px; color: #666;">
+    <p><strong>🔥 Yangiliklar:</strong></p>
+    <p>• Yangi video darslar qo'shildi</p>
+    <p>• Yangi test savollari mavjud</p>
+    <p>• AI yordamchi yangilandi</p>
+</div>
+
+<div class="divider"></div>
+
+<div class="message" style="margin-top: 20px; font-size: 14px; color: #666;">
+    <p>Savollaringiz bo'lsa, biz bilan bog'laning:</p>
+    <p>📧 Email: support@eduself.uz</p>
+    <p>📱 Telegram: @eduselfuz</p>
+</div>
+
+<div class="message" style="margin-top: 20px; font-size: 12px; color: #999;">
+    <p><em>Agar bu xabarlarni olishni xohlamasangiz, profilingizda sozlamalarni o'zgartirishingiz mumkin.</em></p>
+</div>
+{% endblock %}

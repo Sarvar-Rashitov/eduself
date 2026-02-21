@@ -81,13 +81,78 @@ if send_test_email(
 else:
     print("   ❌ Yuborilmadi!")
 
+# 4. Qaytganingizdan xursandmiz
+print("\n4️⃣  Qaytganingizdan xursandmiz template'i...")
+from django.utils import timezone
+from datetime import timedelta
+if send_test_email(
+    template_name='emails/welcome_back.html',
+    subject='EduSelf - Qaytganingizdan xursandmiz! (Test)',
+    context={
+        'user_name': 'Test User',
+        'site_url': 'https://eduself.uz',
+        'last_login': timezone.now() - timedelta(days=10),
+    },
+    recipient=settings.EMAIL_HOST_USER
+):
+    print("   ✅ Yuborildi!")
+else:
+    print("   ❌ Yuborilmadi!")
+
+# 5. Yangi qurilmadan kirish
+print("\n5️⃣  Yangi qurilmadan kirish template'i...")
+if send_test_email(
+    template_name='emails/new_device_login.html',
+    subject='EduSelf - Yangi qurilmadan kirish (Test)',
+    context={
+        'user_name': 'Test User',
+        'login_time': timezone.now().strftime('%d.%m.%Y %H:%M'),
+        'device_type': 'Desktop',
+        'browser': 'Google Chrome',
+        'os': 'Windows 10',
+        'ip_address': '192.168.1.100',
+        'location': 'Tashkent, Uzbekistan',
+        'reset_password_url': 'https://eduself.uz/accounts/forgot-password/',
+    },
+    recipient=settings.EMAIL_HOST_USER
+):
+    print("   ✅ Yuborildi!")
+else:
+    print("   ❌ Yuborilmadi!")
+
+# 6. Faol bo'lmaganlik eslatmasi
+print("\n6️⃣  Faol bo'lmaganlik eslatmasi template'i...")
+if send_test_email(
+    template_name='emails/inactive_reminder.html',
+    subject='EduSelf - Sizni sog\'indik! (Test)',
+    context={
+        'user_name': 'Test User',
+        'days_inactive': 5,
+        'site_url': 'https://eduself.uz',
+        'total_tests': 25,
+        'passed_tests': 18,
+        'total_points': 450,
+        'progress': 72,
+    },
+    recipient=settings.EMAIL_HOST_USER
+):
+    print("   ✅ Yuborildi!")
+else:
+    print("   ❌ Yuborilmadi!")
+
 print("\n" + "=" * 70)
 print("✅ TEST YAKUNLANDI!")
 print("=" * 70)
 print("\n📧 Inbox'ingizni tekshiring:")
 print(f"   {settings.EMAIL_HOST_USER}")
 print("\n💡 Nima ko'rishingiz kerak:")
-print("   • 3 ta email (tasdiqlash, parolni tiklash, xush kelibsiz)")
+print("   • 6 ta email:")
+print("     1. Email tasdiqlash")
+print("     2. Parolni tiklash")
+print("     3. Xush kelibsiz")
+print("     4. Qaytganingizdan xursandmiz")
+print("     5. Yangi qurilmadan kirish (xavfsizlik)")
+print("     6. Faol bo'lmaganlik eslatmasi")
 print("   • Har birida logo, tugma va chiroyli dizayn")
 print("   • Mobil va desktop'da yaxshi ko'rinishi kerak")
 print("\n🎨 Agar email'lar chiroyli ko'rinmasa:")

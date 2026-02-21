@@ -217,3 +217,28 @@ class TelegramLoginToken(models.Model):
             models.Index(fields=['telegram_id', 'token']),
             models.Index(fields=['expires_at']),
         ]
+
+
+class LoginHistory(models.Model):
+    """Foydalanuvchi kirish tarixi - yangi qurilmalarni aniqlash uchun"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='login_history')
+    ip_address = models.GenericIPAddressField(verbose_name="IP manzil")
+    user_agent = models.TextField(verbose_name="User Agent")
+    device_type = models.CharField(max_length=50, blank=True, verbose_name="Qurilma turi")  # mobile, desktop, tablet
+    browser = models.CharField(max_length=100, blank=True, verbose_name="Brauzer")
+    os = models.CharField(max_length=100, blank=True, verbose_name="Operatsion tizim")
+    location = models.CharField(max_length=255, blank=True, verbose_name="Joylashuv")
+    is_new_device = models.BooleanField(default=False, verbose_name="Yangi qurilma")
+    login_time = models.DateTimeField(auto_now_add=True, verbose_name="Kirish vaqti")
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.device_type} - {self.login_time}"
+    
+    class Meta:
+        ordering = ['-login_time']
+        verbose_name = "Kirish tarixi"
+        verbose_name_plural = "Kirish tarixi"
+        indexes = [
+            models.Index(fields=['user', '-login_time']),
+            models.Index(fields=['ip_address']),
+        ]

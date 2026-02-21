@@ -32,6 +32,13 @@ EduSelf loyihasida professional HTML email template'lar yaratildi.
    - Platformaning imkoniyatlari
    - Foydali maslahatlar
 
+4. **Qaytganingizdan xursandmiz** (`welcome_back.html`)
+   - Qaytib kelgan foydalanuvchi uchun
+   - Oxirgi kirish vaqti
+   - "Davom etish" tugmasi
+   - Bugungi maqsadlar
+   - Xavfsizlik ogohlantirishi
+
 ### Base Template (`base_email.html`)
 - Header: Logo va subtitle
 - Content: Asosiy kontent
@@ -112,6 +119,25 @@ html_content = render_to_string('emails/welcome.html', {
 email = EmailMultiAlternatives(
     subject='EduSelf - Xush kelibsiz!',
     body='Xush kelibsiz!',
+    from_email=settings.DEFAULT_FROM_EMAIL,
+    to=[user.email]
+)
+email.attach_alternative(html_content, "text/html")
+email.send()
+```
+
+### 4. Qaytganingizdan xursandmiz
+
+```python
+html_content = render_to_string('emails/welcome_back.html', {
+    'user_name': user.first_name,
+    'site_url': settings.SITE_URL,
+    'last_login': user.last_login,
+})
+
+email = EmailMultiAlternatives(
+    subject='EduSelf - Qaytganingizdan xursandmiz!',
+    body='Qaytganingizdan xursandmiz!',
     from_email=settings.DEFAULT_FROM_EMAIL,
     to=[user.email]
 )

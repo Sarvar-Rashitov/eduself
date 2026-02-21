@@ -1,0 +1,63 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Yangi qurilmadan kirish - EduSelf{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Assalomu alaykum, {{ user_name }}! 🔔
+</div>
+
+<div class="message">
+    <p><strong>Xavfsizlik ogohlantirishi!</strong></p>
+    <p>Sizning <strong>EduSelf</strong> hisobingizga yangi qurilmadan kirish amalga oshirildi.</p>
+</div>
+
+<div class="info-box" style="background-color: #fef3c7; border-left-color: #f59e0b;">
+    <p><strong>⚠️ Kirish ma'lumotlari:</strong></p>
+    <p><strong>📅 Vaqt:</strong> {{ login_time }}</p>
+    <p><strong>📱 Qurilma:</strong> {{ device_type }}</p>
+    <p><strong>🌐 Brauzer:</strong> {{ browser }}</p>
+    <p><strong>💻 OS:</strong> {{ os }}</p>
+    <p><strong>🌍 IP:</strong> {{ ip_address }}</p>
+    {% if location %}
+    <p><strong>📍 Joylashuv:</strong> {{ location }}</p>
+    {% endif %}
+</div>
+
+<div class="message" style="margin-top: 20px;">
+    <p><strong>Bu siz edingizmi?</strong></p>
+    <p>Agar bu siz bo'lsangiz, hech narsa qilishingiz shart emas. Hisobingiz xavfsiz.</p>
+</div>
+
+<div class="message" style="margin-top: 20px; padding: 15px; background-color: #fee2e2; border-radius: 8px; border-left: 4px solid #dc2626;">
+    <p style="margin: 0; color: #991b1b;"><strong>⚠️ Bu siz bo'lmasa:</strong></p>
+    <p style="margin: 5px 0 0 0; color: #991b1b;">Agar bu kirish sizniki bo'lmasa, darhol parolingizni o'zgartiring!</p>
+</div>
+
+<div class="button-container">
+    <a href="{{ reset_password_url }}" class="button" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">
+        🔒 Parolni o'zgartirish
+    </a>
+</div>
+
+<div class="divider"></div>
+
+<div class="message" style="font-size: 14px; color: #666;">
+    <p><strong>🔒 Xavfsizlik maslahatlari:</strong></p>
+    <p>• Parolingizni hech kimga aytmang</p>
+    <p>• Kuchli va noyob parol ishlating</p>
+    <p>• Shubhali havolalarga kirish qilmang</p>
+    <p>• Umumiy kompyuterda "Meni eslab qol" ni ishlatmang</p>
+</div>
+
+<div class="message" style="margin-top: 20px; font-size: 14px; color: #666;">
+    <p><strong>📞 Yordam kerakmi?</strong></p>
+    <p>Agar hisobingiz buzilgan deb o'ylasangiz, darhol biz bilan bog'laning:</p>
+    <p>📧 Email: support@eduself.uz</p>
+    <p>📱 Telegram: @eduselfuz</p>
+</div>
+
+<div class="message" style="margin-top: 20px; font-size: 12px; color: #999;">
+    <p><em>Bu avtomatik xavfsizlik xabari. Sizning hisobingizni himoya qilish uchun yuborildi.</em></p>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Qaytganingizdan xursandmiz - EduSelf{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Assalomu alaykum, {{ user_name }}! 👋
+</div>
+
+<div class="message">
+    <p><strong>Qaytganingizdan xursandmiz!</strong></p>
+    <p>Siz <strong>EduSelf</strong> platformasiga muvaffaqiyatli kirdingiz. Davom eting va bilimingizni oshiring!</p>
+    {% if last_login %}
+    <p style="color: #666; font-size: 14px;">
+        <i class="fas fa-clock"></i> Oxirgi kirish: {{ last_login|date:"d.m.Y H:i" }}
+    </p>
+    {% endif %}
+</div>
+
+<div class="button-container">
+    <a href="{{ site_url }}" class="button">
+        🚀 Davom etish
+    </a>
+</div>
+
+<div class="info-box">
+    <p><strong>📚 Sizni nima kutmoqda:</strong></p>
+    <p>• Yangi testlar va savollar</p>
+    <p>• Video darslar va kurslar</p>
+    <p>• Sertifikatlar va imtihonlar</p>
+    <p>• AI yordamchi bilan suhbat</p>
+</div>
+
+<div class="divider"></div>
+
+<div class="message" style="font-size: 14px; color: #666;">
+    <p><strong>💡 Bugungi maqsadingiz:</strong></p>
+    <p>• Kamida 10 ta test savoli yeching</p>
+    <p>• Bir video darsni tomosha qiling</p>
+    <p>• O'z natijalaringizni tahlil qiling</p>
+</div>
+
+<div class="message" style="margin-top: 20px; font-size: 14px; color: #666;">
+    <p><strong>🔒 Xavfsizlik:</strong></p>
+    <p>Agar bu siz bo'lmasangiz, darhol parolingizni o'zgartiring yoki biz bilan bog'laning.</p>
+</div>
+
+<div class="message" style="margin-top: 20px; font-size: 14px; color: #666;">
+    <p>Savollaringiz bo'lsa, biz bilan bog'laning:</p>
+    <p>📧 Email: support@eduself.uz</p>
+    <p>📱 Telegram: @eduselfuz</p>
+</div>
+{% endblock %}

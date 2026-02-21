@@ -4,10 +4,11 @@
 
 ### 1. Professional Email Template'lar Yaratildi
 
-**3 ta HTML email template:**
+**4 ta HTML email template:**
 - ✉️ Email tasdiqlash (`verify_email.html`)
 - 🔑 Parolni tiklash (`reset_password.html`)
 - 🎉 Xush kelibsiz (`welcome.html`)
+- 👋 Qaytganingizdan xursandmiz (`welcome_back.html`)
 
 **Dizayn xususiyatlari:**
 - 📚 Logo yuqori qismida (gradient header)
@@ -21,10 +22,11 @@
 **`accounts/views.py`:**
 - Email yuborish funksiyalari HTML template'lardan foydalanadi
 - `EmailMultiAlternatives` ishlatiladi (HTML + text fallback)
-- 3 ta joyda yangilandi:
+- 4 ta joyda yangilandi:
   - `register_view()` - ro'yxatdan o'tish
   - `resend_verification_view()` - qayta yuborish
   - `forgot_password_view()` - parolni tiklash
+  - `login_view()` - qaytib kirish (7 kundan ko'p bo'lsa)
 
 ### 3. Test Script'lar
 
@@ -100,7 +102,11 @@ templates/emails/
 ├── verify_email.html            # Email tasdiqlash
 ├── verify_email_inline.html     # Inline CSS versiya
 ├── reset_password.html          # Parolni tiklash
-└── welcome.html                 # Xush kelibsiz
+├── welcome.html                 # Xush kelibsiz
+└── welcome_back.html            # Qaytganingizdan xursandmiz
+
+templates/accounts/
+└── reset_password_desktop.html  # Desktop versiya
 
 test_email.py                    # Oddiy test
 send_test_emails.py              # Barcha template'lar test

@@ -137,9 +137,65 @@ def login_view(request):
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            
+            # Kirish tarixini yaratish va yangi qurilmani tekshirish
+            from .utils import create_login_history, send_new_device_email
+            login_history = create_login_history(user, request)
+            
             # Backend ni specify qilish
             login(request, user, backend='accounts.backends.EmailPhoneBackend')
             messages.success(request, f"Xush kelibsiz, {user.first_name}!")
+            
+            # Yangi qurilmadan kirish bo'lsa, email yuborish
+            if login_history.is_new_device:
+                send_new_device_email(user, login_history, request)
+            
+            # Foydalanuvchiga xush kelibsiz emailini yuborish (agar email bo'lsa)
+            elif user.email and user.email_verified:
+                try:
+                    from django.template.loader import render_to_string
+                    from django.core.mail import EmailMultiAlternatives
+                    from django.utils import timezone
+                    
+                    # Oxirgi login vaqtini tekshirish (agar 7 kundan ko'p bo'lsa yoki birinchi marta)
+                    should_send_email = False
+                    if user.last_login:
+                        days_since_login = (timezone.now() - user.last_login).days
+                        if days_since_login >= 7:  # 7 kundan ko'p bo'lsa
+                            should_send_email = True
+                    else:
+                        should_send_email = True  # Birinchi marta kirish
+                    
+                    if should_send_email:
+                        # HTML email yaratish
+                        html_content = render_to_string('emails/welcome_back.html', {
+                            'user_name': user.first_name,
+                            'site_url': settings.SITE_URL,
+                            'last_login': user.last_login,
+                        })
+                        
+                        # Text fallback
+                        text_content = f'''Assalomu alaykum, {user.first_name}!
+
+Qaytganingizdan xursandmiz! EduSelf platformasiga muvaffaqiyatli kirdingiz.
+
+Platformaga kirish: {settings.SITE_URL}
+
+Hurmat bilan,
+EduSelf jamoasi'''
+                        
+                        # Email yuborish
+                        email = EmailMultiAlternatives(
+                            subject='EduSelf - Qaytganingizdan xursandmiz!',
+                            body=text_content,
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            to=[user.email]
+                        )
+                        email.attach_alternative(html_content, "text/html")
+                        email.send(fail_silently=True)
+                except Exception as e:
+                    print(f"Welcome email yuborishda xatolik: {e}")
+            
             next_url = request.POST.get('next') or request.GET.get('next')
             if next_url:
                 return redirect(next_url)
@@ -332,7 +388,10 @@ def reset_password_view(request, token):
     else:
         form = ResetPasswordForm()
     
-    return render(request, 'accounts/reset_password.html', {'form': form})
+    # Mobile/Desktop detection
+    if is_mobile(request):
+        return render(request, 'accounts/reset_password.html', {'form': form})
+    return render(request, 'accounts/reset_password_desktop.html', {'form': form})
 
 
 
