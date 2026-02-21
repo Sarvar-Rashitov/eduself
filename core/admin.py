@@ -403,6 +403,10 @@ class NewsAdmin(admin.ModelAdmin):
         ('Kontent', {
             'fields': ('summary', 'content', 'image')
         }),
+        ('Tashqi havola', {
+            'fields': ('external_link', 'external_link_text'),
+            'description': 'Yangilik detailida ko\'rsatiladigan tashqi havola (ixtiyoriy)'
+        }),
         ('Sozlamalar', {
             'fields': ('is_featured', 'is_published')
         }),
