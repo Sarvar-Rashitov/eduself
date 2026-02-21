@@ -523,33 +523,53 @@ class NotificationAdmin(admin.ModelAdmin):
         # Agar yangi bildirishnoma yaratilgan bo'lsa
         if not change:  # Yangi obyekt
             from django.contrib import messages
+            from django.db.models import Q
             
             if obj.is_global:
                 from accounts.models import User
+                
+                # Email yuborilishi kerak bo'lganlar (Google ID yoki email bilan login)
                 email_count = User.objects.filter(
                     is_active=True,
                     email__isnull=False,
                     email_verified=True
+                ).filter(
+                    Q(google_id__isnull=False) | Q(auth_provider='email')
                 ).exclude(email='').count()
                 
+                # Telegram yuborilishi kerak bo'lganlar (Telegram ID bor)
                 telegram_count = User.objects.filter(
                     is_active=True,
-                    telegram_chat_id__isnull=False
+                    telegram_chat_id__isnull=False,
+                    telegram_id__isnull=False
                 ).exclude(telegram_chat_id='').count()
                 
                 messages.success(
                     request, 
-                    f"✅ Global bildirishnoma yaratildi!\n"
-                    f"📧 Email: {email_count} ta foydalanuvchiga yuborilmoqda\n"
-                    f"📱 Telegram: {telegram_count} ta foydalanuvchiga yuborilmoqda"
+                    f"✅ Global bildirishnoma yaratildi! (ID: {obj.id})\n"
+                    f"📧 Email: {email_count} ta foydalanuvchiga (Google/Email login)\n"
+                    f"📱 Telegram: {telegram_count} ta foydalanuvchiga (Telegram login)\n"
+                    f"⏳ Yuborish background'da davom etmoqda..."
                 )
             else:
                 user_info = f"{obj.user.first_name} ({obj.user.email})" if obj.user else "Noma'lum"
+                
+                # Qaysi usul bilan yuboriladi
+                send_methods = []
+                if obj.user:
+                    if obj.user.google_id or obj.user.auth_provider == 'email':
+                        if obj.user.email_verified:
+                            send_methods.append("📧 Email")
+                    if obj.user.telegram_id and obj.user.telegram_chat_id:
+                        send_methods.append("📱 Telegram")
+                
+                send_str = " va ".join(send_methods) if send_methods else "❌ Yuborilmaydi"
+                
                 messages.success(
                     request, 
-                    f"✅ Shaxsiy bildirishnoma yaratildi!\n"
+                    f"✅ Shaxsiy bildirishnoma yaratildi! (ID: {obj.id})\n"
                     f"👤 Foydalanuvchi: {user_info}\n"
-                    f"📧 Email va 📱 Telegram orqali yuborilmoqda"
+                    f"📤 Yuborish: {send_str}"
                 )
 
 
