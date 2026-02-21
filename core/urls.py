@@ -55,4 +55,9 @@ urlpatterns = [
     
     path('notification/<int:notification_id>/read/', views.mark_notification_read, name='mark_notification_read'),
     path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
+    
+    # API endpoints
+    path('api/notifications/unread/', views.get_unread_notifications, name='api_unread_notifications'),
+    path('api/notifications/permission/', views.update_notification_permission, name='api_notification_permission'),
+    path('api/notifications/<int:notification_id>/read/', views.mark_notification_read_api, name='api_mark_notification_read'),
 ]
