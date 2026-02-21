@@ -1,0 +1,39 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Email Tasdiqlash - EduSelf{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Assalomu alaykum, {{ user_name }}! 👋
+</div>
+
+<div class="message">
+    <p><strong>EduSelf</strong> platformasiga xush kelibsiz!</p>
+    <p>Ro'yxatdan o'tganingiz uchun tashakkur. Hisobingizni faollashtirish uchun email manzilingizni tasdiqlashingiz kerak.</p>
+</div>
+
+<div class="button-container">
+    <a href="{{ verify_url }}" class="button">
+        ✓ Emailni tasdiqlash
+    </a>
+</div>
+
+<div class="info-box">
+    <p><strong>⏰ Muhim:</strong></p>
+    <p>• Bu havola 48 soat ichida amal qiladi</p>
+    <p>• Agar siz ro'yxatdan o'tmagan bo'lsangiz, bu xabarni e'tiborsiz qoldiring</p>
+</div>
+
+<div class="divider"></div>
+
+<div class="link-text">
+    Agar tugma ishlamasa, quyidagi havolani brauzeringizga nusxalang:<br>
+    <a href="{{ verify_url }}" style="color: #667eea;">{{ verify_url }}</a>
+</div>
+
+<div class="message" style="margin-top: 30px; font-size: 14px; color: #666;">
+    <p>Savollaringiz bo'lsa, biz bilan bog'laning:</p>
+    <p>📧 Email: support@eduself.uz</p>
+    <p>📱 Telegram: @eduselfuz</p>
+</div>
+{% endblock %}

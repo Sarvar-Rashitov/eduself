@@ -59,7 +59,11 @@ python manage.py runserver
 Email yuborishni test qiling:
 
 ```bash
+# Oddiy test
 python test_email.py
+
+# Barcha template'larni test qilish
+python send_test_emails.py
 ```
 
 Agar "✅ Email muvaffaqiyatli yuborildi!" degan xabar chiqsa, hammasi to'g'ri!

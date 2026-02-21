@@ -60,9 +60,17 @@ def register_view(request):
                     reverse('accounts:verify_email', kwargs={'token': token.token})
                 )
                 try:
-                    send_mail(
-                        subject='EduSelf - Emailni tasdiqlash',
-                        message=f'''Assalomu alaykum, {user.first_name}!
+                    from django.template.loader import render_to_string
+                    from django.core.mail import EmailMultiAlternatives
+                    
+                    # HTML email yaratish
+                    html_content = render_to_string('emails/verify_email.html', {
+                        'user_name': user.first_name,
+                        'verify_url': verify_url,
+                    })
+                    
+                    # Text fallback
+                    text_content = f'''Assalomu alaykum, {user.first_name}!
 
 EduSelf platformasiga xush kelibsiz!
 
@@ -72,11 +80,18 @@ Emailingizni tasdiqlash uchun quyidagi havolaga o'ting:
 Havola 48 soat ichida amal qiladi.
 
 Hurmat bilan,
-EduSelf jamoasi''',
+EduSelf jamoasi'''
+                    
+                    # Email yuborish
+                    email = EmailMultiAlternatives(
+                        subject='EduSelf - Emailni tasdiqlash',
+                        body=text_content,
                         from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[user.email],
-                        fail_silently=True,
+                        to=[user.email]
                     )
+                    email.attach_alternative(html_content, "text/html")
+                    email.send(fail_silently=True)
+                    
                     messages.success(request, "Ro'yxatdan o'tdingiz! Emailingizga tasdiqlash havolasi yuborildi.")
                 except Exception as e:
                     print(f"Email yuborishda xatolik: {e}")
@@ -200,9 +215,17 @@ def resend_verification_view(request):
     )
     
     try:
-        send_mail(
-            subject='EduSelf - Emailni tasdiqlash',
-            message=f'''Assalomu alaykum, {user.first_name}!
+        from django.template.loader import render_to_string
+        from django.core.mail import EmailMultiAlternatives
+        
+        # HTML email yaratish
+        html_content = render_to_string('emails/verify_email.html', {
+            'user_name': user.first_name,
+            'verify_url': verify_url,
+        })
+        
+        # Text fallback
+        text_content = f'''Assalomu alaykum, {user.first_name}!
 
 Emailingizni tasdiqlash uchun quyidagi havolaga o'ting:
 {verify_url}
@@ -210,11 +233,18 @@ Emailingizni tasdiqlash uchun quyidagi havolaga o'ting:
 Havola 48 soat ichida amal qiladi.
 
 Hurmat bilan,
-EduSelf jamoasi''',
+EduSelf jamoasi'''
+        
+        # Email yuborish
+        email = EmailMultiAlternatives(
+            subject='EduSelf - Emailni tasdiqlash',
+            body=text_content,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
+            to=[user.email]
         )
+        email.attach_alternative(html_content, "text/html")
+        email.send(fail_silently=False)
+        
         messages.success(request, f"Tasdiqlash havolasi {user.email} manziliga yuborildi!")
     except Exception as e:
         print(f"Email yuborishda xatolik: {e}")  # Debug uchun
@@ -235,9 +265,18 @@ def forgot_password_view(request):
                 reset_link = request.build_absolute_uri(
                     reverse('accounts:reset_password', kwargs={'token': token.token})
                 )
-                send_mail(
-                    subject='EduSelf - Parolni tiklash',
-                    message=f'''Assalomu alaykum, {user.first_name}!
+                
+                from django.template.loader import render_to_string
+                from django.core.mail import EmailMultiAlternatives
+                
+                # HTML email yaratish
+                html_content = render_to_string('emails/reset_password.html', {
+                    'user_name': user.first_name,
+                    'reset_url': reset_link,
+                })
+                
+                # Text fallback
+                text_content = f'''Assalomu alaykum, {user.first_name}!
 
 Parolni tiklash uchun quyidagi havolaga o'ting:
 {reset_link}
@@ -247,11 +286,17 @@ Havola 24 soat ichida amal qiladi.
 Agar siz bu so'rovni yubormagan bo'lsangiz, bu xabarni e'tiborsiz qoldiring.
 
 Hurmat bilan,
-EduSelf jamoasi''',
+EduSelf jamoasi'''
+                
+                # Email yuborish
+                email_msg = EmailMultiAlternatives(
+                    subject='EduSelf - Parolni tiklash',
+                    body=text_content,
                     from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[email],
-                    fail_silently=True,
+                    to=[email]
                 )
+                email_msg.attach_alternative(html_content, "text/html")
+                email_msg.send(fail_silently=True)
             except User.DoesNotExist:
                 pass
     else:

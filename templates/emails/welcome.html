@@ -1,0 +1,43 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Xush kelibsiz - EduSelf{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Assalomu alaykum, {{ user_name }}! 🎉
+</div>
+
+<div class="message">
+    <p><strong>EduSelf</strong> platformasiga xush kelibsiz!</p>
+    <p>Emailingiz muvaffaqiyatli tasdiqlandi. Endi platformaning barcha imkoniyatlaridan foydalanishingiz mumkin.</p>
+</div>
+
+<div class="button-container">
+    <a href="{{ site_url }}" class="button">
+        🚀 Platformaga kirish
+    </a>
+</div>
+
+<div class="info-box">
+    <p><strong>📚 Nima qilishingiz mumkin:</strong></p>
+    <p>• 1000+ test savollari bilan mashq qiling</p>
+    <p>• Video darslarni tomosha qiling</p>
+    <p>• Sertifikat olish uchun imtihon topshiring</p>
+    <p>• O'z natijalaringizni kuzatib boring</p>
+</div>
+
+<div class="divider"></div>
+
+<div class="message" style="font-size: 14px; color: #666;">
+    <p><strong>💡 Maslahatlar:</strong></p>
+    <p>• Har kuni kamida 30 daqiqa mashq qiling</p>
+    <p>• Qiyin mavzularni qayta-qayta takrorlang</p>
+    <p>• Savollaringiz bo'lsa, bizga murojaat qiling</p>
+</div>
+
+<div class="message" style="margin-top: 20px; font-size: 14px; color: #666;">
+    <p>Savollaringiz bo'lsa, biz bilan bog'laning:</p>
+    <p>📧 Email: support@eduself.uz</p>
+    <p>📱 Telegram: @eduselfuz</p>
+</div>
+{% endblock %}

@@ -33,18 +33,32 @@ print("\n📧 Test email yuborilmoqda...")
 print(f"Qabul qiluvchi: {settings.EMAIL_HOST_USER}")
 
 try:
-    result = send_mail(
-        subject='EduSelf - Email Test',
-        message='Bu test xabari. Agar bu xabar kelgan bo\'lsa, email sozlamalari to\'g\'ri ishlayapti! ✓',
+    from django.template.loader import render_to_string
+    from django.core.mail import EmailMultiAlternatives
+    
+    # Test uchun HTML email yaratish
+    html_content = render_to_string('emails/verify_email.html', {
+        'user_name': 'Test User',
+        'verify_url': 'https://eduself.uz/accounts/verify/test-token-123',
+    })
+    
+    text_content = 'Bu test xabari. Agar bu xabar kelgan bo\'lsa, email sozlamalari to\'g\'ri ishlayapti!'
+    
+    # Email yuborish
+    email = EmailMultiAlternatives(
+        subject='EduSelf - Email Test (HTML)',
+        body=text_content,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[settings.EMAIL_HOST_USER],
-        fail_silently=False,
+        to=[settings.EMAIL_HOST_USER]
     )
+    email.attach_alternative(html_content, "text/html")
+    result = email.send(fail_silently=False)
     
     if result:
         print("\n✅ Email muvaffaqiyatli yuborildi!")
-        print(f"✓ {settings.EMAIL_HOST_USER} manziliga xabar yuborildi")
+        print(f"✓ {settings.EMAIL_HOST_USER} manziliga HTML email yuborildi")
         print("\nInbox'ingizni tekshiring!")
+        print("📧 Chiroyli HTML email ko'rishingiz kerak - logo, tugma va dizayn bilan!")
     else:
         print("\n❌ Email yuborilmadi (result=0)")
         
