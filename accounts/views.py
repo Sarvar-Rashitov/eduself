@@ -2,19 +2,25 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
+from django.template.loader import render_to_string
+from django.utils import timezone
 import json
 import requests
 import hashlib
 import hmac
 import time
 import re
+import logging
 from .forms import EmailRegisterForm, PhoneRegisterForm, LoginForm, ForgotPasswordForm, ResetPasswordForm, ProfileForm
 from .models import User, PasswordResetToken, EmailVerificationToken
+from .utils import check_new_device, get_device_info
+
+logger = logging.getLogger(__name__)
 
 
 def is_mobile(request):
@@ -511,10 +517,14 @@ def google_auth_view(request):
             
             # Foydalanuvchini topish yoki yaratish
             user = None
+            is_new_user = False
+            is_new_device = False
             
             # Google ID bo'yicha qidirish
             try:
                 user = User.objects.get(google_id=google_id)
+                # Mavjud foydalanuvchi - yangi qurilma tekshirish
+                is_new_device = check_new_device(request, user)
             except User.DoesNotExist:
                 pass
             
@@ -524,6 +534,8 @@ def google_auth_view(request):
                     user = User.objects.get(email=email)
                     user.google_id = google_id
                     user.save()
+                    # Mavjud foydalanuvchi - yangi qurilma tekshirish
+                    is_new_device = check_new_device(request, user)
                 except User.DoesNotExist:
                     pass
             
@@ -542,6 +554,77 @@ def google_auth_view(request):
                 )
                 user.set_unusable_password()
                 user.save()
+                is_new_user = True
+                
+                # Yangi foydalanuvchiga xush kelibsiz emaili yuborish
+                logger.info(f"📧 Yangi Google foydalanuvchi: {user.email}")
+                try:
+                    html_content = render_to_string('emails/welcome.html', {
+                        'user_name': user.first_name,
+                        'site_url': settings.SITE_URL,
+                    })
+                    
+                    text_content = f'''Assalomu alaykum, {user.first_name}!
+
+EduSelf platformasiga xush kelibsiz!
+
+Sizning hisobingiz muvaffaqiyatli yaratildi. Endi siz platformaning barcha imkoniyatlaridan foydalanishingiz mumkin.
+
+Hurmat bilan,
+EduSelf jamoasi
+{settings.SITE_URL}'''
+                    
+                    email_message = EmailMultiAlternatives(
+                        subject='EduSelf - Xush kelibsiz!',
+                        body=text_content,
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        to=[user.email]
+                    )
+                    email_message.attach_alternative(html_content, "text/html")
+                    email_message.send(fail_silently=False)
+                    logger.info(f"✅ Welcome email yuborildi: {user.email}")
+                except Exception as e:
+                    logger.error(f"❌ Welcome email yuborishda xatolik: {e}")
+            
+            # Yangi qurilmadan kirish emaili yuborish
+            if is_new_device and not is_new_user:
+                logger.info(f"📧 Yangi qurilmadan kirish: {user.email}")
+                try:
+                    device_info = get_device_info(request)
+                    
+                    html_content = render_to_string('emails/new_device_login.html', {
+                        'user_name': user.first_name,
+                        'device_info': device_info['device'],
+                        'login_time': timezone.now().strftime('%d.%m.%Y, %H:%M'),
+                        'ip_address': device_info['ip'],
+                        'site_url': settings.SITE_URL,
+                    })
+                    
+                    text_content = f'''Assalomu alaykum, {user.first_name}!
+
+Hisobingizga yangi qurilmadan kirish amalga oshirildi.
+
+Qurilma: {device_info['device']}
+Vaqt: {timezone.now().strftime('%d.%m.%Y, %H:%M')}
+IP manzil: {device_info['ip']}
+
+Agar bu siz bo'lmasangiz, darhol parolingizni o'zgartiring.
+
+Hurmat bilan,
+EduSelf jamoasi
+{settings.SITE_URL}'''
+                    
+                    email_message = EmailMultiAlternatives(
+                        subject='EduSelf - Yangi qurilmadan kirish',
+                        body=text_content,
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        to=[user.email]
+                    )
+                    email_message.attach_alternative(html_content, "text/html")
+                    email_message.send(fail_silently=False)
+                    logger.info(f"✅ New device email yuborildi: {user.email}")
+                except Exception as e:
+                    logger.error(f"❌ New device email yuborishda xatolik: {e}")
             
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return JsonResponse({'success': True, 'redirect': '/'})
