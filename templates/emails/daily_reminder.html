@@ -1,0 +1,55 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<tr>
+    <td style="padding: 40px 30px;">
+        <h1 style="color: #1f2937; font-size: 28px; font-weight: 700; margin: 0 0 20px 0; text-align: center;">
+            {% if time == 'ertalab' %}
+            🌅 Xayrli tong!
+            {% else %}
+            ☀️ Bugun hali o'qimadingiz
+            {% endif %}
+        </h1>
+        
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+            Assalomu alaykum, <strong>{{ user_name }}</strong>!
+        </p>
+        
+        {% if time == 'ertalab' %}
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+            Bugun EduSelf platformasida o'qishni boshlaganingiz yo'qmi?
+        </p>
+        
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+            Har kuni 15-20 daqiqa o'qish sizning bilimingizni oshiradi va maqsadlaringizga yaqinlashtiradi.
+        </p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ site_url }}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                📚 Bugun nima o'rganamiz?
+            </a>
+        </div>
+        {% else %}
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+            Bugun hali EduSelf platformasiga kirmaganingizni ko'rdik.
+        </p>
+        
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+            Faqat 10-15 daqiqa vaqt ajrating va bilimingizni oshiring!
+        </p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ site_url }}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                📖 Keling, bugun biror narsa o'rganamiz?
+            </a>
+        </div>
+        {% endif %}
+        
+        <div style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); border-radius: 12px; padding: 20px; margin: 30px 0;">
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0; text-align: center;">
+                💡 <strong>Maslahat:</strong> Har kuni muntazam o'qish eng yaxshi natijalarni beradi!
+            </p>
+        </div>
+    </td>
+</tr>
+{% endblock %}

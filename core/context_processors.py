@@ -21,8 +21,10 @@ def auth_settings(request):
 def notifications(request):
     if request.user.is_authenticated:
         # Barcha bildirishnomalarni olish
+        # Global bildirishnomalar faqat foydalanuvchi yaratilgandan KEYIN yaratilganlarini ko'rsatish
         all_notifications = Notification.objects.filter(
-            models.Q(user=request.user) | models.Q(is_global=True)
+            models.Q(user=request.user) | 
+            models.Q(is_global=True, created_at__gte=request.user.created_at)
         ).select_related('user').order_by('-created_at')
         
         # Har bir bildirishnoma uchun o'qilganligini tekshirish

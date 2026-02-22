@@ -196,3 +196,27 @@ EduSelf jamoasi'''
     except Exception as e:
         print(f"New device email yuborishda xatolik: {e}")
         return False
+
+
+
+def check_new_device(request, user):
+    """Yangi qurilma ekanligini tekshirish (soddalashtirilgan)"""
+    ip_address = get_client_ip(request)
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    
+    return is_new_device(user, ip_address, user_agent)
+
+
+def get_device_info(request):
+    """Request'dan qurilma ma'lumotlarini olish"""
+    ip_address = get_client_ip(request)
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    device_data = parse_user_agent(user_agent)
+    
+    return {
+        'ip': ip_address,
+        'device': f"{device_data['device_type']} - {device_data['browser']} on {device_data['os']}",
+        'device_type': device_data['device_type'],
+        'browser': device_data['browser'],
+        'os': device_data['os'],
+    }
