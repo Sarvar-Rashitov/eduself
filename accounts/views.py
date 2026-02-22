@@ -626,6 +626,14 @@ EduSelf jamoasi
                 except Exception as e:
                     logger.error(f"❌ New device email yuborishda xatolik: {e}")
             
+            # Login history yaratish
+            from .utils import create_login_history
+            try:
+                login_history = create_login_history(user, request)
+                logger.info(f"✅ Login history yaratildi: {user.email}, new_device={login_history.is_new_device}")
+            except Exception as e:
+                logger.error(f"❌ Login history yaratishda xatolik: {e}")
+            
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return JsonResponse({'success': True, 'redirect': '/'})
             

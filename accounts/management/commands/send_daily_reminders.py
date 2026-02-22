@@ -126,19 +126,20 @@ EduSelf jamoasi'''
                     except Exception as e:
                         logger.error(f"❌ Telegram xatolik ({user.username}): {e}")
                 
-                # Platformada bildirishnoma yaratish
-                try:
-                    Notification.objects.create(
-                        user=user,
-                        title="🌅 Bugun o'qishni boshlaymizmi?",
-                        message="Har kuni 15-20 daqiqa o'qish sizning bilimingizni oshiradi va maqsadlaringizga yaqinlashtiradi.",
-                        notification_type='reminder',
-                        icon='📚',
-                        link='/'
-                    )
-                    notification_created += 1
-                except Exception as e:
-                    logger.error(f"❌ Notification xatolik ({user.username}): {e}")
+                # Platformada bildirishnoma yaratish (signal ishlamaydi)
+                # Kunlik eslatma uchun faqat email va telegram yetarli
+                # try:
+                #     Notification.objects.create(
+                #         user=user,
+                #         title="🌅 Bugun o'qishni boshlaymizmi?",
+                #         message="Har kuni 15-20 daqiqa o'qish sizning bilimingizni oshiradi va maqsadlaringizga yaqinlashtiradi.",
+                #         notification_type='reminder',
+                #         icon='📚',
+                #         link='/'
+                #     )
+                #     notification_created += 1
+                # except Exception as e:
+                #     logger.error(f"❌ Notification xatolik ({user.username}): {e}")
                     
             except Exception as e:
                 logger.error(f"❌ Umumiy xatolik ({user.username}): {e}")
@@ -229,19 +230,20 @@ EduSelf jamoasi'''
                     except Exception as e:
                         logger.error(f"❌ Telegram xatolik ({user.username}): {e}")
                 
-                # Platformada bildirishnoma yaratish
-                try:
-                    Notification.objects.create(
-                        user=user,
-                        title="☀️ Bugun hali o'qimadingiz",
-                        message="Faqat 10-15 daqiqa vaqt ajrating va bilimingizni oshiring! Keling, bugun biror narsa o'rganamiz?",
-                        notification_type='reminder',
-                        icon='📖',
-                        link='/'
-                    )
-                    notification_created += 1
-                except Exception as e:
-                    logger.error(f"❌ Notification xatolik ({user.username}): {e}")
+                # Platformada bildirishnoma yaratish (signal ishlamaydi)
+                # Kunlik eslatma uchun faqat email va telegram yetarli
+                # try:
+                #     Notification.objects.create(
+                #         user=user,
+                #         title="☀️ Bugun hali o'qimadingiz",
+                #         message="Faqat 10-15 daqiqa vaqt ajrating va bilimingizni oshiring! Keling, bugun biror narsa o'rganamiz?",
+                #         notification_type='reminder',
+                #         icon='📖',
+                #         link='/'
+                #     )
+                #     notification_created += 1
+                # except Exception as e:
+                #     logger.error(f"❌ Notification xatolik ({user.username}): {e}")
                     
             except Exception as e:
                 logger.error(f"❌ Umumiy xatolik ({user.username}): {e}")

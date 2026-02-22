@@ -119,8 +119,14 @@ def send_new_device_email(user, login_history, request):
     from django.core.mail import EmailMultiAlternatives
     from django.conf import settings
     from django.urls import reverse
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"📧 send_new_device_email chaqirildi: {user.email}")
     
     if not user.email or not user.email_verified:
+        logger.warning(f"❌ Email yo'q yoki tasdiqlanmagan: {user.email}, verified={user.email_verified}")
         return False
     
     try:
@@ -128,6 +134,8 @@ def send_new_device_email(user, login_history, request):
         reset_password_url = request.build_absolute_uri(
             reverse('accounts:forgot_password')
         )
+        
+        logger.info(f"📝 Email template yaratilmoqda...")
         
         # HTML email yaratish
         html_content = render_to_string('emails/new_device_login.html', {
@@ -164,6 +172,8 @@ Darhol parolingizni o'zgartiring: {reset_password_url}
 Hurmat bilan,
 EduSelf jamoasi'''
         
+        logger.info(f"📧 Email yuborilmoqda: {user.email}")
+        
         # Email yuborish
         email = EmailMultiAlternatives(
             subject='EduSelf - Yangi qurilmadan kirish',
@@ -172,7 +182,9 @@ EduSelf jamoasi'''
             to=[user.email]
         )
         email.attach_alternative(html_content, "text/html")
-        email.send(fail_silently=True)
+        email.send(fail_silently=False)  # fail_silently=False qilamiz
+        
+        logger.info(f"✅ New device email yuborildi: {user.email}")
         
         # Telegram notification yuborish
         if user.telegram_chat_id:
@@ -189,12 +201,15 @@ EduSelf jamoasi'''
                             f"Bu siz bo'lmasa, darhol parolingizni o'zgartiring!",
                     link=reset_password_url
                 )
+                logger.info(f"✅ Telegram notification yuborildi: {user.username}")
             except Exception as e:
-                print(f"Telegram notification yuborishda xatolik: {e}")
+                logger.error(f"❌ Telegram notification yuborishda xatolik: {e}")
         
         return True
     except Exception as e:
-        print(f"New device email yuborishda xatolik: {e}")
+        logger.error(f"❌ New device email yuborishda xatolik: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return False
 
 
