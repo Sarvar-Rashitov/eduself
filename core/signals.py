@@ -10,6 +10,7 @@ from django.db import models
 from .models import Notification
 import logging
 import threading
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -26,11 +27,24 @@ def send_notifications_async(notification):
         try:
             # Email yuborish funksiyasi
             def send_email_to_user(user):
-                """Bitta foydalanuvchiga email yuborish"""
+                """Bitta foydalanuvchiga email yuborish (Admin notification uchun)"""
                 if not user.email or not user.email_verified:
                     return False
                 
                 try:
+                    # Admin notification uchun alohida email backend
+                    from django.core.mail import get_connection
+                    
+                    # Admin email sozlamalari
+                    admin_connection = get_connection(
+                        host=os.getenv('ADMIN_EMAIL_HOST', settings.EMAIL_HOST),
+                        port=int(os.getenv('ADMIN_EMAIL_PORT', settings.EMAIL_PORT)),
+                        username=os.getenv('ADMIN_EMAIL_HOST_USER', settings.EMAIL_HOST_USER),
+                        password=os.getenv('ADMIN_EMAIL_HOST_PASSWORD', settings.EMAIL_HOST_PASSWORD),
+                        use_tls=os.getenv('ADMIN_EMAIL_USE_TLS', 'True') == 'True',
+                        fail_silently=False,
+                    )
+                    
                     # HTML email yaratish
                     html_content = render_to_string('emails/notification.html', {
                         'user_name': user.first_name,
@@ -54,15 +68,18 @@ def send_notifications_async(notification):
 Hurmat bilan,
 EduSelf jamoasi'''
                     
-                    # Email yuborish
+                    # Email yuborish (Admin backend bilan)
+                    from_email = os.getenv('ADMIN_DEFAULT_FROM_EMAIL', settings.DEFAULT_FROM_EMAIL)
+                    
                     email = EmailMultiAlternatives(
                         subject=f'EduSelf - {notification.title}',
                         body=text_content,
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        to=[user.email]
+                        from_email=from_email,
+                        to=[user.email],
+                        connection=admin_connection
                     )
                     email.attach_alternative(html_content, "text/html")
-                    email.send(fail_silently=False)  # Xatoliklarni ko'rish uchun
+                    email.send(fail_silently=False)
                     
                     logger.info(f"✅ Email yuborildi: {user.email}")
                     return True
