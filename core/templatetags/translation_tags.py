@@ -48,8 +48,9 @@ def translate(text, target_lang):
     if target_lang == 'uz':
         return text
     
-    # Uzunlik limiti - 200 chars (multiple API keys bilan)
-    if len(text) > 200:
+    # CRITICAL: Faqat qisqa matnlarni AI orqali tarjima qilish (50 chars)
+    # Uzun matnlar uchun static_translations.json ishlatish kerak
+    if len(text) > 50:
         return text
     
     # Default source language - uzbek
@@ -81,8 +82,8 @@ def trans(text, target_lang='uz'):
         if target_lang in translations:
             return translations[target_lang]
     
-    # Uzunlik limiti - 200 chars (multiple API keys bilan)
-    if len(text) > 200:
+    # Faqat qisqa matnlarni AI orqali tarjima qilish (50 chars)
+    if len(text) > 50:
         return text
     
     # Agar topilmasa, AI orqali tarjima qilish
@@ -143,8 +144,8 @@ def t(text, lang='uz'):
         if lang in translations:
             return translations[lang]
     
-    # Uzunlik limiti - 200 chars (multiple API keys bilan)
-    if len(text) > 200:
+    # Faqat qisqa matnlarni AI orqali tarjima qilish (50 chars)
+    if len(text) > 50:
         return text
     
     # Agar topilmasa, AI orqali tarjima qilish

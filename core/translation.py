@@ -91,12 +91,13 @@ class AITranslator:
         if not text or not text.strip():
             return text
         
-        # Uzunlik limiti - ko'p keylar bor, shuning uchun 200 gacha ruxsat
-        if len(text) > 200:
-            logger.warning(f"Text too long for translation ({len(text)} chars), returning original")
+        # CRITICAL: Faqat qisqa matnlarni AI orqali tarjima qilish
+        # Uzun matnlar uchun static_translations.json ishlatish kerak
+        if len(text) > 50:
+            logger.debug(f"Text too long for AI translation ({len(text)} chars), returning original")
             return text
         
-        # Cache'dan tekshirish
+        # Cache'dan tekshirish - bu eng muhim!
         cache_key = self._get_cache_key(text, source_lang, target_lang)
         cached_translation = cache.get(cache_key)
         if cached_translation:
@@ -134,30 +135,30 @@ Translation:"""
                     {'role': 'user', 'content': prompt}
                 ],
                 'temperature': 0.3,
-                'max_tokens': 200  # Increased for longer texts
+                'max_tokens': 100  # Reduced for short texts only
             }
             
             response = requests.post(
                 self.api_url,
                 headers=headers,
                 json=data,
-                timeout=8  # 8 seconds - balanced timeout
+                timeout=5  # Aggressive 5 second timeout
             )
             
             if response.status_code == 200:
                 result = response.json()
                 translated_text = result['choices'][0]['message']['content'].strip()
                 
-                # Cache'ga saqlash (24 soat)
-                cache.set(cache_key, translated_text, 60 * 60 * 24)
+                # Cache'ga saqlash (7 kun - uzoq muddat)
+                cache.set(cache_key, translated_text, 60 * 60 * 24 * 7)
                 
                 return translated_text
             else:
-                logger.error(f"DeepSeek API error: {response.status_code} - {response.text}")
+                logger.error(f"DeepSeek API error: {response.status_code}")
                 return text
         
         except requests.exceptions.Timeout:
-            logger.warning(f"Translation timeout for text: {text[:50]}...")
+            logger.warning(f"Translation timeout for: {text[:30]}...")
             return text
         except requests.exceptions.RequestException as e:
             logger.error(f"Translation request error: {str(e)}")
