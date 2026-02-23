@@ -69,16 +69,13 @@ def trans(text, target_lang='uz'):
             return translations[target_lang]
     
     # Agar topilmasa va matn juda uzun bo'lsa, original matnni qaytarish
-    # (API timeout oldini olish uchun)
-    if len(text) > 500:
-        print(f"⚠️ Text too long for AI translation ({len(text)} chars), returning original")
+    if len(text) > 200:
         return text
     
     # Agar topilmasa, AI orqali tarjima qilish
     try:
         return translator.translate(text, 'uz', target_lang)
     except Exception as e:
-        print(f"❌ Translation error: {e}")
         return text
 
 
@@ -134,15 +131,13 @@ def t(text, lang='uz'):
             return translations[lang]
     
     # Agar topilmasa va matn juda uzun bo'lsa, original matnni qaytarish
-    if len(text) > 500:
-        print(f"⚠️ Text too long for AI translation ({len(text)} chars), returning original: {text[:50]}...")
+    if len(text) > 200:
         return text
     
     # Agar topilmasa, AI orqali tarjima qilish
     try:
         return translator.translate(text, 'uz', lang)
     except Exception as e:
-        print(f"❌ Translation error for '{text[:50]}...': {e}")
         return text
 
 

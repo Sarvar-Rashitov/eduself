@@ -63,14 +63,17 @@ function changeLanguage(langCode) {
         body: JSON.stringify({
             language: langCode,
             next: window.location.pathname + window.location.search
-        })
+        }),
+        credentials: 'same-origin'  // Cookie'larni yuborish uchun
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // Session'ga saqlandi, sahifani yangilash
             window.location.reload();
         } else {
             console.error('Language change failed:', data.error);
+            // Fallback: URL parametr orqali
             const url = new URL(window.location.href);
             url.searchParams.set('lang', langCode);
             window.location.href = url.toString();
@@ -78,6 +81,7 @@ function changeLanguage(langCode) {
     })
     .catch(error => {
         console.error('Error:', error);
+        // Fallback: URL parametr orqali
         const url = new URL(window.location.href);
         url.searchParams.set('lang', langCode);
         window.location.href = url.toString();
