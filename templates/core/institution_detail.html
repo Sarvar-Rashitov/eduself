@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load translation_tags %}
 
-{% block title %}{{ institution.name|translate:request.LANGUAGE_CODE }} - EduSelf{% endblock %}
+{% block title %}{{ institution.translated_name }} - EduSelf{% endblock %}
 
 {% block content %}
 <a href="{% url 'core:institutions' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
@@ -13,10 +13,10 @@
     <div class="card-body text-center">
         {% if institution.image %}
         <div class="institution-image-container mb-3">
-            <img src="{{ institution.image.url }}" alt="{{ institution.name|translate:request.LANGUAGE_CODE }}" class="institution-image-detail">
+            <img src="{{ institution.image.url }}" alt="{{ institution.translated_name }}" class="institution-image-detail">
         </div>
         {% endif %}
-        <h3 class="mb-3">{{ institution.name|translate:request.LANGUAGE_CODE }}</h3>
+        <h3 class="mb-3">{{ institution.translated_name }}</h3>
         {% if institution.short_description %}
         <p class="lead text-muted">{{ institution.short_description|translate:request.LANGUAGE_CODE|safe }}</p>
         {% endif %}
@@ -85,7 +85,7 @@
             {% for direction in directions %}
             <div class="col-md-6 mb-4">
                 <div class="direction-card-new">
-                    <h6 class="direction-name-new">{{ direction.name|translate:request.LANGUAGE_CODE }}</h6>
+                    <h6 class="direction-name-new">{{ direction.translated_name }}</h6>
                     
                     <div class="direction-details">
                         <div class="detail-row">
@@ -147,7 +147,7 @@
         {% endif %}
         
         <!-- Matnli ma'lumot -->
-        {% if institution.description %}
+        {% if institution.translated_description %}
         <div class="description-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="mb-0">{% t "Muassasa haqida" request.LANGUAGE_CODE %}</h6>
@@ -159,12 +159,12 @@
             </div>
             
             <div class="description-preview">
-                <p class="mb-0">{{ institution.description|translate:request.LANGUAGE_CODE|truncatewords:30 }}</p>
+                <p class="mb-0">{{ institution.translated_description|truncatewords:30 }}</p>
             </div>
             
             <div class="collapse" id="fullDescription">
                 <div class="description-full mt-3">
-                    <p class="mb-0">{{ institution.description|translate:request.LANGUAGE_CODE|safe }}</p>
+                    <p class="mb-0">{{ institution.translated_description|safe }}</p>
                 </div>
             </div>
         </div>

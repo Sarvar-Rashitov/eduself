@@ -14,6 +14,7 @@ from .models import (
     Notification, NotificationRead,
     DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult, Partner
 )
+from core.translation import translator
 
 def is_mobile(request):
     """User-Agent orqali mobil qurilmani aniqlash"""
@@ -45,7 +46,6 @@ def home_view(request):
     # CRITICAL: View'da oldindan tarjima qilish (template'da emas!)
     # Bu worker timeout'ni oldini oladi
     if lang != 'uz':
-        from core.translation import translator
         
         # Institutions'ni tarjima qilish (4 ta)
         for inst in institutions:
@@ -312,6 +312,28 @@ def take_topic_test_view(request, pk):
     topic = get_object_or_404(Topic, pk=pk, is_active=True)
     questions = topic.questions.all().prefetch_related('answers')
     
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Translate topic and questions if not Uzbek
+    if lang != 'uz':
+        topic.translated_name = translator.translate(topic.name, 'uz', lang, 'topic_test')
+        topic.translated_description = translator.translate(topic.description, 'uz', lang, 'topic_test') if topic.description else ''
+        
+        # Translate questions and answers
+        for question in questions:
+            question.translated_text = translator.translate(question.text, 'uz', lang, 'topic_test')
+            for answer in question.answers.all():
+                answer.translated_text = translator.translate(answer.text, 'uz', lang, 'topic_test')
+    else:
+        topic.translated_name = topic.name
+        topic.translated_description = topic.description if topic.description else ''
+        
+        for question in questions:
+            question.translated_text = question.text
+            for answer in question.answers.all():
+                answer.translated_text = answer.text
+    
     if request.method == 'POST':
         # JSON formatdagi javoblarni olish
         answers_data = request.POST.get('answers_data')
@@ -495,6 +517,26 @@ def certificate_detail_view(request, pk):
     certificate = get_object_or_404(Certificate, pk=pk, is_active=True)
     topics = certificate.cert_topics.filter(is_active=True)
     
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Translate certificate details if not Uzbek
+    if lang != 'uz':
+        certificate.translated_name = translator.translate(certificate.name, 'uz', lang, 'certificate_detail')
+        certificate.translated_description = translator.translate(certificate.description, 'uz', lang, 'certificate_detail') if certificate.description else ''
+        
+        # Translate topics
+        for topic in topics:
+            topic.translated_name = translator.translate(topic.name, 'uz', lang, 'certificate_detail')
+            topic.translated_description = translator.translate(topic.description, 'uz', lang, 'certificate_detail') if topic.description else ''
+    else:
+        certificate.translated_name = certificate.name
+        certificate.translated_description = certificate.description if certificate.description else ''
+        
+        for topic in topics:
+            topic.translated_name = topic.name
+            topic.translated_description = topic.description if topic.description else ''
+    
     context = {'certificate': certificate, 'topics': topics}
     
     if is_mobile(request):
@@ -601,6 +643,28 @@ def take_cert_test_view(request, pk):
         return redirect('core:cert_topic_detail', pk=test.topic.pk)
     
     questions = test.cert_questions.all().prefetch_related('cert_answers')
+    
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Translate test and questions if not Uzbek
+    if lang != 'uz':
+        test.translated_title = translator.translate(test.title, 'uz', lang, 'cert_test')
+        test.translated_description = translator.translate(test.description, 'uz', lang, 'cert_test') if test.description else ''
+        
+        # Translate questions and answers
+        for question in questions:
+            question.translated_text = translator.translate(question.text, 'uz', lang, 'cert_test')
+            for answer in question.cert_answers.all():
+                answer.translated_text = translator.translate(answer.text, 'uz', lang, 'cert_test')
+    else:
+        test.translated_title = test.title
+        test.translated_description = test.description if test.description else ''
+        
+        for question in questions:
+            question.translated_text = question.text
+            for answer in question.cert_answers.all():
+                answer.translated_text = answer.text
     
     if request.method == 'POST':
         # JSON formatdagi javoblarni olish
@@ -858,6 +922,28 @@ def take_mock_exam_view(request, pk):
     
     questions = exam.mock_questions.all().prefetch_related('mock_answers')
     
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Translate exam and questions if not Uzbek
+    if lang != 'uz':
+        exam.translated_name = translator.translate(exam.name, 'uz', lang, 'mock_exam')
+        exam.translated_description = translator.translate(exam.description, 'uz', lang, 'mock_exam') if exam.description else ''
+        
+        # Translate questions and answers
+        for question in questions:
+            question.translated_text = translator.translate(question.text, 'uz', lang, 'mock_exam')
+            for answer in question.mock_answers.all():
+                answer.translated_text = translator.translate(answer.text, 'uz', lang, 'mock_exam')
+    else:
+        exam.translated_name = exam.name
+        exam.translated_description = exam.description if exam.description else ''
+        
+        for question in questions:
+            question.translated_text = question.text
+            for answer in question.mock_answers.all():
+                answer.translated_text = answer.text
+    
     if request.method == 'POST':
         # JSON formatdagi javoblarni olish
         answers_data = request.POST.get('answers_data')
@@ -1022,6 +1108,35 @@ def institution_detail_view(request, pk):
     institution = get_object_or_404(Institution, pk=pk, is_active=True)
     directions = institution.directions.filter(is_active=True)
     
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Translate institution details if not Uzbek
+    if lang != 'uz':
+        institution.translated_name = translator.translate(institution.name, 'uz', lang, 'institution_detail')
+        institution.translated_description = translator.translate(institution.description, 'uz', lang, 'institution_detail')
+        institution.translated_address = translator.translate(institution.address, 'uz', lang, 'institution_detail') if institution.address else ''
+        
+        # Translate category
+        if institution.category:
+            institution.translated_category = translator.translate(institution.category.name, 'uz', lang, 'institution_detail')
+        else:
+            institution.translated_category = ''
+        
+        # Translate directions
+        for direction in directions:
+            direction.translated_name = translator.translate(direction.name, 'uz', lang, 'institution_detail')
+            direction.translated_description = translator.translate(direction.description, 'uz', lang, 'institution_detail') if direction.description else ''
+    else:
+        institution.translated_name = institution.name
+        institution.translated_description = institution.description
+        institution.translated_address = institution.address if institution.address else ''
+        institution.translated_category = institution.category.name if institution.category else ''
+        
+        for direction in directions:
+            direction.translated_name = direction.name
+            direction.translated_description = direction.description if direction.description else ''
+    
     context = {
         'institution': institution,
         'directions': directions
@@ -1036,6 +1151,27 @@ def institution_detail_view(request, pk):
 def direction_detail_view(request, pk):
     """Yo'nalish batafsil sahifasi"""
     direction = get_object_or_404(InstitutionDirection, pk=pk, is_active=True)
+    
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Translate direction details if not Uzbek
+    if lang != 'uz':
+        direction.translated_name = translator.translate(direction.name, 'uz', lang, 'direction_detail')
+        direction.translated_description = translator.translate(direction.description, 'uz', lang, 'direction_detail') if direction.description else ''
+        direction.translated_requirements = translator.translate(direction.requirements, 'uz', lang, 'direction_detail') if direction.requirements else ''
+        
+        # Translate institution name
+        if direction.institution:
+            direction.translated_institution = translator.translate(direction.institution.name, 'uz', lang, 'direction_detail')
+        else:
+            direction.translated_institution = ''
+    else:
+        direction.translated_name = direction.name
+        direction.translated_description = direction.description if direction.description else ''
+        direction.translated_requirements = direction.requirements if direction.requirements else ''
+        direction.translated_institution = direction.institution.name if direction.institution else ''
+    
     context = {'direction': direction}
     if is_mobile(request):
         return render(request, 'core/direction_detail.html', context)
@@ -1076,11 +1212,33 @@ def news_detail_view(request, slug):
     news = get_object_or_404(News, slug=slug, is_published=True)
     news.increment_views()
     
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Translate news content if not Uzbek
+    if lang != 'uz':
+        news.translated_title = translator.translate(news.title, 'uz', lang, 'news_detail')
+        news.translated_content = translator.translate(news.content, 'uz', lang, 'news_detail')
+        if news.category:
+            news.translated_category = translator.translate(news.category.name, 'uz', lang, 'news_detail')
+    else:
+        news.translated_title = news.title
+        news.translated_content = news.content
+        news.translated_category = news.category.name if news.category else ''
+    
     # O'xshash yangiliklar
     related_news = News.objects.filter(
         category=news.category,
         is_published=True
     ).exclude(id=news.id)[:3]
+    
+    # Translate related news
+    if lang != 'uz':
+        for item in related_news:
+            item.translated_title = translator.translate(item.title, 'uz', lang, 'news_detail')
+    else:
+        for item in related_news:
+            item.translated_title = item.title
     
     context = {
         'news': news,
@@ -1257,6 +1415,21 @@ def lesson_detail_view(request, course_slug, lesson_id):
         progress.completed = True
         progress.completed_at = timezone.now()
         progress.save()
+    
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Translate lesson content if not Uzbek
+    if lang != 'uz':
+        lesson.translated_title = translator.translate(lesson.title, 'uz', lang, 'lesson_detail')
+        lesson.translated_content = translator.translate(lesson.content, 'uz', lang, 'lesson_detail')
+        lesson.translated_description = translator.translate(lesson.description, 'uz', lang, 'lesson_detail') if lesson.description else ''
+        course.translated_name = translator.translate(course.name, 'uz', lang, 'lesson_detail')
+    else:
+        lesson.translated_title = lesson.title
+        lesson.translated_content = lesson.content
+        lesson.translated_description = lesson.description if lesson.description else ''
+        course.translated_name = course.name
     
     context = {
         'course': course,

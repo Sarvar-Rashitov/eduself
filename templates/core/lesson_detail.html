@@ -2,16 +2,16 @@
 {% load i18n %}
 {% load translation_tags %}
 
-{% block title %}{{ lesson.title }} - {{ course.title }} - EduSelf{% endblock %}
+{% block title %}{{ lesson.translated_title }} - {{ course.translated_name }} - EduSelf{% endblock %}
 
 {% block content %}
 <a href="{% url 'core:course_detail' course.slug %}" class="text-decoration-none text-muted mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> {{ course.title|translate:request.LANGUAGE_CODE }}
+    <i class="bi bi-arrow-left"></i> {{ course.translated_name }}
 </a>
 
 <div class="card mb-4">
     <div class="card-body">
-        <h3 class="card-title mb-3">{{ lesson.title|translate:request.LANGUAGE_CODE }}</h3>
+        <h3 class="card-title mb-3">{{ lesson.translated_title }}</h3>
         
         {% if lesson.video_url or lesson.video_file %}
         <div class="video-container mb-4">
@@ -19,7 +19,7 @@
             <div class="ratio ratio-16x9">
                 <iframe 
                     src="{{ lesson.get_embed_url }}" 
-                    title="{{ lesson.title }}"
+                    title="{{ lesson.translated_title }}"
                     frameborder="0" 
                     allowfullscreen 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -37,7 +37,7 @@
         
         <div class="lesson-content">
             <h5>{% t "Dars matni" request.LANGUAGE_CODE %}</h5>
-            {{ lesson.content|translate:request.LANGUAGE_CODE|safe }}
+            {{ lesson.translated_content|safe }}
         </div>
         
         {% if lesson.practice_topic %}

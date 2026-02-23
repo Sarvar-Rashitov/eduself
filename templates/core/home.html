@@ -233,27 +233,6 @@
         </div>
         {% endif %}
     </div>
-    
-    <!-- AI Assistant Quick Access -->
-    <div class="ai-quick-access">
-        <div class="ai-card">
-            <div class="ai-card-header">
-                <div class="ai-icon-large">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <div class="ai-card-content">
-                    <h3>{% t "AI Hamroh" request.LANGUAGE_CODE %}</h3>
-                    <p>{% t "Savollaringizga javob oling, tavsiyalar oling" request.LANGUAGE_CODE %}</p>
-                </div>
-            </div>
-            <div class="ai-card-actions">
-                <a href="{% url 'ai_assistant:chat_redirect' %}" class="btn-ai-primary">
-                    <i class="bi bi-chat-dots"></i>
-                    <span>{% t "Suhbat Boshlash" request.LANGUAGE_CODE %}</span>
-                </a>
-            </div>
-        </div>
-    </div>
 </div>
 {% endif %}
 
@@ -598,69 +577,5 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endblock %}
 
 {% block footer %}
-<!-- Partners Section -->
-{% if partners %}
-<section class="partners-section">
-    <div class="section-title text-center mb-3" style="font-size: 1rem; font-weight: 600; color: white;">{% t "Bizga Ishonadigan Hamkorlar" request.LANGUAGE_CODE %}</div>
-    <div class="partners-mobile-carousel-container">
-        <div class="partners-mobile-carousel">
-            {% for partner in partners %}
-            <div class="partner-mobile-item" style="--i: {{ forloop.counter0 }};">
-                {% if partner.website_url %}
-                <a href="{{ partner.website_url }}" target="_blank" rel="noopener noreferrer" class="partner-mobile-link">
-                {% endif %}
-                    <div class="partner-mobile-card-content">
-                        <div class="partner-mobile-logo">
-                            {% if partner.logo %}
-                            <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" loading="lazy">
-                            {% else %}
-                            <div class="partner-mobile-placeholder">
-                                <i class="bi bi-handshake"></i>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="partner-mobile-info">
-                            <h4>{{ partner.name|translate:request.LANGUAGE_CODE }}</h4>
-                            {% if partner.description %}
-                            <p>{{ partner.description|translate:request.LANGUAGE_CODE|truncatewords:6 }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% if partner.website_url %}
-                </a>
-                {% endif %}
-            </div>
-            {% endfor %}
-            <!-- Duplicate for seamless loop -->
-            {% for partner in partners %}
-            <div class="partner-mobile-item" style="--i: {{ forloop.counter0|add:partners|length }};">
-                {% if partner.website_url %}
-                <a href="{{ partner.website_url }}" target="_blank" rel="noopener noreferrer" class="partner-mobile-link">
-                {% endif %}
-                    <div class="partner-mobile-card-content">
-                        <div class="partner-mobile-logo">
-                            {% if partner.logo %}
-                            <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" loading="lazy">
-                            {% else %}
-                            <div class="partner-mobile-placeholder">
-                                <i class="bi bi-handshake"></i>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="partner-mobile-info">
-                            <h4>{{ partner.name|translate:request.LANGUAGE_CODE }}</h4>
-                            {% if partner.description %}
-                            <p>{{ partner.description|translate:request.LANGUAGE_CODE|truncatewords:6 }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% if partner.website_url %}
-                </a>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
+<!-- Footer - Mobile versiyada yashirilgan -->
 {% endblock %}
