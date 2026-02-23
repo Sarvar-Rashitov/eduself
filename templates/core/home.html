@@ -380,6 +380,42 @@
                     </div>
                 </a>
             </div>
+            
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:mock_exams' %}" class="feature-card mock-exams">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-clipboard-check"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>{% t "Mock Imtihonlar" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Real tajriba" request.LANGUAGE_CODE %}</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:institutions' %}" class="feature-card institutions">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>{% t "Muassasalar" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Universitet va maktablar" request.LANGUAGE_CODE %}</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="feature-carousel-item">
+                <a href="{% url 'core:global_leaderboard' %}" class="feature-card leaderboard">
+                    <div class="feature-card-icon">
+                        <i class="bi bi-trophy"></i>
+                    </div>
+                    <div class="feature-card-content">
+                        <h3>{% t "Reyting" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Top o'quvchilar" request.LANGUAGE_CODE %}</p>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -432,122 +468,14 @@
 </div>
 {% endif %}
 
-<!-- Top Institutions -->
-{% if institutions %}
-<div class="content-section">
-    <div class="section-header">
-        <h2 class="section-title-main">
-            <i class="bi bi-building"></i>{% t "Ta'lim Muassasalari" request.LANGUAGE_CODE %}</h2>
-        <a href="{% url 'core:institutions' %}" class="section-link">{% t "Barchasi" request.LANGUAGE_CODE %}<i class="bi bi-arrow-right"></i>
-        </a>
-    </div>
-    
-    <div class="institutions-grid">
-        {% for inst in institutions %}
-        <a href="{% url 'core:institution_detail' inst.pk %}" class="institution-card-modern">
-            <div class="institution-card-header">
-                <div class="institution-logo">
-                    {% if inst.logo %}
-                    <img src="{{ inst.logo.url }}" alt="{{ inst.name }}">
-                    {% else %}
-                    <div class="institution-logo-placeholder">
-                        <i class="bi bi-building"></i>
-                    </div>
-                    {% endif %}
-                </div>
-                {% if inst.is_featured %}
-                <div class="featured-badge">
-                    <i class="bi bi-star-fill"></i>
-                </div>
-                {% endif %}
-            </div>
-            <div class="institution-card-body">
-                <h3>{{ inst.translated_name }}</h3>
-                {% if inst.translated_description %}
-                <p>{{ inst.translated_description|truncatewords:10 }}</p>
-                {% endif %}
-                <div class="institution-meta">
-                    <span class="meta-badge">
-                        <i class="bi bi-mortarboard"></i>
-                        {{ inst.get_directions_count }} {% t "yo'nalish" request.LANGUAGE_CODE %}
-                    </span>
-                    {% if inst.category %}
-                    <span class="meta-badge">
-                        <i class="{{ inst.category.icon }}"></i>
-                        {{ inst.category.name|translate:request.LANGUAGE_CODE }}
-                    </span>
-                    {% endif %}
-                </div>
-            </div>
-        </a>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
+<!-- Top Institutions - Mobile versiyada yashirilgan -->
 
-<!-- Subjects Section -->
-{% if subjects %}
-<div class="content-section">
-    <div class="section-header">
-        <h2 class="section-title-main">
-            <i class="bi bi-book"></i>
-            {% t "Fanlar" request.LANGUAGE_CODE %}
-        </h2>
-        <a href="{% url 'core:subjects' %}" class="section-link">{% t "Barchasi" request.LANGUAGE_CODE %}<i class="bi bi-arrow-right"></i>
-        </a>
-    </div>
-    
-    <div class="subjects-list">
-        {% for subject in subjects %}
-        <a href="{% url 'core:subject_detail' subject.pk %}" class="subject-card-modern">
-            <div class="subject-icon-wrapper">
-                <i class="{{ subject.icon }}"></i>
-            </div>
-            <div class="subject-content">
-                <h3>{{ subject.translated_name }}</h3>
-                <p>{{ subject.get_topics_count }} {% t "mavzu" request.LANGUAGE_CODE %} • {{ subject.get_questions_count }} {% t "savol" request.LANGUAGE_CODE %}</p>
-            </div>
-            <div class="subject-arrow">
-                <i class="bi bi-chevron-right"></i>
-            </div>
-        </a>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
 
-<!-- Certificates Section -->
-{% if certificates %}
-<div class="content-section">
-    <div class="section-header">
-        <h2 class="section-title-main">
-            <i class="bi bi-award"></i>
-            {% t "Sertifikatlar" request.LANGUAGE_CODE %}
-        </h2>
-        <a href="{% url 'core:certificates' %}" class="section-link">{% t "Barchasi" request.LANGUAGE_CODE %}<i class="bi bi-arrow-right"></i>
-        </a>
-    </div>
-    
-    <div class="certificates-grid">
-        {% for cert in certificates %}
-        <a href="{% url 'core:certificate_detail' cert.pk %}" class="certificate-card-modern">
-            <div class="certificate-icon">
-                <i class="bi bi-award"></i>
-            </div>
-            <div class="certificate-content">
-                <h3>{{ cert.translated_name }}</h3>
-                {% if cert.translated_description %}
-                <p>{{ cert.translated_description|truncatewords:8 }}</p>
-                {% endif %}
-            </div>
-            <div class="certificate-badge">
-                <i class="bi bi-arrow-right-circle"></i>
-            </div>
-        </a>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
+<!-- Subjects Section - Mobile versiyada yashirilgan -->
+
+
+<!-- Certificates Section - Mobile versiyada yashirilgan -->
+
 
 <!-- Leaderboard Section -->
 {% if top_users %}
@@ -635,6 +563,36 @@ document.addEventListener('DOMContentLoaded', function() {
         
         slide.style.cursor = 'pointer';
     });
+    
+    // Pause animation on touch for features carousel
+    const featuresCarousel = document.querySelector('.features-carousel');
+    const featuresContainer = document.querySelector('.features-carousel-container');
+    
+    if (featuresCarousel && featuresContainer) {
+        let touchTimeout;
+        
+        // Pause animation on touch/click
+        featuresContainer.addEventListener('touchstart', () => {
+            featuresCarousel.style.animationPlayState = 'paused';
+            clearTimeout(touchTimeout);
+        });
+        
+        featuresContainer.addEventListener('touchend', () => {
+            // Resume animation after 2 seconds
+            touchTimeout = setTimeout(() => {
+                featuresCarousel.style.animationPlayState = 'running';
+            }, 2000);
+        });
+        
+        // Also handle mouse events for desktop
+        featuresContainer.addEventListener('mouseenter', () => {
+            featuresCarousel.style.animationPlayState = 'paused';
+        });
+        
+        featuresContainer.addEventListener('mouseleave', () => {
+            featuresCarousel.style.animationPlayState = 'running';
+        });
+    }
 });
 </script>
 {% endblock %}
@@ -705,58 +663,4 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </section>
 {% endif %}
-
-<footer class="app-footer">
-    <div class="footer-content">
-        <div class="footer-brand">
-            <h3 class="footer-logo" style="font-size: 1.1rem;">
-                <i class="bi bi-mortarboard-fill"></i> EduSelf
-            </h3>
-            <p class="footer-tagline" style="font-size: 0.7rem;">{% t "O'zbekistonda ta'limni rivojlantirish platformasi" request.LANGUAGE_CODE %}</p>
-        </div>
-
-        <div class="footer-links">
-            <div class="footer-section">
-                <h4 class="footer-title" style="font-size: 0.8rem;">{% t "Platformamiz" request.LANGUAGE_CODE %}</h4>
-                <ul class="footer-list" style="font-size: 0.7rem;">
-                    <li><a href="{% url 'core:subjects' %}"><i class="bi bi-book"></i> {% t "Fanlar" request.LANGUAGE_CODE %}</a></li>
-                    <li><a href="{% url 'core:certificates' %}"><i class="bi bi-award"></i> {% t "Sertifikatlar" request.LANGUAGE_CODE %}</a></li>
-                    <li><a href="{% url 'core:mock_exams' %}"><i class="bi bi-clipboard-check"></i> {% t "Mock Imtihonlar" request.LANGUAGE_CODE %}</a></li>
-                    <li><a href="{% url 'core:institutions' %}"><i class="bi bi-building"></i> {% t "Muassasalar" request.LANGUAGE_CODE %}</a></li>
-                    <li><a href="{% url 'core:courses' %}"><i class="bi bi-play-circle"></i> {% t "Online Kurslar" request.LANGUAGE_CODE %}</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h4 class="footer-title" style="font-size: 0.8rem;">{% t "Bog'lanish" request.LANGUAGE_CODE %}</h4>
-                <ul class="footer-list" style="font-size: 0.7rem;">
-                    <li><a href="mailto:info@eduself.uz"><i class="bi bi-envelope"></i> info@eduself.uz</a></li>
-                    <li><a href="tel:+998500104307"><i class="bi bi-telephone"></i> +998 50 010 43 07</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h4 class="footer-title" style="font-size: 0.8rem;">{% t "Ijtimoiy tarmoqlar" request.LANGUAGE_CODE %}</h4>
-                <div class="social-links">
-                    <a href="https://t.me/eduselfuz" target="_blank" class="social-link" aria-label="Telegram" style="width: 30px; height: 30px;">
-                        <i class="bi bi-telegram"></i>
-                    </a>
-                    <a href="https://instagram.com/eduself_uz" target="_blank" class="social-link" aria-label="Instagram" style="width: 30px; height: 30px;">
-                        <i class="bi bi-instagram"></i>
-                    </a>
-                    <a href="#" target="_blank" class="social-link" aria-label="Facebook" style="width: 30px; height: 30px;">
-                        <i class="bi bi-facebook"></i>
-                    </a>
-                    <a href="#" target="_blank" class="social-link" aria-label="YouTube" style="width: 30px; height: 30px;">
-                        <i class="bi bi-youtube"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer-bottom text-center">
-            <p class="copyright" style="font-size: 0.65rem;">© 2025 EduSelf. {% t "Barcha huquqlar himoyalangan" request.LANGUAGE_CODE %}.</p>
-        </div>
-    </div>
-</footer>
 {% endblock %}

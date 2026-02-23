@@ -50,8 +50,12 @@ def home_view(request):
         # Institutions'ni tarjima qilish (4 ta)
         for inst in institutions:
             inst.translated_name = translator.translate(inst.name, 'uz', lang, 'home')
-            # Description uzun, tarjima qilmaslik
-            inst.translated_description = inst.short_description if hasattr(inst, 'short_description') else ''
+            inst.translated_description = ''
+            # Category name ham tarjima qilish
+            if hasattr(inst, 'category') and inst.category:
+                inst.translated_category = translator.translate(inst.category.name, 'uz', lang, 'home')
+            else:
+                inst.translated_category = ''
         
         # Subjects'ni tarjima qilish (3 ta)
         for subj in subjects:
@@ -60,13 +64,23 @@ def home_view(request):
         # Certificates'ni tarjima qilish (2-3 ta)
         for cert in certificates:
             cert.translated_name = translator.translate(cert.name, 'uz', lang, 'home')
-            # Description uzun, tarjima qilmaslik
             cert.translated_description = ''
+        
+        # Advertisements'ni tarjima qilish (5 ta) - FAQAT TITLE
+        for ad in advertisements:
+            ad.translated_title = translator.translate(ad.title, 'uz', lang, 'home')
+            ad.translated_description = ''  # Description uzun, tarjima qilmaslik
+        
+        # Partners'ni tarjima qilish - FAQAT NAME
+        for partner in partners:
+            partner.translated_name = translator.translate(partner.name, 'uz', lang, 'home')
+            partner.translated_description = ''  # Description uzun, tarjima qilmaslik
     else:
         # Uzbek tilida - original matnlar
         for inst in institutions:
             inst.translated_name = inst.name
-            inst.translated_description = inst.short_description if hasattr(inst, 'short_description') else ''
+            inst.translated_description = ''
+            inst.translated_category = inst.category.name if hasattr(inst, 'category') and inst.category else ''
         
         for subj in subjects:
             subj.translated_name = subj.name
@@ -74,6 +88,14 @@ def home_view(request):
         for cert in certificates:
             cert.translated_name = cert.name
             cert.translated_description = ''
+        
+        for ad in advertisements:
+            ad.translated_title = ad.title
+            ad.translated_description = ''
+        
+        for partner in partners:
+            partner.translated_name = partner.name
+            partner.translated_description = ''
     
     # Dinamik statistikalar
     from accounts.models import User

@@ -960,7 +960,7 @@ body {
 }
 
 .features-carousel-container {
-    overflow: hidden;
+    overflow: hidden; /* Hide overflow for smooth animation */
     position: relative;
     width: 100%;
 }
@@ -989,13 +989,13 @@ body {
 .features-carousel {
     display: flex;
     align-items: center;
-    animation: featuresScroll 30s linear infinite;
     width: fit-content;
     padding: 0.5rem 1rem;
+    animation: featuresScroll 20s linear infinite; /* Smooth continuous animation */
 }
 
 .features-carousel:hover {
-    animation-play-state: paused;
+    animation-play-state: paused; /* Pause on hover */
 }
 
 @keyframes featuresScroll {
@@ -1003,7 +1003,7 @@ body {
         transform: translateX(0);
     }
     100% {
-        transform: translateX(-50%);
+        transform: translateX(-50%); /* Move to half (where duplicates start) */
     }
 }
 
