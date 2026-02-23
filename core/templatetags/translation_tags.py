@@ -12,11 +12,24 @@ register = template.Library()
 # Statik tarjimalarni yuklash
 STATIC_TRANSLATIONS = {}
 try:
-    translations_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'static_translations.json')
-    with open(translations_file, 'r', encoding='utf-8') as f:
-        STATIC_TRANSLATIONS = json.load(f)
-except:
-    pass
+    # Try multiple possible paths
+    possible_paths = [
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'static_translations.json'),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'static_translations.json'),
+        'static_translations.json',
+    ]
+    
+    for translations_file in possible_paths:
+        if os.path.exists(translations_file):
+            with open(translations_file, 'r', encoding='utf-8') as f:
+                STATIC_TRANSLATIONS = json.load(f)
+            print(f"✅ Loaded {len(STATIC_TRANSLATIONS)} static translations from {translations_file}")
+            break
+    
+    if not STATIC_TRANSLATIONS:
+        print("⚠️ Warning: static_translations.json not found")
+except Exception as e:
+    print(f"❌ Error loading static translations: {e}")
 
 
 @register.filter(name='translate')
@@ -55,8 +68,18 @@ def trans(text, target_lang='uz'):
         if target_lang in translations:
             return translations[target_lang]
     
+    # Agar topilmasa va matn juda uzun bo'lsa, original matnni qaytarish
+    # (API timeout oldini olish uchun)
+    if len(text) > 500:
+        print(f"⚠️ Text too long for AI translation ({len(text)} chars), returning original")
+        return text
+    
     # Agar topilmasa, AI orqali tarjima qilish
-    return translator.translate(text, 'uz', target_lang)
+    try:
+        return translator.translate(text, 'uz', target_lang)
+    except Exception as e:
+        print(f"❌ Translation error: {e}")
+        return text
 
 
 @register.filter(name='translate_from')
@@ -101,7 +124,26 @@ def t(text, lang='uz'):
         {% t "Kirish" request.LANGUAGE_CODE %}
         {% t "Bosh sahifa" "en" %}
     """
-    return trans(text, lang)
+    if not text or lang == 'uz':
+        return text
+    
+    # Statik tarjimalardan qidirish
+    if text in STATIC_TRANSLATIONS:
+        translations = STATIC_TRANSLATIONS[text]
+        if lang in translations:
+            return translations[lang]
+    
+    # Agar topilmasa va matn juda uzun bo'lsa, original matnni qaytarish
+    if len(text) > 500:
+        print(f"⚠️ Text too long for AI translation ({len(text)} chars), returning original: {text[:50]}...")
+        return text
+    
+    # Agar topilmasa, AI orqali tarjima qilish
+    try:
+        return translator.translate(text, 'uz', lang)
+    except Exception as e:
+        print(f"❌ Translation error for '{text[:50]}...': {e}")
+        return text
 
 
 @register.inclusion_tag('includes/language_selector.html', takes_context=True)
