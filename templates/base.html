@@ -35,6 +35,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base-layout.css' %}">
     
     <!-- Notification Modal Styles -->
     <style>
@@ -440,6 +441,32 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize theme
             initTheme();
+            
+            // AI FAB Scroll Detection
+            const aiFab = document.getElementById('aiFab');
+            if (aiFab) {
+                let lastScrollTop = 0;
+                let scrollTimeout;
+                
+                window.addEventListener('scroll', function() {
+                    clearTimeout(scrollTimeout);
+                    
+                    scrollTimeout = setTimeout(function() {
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        
+                        // Pastga scroll qilganda yashirish
+                        if (scrollTop > lastScrollTop && scrollTop > 100) {
+                            aiFab.classList.add('hidden');
+                        } 
+                        // Tepaga scroll qilganda ko'rsatish
+                        else if (scrollTop < lastScrollTop) {
+                            aiFab.classList.remove('hidden');
+                        }
+                        
+                        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+                    }, 100); // 100ms debounce
+                }, { passive: true });
+            }
             
             // Handle sidebar navigation clicks
             const sidebarNavItems = document.querySelectorAll('.sidebar-nav .nav-item');
