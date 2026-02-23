@@ -33,11 +33,47 @@ def custom_404_view(request, exception=None):
 
 
 def home_view(request):
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
     subjects = Subject.objects.filter(is_active=True)[:3]  # 3 ta fan ko'rsatish
     certificates = Certificate.objects.filter(is_active=True)[:3]
     institutions = Institution.objects.filter(is_featured=True, is_active=True)[:4]
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
     partners = Partner.objects.filter(is_active=True).order_by('order')  # Hamkorlar
+    
+    # CRITICAL: View'da oldindan tarjima qilish (template'da emas!)
+    # Bu worker timeout'ni oldini oladi
+    if lang != 'uz':
+        from core.translation import translator
+        
+        # Institutions'ni tarjima qilish (4 ta)
+        for inst in institutions:
+            inst.translated_name = translator.translate(inst.name, 'uz', lang, 'home')
+            # Description uzun, tarjima qilmaslik
+            inst.translated_description = inst.short_description if hasattr(inst, 'short_description') else ''
+        
+        # Subjects'ni tarjima qilish (3 ta)
+        for subj in subjects:
+            subj.translated_name = translator.translate(subj.name, 'uz', lang, 'home')
+        
+        # Certificates'ni tarjima qilish (2-3 ta)
+        for cert in certificates:
+            cert.translated_name = translator.translate(cert.name, 'uz', lang, 'home')
+            # Description uzun, tarjima qilmaslik
+            cert.translated_description = ''
+    else:
+        # Uzbek tilida - original matnlar
+        for inst in institutions:
+            inst.translated_name = inst.name
+            inst.translated_description = inst.short_description if hasattr(inst, 'short_description') else ''
+        
+        for subj in subjects:
+            subj.translated_name = subj.name
+        
+        for cert in certificates:
+            cert.translated_name = cert.name
+            cert.translated_description = ''
     
     # Dinamik statistikalar
     from accounts.models import User

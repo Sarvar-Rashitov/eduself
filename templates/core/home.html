@@ -462,9 +462,9 @@
                 {% endif %}
             </div>
             <div class="institution-card-body">
-                <h3>{{ inst.name|translate:request.LANGUAGE_CODE }}</h3>
-                {% if inst.short_description %}
-                <p>{{ inst.short_description|translate:request.LANGUAGE_CODE|truncatewords:10 }}</p>
+                <h3>{{ inst.translated_name }}</h3>
+                {% if inst.translated_description %}
+                <p>{{ inst.translated_description|truncatewords:10 }}</p>
                 {% endif %}
                 <div class="institution-meta">
                     <span class="meta-badge">
@@ -504,7 +504,7 @@
                 <i class="{{ subject.icon }}"></i>
             </div>
             <div class="subject-content">
-                <h3>{{ subject.name|translate:request.LANGUAGE_CODE }}</h3>
+                <h3>{{ subject.translated_name }}</h3>
                 <p>{{ subject.get_topics_count }} {% t "mavzu" request.LANGUAGE_CODE %} • {{ subject.get_questions_count }} {% t "savol" request.LANGUAGE_CODE %}</p>
             </div>
             <div class="subject-arrow">
@@ -535,9 +535,9 @@
                 <i class="bi bi-award"></i>
             </div>
             <div class="certificate-content">
-                <h3>{{ cert.name|translate:request.LANGUAGE_CODE }}</h3>
-                {% if cert.description %}
-                <p>{{ cert.description|translate:request.LANGUAGE_CODE|truncatewords:8 }}</p>
+                <h3>{{ cert.translated_name }}</h3>
+                {% if cert.translated_description %}
+                <p>{{ cert.translated_description|truncatewords:8 }}</p>
                 {% endif %}
             </div>
             <div class="certificate-badge">
