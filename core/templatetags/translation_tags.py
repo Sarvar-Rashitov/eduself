@@ -32,10 +32,48 @@ except Exception as e:
     print(f"❌ Error loading static translations: {e}")
 
 
+@register.simple_tag(takes_context=True)
+def translate_with_page(context, text, target_lang=None):
+    """
+    Page-aware translation tag
+    
+    Usage:
+        {% translate_with_page news.title request.LANGUAGE_CODE %}
+        {% translate_with_page course.description "en" %}
+    """
+    if not text:
+        return ''
+    
+    # Get target language
+    if not target_lang:
+        target_lang = context.get('CURRENT_LANGUAGE', 'uz')
+    
+    # Agar til bir xil bo'lsa, original matnni qaytarish
+    if target_lang == 'uz':
+        return text
+    
+    # Uzunlik limiti - 200 chars
+    if len(text) > 200:
+        return text
+    
+    # Get page name from context
+    page_name = context.get('PAGE_NAME', 'default')
+    
+    # Default source language - uzbek
+    source_lang = 'uz'
+    
+    # Try-except bilan xavfsiz tarjima
+    try:
+        return translator.translate(text, source_lang, target_lang, page_name)
+    except Exception as e:
+        # Agar xatolik bo'lsa, original matnni qaytarish
+        return text
+
+
 @register.filter(name='translate')
 def translate(text, target_lang):
     """
-    Template filter - matnni tarjima qilish
+    Template filter - matnni tarjima qilish (legacy support)
     
     Usage:
         {{ news.title|translate:request.LANGUAGE_CODE }}
@@ -48,17 +86,16 @@ def translate(text, target_lang):
     if target_lang == 'uz':
         return text
     
-    # CRITICAL: Faqat qisqa matnlarni AI orqali tarjima qilish (50 chars)
-    # Uzun matnlar uchun static_translations.json ishlatish kerak
-    if len(text) > 50:
+    # Uzunlik limiti - 200 chars
+    if len(text) > 200:
         return text
     
     # Default source language - uzbek
     source_lang = 'uz'
     
-    # Try-except bilan xavfsiz tarjima
+    # Try-except bilan xavfsiz tarjima (page_name=None - default key ishlatadi)
     try:
-        return translator.translate(text, source_lang, target_lang)
+        return translator.translate(text, source_lang, target_lang, page_name=None)
     except Exception as e:
         # Agar xatolik bo'lsa, original matnni qaytarish
         return text
@@ -82,13 +119,13 @@ def trans(text, target_lang='uz'):
         if target_lang in translations:
             return translations[target_lang]
     
-    # Faqat qisqa matnlarni AI orqali tarjima qilish (50 chars)
-    if len(text) > 50:
+    # Uzunlik limiti - 200 chars
+    if len(text) > 200:
         return text
     
-    # Agar topilmasa, AI orqali tarjima qilish
+    # Agar topilmasa, AI orqali tarjima qilish (page_name=None)
     try:
-        return translator.translate(text, 'uz', target_lang)
+        return translator.translate(text, 'uz', target_lang, page_name=None)
     except Exception as e:
         return text
 
@@ -144,13 +181,13 @@ def t(text, lang='uz'):
         if lang in translations:
             return translations[lang]
     
-    # Faqat qisqa matnlarni AI orqali tarjima qilish (50 chars)
-    if len(text) > 50:
+    # Uzunlik limiti - 200 chars
+    if len(text) > 200:
         return text
     
-    # Agar topilmasa, AI orqali tarjima qilish
+    # Agar topilmasa, AI orqali tarjima qilish (page_name=None)
     try:
-        return translator.translate(text, 'uz', lang)
+        return translator.translate(text, 'uz', lang, page_name=None)
     except Exception as e:
         return text
 

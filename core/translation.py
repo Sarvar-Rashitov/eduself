@@ -1,7 +1,7 @@
 """
 AI-powered translation system using DeepSeek API
 Dinamik kontentni tarjima qilish uchun
-Multiple API keys support for load balancing
+Page-based load balancing - har bir sahifa o'z API keyidan foydalanadi
 """
 import os
 import requests
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class AITranslator:
-    """DeepSeek AI orqali matnlarni tarjima qilish - Multiple API keys bilan"""
+    """DeepSeek AI orqali matnlarni tarjima qilish - Page-based load balancing"""
     
     LANGUAGE_NAMES = {
         'uz': 'Uzbek',
@@ -25,6 +25,22 @@ class AITranslator:
         'kaa': 'Karakalpak',
         'tg': 'Tajik',
         'ky': 'Kyrgyz',
+    }
+    
+    # Har bir sahifa uchun API key mapping
+    PAGE_API_KEY_MAPPING = {
+        'home': 1,              # Home page → KEY_1
+        'institutions': 2,      # Institutions → KEY_2
+        'courses': 3,           # Courses → KEY_3
+        'subjects': 3,          # Subjects → KEY_3
+        'mock_exams': 4,        # Mock exams → KEY_4
+        'certificates': 4,      # Certificates → KEY_4
+        'profile': 5,           # Profile → KEY_5
+        'leaderboard': 5,       # Leaderboard → KEY_5
+        'news': 2,              # News → KEY_2
+        'ai_assistant': 1,      # AI Assistant → KEY_1
+        'oferta': 1,            # Oferta → KEY_1
+        'default': 1,           # Default → KEY_1
     }
     
     def __init__(self):
@@ -50,14 +66,33 @@ class AITranslator:
                 keys.append(legacy_key.strip())
         
         if keys:
-            logger.info(f"✅ Loaded {len(keys)} DeepSeek API key(s) for load balancing")
+            logger.info(f"✅ Loaded {len(keys)} DeepSeek API key(s) for page-based load balancing")
         else:
             logger.warning("⚠️ No DeepSeek API keys configured")
         
         return keys
     
+    def _get_api_key_for_page(self, page_name=None):
+        """Sahifa uchun tegishli API keyni olish"""
+        if not self.api_keys:
+            return None
+        
+        # Agar sahifa nomi berilmagan bo'lsa, default key
+        if not page_name:
+            page_name = 'default'
+        
+        # Sahifa uchun key index olish
+        key_index = self.PAGE_API_KEY_MAPPING.get(page_name, 1)
+        
+        # Agar key mavjud bo'lsa, uni qaytarish
+        if key_index <= len(self.api_keys):
+            return self.api_keys[key_index - 1]
+        
+        # Agar key yo'q bo'lsa, birinchi keyni qaytarish
+        return self.api_keys[0]
+    
     def _get_next_api_key(self):
-        """Keyingisi API keyni olish (round-robin)"""
+        """Keyingisi API keyni olish (round-robin) - fallback uchun"""
         if not self.api_keys:
             return None
         
@@ -71,14 +106,15 @@ class AITranslator:
         text_hash = hashlib.md5(text.encode()).hexdigest()
         return f"translation:{source_lang}:{target_lang}:{text_hash}"
     
-    def translate(self, text, source_lang='uz', target_lang='en'):
+    def translate(self, text, source_lang='uz', target_lang='en', page_name=None):
         """
-        Matnni tarjima qilish - Multiple API keys bilan
+        Matnni tarjima qilish - Page-based load balancing
         
         Args:
             text: Tarjima qilinadigan matn
             source_lang: Manba til kodi (uz, en, ru, ...)
             target_lang: Maqsad til kodi
+            page_name: Sahifa nomi (home, institutions, courses, ...)
             
         Returns:
             Tarjima qilingan matn
@@ -91,9 +127,8 @@ class AITranslator:
         if not text or not text.strip():
             return text
         
-        # CRITICAL: Faqat qisqa matnlarni AI orqali tarjima qilish
-        # Uzun matnlar uchun static_translations.json ishlatish kerak
-        if len(text) > 50:
+        # Uzunlik limiti - 200 chars (page-based load balancing bilan)
+        if len(text) > 200:
             logger.debug(f"Text too long for AI translation ({len(text)} chars), returning original")
             return text
         
@@ -108,8 +143,8 @@ class AITranslator:
             logger.warning("No DeepSeek API keys configured. Returning original text.")
             return text
         
-        # Keyingisi API keyni olish
-        api_key = self._get_next_api_key()
+        # Sahifa uchun tegishli API keyni olish
+        api_key = self._get_api_key_for_page(page_name)
         
         try:
             # DeepSeek API ga so'rov yuborish
@@ -135,14 +170,14 @@ Translation:"""
                     {'role': 'user', 'content': prompt}
                 ],
                 'temperature': 0.3,
-                'max_tokens': 100  # Reduced for short texts only
+                'max_tokens': 200  # For longer texts
             }
             
             response = requests.post(
                 self.api_url,
                 headers=headers,
                 json=data,
-                timeout=5  # Aggressive 5 second timeout
+                timeout=8  # 8 seconds timeout
             )
             
             if response.status_code == 200:

@@ -88,9 +88,37 @@ def language_context(request):
     for lang_code, lang_name in settings.LANGUAGES:
         languages_list.append((lang_code, language_names.get(lang_code, lang_name)))
     
+    # Detect page name from URL path
+    page_name = 'default'
+    path = request.path.strip('/')
+    
+    if not path or path == '':
+        page_name = 'home'
+    elif 'institution' in path:
+        page_name = 'institutions'
+    elif 'course' in path or 'lesson' in path:
+        page_name = 'courses'
+    elif 'subject' in path or 'topic' in path:
+        page_name = 'subjects'
+    elif 'mock-exam' in path:
+        page_name = 'mock_exams'
+    elif 'certificate' in path:
+        page_name = 'certificates'
+    elif 'profile' in path:
+        page_name = 'profile'
+    elif 'leaderboard' in path:
+        page_name = 'leaderboard'
+    elif 'news' in path:
+        page_name = 'news'
+    elif 'ai-assistant' in path:
+        page_name = 'ai_assistant'
+    elif 'oferta' in path or 'privacy' in path:
+        page_name = 'oferta'
+    
     return {
         'CURRENT_LANGUAGE': current_lang,
         'AVAILABLE_LANGUAGES': settings.LANGUAGES,
         'current_language': current_lang,
         'languages': languages_list,
+        'PAGE_NAME': page_name,  # Sahifa nomi
     }
