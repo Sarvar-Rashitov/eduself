@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
 {% block title %}{{ news.title }} - EduSelf{% endblock %}
 
 {% block content %}
 <a href="{% url 'core:news_list' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> Yangiliklarga qaytish
+    <i class="bi bi-arrow-left"></i> {% t "Yangiliklarga qaytish" request.LANGUAGE_CODE %}
 </a>
 
 <div class="card mb-4">
@@ -12,8 +14,8 @@
     <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}" style="max-height: 400px; object-fit: cover;">
     {% endif %}
     <div class="card-body">
-        <span class="badge bg-primary mb-3">{{ news.category.name }}</span>
-        <h3 class="card-title mb-3">{{ news.title }}</h3>
+        <span class="badge bg-primary mb-3">{{ news.category.name|translate:request.LANGUAGE_CODE }}</span>
+        <h3 class="card-title mb-3">{{ news.title|translate:request.LANGUAGE_CODE }}</h3>
         
         <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
             <div>
@@ -34,20 +36,20 @@
         </div>
         
         <div class="news-content">
-            {{ news.content|linebreaks }}
+            {{ news.content|translate:request.LANGUAGE_CODE|linebreaks }}
         </div>
         
         {% if news.external_link %}
         <div class="news-external-link mt-4">
             <a href="{{ news.external_link }}" target="_blank" class="btn btn-primary w-100">
-                <i class="bi bi-link-45deg"></i> {{ news.external_link_text|default:"Batafsil ma'lumot" }}
+                <i class="bi bi-link-45deg"></i> {{ news.external_link_text|default:"Batafsil ma'lumot"|translate:request.LANGUAGE_CODE }}
             </a>
         </div>
         {% endif %}
         
         <div class="news-share mt-4 pt-4 border-top">
             <div class="d-flex align-items-center gap-2 mb-3">
-                <span class="fw-bold" style="font-size: 0.9rem;">Ulashish:</span>
+                <span class="fw-bold" style="font-size: 0.9rem;">{% t "Ulashish" request.LANGUAGE_CODE %}:</span>
             </div>
             <div class="d-flex gap-2">
                 <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}&text={{ news.title }}" target="_blank" class="share-btn share-btn-telegram" title="Telegram">
@@ -68,7 +70,7 @@
 </div>
 
 {% if related_news %}
-<div class="section-title">O'xshash yangiliklar</div>
+<div class="section-title">{% t "O'xshash yangiliklar" request.LANGUAGE_CODE %}</div>
 {% for related in related_news %}
 <a href="{% url 'core:news_detail' related.slug %}" class="text-decoration-none">
     <div class="card mb-3">
@@ -82,9 +84,9 @@
             <div class="col-12">
             {% endif %}
                 <div class="card-body">
-                    <span class="badge bg-primary mb-2">{{ related.category.name }}</span>
-                    <h6 class="card-title text-dark">{{ related.title }}</h6>
-                    <p class="card-text text-muted small">{{ related.summary|truncatewords:15 }}</p>
+                    <span class="badge bg-primary mb-2">{{ related.category.name|translate:request.LANGUAGE_CODE }}</span>
+                    <h6 class="card-title text-dark">{{ related.title|translate:request.LANGUAGE_CODE }}</h6>
+                    <p class="card-text text-muted small">{{ related.summary|translate:request.LANGUAGE_CODE|truncatewords:15 }}</p>
                 </div>
             </div>
         </div>

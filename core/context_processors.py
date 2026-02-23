@@ -1,49 +1,96 @@
-from django.conf import settings as django_settings
+"""
+Context processors for adding global variables to templates
+"""
+from django.conf import settings
 from django.db import models
 from .models import SiteSettings, Notification, NotificationRead
 
+
 def site_settings(request):
+    """
+    Site settings'ni barcha template'larga qo'shish
+    """
     try:
-        settings = SiteSettings.objects.first()
+        site_settings_obj = SiteSettings.objects.first()
     except:
-        settings = None
-    return {'site_settings': settings}
-
-
-def auth_settings(request):
-    """Google va Telegram auth sozlamalari"""
+        site_settings_obj = None
+    
     return {
-        'google_client_id': getattr(django_settings, 'GOOGLE_CLIENT_ID', ''),
-        'telegram_bot_username': getattr(django_settings, 'TELEGRAM_BOT_USERNAME', ''),
+        'site_settings': site_settings_obj,
     }
 
 
 def notifications(request):
+    """
+    Foydalanuvchi notificationlarini barcha template'larga qo'shish
+    """
     if request.user.is_authenticated:
-        # Barcha bildirishnomalarni olish
-        # Global bildirishnomalar faqat foydalanuvchi yaratilgandan KEYIN yaratilganlarini ko'rsatish
-        all_notifications = Notification.objects.filter(
-            models.Q(user=request.user) | 
-            models.Q(is_global=True, created_at__gte=request.user.created_at)
-        ).select_related('user').order_by('-created_at')
+        # Global notificationlar (o'qilmaganlar)
+        global_notifications = Notification.objects.filter(
+            is_global=True
+        ).exclude(
+            reads__user=request.user
+        )
         
-        # Har bir bildirishnoma uchun o'qilganligini tekshirish
-        notifications_with_read_status = []
-        unread_count = 0
+        # Shaxsiy notificationlar (o'qilmaganlar)
+        personal_notifications = Notification.objects.filter(
+            user=request.user,
+            is_read=False
+        )
         
-        for notification in all_notifications:
-            is_read = notification.is_read_by_user(request.user)
-            # Template da ishlatish uchun is_read attributini qo'shish
-            notification.is_read = is_read
-            notifications_with_read_status.append(notification)
-            
-            if not is_read:
-                unread_count += 1
-    else:
-        notifications_with_read_status = []
-        unread_count = 0
+        # Jami o'qilmagan notificationlar soni
+        unread_count = global_notifications.count() + personal_notifications.count()
+        
+        # Oxirgi 10 ta notification (global + personal)
+        recent_notifications = Notification.objects.filter(
+            models.Q(is_global=True) | models.Q(user=request.user)
+        ).order_by('-created_at')[:10]
+        
+        return {
+            'unread_notifications_count': unread_count,
+            'recent_notifications': recent_notifications,
+        }
     
     return {
-        'notifications': notifications_with_read_status,
-        'unread_notifications_count': unread_count
+        'unread_notifications_count': 0,
+        'recent_notifications': [],
+    }
+
+
+def auth_settings(request):
+    """
+    Authentication settings'ni barcha template'larga qo'shish
+    """
+    return {
+        'GOOGLE_CLIENT_ID': settings.GOOGLE_CLIENT_ID,
+    }
+
+
+def language_context(request):
+    """
+    Har bir template'ga til ma'lumotlarini qo'shish
+    """
+    # Get current language from request
+    current_lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Prepare languages list with names
+    languages_list = []
+    language_names = {
+        'uz': "O'zbek",
+        'en': 'English',
+        'ru': 'Русский',
+        'kk': 'Қазақша',
+        'kaa': 'Qaraqalpaqsha',
+        'tg': 'Тоҷикӣ',
+        'ky': 'Кыргызча',
+    }
+    
+    for lang_code, lang_name in settings.LANGUAGES:
+        languages_list.append((lang_code, language_names.get(lang_code, lang_name)))
+    
+    return {
+        'CURRENT_LANGUAGE': current_lang,
+        'AVAILABLE_LANGUAGES': settings.LANGUAGES,
+        'current_language': current_lang,
+        'languages': languages_list,
     }

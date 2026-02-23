@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}AI Tahlil - {{ exam.title }} - EduSelf{% endblock %}
@@ -206,8 +208,7 @@ function getAIAnalysis() {
             <a href="{% url 'core:direction_exam_intro' exam.pk %}" class="btn btn-primary"><i class="fas fa-redo"></i> Qayta urinish</a>
             {% endif %}
             <button class="btn btn-info" id="ai-analysis-btn" onclick="getAIAnalysis()">
-                <i class="fas fa-robot"></i> AI Tahlil
-            </button>
+                <i class="fas fa-robot"></i>AI Tahlil</button>
         </div>
         
         <div class="questions-analysis">
@@ -251,7 +252,7 @@ function getAIAnalysis() {
                         <div class="answer-text">{{ answer.text|safe }}</div>
                         <div class="answer-status">
                             {% if answer.is_correct %}
-                                <span class="badge correct"><i class="fas fa-check"></i> To'g'ri</span>
+                                <span class="badge correct"><i class="fas fa-check"></i>To'g'ri</span>
                             {% elif item.user_answer.selected_answer_id == answer.id %}
                                 <span class="badge wrong"><i class="fas fa-times"></i> Sizning javobingiz</span>
                             {% endif %}

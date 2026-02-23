@@ -1,30 +1,24 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load translation_tags %}
 
-{% block title %}AI Yordam Markazi - EduSelf{% endblock %}
+{% block title %}{% t "AI Yordam Markazi - EduSelf" request.LANGUAGE_CODE %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    .help-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 3rem 0;
-        text-align: center;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-    }
-    
-    .help-hero h1 {
-        font-size: 2.5rem;
+    /* Simple page title */
+    .page-title {
+        font-size: 1.8rem;
         font-weight: 700;
-        margin-bottom: 1rem;
+        color: var(--text-color);
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
     }
     
-    .help-hero p {
-        font-size: 1.1rem;
-        opacity: 0.9;
-        max-width: 600px;
-        margin: 0 auto;
+    .page-title i {
+        color: var(--primary-color);
+        margin-right: 0.5rem;
     }
     
     .stats-grid {
@@ -244,11 +238,10 @@
 
 {% block content %}
 <div class="container">
-    <!-- Hero Section -->
-    <div class="help-hero">
-        <h1><i class="bi bi-robot me-3"></i>AI Yordam Markazi</h1>
-        <p>AI Hamroh bilan tanishing va barcha imkoniyatlardan foydalaning. Sizning shaxsiy ta'lim yordamchingiz har doim yordamga tayyor!</p>
-    </div>
+    <!-- Simple Title -->
+    <h1 class="page-title">
+        <i class="bi bi-robot"></i>{% t "AI Hamroh" request.LANGUAGE_CODE %}
+    </h1>
     
     <!-- Statistics -->
     <div class="stats-grid">
@@ -257,46 +250,46 @@
                 <i class="bi bi-book"></i>
             </div>
             <div class="stat-number">{{ stats.subjects }}</div>
-            <div class="stat-label">Fanlar</div>
+            <div class="stat-label">{% t "Fanlar" request.LANGUAGE_CODE %}</div>
         </div>
         <div class="stat-card">
             <div class="stat-icon">
                 <i class="bi bi-building"></i>
             </div>
             <div class="stat-number">{{ stats.institutions }}</div>
-            <div class="stat-label">Ta'lim muassasalari</div>
+            <div class="stat-label">{% t "Ta'lim muassasalari" request.LANGUAGE_CODE %}</div>
         </div>
         <div class="stat-card">
             <div class="stat-icon">
                 <i class="bi bi-award"></i>
             </div>
             <div class="stat-number">{{ stats.certificates }}</div>
-            <div class="stat-label">Sertifikatlar</div>
+            <div class="stat-label">{% t "Sertifikatlar" request.LANGUAGE_CODE %}</div>
         </div>
     </div>
     
     <!-- Quick Start -->
     <div class="quick-start">
-        <h3><i class="bi bi-lightning-charge me-2"></i>Tezkor Savol</h3>
-        <p class="mb-4">AI Hamrohdan biror narsa so'rashni xohlaysizmi? Savolingizni yozing va darhol javob oling!</p>
+        <h3><i class="bi bi-lightning-charge me-2"></i>{% t "Tezkor Savol" request.LANGUAGE_CODE %}</h3>
+        <p class="mb-4">{% t "AI Hamrohdan biror narsa so'rashni xohlaysizmi? Savolingizni yozing va darhol javob oling!" request.LANGUAGE_CODE %}</p>
         
         <form class="quick-start-form" method="post" action="{% url 'ai_assistant:quick_question' %}">
             {% csrf_token %}
             <div class="form-group">
-                <label class="form-label">Savolingiz:</label>
-                <textarea class="form-control" name="question" rows="3" placeholder="Masalan: Matematika fanini qanday o'rganish kerak?" required></textarea>
+                <label class="form-label">{% t "Savolingiz:" request.LANGUAGE_CODE %}</label>
+                <textarea class="form-control" name="question" rows="3" placeholder="{% t 'Masalan: Matematika fanini qanday o\'rganish kerak?' request.LANGUAGE_CODE %}" required></textarea>
             </div>
             <div class="form-group">
-                <label class="form-label">Kategoriya:</label>
+                <label class="form-label">{% t "Kategoriya:" request.LANGUAGE_CODE %}</label>
                 <select class="form-control" name="category">
-                    <option value="general">Umumiy</option>
-                    <option value="subject_help">Fan bo'yicha yordam</option>
-                    <option value="institution_advice">Muassasa tanlash</option>
-                    <option value="certificate_guide">Sertifikat yo'riqnomasi</option>
+                    <option value="general">{% t "Umumiy" request.LANGUAGE_CODE %}</option>
+                    <option value="subject_help">{% t "Fan bo'yicha yordam" request.LANGUAGE_CODE %}</option>
+                    <option value="institution_advice">{% t "Muassasa tanlash" request.LANGUAGE_CODE %}</option>
+                    <option value="certificate_guide">{% t "Sertifikat yo'riqnomasi" request.LANGUAGE_CODE %}</option>
                 </select>
             </div>
             <button type="submit" class="btn-primary-gradient">
-                <i class="bi bi-send me-2"></i>Savol yuborish
+                <i class="bi bi-send me-2"></i>{% t "Savol yuborish" request.LANGUAGE_CODE %}
             </button>
         </form>
     </div>
@@ -307,30 +300,30 @@
             <div class="feature-icon">
                 <i class="bi bi-book-half"></i>
             </div>
-            <h4 class="feature-title">Fanlar bo'yicha yordam</h4>
-            <p class="feature-description">Matematika, fizika, kimya va boshqa fanlar bo'yicha savollaringizga batafsil javoblar olish</p>
+            <h4 class="feature-title">{% t "Fanlar bo'yicha yordam" request.LANGUAGE_CODE %}</h4>
+            <p class="feature-description">{% t "Matematika, fizika, kimya va boshqa fanlar bo'yicha savollaringizga batafsil javoblar olish" request.LANGUAGE_CODE %}</p>
         </div>
         
         <div class="feature-card">
             <div class="feature-icon">
                 <i class="bi bi-building-check"></i>
             </div>
-            <h4 class="feature-title">Muassasa tanlash</h4>
-            <p class="feature-description">Sizning ehtiyojlaringizga mos ta'lim muassasalarini topish va taqqoslash</p>
+            <h4 class="feature-title">{% t "Muassasa tanlash" request.LANGUAGE_CODE %}</h4>
+            <p class="feature-description">{% t "Sizning ehtiyojlaringizga mos ta'lim muassasalarini topish va taqqoslash" request.LANGUAGE_CODE %}</p>
         </div>
         
         <div class="feature-card">
             <div class="feature-icon">
                 <i class="bi bi-award-fill"></i>
             </div>
-            <h4 class="feature-title">Sertifikat yo'riqnomasi</h4>
-            <p class="feature-description">Turli sertifikatlar haqida ma'lumot va ularni qanday olish bo'yicha maslahatlar</p>
+            <h4 class="feature-title">{% t "Sertifikat yo'riqnomasi" request.LANGUAGE_CODE %}</h4>
+            <p class="feature-description">{% t "Turli sertifikatlar haqida ma'lumot va ularni qanday olish bo'yicha maslahatlar" request.LANGUAGE_CODE %}</p>
         </div>
     </div>
     
     <!-- FAQ Section -->
     <div class="faq-section">
-        <h2 class="text-center mb-4">Tez-tez so'raladigan savollar</h2>
+        <h2 class="text-center mb-4">{% t "Tez-tez so'raladigan savollar" request.LANGUAGE_CODE %}</h2>
         
         {% for category in faq_data %}
         <div class="faq-category">
@@ -351,9 +344,8 @@
     
     <!-- Call to Action -->
     <div class="text-center mt-5 mb-4">
-        <h3 class="mb-3">AI Hamroh bilan suhbatni boshlang!</h3>
-        <a href="{% url 'ai_assistant:chat_redirect' %}" class="btn-primary-gradient">
-            <i class="bi bi-robot me-2"></i>Suhbatni boshlash
+        <a href="{% url 'ai_assistant:chat' %}" class="btn-primary-gradient">
+            <i class="bi bi-chat-dots me-2"></i>{% t "Suhbatni boshlash" request.LANGUAGE_CODE %}
         </a>
     </div>
 </div>

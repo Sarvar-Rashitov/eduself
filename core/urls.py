@@ -8,6 +8,9 @@ urlpatterns = [
     path('oferta/', views.oferta_view, name='oferta'),
     path('privacy/', views.privacy_view, name='privacy'),
     
+    # Language change
+    path('change-language/', views.change_language, name='change_language'),
+    
     path('subjects/', views.subjects_view, name='subjects'),
     path('subjects/<int:pk>/', views.subject_detail_view, name='subject_detail'),
     path('topics/<int:pk>/leaderboard/', views.topic_leaderboard_view, name='topic_leaderboard'),

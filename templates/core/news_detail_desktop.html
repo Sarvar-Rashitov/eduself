@@ -1,4 +1,6 @@
 ﻿{% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}{{ news.title }} - EduSelf{% endblock %}
@@ -9,8 +11,7 @@
         <div class="news-detail-wrapper">
             <div class="news-detail-main">
                 <a href="{% url 'core:news_list' %}" class="back-link-news">
-                    <i class="fas fa-arrow-left"></i> Yangiliklarga qaytish
-                </a>
+                    <i class="fas fa-arrow-left"></i>Yangiliklarga qaytish</a>
 
                 <article class="news-article">
                     {% if news.image %}

@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}{{ exam.title }} - Imtihon - EduSelf{% endblock %}
@@ -9,7 +11,7 @@
     <!-- Sidebar - Savollar navigatsiyasi -->
     <aside class="test-sidebar">
         <div class="sidebar-header">
-            <h3><i class="fas fa-list-ol"></i> Savollar</h3>
+            <h3><i class="fas fa-list-ol"></i>Savollar</h3>
         </div>
         <div class="questions-nav" id="questionsNav">
             {% for question in questions %}
@@ -62,7 +64,7 @@
         <!-- Progress -->
         <div class="test-progress">
             <div class="progress-info">
-                <span>Savol <strong id="currentQuestionNum">1</strong> / {{ questions|length }}</span>
+                <span>Savol<strong id="currentQuestionNum">1</strong> / {{ questions|length }}</span>
                 <span id="progressPercent">0%</span>
             </div>
             <div class="progress-bar-wrapper">
@@ -122,11 +124,9 @@
                     
                     {% if forloop.last %}
                     <button type="button" class="btn-action btn-finish" onclick="showFinishConfirmation()">
-                        <i class="fas fa-flag-checkered"></i> Imtihonni yakunlash
-                    </button>
+                        <i class="fas fa-flag-checkered"></i>Imtihonni yakunlash</button>
                     {% else %}
-                    <button type="button" class="btn-action btn-next" onclick="nextQuestion({{ forloop.counter0 }})">
-                        Keyingi <i class="fas fa-arrow-right"></i>
+                    <button type="button" class="btn-action btn-next" onclick="nextQuestion({{ forloop.counter0 }})">Keyingi<i class="fas fa-arrow-right"></i>
                     </button>
                     {% endif %}
                 </div>
@@ -183,11 +183,9 @@
         <p class="modal-warning">Yakunlangandan so'ng javoblarni o'zgartira olmaysiz!</p>
         <div class="modal-actions">
             <button class="btn-modal btn-cancel" onclick="hideFinishConfirmation()">
-                <i class="fas fa-arrow-left"></i> Davom etish
-            </button>
+                <i class="fas fa-arrow-left"></i>Davom etish</button>
             <button class="btn-modal btn-confirm" onclick="submitExam()">
-                <i class="fas fa-check"></i> Yakunlash
-            </button>
+                <i class="fas fa-check"></i>Yakunlash</button>
         </div>
     </div>
 </div>

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load translation_tags %}
 
 {% block title %}Profil - EduSelf{% endblock %}
 
@@ -583,11 +584,11 @@
                 <!-- Email verification status -->
                 {% if user.email and not user.email_verified %}
                 <a href="{% url 'accounts:resend_verification' %}" class="text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 0.75rem; color: rgba(255,255,255,0.9);">
-                    <i class="bi bi-envelope"></i> Emailni tasdiqlash <i class="bi bi-arrow-right" style="font-size: 0.65rem;"></i>
+                    <i class="bi bi-envelope"></i> {% t "Emailni tasdiqlash" request.LANGUAGE_CODE %} <i class="bi bi-arrow-right" style="font-size: 0.65rem;"></i>
                 </a>
                 {% elif not user.email %}
                 <a href="#edit" onclick="document.getElementById('edit-tab').click();" class="text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 0.75rem; color: rgba(255,255,255,0.9);">
-                    <i class="bi bi-plus-circle"></i> Email qo'shish <i class="bi bi-arrow-right" style="font-size: 0.65rem;"></i>
+                    <i class="bi bi-plus-circle"></i> {% t "Email qo'shish" request.LANGUAGE_CODE %} <i class="bi bi-arrow-right" style="font-size: 0.65rem;"></i>
                 </a>
                 {% endif %}
             </div>
@@ -598,7 +599,7 @@
             <div class="profile-points-card">
                 <i class="bi bi-coin points-icon" style="color: #fbbf24;"></i>
                 <div class="points-value">{{ user.total_points }}</div>
-                <small class="points-label">ball</small>
+                <small class="points-label">{% t "ball" request.LANGUAGE_CODE %}</small>
             </div>
         </div>
     </div>
@@ -607,15 +608,15 @@
 <div class="stats-grid mb-3">
     <div class="stat-card" style="padding: 10px;">
         <div class="stat-value" style="font-size: 1.2rem;">{{ user.get_total_tests_taken }}</div>
-        <div class="stat-label" style="font-size: 0.7rem;">Jami testlar</div>
+        <div class="stat-label" style="font-size: 0.7rem;">{% t "Jami testlar" request.LANGUAGE_CODE %}</div>
     </div>
     <div class="stat-card secondary" style="padding: 10px;">
         <div class="stat-value" style="font-size: 1.2rem;">{{ user.get_passed_tests }}</div>
-        <div class="stat-label" style="font-size: 0.7rem;">Muvaffaqiyatli</div>
+        <div class="stat-label" style="font-size: 0.7rem;">{% t "Muvaffaqiyatli" request.LANGUAGE_CODE %}</div>
     </div>
     <div class="stat-card accent" style="padding: 10px;">
         <div class="stat-value" style="font-size: 1.2rem;">{{ user.get_progress_percentage }}%</div>
-        <div class="stat-label" style="font-size: 0.7rem;">Progress</div>
+        <div class="stat-label" style="font-size: 0.7rem;">{% t "Progress" request.LANGUAGE_CODE %}</div>
     </div>
 </div>
 
@@ -623,13 +624,13 @@
 <div class="card mb-3 activity-chart-card">
     <div class="card-body py-2">
         <div class="activity-header-mobile">
-            <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-bar-chart text-info"></i> Faollik diagrammasi</h6>
+            <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-bar-chart text-info"></i> {% t "Faollik diagrammasi" request.LANGUAGE_CODE %}</h6>
             <div class="activity-toggle-mobile">
                 <button class="toggle-btn-mobile active" data-period="weekly">
-                    <i class="bi bi-calendar-week"></i> Haftalik
+                    <i class="bi bi-calendar-week"></i> {% t "Haftalik" request.LANGUAGE_CODE %}
                 </button>
                 <button class="toggle-btn-mobile" data-period="monthly">
-                    <i class="bi bi-calendar3"></i> Oylik
+                    <i class="bi bi-calendar3"></i> {% t "Oylik" request.LANGUAGE_CODE %}
                 </button>
             </div>
         </div>
@@ -671,15 +672,15 @@
             <div class="activity-stats-mobile">
                 <div class="activity-stat-mobile">
                     <span class="stat-number-mobile" id="totalActivityMobile">0</span>
-                    <span class="stat-label-mobile" id="totalLabelMobile">Jami</span>
+                    <span class="stat-label-mobile" id="totalLabelMobile">{% t "Barchasi" request.LANGUAGE_CODE %}</span>
                 </div>
                 <div class="activity-stat-mobile">
                     <span class="stat-number-mobile" id="averageActivityMobile">0</span>
-                    <span class="stat-label-mobile" id="averageLabelMobile">O'rtacha</span>
+                    <span class="stat-label-mobile" id="averageLabelMobile">{% t "O'rtacha" request.LANGUAGE_CODE %}</span>
                 </div>
                 <div class="activity-stat-mobile">
                     <span class="stat-number-mobile" id="peakActivityMobile">-</span>
-                    <span class="stat-label-mobile" id="peakLabelMobile">Eng faol</span>
+                    <span class="stat-label-mobile" id="peakLabelMobile">{% t "Eng faol" request.LANGUAGE_CODE %}</span>
                 </div>
             </div>
         </div>
@@ -690,17 +691,17 @@
 <ul class="nav nav-pills nav-fill mb-3" id="profileTabs" role="tablist" style="font-size: 0.8rem;">
     <li class="nav-item" role="presentation">
         <button class="nav-link active py-2 px-1" id="progress-tab" data-bs-toggle="pill" data-bs-target="#progress" type="button" role="tab">
-            <i class="bi bi-graph-up"></i> Progress
+            <i class="bi bi-graph-up"></i> {% t "Progress" request.LANGUAGE_CODE %}
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link py-2 px-1" id="edit-tab" data-bs-toggle="pill" data-bs-target="#edit" type="button" role="tab">
-            <i class="bi bi-pencil"></i> Tahrirlash
+            <i class="bi bi-pencil"></i> {% t "Tahrirlash" request.LANGUAGE_CODE %}
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link py-2 px-1" id="settings-tab" data-bs-toggle="pill" data-bs-target="#settings" type="button" role="tab">
-            <i class="bi bi-gear"></i> Sozlamalar
+            <i class="bi bi-gear"></i> {% t "Sozlamalar" request.LANGUAGE_CODE %}
         </button>
     </li>
 </ul>
@@ -710,12 +711,12 @@
     <div class="tab-pane fade show active" id="progress" role="tabpanel">
         <div class="card mb-3 progress-card">
             <div class="card-body py-2">
-                <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-book text-primary"></i> Fanlar</h6>
+                <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-book text-primary"></i> {% t "Fanlar" request.LANGUAGE_CODE %}</h6>
                 {% if subjects_progress %}
                     {% for item in subjects_progress %}
                     <div class="mb-2 pb-2 {% if not forloop.last %}border-bottom{% endif %}">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="fw-bold">{{ item.subject.name }}</small>
+                            <small class="fw-bold">{{ item.subject.name|translate:request.LANGUAGE_CODE }}</small>
                             <span class="badge {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" style="font-size: 0.65rem;">
                                 {{ item.progress_percentage }}%
                             </span>
@@ -724,13 +725,13 @@
                             <div class="progress-bar {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" 
                                  style="width: {{ item.progress_percentage }}%"></div>
                         </div>
-                        <small class="text-muted" style="font-size: 0.65rem;">{{ item.completed_tests }}/{{ item.total_tests }} test</small>
+                        <small class="text-muted" style="font-size: 0.65rem;">{{ item.completed_tests }}/{{ item.total_tests }} {% t "test" request.LANGUAGE_CODE %}</small>
                     </div>
                     {% endfor %}
                 {% else %}
                     <div class="text-center text-muted py-2">
-                        <small>Hali test ishlanmagan</small>
-                        <a href="{% url 'core:subjects' %}" class="btn btn-primary btn-sm mt-1 d-block" style="font-size: 0.75rem;">Fanlarni ko'rish</a>
+                        <small>{% t "Hali test ishlanmagan" request.LANGUAGE_CODE %}</small>
+                        <a href="{% url 'core:subjects' %}" class="btn btn-primary btn-sm mt-1 d-block" style="font-size: 0.75rem;">{% t "Fanlarni ko'rish" request.LANGUAGE_CODE %}</a>
                     </div>
                 {% endif %}
             </div>
@@ -738,12 +739,12 @@
 
         <div class="card mb-3 progress-card">
             <div class="card-body py-2">
-                <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-award text-success"></i> Sertifikatlar</h6>
+                <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-award text-success"></i> {% t "Sertifikatlar" request.LANGUAGE_CODE %}</h6>
                 {% if certificates_progress %}
                     {% for item in certificates_progress %}
                     <div class="mb-2 pb-2 {% if not forloop.last %}border-bottom{% endif %}">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="fw-bold">{{ item.certificate.name }}</small>
+                            <small class="fw-bold">{{ item.certificate.name|translate:request.LANGUAGE_CODE }}</small>
                             <span class="badge {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" style="font-size: 0.65rem;">
                                 {{ item.progress_percentage }}%
                             </span>
@@ -752,13 +753,13 @@
                             <div class="progress-bar {% if item.progress_percentage == 100 %}bg-success{% elif item.progress_percentage >= 50 %}bg-warning{% else %}bg-secondary{% endif %}" 
                                  style="width: {{ item.progress_percentage }}%"></div>
                         </div>
-                        <small class="text-muted" style="font-size: 0.65rem;">{{ item.completed_tests }}/{{ item.total_tests }} test</small>
+                        <small class="text-muted" style="font-size: 0.65rem;">{{ item.completed_tests }}/{{ item.total_tests }} {% t "test" request.LANGUAGE_CODE %}</small>
                     </div>
                     {% endfor %}
                 {% else %}
                     <div class="text-center text-muted py-2">
-                        <small>Hali test ishlanmagan</small>
-                        <a href="{% url 'core:certificates' %}" class="btn btn-success btn-sm mt-1 d-block" style="font-size: 0.75rem;">Sertifikatlarni ko'rish</a>
+                        <small>{% t "Hali test ishlanmagan" request.LANGUAGE_CODE %}</small>
+                        <a href="{% url 'core:certificates' %}" class="btn btn-success btn-sm mt-1 d-block" style="font-size: 0.75rem;">{% t "Sertifikatlarni ko'rish" request.LANGUAGE_CODE %}</a>
                     </div>
                 {% endif %}
             </div>
@@ -766,12 +767,12 @@
 
         <div class="card mb-3 progress-card">
             <div class="card-body py-2">
-                <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-clipboard-check text-warning"></i> Mock Exam</h6>
+                <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-clipboard-check text-warning"></i> {% t "Mock Exam" request.LANGUAGE_CODE %}</h6>
                 {% if mock_exams_progress %}
                     {% for item in mock_exams_progress %}
                     <div class="mb-2 pb-2 {% if not forloop.last %}border-bottom{% endif %}">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="fw-bold">{{ item.exam.title }}</small>
+                            <small class="fw-bold">{{ item.exam.title|translate:request.LANGUAGE_CODE }}</small>
                             {% if item.completed_exams > 0 %}
                             <span class="badge {% if item.best_score >= item.exam.passing_score %}bg-success{% else %}bg-danger{% endif %}" style="font-size: 0.65rem;">
                                 {{ item.best_score }}%
@@ -785,14 +786,14 @@
                             <div class="progress-bar {% if item.best_score >= item.exam.passing_score %}bg-success{% else %}bg-danger{% endif %}" 
                                  style="width: {{ item.best_score }}%"></div>
                         </div>
-                        <small class="text-muted" style="font-size: 0.65rem;">{{ item.completed_exams }}x ishlangan</small>
+                        <small class="text-muted" style="font-size: 0.65rem;">{{ item.completed_exams }}x {% t "ishlangan" request.LANGUAGE_CODE %}</small>
                         {% endif %}
                     </div>
                     {% endfor %}
                 {% else %}
                     <div class="text-center text-muted py-2">
-                        <small>Hali exam ishlanmagan</small>
-                        <a href="{% url 'core:mock_exams' %}" class="btn btn-warning btn-sm mt-1 d-block" style="font-size: 0.75rem;">Mock Examlarni ko'rish</a>
+                        <small>{% t "Hali exam ishlanmagan" request.LANGUAGE_CODE %}</small>
+                        <a href="{% url 'core:mock_exams' %}" class="btn btn-warning btn-sm mt-1 d-block" style="font-size: 0.75rem;">{% t "Mock Examlarni ko'rish" request.LANGUAGE_CODE %}</a>
                     </div>
                 {% endif %}
             </div>
@@ -803,23 +804,23 @@
     <div class="tab-pane fade" id="edit" role="tabpanel">
         <div class="card">
             <div class="card-body py-3">
-                <h6 class="mb-3" style="font-size: 0.9rem;"><i class="bi bi-person-gear"></i> Profilni tahrirlash</h6>
+                <h6 class="mb-3" style="font-size: 0.9rem;"><i class="bi bi-person-gear"></i> {% t "Profilni tahrirlash" request.LANGUAGE_CODE %}</h6>
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     
                     <div class="row mb-2">
                         <div class="col-6">
-                            <label class="form-label small">Ism</label>
-                            <input type="text" name="first_name" class="form-control form-control-sm" value="{{ user.first_name }}" placeholder="Ismingiz">
+                            <label class="form-label small">{% t "Ism" request.LANGUAGE_CODE %}</label>
+                            <input type="text" name="first_name" class="form-control form-control-sm" value="{{ user.first_name }}" placeholder="{% t 'Ismingiz' request.LANGUAGE_CODE %}">
                         </div>
                         <div class="col-6">
-                            <label class="form-label small">Familiya</label>
-                            <input type="text" name="last_name" class="form-control form-control-sm" value="{{ user.last_name }}" placeholder="Familiyangiz">
+                            <label class="form-label small">{% t "Familiya" request.LANGUAGE_CODE %}</label>
+                            <input type="text" name="last_name" class="form-control form-control-sm" value="{{ user.last_name }}" placeholder="{% t 'Familiyangiz' request.LANGUAGE_CODE %}">
                         </div>
                     </div>
                     
                     <div class="mb-2">
-                        <label class="form-label small">Foydalanuvchi nomi</label>
+                        <label class="form-label small">{% t "Foydalanuvchi nomi" request.LANGUAGE_CODE %}</label>
                         {{ form.username }}
                         {% if form.username.errors %}
                         <div class="text-danger small">{{ form.username.errors.0 }}</div>
@@ -827,7 +828,7 @@
                     </div>
                     
                     <div class="mb-2">
-                        <label class="form-label small">Email</label>
+                        <label class="form-label small">{% t "Email" request.LANGUAGE_CODE %}</label>
                         {{ form.email }}
                         {% if form.email.errors %}
                         <div class="text-danger small">{{ form.email.errors.0 }}</div>
@@ -835,22 +836,22 @@
                     </div>
                     
                     <div class="mb-2">
-                        <label class="form-label small">Telefon</label>
+                        <label class="form-label small">{% t "Telefon" request.LANGUAGE_CODE %}</label>
                         <input type="tel" name="phone" class="form-control form-control-sm" value="{{ user.phone|default:'' }}" placeholder="+998 90 123 45 67">
                     </div>
                     
                     <div class="mb-2">
-                        <label class="form-label small">Bio</label>
+                        <label class="form-label small">{% t "Bio" request.LANGUAGE_CODE %}</label>
                         {{ form.bio }}
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label small">Profil rasmi</label>
+                        <label class="form-label small">{% t "Profil rasmi" request.LANGUAGE_CODE %}</label>
                         {{ form.profile_image }}
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-sm w-100">
-                        <i class="bi bi-check-lg"></i> Saqlash
+                        <i class="bi bi-check-lg"></i> {% t "Saqlash" request.LANGUAGE_CODE %}
                     </button>
                 </form>
             </div>
@@ -861,28 +862,28 @@
     <div class="tab-pane fade" id="settings" role="tabpanel">
         <div class="card mb-3">
             <div class="card-body py-3">
-                <h6 class="mb-3" style="font-size: 0.9rem;"><i class="bi bi-key"></i> Parolni o'zgartirish</h6>
+                <h6 class="mb-3" style="font-size: 0.9rem;"><i class="bi bi-key"></i> {% t "Parolni o'zgartirish" request.LANGUAGE_CODE %}</h6>
                 <form method="post">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="change_password">
                     
                     <div class="mb-2">
-                        <label class="form-label small">Joriy parol</label>
+                        <label class="form-label small">{% t "Joriy parol" request.LANGUAGE_CODE %}</label>
                         <input type="password" name="current_password" class="form-control form-control-sm" required>
                     </div>
                     
                     <div class="mb-2">
-                        <label class="form-label small">Yangi parol</label>
+                        <label class="form-label small">{% t "Yangi parol" request.LANGUAGE_CODE %}</label>
                         <input type="password" name="new_password" class="form-control form-control-sm" required>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label small">Yangi parolni tasdiqlang</label>
+                        <label class="form-label small">{% t "Yangi parolni tasdiqlang" request.LANGUAGE_CODE %}</label>
                         <input type="password" name="confirm_password" class="form-control form-control-sm" required>
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-sm w-100">
-                        <i class="bi bi-key"></i> Parolni o'zgartirish
+                        <i class="bi bi-key"></i> {% t "Parolni o'zgartirish" request.LANGUAGE_CODE %}
                     </button>
                 </form>
             </div>
@@ -890,10 +891,10 @@
         
         <div class="card border-danger">
             <div class="card-body py-3">
-                <h6 class="mb-2 text-danger" style="font-size: 0.9rem;"><i class="bi bi-exclamation-triangle"></i> Xavfli zona</h6>
-                <p class="small text-muted mb-2">Hisobni o'chirish qaytarib bo'lmaydi.</p>
+                <h6 class="mb-2 text-danger" style="font-size: 0.9rem;"><i class="bi bi-exclamation-triangle"></i> {% t "Xavfli zona" request.LANGUAGE_CODE %}</h6>
+                <p class="small text-muted mb-2">{% t "Hisobni o'chirish qaytarib bo'lmaydi." request.LANGUAGE_CODE %}</p>
                 <button class="btn btn-outline-danger btn-sm w-100" onclick="confirmDeleteAccount()">
-                    <i class="bi bi-trash"></i> Hisobni o'chirish
+                    <i class="bi bi-trash"></i> {% t "Hisobni o'chirish" request.LANGUAGE_CODE %}
                 </button>
             </div>
         </div>

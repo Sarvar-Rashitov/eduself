@@ -1,24 +1,26 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 {% load custom_filters %}
 
-{% block title %}{{ topic.name }} - EduSelf{% endblock %}
+{% block title %}{{ topic.name|translate:request.LANGUAGE_CODE }} - EduSelf{% endblock %}
 
 {% block content %}
 <a href="{% url 'core:certificate_detail' topic.certificate.pk %}" class="text-decoration-none text-muted mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> {{ topic.certificate.name }}
+    <i class="bi bi-arrow-left"></i> {{ topic.certificate.name|translate:request.LANGUAGE_CODE }}
 </a>
 
 <div class="card mb-4">
     <div class="card-body">
-        <h4 class="mb-2">{{ topic.name }}</h4>
-        <p class="text-muted mb-0 small">{{ topic.certificate.name }}</p>
+        <h4 class="mb-2">{{ topic.name|translate:request.LANGUAGE_CODE }}</h4>
+        <p class="text-muted mb-0 small">{{ topic.certificate.name|translate:request.LANGUAGE_CODE }}</p>
         {% if topic.description %}
-        <p class="mt-3 mb-0">{{ topic.description | safe }}</p>
+        <p class="mt-3 mb-0">{{ topic.description|translate:request.LANGUAGE_CODE|safe }}</p>
         {% endif %}
     </div>
 </div>
 
-<div class="section-title">Testlar</div>
+<div class="section-title">{% t "Testlar" request.LANGUAGE_CODE %}</div>
 
 {% if tests %}
     {% for test in tests %}
@@ -32,7 +34,7 @@
         </div>
         <div class="test-info flex-grow-1">
             <div class="test-name" style="font-size: 0.95rem;">
-                {{ test.title }}
+                {{ test.title|translate:request.LANGUAGE_CODE }}
                 {% if not test.is_unlocked %}
                     <i class="bi bi-lock-fill text-muted ms-2" style="font-size: 0.8rem;"></i>
                 {% endif %}
@@ -44,12 +46,12 @@
                 </span>
                 <span style="display: flex; align-items: center; gap: 3px; color: #3b82f6;">
                     <i class="bi bi-clock" style="font-size: 0.75rem;"></i>
-                    {{ test.time_limit }}d
+                    {{ test.time_limit }}{% t "d" request.LANGUAGE_CODE %}
                 </span>
             </div>
             {% if not test.is_unlocked %}
                 <div class="mt-1">
-                    <small class="text-muted" style="font-size: 0.65rem;">Ochish: {{ test.unlock_score }}%</small>
+                    <small class="text-muted" style="font-size: 0.65rem;">{% t "Ochish" request.LANGUAGE_CODE %}: {{ test.unlock_score }}%</small>
                 </div>
             {% endif %}
             {% if test.id in user_results %}
@@ -63,16 +65,16 @@
         {% if test.is_unlocked %}
             {% if user.is_authenticated %}
             <a href="{% url 'core:cert_test_leaderboard' test.pk %}" class="btn btn-success btn-sm test-btn">
-                <i class="bi bi-trophy"></i> <span class="btn-text">Boshlash</span>
+                <i class="bi bi-trophy"></i> <span class="btn-text">{% t "Boshlash" request.LANGUAGE_CODE %}</span>
             </a>
             {% else %}
             <a href="{% url 'accounts:login' %}?next={% url 'core:cert_test_leaderboard' test.pk %}" class="btn btn-success btn-sm test-btn">
-                <i class="bi bi-play-fill"></i> <span class="btn-text">Boshlash</span>
+                <i class="bi bi-play-fill"></i> <span class="btn-text">{% t "Boshlash" request.LANGUAGE_CODE %}</span>
             </a>
             {% endif %}
         {% else %}
             <button class="btn btn-secondary btn-sm test-btn" disabled>
-                <i class="bi bi-lock"></i> <span class="btn-text">Yopiq</span>
+                <i class="bi bi-lock"></i> <span class="btn-text">{% t "Yopiq" request.LANGUAGE_CODE %}</span>
             </button>
         {% endif %}
     </div>
@@ -80,7 +82,7 @@
 {% else %}
     <div class="empty-state">
         <i class="bi bi-file-text"></i>
-        <p>Testlar hali qo'shilmagan</p>
+        <p>{% t "Testlar hali qo'shilmagan" request.LANGUAGE_CODE %}</p>
     </div>
 {% endif %}
 {% endblock %}

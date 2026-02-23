@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
-{% block title %}{{ topic.name }} - EduSelf{% endblock %}
+{% block title %}{{ topic.name|translate:request.LANGUAGE_CODE }} - EduSelf{% endblock %}
 
 {% block content %}
 <div class="card mb-4">
@@ -8,8 +10,7 @@
         <div class="d-flex gap-3 flex-nowrap">
             <div class="score-display">
                 <i class="bi bi-trophy"></i>
-                <span id="currentScore">0</span> / <span id="maxScore">{{ topic.get_max_points }}</span> ball
-            </div>
+                <span id="currentScore">0</span> / <span id="maxScore">{{ topic.get_max_points }}</span>{% t "ball" request.LANGUAGE_CODE %}</div>
             <div class="timer-display">
                 <i class="bi bi-clock"></i>
                 <span id="timer">{{ topic.time_limit }}:00</span>
@@ -31,14 +32,14 @@
     {% for question in questions %}
     <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
         <div class="question-header-mobile">
-            <div class="question-number">Savol {{ forloop.counter }} / {{ questions|length }}</div>
-            <div class="question-points-mobile"><i class="bi bi-star-fill"></i> {{ question.points }} ball</div>
+            <div class="question-number">{% t "Savol" request.LANGUAGE_CODE %} {{ forloop.counter }} / {{ questions|length }}</div>
+            <div class="question-points-mobile"><i class="bi bi-star-fill"></i> {{ question.points }} {% t "ball" request.LANGUAGE_CODE %}</div>
         </div>
         
         {% if question.long_text %}
         <div class="long-text-container">
             <div class="long-text-header">
-                <i class="bi bi-file-text"></i> Matn
+                <i class="bi bi-file-text"></i> {% t "Matn" request.LANGUAGE_CODE %}
             </div>
             <div class="long-text-content">
                 {{ question.long_text|linebreaks }}
@@ -46,7 +47,7 @@
         </div>
         {% endif %}
         
-        <div class="question-text">{{ question.text | safe }}</div>
+        <div class="question-text">{{ question.text|translate:request.LANGUAGE_CODE|safe }}</div>
         {% if question.image %}
         <img src="{{ question.image.url }}" alt="Question image" class="img-fluid mb-3 rounded">
         {% endif %}
@@ -56,7 +57,7 @@
             <label class="answer-option" data-answer-id="{{ answer.id }}">
                 <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" data-question-id="{{ question.id }}">
                 <div class="answer-content">
-                    <span class="answer-text">{{ answer.text | safe }}</span>
+                    <span class="answer-text">{{ answer.text|translate:request.LANGUAGE_CODE|safe }}</span>
                     {% if answer.image %}
                     <div class="answer-image">
                         <img src="{{ answer.image.url }}" alt="Answer image" class="img-fluid rounded">
@@ -68,18 +69,14 @@
         </div>
         
         <div class="question-buttons mt-4">
-            <button type="button" class="btn btn-primary" id="checkAnswer-{{ forloop.counter0 }}" onclick="checkAnswer({{ forloop.counter0 }}, {{ question.id }})" disabled>Javobni tekshirish</button>
+            <button type="button" class="btn btn-primary" id="checkAnswer-{{ forloop.counter0 }}" onclick="checkAnswer({{ forloop.counter0 }}, {{ question.id }})" disabled>{% t "Javobni tekshirish" request.LANGUAGE_CODE %}</button>
             <div id="afterCheckButtons-{{ forloop.counter0 }}" style="display: none;">
                 {% if forloop.last %}
-                <button type="button" class="btn btn-success" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" data-is-last="true">
-                    Testni yakunlash
-                </button>
+                <button type="button" class="btn btn-success" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" data-is-last="true">{% t "Testni yakunlash" request.LANGUAGE_CODE %}</button>
                 {% else %}
-                <button type="button" class="btn btn-success" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" data-is-last="false">
-                    Keyingi savol
-                </button>
+                <button type="button" class="btn btn-success" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" data-is-last="false">{% t "Keyingi savol" request.LANGUAGE_CODE %}</button>
                 <button type="button" class="btn btn-danger" onclick="showFinishConfirmation()">
-                    <i class="bi bi-stop-circle"></i> Testni tugatish
+                    <i class="bi bi-stop-circle"></i> {% t "Testni tugatish" request.LANGUAGE_CODE %}
                 </button>
                 {% endif %}
             </div>
@@ -94,25 +91,24 @@
         <div class="modal-content">
             <div class="modal-header bg-warning">
                 <h5 class="modal-title" id="finishTestModalLabel">
-                    <i class="bi bi-exclamation-triangle"></i> Ogohlantirish
+                    <i class="bi bi-exclamation-triangle"></i> {% t "Ogohlantirish" request.LANGUAGE_CODE %}
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% t 'Yopish' request.LANGUAGE_CODE %}"></button>
             </div>
             <div class="modal-body text-center py-4">
                 <div class="mb-3">
                     <i class="bi bi-question-circle text-warning" style="font-size: 4rem;"></i>
                 </div>
-                <h5>Testni tugatmoqchimisiz?</h5>
-                <p class="text-muted mb-0">Hozircha <strong id="answeredCount">0</strong> ta savolga javob berdingiz.</p>
-                <p class="text-muted">Joriy ballingiz: <strong id="modalCurrentScore">0</strong> ball</p>
-                <p class="text-danger small">Tugatilgandan so'ng qaytib bo'lmaydi!</p>
+                <h5>{% t "Testni tugatmoqchimisiz" request.LANGUAGE_CODE %}?</h5>
+                <p class="text-muted mb-0">{% t "Hozircha" request.LANGUAGE_CODE %} <strong id="answeredCount">0</strong> {% t "ta savolga javob berdingiz." request.LANGUAGE_CODE %}</p>
+                <p class="text-muted">{% t "Joriy ballingiz" request.LANGUAGE_CODE %}: <strong id="modalCurrentScore">0</strong> {% t "ball" request.LANGUAGE_CODE %}</p>
+                <p class="text-danger small">{% t "Tugatilgandan so'ng qaytib bo'lmaydi" request.LANGUAGE_CODE %}!</p>
             </div>
             <div class="modal-footer justify-content-center gap-2">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                    <i class="bi bi-arrow-left"></i> Davom etish
-                </button>
+                    <i class="bi bi-arrow-left"></i>{% t "Davom etish" request.LANGUAGE_CODE %}</button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="confirmFinishTest()">
-                    <i class="bi bi-check-circle"></i> Tugatish
+                    <i class="bi bi-check-circle"></i> {% t "Tugatish" request.LANGUAGE_CODE %}
                 </button>
             </div>
         </div>

@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 {% load static %}
 
-{% block title %}{{ exam.title }} - Imtihon{% endblock %}
+{% block title %}{{ exam.title|translate:request.LANGUAGE_CODE }} - Imtihon{% endblock %}
 
 {% block content %}
 <div class="exam-page">
@@ -40,7 +42,7 @@
             </div>
             {% endif %}
             
-            <div class="question-text">{{ question.text|safe }}</div>
+            <div class="question-text">{{ question.text|translate:request.LANGUAGE_CODE|safe }}</div>
             {% if question.image %}
             <img src="{{ question.image.url }}" class="question-img" alt="">
             {% endif %}
@@ -88,8 +90,8 @@
         <h3>Yakunlashni xohlaysizmi?</h3>
         <p><span id="answeredCount">0</span>/{{ questions|length }} savolga javob berildi</p>
         <div class="modal-btns">
-            <button class="btn-cancel" onclick="hideFinish()">Davom etish</button>
-            <button class="btn-confirm" onclick="submitExam()">Yakunlash</button>
+            <button class="btn-cancel" onclick="hideFinish()">{% t "Davom etish" request.LANGUAGE_CODE %}</button>
+            <button class="btn-confirm" onclick="submitExam()">{% t "Yakunlash" request.LANGUAGE_CODE %}</button>
         </div>
     </div>
 </div>

@@ -1562,3 +1562,69 @@ def privacy_view(request):
     }
     return render(request, 'core/privacy.html', context)
 
+
+
+def change_language(request):
+    """
+    Tilni o'zgartirish view
+    
+    Usage:
+        POST /change-language/
+        {
+            "language": "uz",
+            "next": "/courses/"
+        }
+    """
+    from django.utils import translation
+    from django.conf import settings
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            lang_code = data.get('language')
+            next_url = data.get('next', '/')
+            
+            # Tilni tekshirish
+            available_languages = [lang[0] for lang in settings.LANGUAGES]
+            if lang_code not in available_languages:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Invalid language code'
+                }, status=400)
+            
+            # Session'ga saqlash
+            request.session['django_language'] = lang_code
+            translation.activate(lang_code)
+            
+            # Agar user authenticated bo'lsa, database'ga ham saqlash
+            if request.user.is_authenticated:
+                request.user.language = lang_code
+                request.user.save(update_fields=['language'])
+            
+            return JsonResponse({
+                'success': True,
+                'language': lang_code,
+                'redirect': next_url
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+    
+    # GET request - URL parametrdan til olish
+    lang_code = request.GET.get('lang')
+    next_url = request.GET.get('next', request.META.get('HTTP_REFERER', '/'))
+    
+    if lang_code:
+        available_languages = [lang[0] for lang in settings.LANGUAGES]
+        if lang_code in available_languages:
+            request.session['django_language'] = lang_code
+            translation.activate(lang_code)
+            
+            if request.user.is_authenticated:
+                request.user.language = lang_code
+                request.user.save(update_fields=['language'])
+    
+    return redirect(next_url)

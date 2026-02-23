@@ -111,8 +111,13 @@ def send_message(request):
                 else:
                     message_content = f"📎 Fayl yuborildi: {file_name}"
         
-        # Xabar yuborish va AI javobini olish
-        ai_response, source = chat_service.send_message(session, message_content, attachment)
+        # Foydalanuvchi tilini aniqlash
+        user_language = getattr(request.user, 'language', 'uz') if hasattr(request.user, 'language') else 'uz'
+        if not user_language:
+            user_language = 'uz'
+        
+        # Xabar yuborish va AI javobini olish (til parametri bilan)
+        ai_response, source = chat_service.send_message(session, message_content, attachment, language=user_language)
         
         return JsonResponse({
             'success': True,
@@ -347,17 +352,8 @@ def ai_chat_redirect(request):
     if not request.user.is_authenticated:
         return redirect('accounts:login')
     
-    # Oxirgi sessiyani topish yoki yangi yaratish
-    chat_service = ChatService()
-    sessions = chat_service.get_user_sessions(request.user)
-    
-    if sessions.exists():
-        latest_session = sessions.first()
-        return redirect(reverse('ai_assistant:chat') + f'?session={latest_session.id}')
-    else:
-        # Avtomatik yangi sessiya yaratish
-        session = chat_service.create_chat_session(request.user, "Yangi suhbat")
-        return redirect(reverse('ai_assistant:chat') + f'?session={session.id}')
+    # To'g'ridan chat sahifasiga yo'naltirish
+    return redirect('ai_assistant:chat')
 
 
 @login_required
@@ -390,7 +386,9 @@ def analyze_test_result(request, test_type, result_id):
         
         # Test tahlil service'ni ishlatish
         analysis_service = TestAnalysisService()
-        analysis_result = analysis_service.analyze_test_result(result, test_type)
+        # Foydalanuvchi tilini olish
+        language = request.LANGUAGE_CODE if hasattr(request, 'LANGUAGE_CODE') else 'uz'
+        analysis_result = analysis_service.analyze_test_result(result, test_type, language=language)
         
         if analysis_result['success']:
             return JsonResponse({

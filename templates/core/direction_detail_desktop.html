@@ -1,4 +1,6 @@
 ﻿{% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}{{ direction.name }} - {{ direction.institution.name }} - EduSelf{% endblock %}
@@ -24,7 +26,7 @@
                 
                 {% if direction.exams.exists %}
                 <div class="exams-section">
-                    <h2><i class="fas fa-file-alt"></i> Imtihonlar</h2>
+                    <h2><i class="fas fa-file-alt"></i>Imtihonlar</h2>
                     <div class="exams-list">
                         {% for exam in direction.exams.all %}
                         {% if exam.is_active %}

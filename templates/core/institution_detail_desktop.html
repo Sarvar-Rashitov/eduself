@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}{{ institution.name }} - EduSelf{% endblock %}
@@ -101,11 +103,9 @@
                     <h4>Muassasa litsenziyasi</h4>
                     <div class="license-buttons">
                         <a href="{{ institution.license_file.url }}" target="_blank" class="license-btn view">
-                            <i class="fas fa-eye"></i> Ko'rish
-                        </a>
+                            <i class="fas fa-eye"></i>Ko'rish</a>
                         <a href="{{ institution.license_file.url }}" download="{{ institution.name }}_litsenziya" class="license-btn download">
-                            <i class="fas fa-download"></i> Yuklab olish
-                        </a>
+                            <i class="fas fa-download"></i>Yuklab olish</a>
                     </div>
                 </div>
             </div>
@@ -156,8 +156,7 @@
                             </div>
                             <div class="direction-actions">
                                 <a href="{% url 'core:direction_detail' direction.pk %}" class="btn btn-outline">
-                                    <i class="fas fa-info-circle"></i> Batafsil
-                                </a>
+                                    <i class="fas fa-info-circle"></i>Batafsil</a>
                                 {% if direction.exams.exists %}
                                 <a href="{% url 'core:direction_exam_intro' direction.exams.first.pk %}" class="btn btn-primary">
                                     <i class="fas fa-pencil-alt"></i> Imtihon topshirish
@@ -172,7 +171,7 @@
                 
                 <!-- About -->
                 <div class="content-card">
-                    <h2><i class="fas fa-info-circle"></i> Muassasa haqida</h2>
+                    <h2><i class="fas fa-info-circle"></i>Muassasa haqida</h2>
                     {% if institution.video_url %}
                     <div class="video-container" style="margin-bottom: 1.5rem;">
                         <iframe 
@@ -191,7 +190,7 @@
                         </div>
                         <div class="content-text description-full" id="descriptionFull" style="display: none;">
                             {{ institution.description|safe }}
-                            <button class="show-more-inline collapse-btn" onclick="toggleDescription()">Yashirish <i class="fas fa-chevron-up"></i></button>
+                            <button class="show-more-inline collapse-btn" onclick="toggleDescription()">Yashirish<i class="fas fa-chevron-up"></i></button>
                         </div>
                     </div>
                 </div>

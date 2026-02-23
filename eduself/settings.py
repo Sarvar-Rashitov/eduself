@@ -148,11 +148,13 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # i18n uchun
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.UserLanguageMiddleware',  # User tilini avtomatik o'rnatish
 ]
 
 ROOT_URLCONF = 'eduself.urls'
@@ -171,6 +173,7 @@ TEMPLATES = [
                 'core.context_processors.site_settings',
                 'core.context_processors.notifications',
                 'core.context_processors.auth_settings',
+                'core.context_processors.language_context',  # Til context
             ],
         },
     },
@@ -202,9 +205,30 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'uz'
 
+# Internationalization (i18n) - 7 til qo'llab-quvvatlanadi
+LANGUAGES = [
+    ('uz', 'O\'zbekcha'),
+    ('en', 'English'),
+    ('ru', 'Русский'),
+    ('kk', 'Қазақша'),
+    ('kaa', 'Qaraqalpaqsha'),
+    ('tg', 'Тоҷикӣ'),
+    ('ky', 'Кыргызча'),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+
+# DeepSeek AI API for dynamic translation
+DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY', '')
+DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'
+
 TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
+
+USE_L10N = True
 
 USE_TZ = True
 

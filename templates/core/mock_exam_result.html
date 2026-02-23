@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
-{% block title %}Natija - {{ exam.title }} - EduSelf{% endblock %}
+{% block title %}Natija - {{ exam.title|translate:request.LANGUAGE_CODE }} - EduSelf{% endblock %}
 
 {% block content %}
 {% if result %}
@@ -8,30 +10,29 @@
     <div class="result-icon {% if result.passed %}success{% else %}fail{% endif %}">
         <i class="bi {% if result.passed %}bi-check-circle{% else %}bi-x-circle{% endif %}"></i>
     </div>
-    <h4 class="mb-3">{% if result.passed %}Tabriklaymiz!{% else %}Afsuski...{% endif %}</h4>
+    <h4 class="mb-3">{% if result.passed %}{% t "Tabriklaymiz" request.LANGUAGE_CODE %}!{% else %}{% t "Afsuski" request.LANGUAGE_CODE %}...{% endif %}</h4>
     <div class="result-score">{{ result.score }}%</div>
-    <p class="text-muted mt-2">{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri javob</p>
-    <p class="text-muted mt-1"><strong>{{ result.earned_points }}</strong> / {{ exam.get_max_points }} ball</p>
+    <p class="text-muted mt-2">{{ result.correct_answers }} / {{ result.total_questions }} {% t "to'g'ri javob" request.LANGUAGE_CODE %}</p>
+    <p class="text-muted mt-1"><strong>{{ result.earned_points }}</strong> / {{ exam.get_max_points }} {% t "ball" request.LANGUAGE_CODE %}</p>
     
     <div class="progress mt-4" style="height: 12px;">
         <div class="progress-bar {% if result.passed %}bg-success{% else %}bg-danger{% endif %}" style="width: {{ result.score }}%"></div>
     </div>
-    <p class="small text-muted mt-2">O'tish balli: {{ exam.passing_score }}%</p>
+    <p class="small text-muted mt-2">{% t "O'tish balli" request.LANGUAGE_CODE %}: {{ exam.passing_score }}%</p>
     
     <div class="result-buttons">
-        <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-sm">Qayta urinish</a>
-        <a href="{% url 'core:mock_exam_analysis' exam.pk %}" class="btn btn-info btn-sm">AI Tahlil</a>
+        <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-sm">{% t "Qayta urinish" request.LANGUAGE_CODE %}</a>
+        <a href="{% url 'core:mock_exam_analysis' exam.pk %}" class="btn btn-info btn-sm">{% t "AI Tahlil" request.LANGUAGE_CODE %}</a>
         <a href="{% url 'core:mock_exam_leaderboard' exam.pk %}" class="btn btn-primary btn-sm">
-            <i class="bi bi-trophy me-1"></i>Reyting
-        </a>
-        <a href="{% url 'core:mock_exams' %}" class="btn btn-outline-warning btn-sm">Mock Exams</a>
+            <i class="bi bi-trophy me-1"></i>{% t "Reyting" request.LANGUAGE_CODE %}</a>
+        <a href="{% url 'core:mock_exams' %}" class="btn btn-outline-warning btn-sm">{% t "Mock Exams" request.LANGUAGE_CODE %}</a>
     </div>
 </div>
 {% else %}
 <div class="empty-state">
     <i class="bi bi-file-text"></i>
-    <p>Natija topilmadi</p>
-    <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-sm">Imtihonni boshlash</a>
+    <p>{% t "Natija topilmadi" request.LANGUAGE_CODE %}</p>
+    <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-sm">{% t "Imtihonni boshlash" request.LANGUAGE_CODE %}</a>
 </div>
 {% endif %}
 {% endblock %}

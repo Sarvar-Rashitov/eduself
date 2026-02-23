@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
 {% block title %}{{ title }} - EduSelf{% endblock %}
 
@@ -6,7 +8,7 @@
 
 {% if featured_news %}
 <div class="mb-4">
-    <h6 class="section-subtitle">⭐ Asosiy yangiliklar</h6>
+    <h6 class="section-subtitle">⭐ {% t "Asosiy yangiliklar" request.LANGUAGE_CODE %}</h6>
     <div class="featured-news-scroll">
         <div class="featured-news-container">
         {% for news in featured_news %}
@@ -21,9 +23,9 @@
             </div>
             {% endif %}
             <div class="news-card-content-horizontal">
-                <span class="badge bg-primary mb-2">{{ news.category.name }}</span>
-                <h6 class="news-title">{{ news.title }}</h6>
-                <p class="news-summary">{{ news.summary|truncatewords:12 }}</p>
+                <span class="badge bg-primary mb-2">{{ news.category.name|translate:request.LANGUAGE_CODE }}</span>
+                <h6 class="news-title">{{ news.title|translate:request.LANGUAGE_CODE }}</h6>
+                <p class="news-summary">{{ news.summary|translate:request.LANGUAGE_CODE|truncatewords:12 }}</p>
                 <div class="news-meta">
                     <small>
                         <i class="bi bi-calendar3"></i> {{ news.published_at|date:"d.m.Y" }}
@@ -40,15 +42,15 @@
 </div>
 {% endif %}
 
-<h6 class="section-subtitle">📚 Barcha yangiliklar</h6>
+<h6 class="section-subtitle">📚 {% t "Barcha yangiliklar" request.LANGUAGE_CODE %}</h6>
 
 <div class="filter-tabs mb-4">
     <a href="{% url 'core:news_list' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-        Barchasi
+        {% t "Barchasi" request.LANGUAGE_CODE %}
     </a>
     {% for cat in categories %}
     <a href="{% url 'core:news_list' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.id == cat.id %}active{% endif %}">
-        <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}
+        <i class="{{ cat.icon }} me-1"></i>{{ cat.name|translate:request.LANGUAGE_CODE }}
     </a>
     {% endfor %}
 </div>
@@ -67,9 +69,9 @@
                 <div class="col-12">
                 {% endif %}
                     <div class="card-body">
-                        <span class="badge bg-primary mb-2">{{ news.category.name }}</span>
-                        <h6 class="card-title text-dark">{{ news.title }}</h6>
-                        <p class="card-text text-muted small mb-2">{{ news.summary|truncatewords:15 }}</p>
+                        <span class="badge bg-primary mb-2">{{ news.category.name|translate:request.LANGUAGE_CODE }}</span>
+                        <h6 class="card-title text-dark">{{ news.title|translate:request.LANGUAGE_CODE }}</h6>
+                        <p class="card-text text-muted small mb-2">{{ news.summary|translate:request.LANGUAGE_CODE|truncatewords:15 }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">
                                 <i class="bi bi-calendar3"></i> {{ news.published_at|date:"d.m.Y" }}
@@ -87,7 +89,7 @@
 {% else %}
     <div class="empty-state">
         <i class="bi bi-newspaper"></i>
-        <p>Hozircha yangiliklar mavjud emas</p>
+        <p>{% t "Hozircha yangiliklar mavjud emas" request.LANGUAGE_CODE %}</p>
     </div>
 {% endif %}
 {% endblock %}

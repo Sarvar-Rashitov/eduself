@@ -1,47 +1,49 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 {% load static %}
 
-{% block title %}{{ exam.title }} - Imtihon{% endblock %}
+{% block title %}{{ exam.title|translate:request.LANGUAGE_CODE }} - Imtihon{% endblock %}
 
 {% block content %}
 <div class="exam-intro">
     <div class="exam-intro-header">
         <div class="exam-icon"><i class="fas fa-file-alt"></i></div>
-        <h1>{{ exam.title }}</h1>
+        <h1>{{ exam.title|translate:request.LANGUAGE_CODE }}</h1>
         <p>{{ exam.direction.name }}</p>
     </div>
     
     <div class="exam-intro-body">
         {% if exam.description %}
-        <p class="exam-desc">{{ exam.description }}</p>
+        <p class="exam-desc">{{ exam.description|translate:request.LANGUAGE_CODE }}</p>
         {% endif %}
         
         <div class="exam-info-list">
             <div class="info-item">
                 <i class="fas fa-book"></i>
                 <div>
-                    <span class="label">Fanlar</span>
+                    <span class="label">{% t "Fanlar" request.LANGUAGE_CODE %}</span>
                     <span class="value">{{ exam.subjects }}</span>
                 </div>
             </div>
             <div class="info-item">
                 <i class="fas fa-clock"></i>
                 <div>
-                    <span class="label">Vaqt</span>
+                    <span class="label">{% t "Vaqt" request.LANGUAGE_CODE %}</span>
                     <span class="value">{{ exam.time_limit }} daqiqa</span>
                 </div>
             </div>
             <div class="info-item">
                 <i class="fas fa-question-circle"></i>
                 <div>
-                    <span class="label">Savollar</span>
+                    <span class="label">{% t "Savollar" request.LANGUAGE_CODE %}</span>
                     <span class="value">{{ questions_count }} ta</span>
                 </div>
             </div>
             <div class="info-item">
                 <i class="fas fa-check-circle"></i>
                 <div>
-                    <span class="label">O'tish balli</span>
+                    <span class="label">{% t "O'tish balli" request.LANGUAGE_CODE %}</span>
                     <span class="value">{{ exam.passing_score|floatformat:1 }} ball</span>
                 </div>
             </div>
@@ -53,8 +55,7 @@
             <i class="fas fa-arrow-left"></i> Orqaga
         </a>
         <a href="{% url 'core:take_direction_exam' exam.pk %}" class="btn btn-primary">
-            <i class="fas fa-play"></i> Boshlash
-        </a>
+            <i class="fas fa-play"></i>{% t "Boshlash" request.LANGUAGE_CODE %}</a>
     </div>
 </div>
 {% endblock %}

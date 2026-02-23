@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load translation_tags %}
 
-{% block title %}AI Hamroh - EduSelf{% endblock %}
+{% block title %}{% t "AI Hamroh - EduSelf" request.LANGUAGE_CODE %}{% endblock %}
 
+{% block header %}{% endblock %}
 {% block messages %}{% endblock %}
 {% block ai_fab %}{% endblock %}
 {% block footer %}{% endblock %}
@@ -760,11 +762,11 @@
         <div class="confirm-modal-icon">
             <i class="bi bi-trash"></i>
         </div>
-        <h3 id="confirmTitle">Suhbatni tozalash</h3>
-        <p id="confirmMessage">Suhbatni tozalashni xohlaysizmi?</p>
+        <h3 id="confirmTitle">{% t "Suhbatni tozalash" request.LANGUAGE_CODE %}</h3>
+        <p id="confirmMessage">{% t "Suhbatni tozalashni xohlaysizmi?" request.LANGUAGE_CODE %}</p>
         <div class="confirm-modal-buttons">
-            <button class="confirm-btn cancel" id="confirmCancel">Bekor qilish</button>
-            <button class="confirm-btn confirm" id="confirmOk">Ha, tozalash</button>
+            <button class="confirm-btn cancel" id="confirmCancel">{% t "Bekor qilish" request.LANGUAGE_CODE %}</button>
+            <button class="confirm-btn confirm" id="confirmOk">{% t "Ha, tozalash" request.LANGUAGE_CODE %}</button>
         </div>
     </div>
 </div>
@@ -773,19 +775,22 @@
     <!-- Header -->
     <div class="ai-mobile-header">
         <div class="ai-header-left">
+            <a href="{% url 'core:home' %}" class="header-action-btn" style="margin-right: 0.5rem;" title="{% t 'Orqaga' request.LANGUAGE_CODE %}">
+                <i class="bi bi-arrow-left"></i>
+            </a>
             <div class="ai-header-avatar">
                 <i class="bi bi-robot"></i>
             </div>
             <div class="ai-header-info">
-                <h2>AI Hamroh</h2>
-                <p><span style="color: #10b981;">●</span> Online</p>
+                <h2>{% t "AI Hamroh" request.LANGUAGE_CODE %}</h2>
+                <p><span style="color: #10b981;">●</span> {% t "Online" request.LANGUAGE_CODE %}</p>
             </div>
         </div>
         <div class="ai-header-actions">
-            <button class="header-action-btn" id="clearChatBtn" title="Tozalash">
+            <button class="header-action-btn" id="clearChatBtn" title="{% t 'Tozalash' request.LANGUAGE_CODE %}">
                 <i class="bi bi-trash"></i>
             </button>
-            <a href="{% url 'ai_assistant:new_session' %}" class="header-action-btn" title="Yangi suhbat">
+            <a href="{% url 'ai_assistant:new_session' %}" class="header-action-btn" title="{% t 'Yangi suhbat' request.LANGUAGE_CODE %}">
                 <i class="bi bi-plus-lg"></i>
             </a>
         </div>
@@ -825,20 +830,20 @@
                 <div class="welcome-icon-mobile">
                     <i class="bi bi-robot"></i>
                 </div>
-                <h3>Salom, {{ user.first_name|default:user.username }}! 👋</h3>
-                <p>Men sizning shaxsiy AI yordamchingizman</p>
+                <h3>{% t "Salom" request.LANGUAGE_CODE %}, {{ user.first_name|default:user.username }}! 👋</h3>
+                <p>{% t "Men sizning shaxsiy AI yordamchingizman" request.LANGUAGE_CODE %}</p>
                 <div class="quick-actions-mobile">
-                    <button class="quick-action-mobile" data-question="Matematika bo'yicha qanday testlar bor?">
+                    <button class="quick-action-mobile" data-question="{% t 'Matematika bo\'yicha qanday testlar bor?' request.LANGUAGE_CODE %}">
                         <i class="bi bi-calculator"></i>
-                        <span>Matematika testlari</span>
+                        <span>{% t "Matematika testlari" request.LANGUAGE_CODE %}</span>
                     </button>
-                    <button class="quick-action-mobile" data-question="Qanday qilib sertifikat olish mumkin?">
+                    <button class="quick-action-mobile" data-question="{% t 'Qanday qilib sertifikat olish mumkin?' request.LANGUAGE_CODE %}">
                         <i class="bi bi-award"></i>
-                        <span>Sertifikat olish</span>
+                        <span>{% t "Sertifikat olish" request.LANGUAGE_CODE %}</span>
                     </button>
-                    <button class="quick-action-mobile" data-question="Eng yaxshi universitetlar haqida ma'lumot bering">
+                    <button class="quick-action-mobile" data-question="{% t 'Eng yaxshi universitetlar haqida ma\'lumot bering' request.LANGUAGE_CODE %}">
                         <i class="bi bi-building"></i>
-                        <span>Top universitetlar</span>
+                        <span>{% t "Top universitetlar" request.LANGUAGE_CODE %}</span>
                     </button>
                 </div>
             </div>
@@ -862,7 +867,7 @@
             <button type="button" class="attach-btn-mobile" id="attachBtn">
                 <i class="bi bi-paperclip"></i>
             </button>
-            <input type="text" id="messageInput" placeholder="Xabar yozing...">
+            <input type="text" id="messageInput" placeholder="{% t 'Xabar yozing...' request.LANGUAGE_CODE %}">
             <button type="submit" class="send-btn-mobile">
                 <i class="bi bi-send-fill"></i>
             </button>
@@ -1205,8 +1210,8 @@ document.getElementById('clearChatBtn').addEventListener('click', function() {
                 messagesContainer.innerHTML = `
                     <div class="ai-welcome-mobile" id="welcomeSection">
                         <div class="welcome-icon-mobile"><i class="bi bi-robot"></i></div>
-                        <h3>Salom! 👋</h3>
-                        <p>Men sizning shaxsiy AI yordamchingizman</p>
+                        <h3>{% t "Salom! 👋" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Men sizning shaxsiy AI yordamchingizman" request.LANGUAGE_CODE %}</p>
                     </div>
                 `;
             }

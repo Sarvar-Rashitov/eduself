@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}{{ title }} - EduSelf{% endblock %}
@@ -26,8 +28,7 @@
     <div class="container">
         <div class="filter-tabs">
             <a href="{% url 'core:news_list' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-                <i class="fas fa-th-large"></i> Barchasi
-            </a>
+                <i class="fas fa-th-large"></i>Barchasi</a>
             {% for cat in categories %}
             <a href="{% url 'core:news_list' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.id == cat.id %}active{% endif %}">
                 <i class="{{ cat.icon }}"></i> {{ cat.name }}
@@ -42,7 +43,7 @@
         {% if featured_news %}
         <!-- Asosiy yangiliklar -->
         <div class="featured-news-section">
-            <h3 class="subsection-title"><i class="fas fa-star"></i> Asosiy yangiliklar</h3>
+            <h3 class="subsection-title"><i class="fas fa-star"></i>Asosiy yangiliklar</h3>
             <div class="featured-news-grid">
                 {% for news in featured_news %}
                 <a href="{% url 'core:news_detail' news.slug %}" class="featured-news-card {% if forloop.first %}large{% endif %}">

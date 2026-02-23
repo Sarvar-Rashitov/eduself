@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}EduSelf - O'zbekiston Ta'lim Platformasi{% endblock %}
@@ -132,7 +134,7 @@
             {% endfor %}
         </div>
         <div class="section-footer">
-            <a href="{% url 'core:subjects' %}" class="btn btn-primary">Barcha fanlar <i class="fas fa-arrow-right"></i></a>
+            <a href="{% url 'core:subjects' %}" class="btn btn-primary">Barcha fanlar<i class="fas fa-arrow-right"></i></a>
         </div>
     </div>
 </section>

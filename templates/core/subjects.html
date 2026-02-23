@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
-{% block title %}Fanlar - EduSelf{% endblock %}
+{% block title %}{% t "Fanlar" request.LANGUAGE_CODE %} - EduSelf{% endblock %}
 
 {% block content %}
 <div class="page-header subjects-header">
@@ -13,23 +15,23 @@
                     <i class="bi bi-book"></i>
                 {% endif %}
             </div>
-            {{ title }}
+            {% t title request.LANGUAGE_CODE %}
         </h1>
         <p class="page-header-subtitle">
             {% if current_category and current_category.description %}
-                {{ current_category.description | safe }}
+                {{ current_category.description|translate:request.LANGUAGE_CODE|safe }}
             {% else %}
-                O'zbekiston umumta'lim fanlari bo'yicha testlar va mavzular
+                {% t "O'zbekiston umumta'lim fanlari bo'yicha testlar va mavzular" request.LANGUAGE_CODE %}
             {% endif %}
         </p>
         <div class="page-header-stats">
             <div class="page-header-stat">
                 <i class="bi bi-book me-1"></i>
-                {{ subjects.count }} ta fan
+                {{ subjects.count }} ta {% t "fan" request.LANGUAGE_CODE %}
             </div>
             <div class="page-header-stat">
                 <i class="bi bi-list-ul me-1"></i>
-                Mavzular va testlar
+                {% t "Mavzular" request.LANGUAGE_CODE %} va {% t "Testlar" request.LANGUAGE_CODE %}
             </div>
         </div>
     </div>
@@ -40,11 +42,10 @@
     {% if categories %}
     <div class="filter-tabs flex-grow-1" style="margin-bottom: 0;">
         <a href="{% url 'core:subjects' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-            <i class="bi bi-grid"></i> Barchasi
-        </a>
+            <i class="bi bi-grid"></i>{% t "Barchasi" request.LANGUAGE_CODE %}</a>
         {% for cat in categories %}
         <a href="{% url 'core:subjects' %}?category={{ cat.slug }}" class="filter-tab {% if current_category and current_category.id == cat.id %}active{% endif %}">
-            <i class="{{ cat.icon }}"></i> {{ cat.name }}
+            <i class="{{ cat.icon }}"></i> {{ cat.name|translate:request.LANGUAGE_CODE }}
         </a>
         {% endfor %}
     </div>
@@ -58,7 +59,7 @@
 <div id="searchBar" class="search-bar-sticky" style="display: none;">
     <div class="search-input-wrapper">
         <i class="bi bi-search search-icon"></i>
-        <input type="text" id="subjectSearch" class="form-control search-input" placeholder="Fanlarni qidiring...">
+        <input type="text" id="subjectSearch" class="form-control search-input" placeholder="{% t 'Fanlarni qidiring' request.LANGUAGE_CODE %}...">
         <button type="button" id="clearSearch" class="search-clear" style="display: none;">
             <i class="bi bi-x"></i>
         </button>
@@ -68,7 +69,7 @@
 <div id="searchResults" style="display: none;">
     <div class="search-results-header">
         <span class="search-results-count"></span>
-        <button type="button" id="showAllSubjects" class="btn btn-link btn-sm">Barcha fanlarni ko'rsatish</button>
+        <button type="button" id="showAllSubjects" class="btn btn-link btn-sm">{% t "Barcha fanlarni ko'rsatish" request.LANGUAGE_CODE %}</button>
     </div>
 </div>
 
@@ -80,8 +81,8 @@
             <i class="{{ subject.icon }}"></i>
         </div>
         <div class="subject-info">
-            <div class="subject-name">{{ subject.name }}</div>
-            <div class="subject-meta">{{ subject.get_topics_count }} mavzu | {{ subject.get_tests_count }} test</div>
+            <div class="subject-name">{{ subject.name|translate:request.LANGUAGE_CODE }}</div>
+            <div class="subject-meta">{{ subject.get_topics_count }} {% t "mavzu" request.LANGUAGE_CODE %} | {{ subject.get_tests_count }} {% t "test" request.LANGUAGE_CODE %}</div>
         </div>
         <div class="subject-arrow">
             <i class="bi bi-chevron-right"></i>
@@ -91,15 +92,15 @@
 {% else %}
     <div class="empty-state">
         <i class="bi bi-book"></i>
-        <p>Hozircha fanlar mavjud emas</p>
+        <p>{% t "Hozircha fanlar mavjud emas" request.LANGUAGE_CODE %}</p>
     </div>
 {% endif %}
 </div>
 
 <div id="noResults" class="empty-state" style="display: none;">
     <i class="bi bi-search"></i>
-    <p>Qidiruv bo'yicha natija topilmadi</p>
-    <small class="text-muted">Boshqa kalit so'zlar bilan qidirib ko'ring</small>
+    <p>{% t "Qidiruv bo'yicha natija topilmadi" request.LANGUAGE_CODE %}</p>
+    <small class="text-muted">{% t "Boshqa kalit so'zlar bilan qidirib ko'ring" request.LANGUAGE_CODE %}</small>
 </div>
 {% endblock %}
 

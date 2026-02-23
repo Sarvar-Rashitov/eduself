@@ -1,23 +1,24 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
-{% block title %}{{ institution.name }} - EduSelf{% endblock %}
+{% block title %}{{ institution.name|translate:request.LANGUAGE_CODE }} - EduSelf{% endblock %}
 
 {% block content %}
 <a href="{% url 'core:institutions' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> Ta'lim muassasalari
-</a>
+    <i class="bi bi-arrow-left"></i>{% t "Ta'lim muassasalari" request.LANGUAGE_CODE %}</a>
 
 <!-- Logo va qisqa ma'lumot -->
 <div class="card mb-4">
     <div class="card-body text-center">
         {% if institution.image %}
         <div class="institution-image-container mb-3">
-            <img src="{{ institution.image.url }}" alt="{{ institution.name }}" class="institution-image-detail">
+            <img src="{{ institution.image.url }}" alt="{{ institution.name|translate:request.LANGUAGE_CODE }}" class="institution-image-detail">
         </div>
         {% endif %}
-        <h3 class="mb-3">{{ institution.name }}</h3>
+        <h3 class="mb-3">{{ institution.name|translate:request.LANGUAGE_CODE }}</h3>
         {% if institution.short_description %}
-        <p class="lead text-muted">{{ institution.short_description | safe }}</p>
+        <p class="lead text-muted">{{ institution.short_description|translate:request.LANGUAGE_CODE|safe }}</p>
         {% endif %}
     </div>
 </div>
@@ -32,7 +33,7 @@
                     <div class="info-icon contract-icon">
                         <i class="bi bi-currency-exchange"></i>
                     </div>
-                    <h6>Kontrakt to'lovi</h6>
+                    <h6>{% t "Kontrakt to'lovi" request.LANGUAGE_CODE %}</h6>
                     <p class="mb-0">{{ institution.get_contract_price_range }}</p>
                 </div>
             </div>
@@ -44,7 +45,7 @@
                     <div class="info-icon admission-icon">
                         <i class="bi bi-calendar-check"></i>
                     </div>
-                    <h6>Qabul muddati</h6>
+                    <h6>{% t "Qabul muddati" request.LANGUAGE_CODE %}</h6>
                     <p class="mb-0">{{ institution.get_admission_period }}</p>
                 </div>
             </div>
@@ -56,14 +57,12 @@
                     <div class="info-icon license-icon">
                         <i class="bi bi-file-earmark-check"></i>
                     </div>
-                    <h6>Muassasa litsenziyasi</h6>
+                    <h6>{% t "Muassasa litsenziyasi" request.LANGUAGE_CODE %}</h6>
                     <div class="license-actions">
                         <a href="{{ institution.license_file.url }}" class="btn btn-outline-primary btn-sm me-2" target="_blank">
-                            <i class="bi bi-eye me-1"></i>Ko'rish
-                        </a>
+                            <i class="bi bi-eye me-1"></i>{% t "Ko'rish" request.LANGUAGE_CODE %}</a>
                         <a href="{{ institution.license_file.url }}" class="btn btn-primary btn-sm" download>
-                            <i class="bi bi-download me-1"></i>Yuklab olish
-                        </a>
+                            <i class="bi bi-download me-1"></i>{% t "Yuklab olish" request.LANGUAGE_CODE %}</a>
                     </div>
                 </div>
             </div>
@@ -78,7 +77,7 @@
     <div class="card-header">
         <h5 class="mb-0">
             <i class="bi bi-mortarboard me-2"></i>
-            Ta'lim yo'nalishlari
+            {% t "Ta'lim yo'nalishlari" request.LANGUAGE_CODE %}
         </h5>
     </div>
     <div class="card-body">
@@ -86,7 +85,7 @@
             {% for direction in directions %}
             <div class="col-md-6 mb-4">
                 <div class="direction-card-new">
-                    <h6 class="direction-name-new">{{ direction.name }}</h6>
+                    <h6 class="direction-name-new">{{ direction.name|translate:request.LANGUAGE_CODE }}</h6>
                     
                     <div class="direction-details">
                         <div class="detail-row">
@@ -97,7 +96,7 @@
                         
                         <div class="detail-row">
                             {% if direction.passing_score %}
-                            <span class="detail-label">O'tish bali: {{ direction.passing_score }}</span>
+                            <span class="detail-label">{% t "O'tish balli" request.LANGUAGE_CODE %}: {{ direction.passing_score }}</span>
                             {% endif %}
                             {% if direction.contract_price %}
                             <span class="detail-separator">•</span>
@@ -108,11 +107,11 @@
                     
                     <div class="direction-actions-new">
                         <a href="{% url 'core:direction_detail' direction.pk %}" class="btn btn-outline-primary btn-sm me-2">
-                            <i class="bi bi-info-circle me-1"></i>Batafsil
+                            <i class="bi bi-info-circle me-1"></i>{% t "Batafsil" request.LANGUAGE_CODE %}
                         </a>
                         {% if direction.exams.exists %}
                         <a href="{% url 'core:direction_exam_intro' direction.exams.first.pk %}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-pencil-square me-1"></i>Imtihon topshirish
+                            <i class="bi bi-pencil-square me-1"></i>{% t "Imtihon topshirish" request.LANGUAGE_CODE %}
                         </a>
                         {% endif %}
                     </div>
@@ -129,7 +128,7 @@
     <div class="card-header">
         <h5 class="mb-0">
             <i class="bi bi-info-circle me-2"></i>
-            To'liq ma'lumot
+            {% t "To'liq ma'lumot" request.LANGUAGE_CODE %}
         </h5>
     </div>
     <div class="card-body">
@@ -151,21 +150,21 @@
         {% if institution.description %}
         <div class="description-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="mb-0">Muassasa haqida</h6>
+                <h6 class="mb-0">{% t "Muassasa haqida" request.LANGUAGE_CODE %}</h6>
                 <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#fullDescription">
-                    <span class="show-text">Batafsil</span>
-                    <span class="hide-text" style="display: none;">Yashirish</span>
+                    <span class="show-text">{% t "Batafsil" request.LANGUAGE_CODE %}</span>
+                    <span class="hide-text" style="display: none;">{% t "Yashirish" request.LANGUAGE_CODE %}</span>
                     <i class="bi bi-chevron-down ms-1"></i>
                 </button>
             </div>
             
             <div class="description-preview">
-                <p class="mb-0">{{ institution.description|truncatewords:30 }}</p>
+                <p class="mb-0">{{ institution.description|translate:request.LANGUAGE_CODE|truncatewords:30 }}</p>
             </div>
             
             <div class="collapse" id="fullDescription">
                 <div class="description-full mt-3">
-                    <p class="mb-0">{{ institution.description | safe }}</p>
+                    <p class="mb-0">{{ institution.description|translate:request.LANGUAGE_CODE|safe }}</p>
                 </div>
             </div>
         </div>
@@ -178,7 +177,7 @@
     <div class="card-header">
         <h5 class="mb-0">
             <i class="bi bi-telephone me-2"></i>
-            Aloqa ma'lumotlari
+            {% t "Aloqa ma'lumotlari" request.LANGUAGE_CODE %}
         </h5>
     </div>
     <div class="card-body">
@@ -188,7 +187,7 @@
                 <div class="d-flex align-items-start">
                     <i class="bi bi-telephone text-primary me-3 fs-5"></i>
                     <div>
-                        <small class="text-muted d-block">Telefon</small>
+                        <small class="text-muted d-block">{% t "Telefon" request.LANGUAGE_CODE %}</small>
                         <a href="tel:{{ institution.phone }}" class="text-decoration-none">{{ institution.phone }}</a>
                     </div>
                 </div>
@@ -200,7 +199,7 @@
                 <div class="d-flex align-items-start">
                     <i class="bi bi-envelope text-primary me-3 fs-5"></i>
                     <div>
-                        <small class="text-muted d-block">Email</small>
+                        <small class="text-muted d-block">{% t "Email" request.LANGUAGE_CODE %}</small>
                         <a href="mailto:{{ institution.email }}" class="text-decoration-none">{{ institution.email }}</a>
                     </div>
                 </div>
@@ -212,7 +211,7 @@
                 <div class="d-flex align-items-start">
                     <i class="bi bi-globe text-primary me-3 fs-5"></i>
                     <div>
-                        <small class="text-muted d-block">Vebsayt</small>
+                        <small class="text-muted d-block">{% t "Vebsayt" request.LANGUAGE_CODE %}</small>
                         <a href="{{ institution.website }}" class="text-decoration-none" target="_blank">
                             {{ institution.website }}
                         </a>
@@ -226,8 +225,8 @@
                 <div class="d-flex align-items-start">
                     <i class="bi bi-geo-alt text-primary me-3 fs-5"></i>
                     <div>
-                        <small class="text-muted d-block">Manzil</small>
-                        <span>{{ institution.address }}</span>
+                        <small class="text-muted d-block">{% t "Manzil" request.LANGUAGE_CODE %}</small>
+                        <span>{{ institution.address|translate:request.LANGUAGE_CODE }}</span>
                     </div>
                 </div>
             </div>
@@ -242,7 +241,7 @@
     <div class="card-header">
         <h5 class="mb-0">
             <i class="bi bi-map me-2"></i>
-            Manzil xaritasi
+            {% t "Manzil xaritasi" request.LANGUAGE_CODE %}
         </h5>
     </div>
     <div class="card-body p-0">

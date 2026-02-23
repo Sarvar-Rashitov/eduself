@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 {% load static %}
 
-{% block title %}AI Tahlil - {{ exam.title }}{% endblock %}
+{% block title %}AI Tahlil - {{ exam.title|translate:request.LANGUAGE_CODE }}{% endblock %}
 
 {% block content %}
 <div class="analysis-page">
@@ -10,7 +12,7 @@
             <i class="fas fa-arrow-left"></i>
         </a>
         <div>
-            <h1>AI Tahlil</h1>
+            <h1>{% t "AI Tahlil" request.LANGUAGE_CODE %}</h1>
             <p>{{ result.score|floatformat:1 }}% - {{ result.correct_answers }}/{{ result.total_questions }} to'g'ri</p>
         </div>
     </div>
@@ -19,7 +21,7 @@
     <div class="ai-analysis-card" id="ai-analysis-card">
         <div class="ai-header">
             <i class="fas fa-robot"></i>
-            <span>AI Hamroh Tavsiyalari</span>
+            <span>{% t "AI Hamroh Tavsiyalari" request.LANGUAGE_CODE %}</span>
         </div>
         <div class="ai-content" id="ai-analysis-content">
             <div class="loading-state">

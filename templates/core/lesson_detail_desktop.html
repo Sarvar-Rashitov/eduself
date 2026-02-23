@@ -1,4 +1,6 @@
 ﻿{% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}{{ lesson.title }} - {{ course.title }} - EduSelf{% endblock %}
@@ -45,8 +47,7 @@
                                 </div>
                             </div>
                             <a href="{% url 'core:take_topic_test' lesson.practice_topic.id %}" class="btn btn-primary">
-                                <i class="fas fa-play"></i> Testni boshlash
-                            </a>
+                                <i class="fas fa-play"></i>Testni boshlash</a>
                         </div>
                     </div>
                     {% endif %}

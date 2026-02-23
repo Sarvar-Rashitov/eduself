@@ -1,4 +1,6 @@
 ﻿{% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}Ta'lim Muassasalari - EduSelf{% endblock %}
@@ -22,8 +24,7 @@
     <div class="container">
         <div class="filter-tabs">
             <a href="{% url 'core:institutions' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-                <i class="fas fa-th-large"></i> Barchasi
-            </a>
+                <i class="fas fa-th-large"></i>Barchasi</a>
             {% for cat in categories %}
             <a href="{% url 'core:institutions' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.slug == cat.slug %}active{% endif %}">
                 <i class="{{ cat.icon|default:'fas fa-building' }}"></i> {{ cat.name }}

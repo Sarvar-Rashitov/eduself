@@ -1,225 +1,197 @@
-# AI-Hamroh Test Tahlil Funksiyasi
+# AI Tahlil Ko'p Tillilik Xususiyati
 
-## Umumiy ma'lumot
+## ✅ BAJARILDI
 
-EduSelf loyihasiga yangi AI-hamroh test tahlil funksiyasi qo'shildi. Bu funksiya foydalanuvchilar test natijalarini ko'rganda "AI Tahlil" tugmasini bosish orqali o'z natijalarini chuqur tahlil qilish va shaxsiy tavsiyalar olish imkonini beradi.
+AI tahlil tizimi endi barcha 7 tilda to'liq ishlaydi!
 
-## Qo'shilgan funksiyalar
+## O'zgartirilgan Fayllar
 
-### 1. AI Test Tahlil Service (TestAnalysisService)
+### 1. `ai_assistant/services.py`
+- `TestAnalysisService.analyze_test_result()` metodiga `language` parametri qo'shildi
+- `_get_ai_recommendation()` metodiga `language` parametri qo'shildi
+- `_build_analysis_prompt()` metodi to'liq qayta yozildi:
+  - Ko'p tillilik uchun `language_prompts` lug'ati qo'shildi
+  - **BARCHA 7 TIL** uchun to'liq prompt shablonlari qo'shildi
+  - AI endi foydalanuvchi tanlagan tilda tahlil beradi
 
-**Fayl:** `ai_assistant/services.py`
+### 2. `ai_assistant/views.py`
+- `analyze_test_result()` view funksiyasiga til parametri qo'shildi:
+```python
+language = request.LANGUAGE_CODE if hasattr(request, 'LANGUAGE_CODE') else 'uz'
+analysis_result = analysis_service.analyze_test_result(result, test_type, language=language)
+```
 
-Bu service quyidagi vazifalarni bajaradi:
-- Test natijalarini to'liq tahlil qilish
-- Foydalanuvchining kuchli va zaif tomonlarini aniqlash
-- Har bir savol bo'yicha batafsil tahlil
-- AI orqali shaxsiy tavsiyalar berish
-- Fallback tavsiyalar (AI ishlamasa)
+## Qo'llab-quvvatlanadigan Tillar
 
-**Qo'llab-quvvatlanadigan test turlari:**
-- Topic testlari (`topic`)
-- Sertifikat testlari (`certificate`) 
-- Mock examlar (`mock_exam`)
-- Direction examlar (`direction_exam`)
+AI tahlil endi BARCHA 7 tilda to'liq ishlaydi:
+- 🇺🇿 **O'zbek tili (uz)** - default
+- 🇬🇧 **Ingliz tili (en)** - English
+- 🇷🇺 **Rus tili (ru)** - Русский
+- 🇰🇿 **Qozoq tili (kk)** - Қазақша
+- 🇺🇿 **Qoraqalpoq tili (kaa)** - Qaraqalpaqsha
+- 🇹🇯 **Tojik tili (tg)** - Тоҷикӣ
+- 🇰🇬 **Qirg'iz tili (ky)** - Кыргызча
 
-### 2. AI Tahlil API Endpoint
-
-**Fayl:** `ai_assistant/views.py`
-**URL:** `/ai-hamroh/api/analyze/<test_type>/<result_id>/`
-
-Yangi `analyze_test_result` view funksiyasi qo'shildi:
-- GET so'rovlarni qabul qiladi
-- Test turini va natija ID sini oladi
-- TestAnalysisService orqali tahlil qiladi
-- JSON formatda javob qaytaradi
-
-### 3. Template'larga AI Tahlil Tugmasi
-
-Quyidagi template'larga AI tahlil funksiyasi qo'shildi:
-
-#### Mobil Template'lar
-
-**Topic Analysis**
-- **Fayl:** `templates/core/topic_analysis.html`
-- AI tahlil kartasi (ko'k rang)
-- "AI Tahlil" tugmasi
-- JavaScript funksiyasi
-
-**Certificate Test Analysis**  
-- **Fayl:** `templates/core/cert_test_analysis.html`
-- AI tahlil kartasi (yashil rang)
-- "AI Tahlil" tugmasi
-- JavaScript funksiyasi
-
-**Mock Exam Analysis**
-- **Fayl:** `templates/core/mock_exam_analysis.html`
-- AI tahlil kartasi (sariq rang)
-- "AI Tahlil" tugmasi
-- JavaScript funksiyasi
-
-**Direction Exam Analysis**
-- **Fayl:** `templates/core/direction_exam_analysis.html`
-- AI tahlil kartasi (gradient rang)
-- "AI Tahlil" tugmasi
-- JavaScript funksiyasi
-
-#### Desktop Template'lar
-
-**Topic Analysis Desktop**
-- **Fayl:** `templates/core/topic_analysis_desktop.html`
-- Katta ekranlar uchun optimallashtirilgan
-- AI tahlil kartasi (ko'k gradient)
-- Professional dizayn
-
-**Certificate Test Analysis Desktop**  
-- **Fayl:** `templates/core/cert_test_analysis_desktop.html`
-- Desktop uchun kengaytirilgan layout
-- AI tahlil kartasi (yashil gradient)
-- Batafsil ma'lumotlar
-
-**Mock Exam Analysis Desktop**
-- **Fayl:** `templates/core/mock_exam_analysis_desktop.html`
-- Desktop versiya
-- AI tahlil kartasi (sariq gradient)
-- Keng ekran uchun optimallashtirilgan
-
-**Direction Exam Analysis Desktop**
-- **Fayl:** `templates/core/direction_exam_analysis_desktop.html`
-- Yangi yaratilgan desktop template
-- AI tahlil kartasi (binafsha gradient)
-- To'liq funksional desktop versiya
-
-### 4. Base Template'ga CSRF Token
-
-**Fayl:** `templates/base.html`
-- CSRF token global o'zgaruvchiga saqlandi
-- JavaScript'da AJAX so'rovlar uchun ishlatiladi
-
-## Foydalanish
+## Ishlash Mexanizmi
 
 1. Foydalanuvchi test topshiradi
-2. Natija sahifasida "Tahlil" tugmasini bosadi
-3. Tahlil sahifasida "AI Tahlil" tugmasini bosadi
-4. AI-hamroh test natijasini tahlil qilib, quyidagilarni beradi:
-   - Kuchli tomonlar
-   - Zaif tomonlar
-   - Aniq tavsiyalar
-   - Keyingi qadamlar
-   - Motivatsion so'zlar
+2. Natija sahifasida "AI Tahlil" tugmasini bosadi
+3. AJAX so'rov `ai_assistant/views.py:analyze_test_result()` ga yuboriladi
+4. View foydalanuvchi tilini `request.LANGUAGE_CODE` dan oladi
+5. `TestAnalysisService.analyze_test_result(result, test_type, language)` chaqiriladi
+6. AI foydalanuvchi tanlagan tilda tahlil yaratadi
+7. Natija JSON formatda qaytariladi va sahifada ko'rsatiladi
 
-## AI Tavsiya Misollar
+## Test Turlari
 
-### Yuqori natija (90%+)
+AI tahlil quyidagi test turlari uchun ishlaydi:
+- ✅ Topic testlar (`topic`)
+- ✅ Sertifikat testlar (`certificate`)
+- ✅ Mock imtihonlar (`mock_exam`)
+- ✅ Yo'nalish imtihonlari (`direction_exam`)
+
+## Tahlil Tarkibi
+
+AI tahlil quyidagilarni o'z ichiga oladi:
+1. **Umumiy baho** - test natijasi haqida umumiy fikr
+2. **Kuchli tomonlar** - yaxshi javob berilgan mavzular
+3. **Zaif tomonlar** - xato qilingan mavzular
+4. **Tavsiyalar** - qanday yaxshilash mumkinligi
+5. **Keyingi qadamlar** - nima qilish kerakligi
+
+## Misollar
+
+### O'zbek tilida (uz):
 ```
-🎉 Ajoyib natija!
-Siz 95% ball to'pladingiz - bu juda yuqori natija!
+📊 Test natijalari:
+- Umumiy ball: 75%
+- To'g'ri javoblar: 15/20
+- Test o'tdi: Ha
 
-✅ Kuchli tomonlaringiz:
-- 19/20 savolga to'g'ri javob berdingiz
-- Mavzuni juda yaxshi egallabsiz
+✅ Kuchli tomonlar:
+- Algebra mavzusida yaxshi bilim
 
-🚀 Keyingi qadamlar:
-- Ushbu darajangizni saqlab qoling
-- Yangi mavzularga o'ting
-- Boshqa testlarni ham sinab ko'ring
+⚠️ Zaif tomonlar:
+- Geometriya mavzusida qiyinchiliklar
+
+💡 Tavsiyalar:
+- Geometriya formulalarini takrorlang
+- Ko'proq amaliy mashqlar yeching
 ```
 
-### O'rtacha natija (50-70%)
+### Ingliz tilida (en):
 ```
-📖 O'rtacha natija
-Siz 65% ball to'pladingiz. Yaxshilash uchun ish bor.
+📊 Test Results:
+- Total Score: 75%
+- Correct Answers: 15/20
+- Test Passed: Yes
 
-✅ Kuchli tomonlaringiz:
-- 13/20 savolga to'g'ri javob berdingiz
-- Ba'zi mavzularni yaxshi bilasiz
+✅ Strengths:
+- Good knowledge in Algebra
 
-📚 Tavsiyalar:
-- Noto'g'ri javoblarni diqqat bilan tahlil qiling
-- Zaif mavzularni batafsil o'rganing
-- Har kuni 30-60 daqiqa o'qishga vaqt ajrating
+⚠️ Weaknesses:
+- Difficulties in Geometry
+
+💡 Recommendations:
+- Review Geometry formulas
+- Practice more exercises
 ```
 
-## Texnik Tafsilotlar
+### Qozoq tilida (kk):
+```
+📊 Тест нәтижелері:
+- Жалпы балл: 75%
+- Дұрыс жауаптар: 15/20
+- Тест өтті: Иә
 
-### DeepSeek AI Integration
-- DeepSeek API orqali AI tavsiyalar
-- Fallback tizimi (API ishlamasa)
-- Token va response time tracking
+✅ Күшті жақтары:
+- Алгебра бойынша жақсы білім
 
-### Error Handling
-- API xatoliklari uchun fallback
-- User-friendly xato xabarlari
-- Graceful degradation
+⚠️ Әлсіз жақтары:
+- Геометрия бойынша қиындықтар
 
-### Security
-- CSRF protection
-- User authentication required
-- Input validation
+💡 Ұсыныстар:
+- Геометрия формулаларын қайталаңыз
+- Көбірек жаттығулар орындаңыз
+```
 
-### Responsive Design
-- Mobil va desktop versiyalar
-- Har xil ekran o'lchamlari uchun optimallashtirilgan
-- Touch-friendly interface
+### Qoraqalpoq tilida (kaa):
+```
+📊 Test nátiyjeleri:
+- Umumiy ball: 75%
+- Durıs juwaplar: 15/20
+- Test ótti: Áwa
 
-## Kelajakdagi Yaxshilashlar
+✅ Kúshli tárepler:
+- Algebra boyınsha jaqsı bilim
 
-1. **Mavzu bo'yicha tahlil:** Har bir mavzu uchun alohida performance
-2. **Tarixiy tahlil:** Vaqt o'tishi bilan progress tracking
-3. **Tavsiya personalizatsiyasi:** Foydalanuvchi xususiyatlariga qarab
-4. **Grafik tahlil:** Vizual charts va graphs
-5. **Eksport funksiyasi:** PDF/Excel formatda tahlil
-6. **Voice feedback:** Ovozli tavsiyalar
-7. **Gamification:** Achievement va badge tizimi
+⚠️ Álsiz tárepler:
+- Geometriya boyınsha qıyınshılıqlar
 
-## Ishga Tushirish
+💡 Táwsiyalar:
+- Geometriya formulaların qaytalan
+- Kóbirek jattıǵıwlar orınlań
+```
 
-1. Server ishga tushiring: `python manage.py runserver`
-2. Foydalanuvchi sifatida login qiling
+### Tojik tilida (tg):
+```
+📊 Натиҷаҳои тест:
+- Балли умумӣ: 75%
+- Ҷавобҳои дуруст: 15/20
+- Тест гузашт: Ҳа
+
+✅ Тарафҳои қавӣ:
+- Дониши хуб дар алгебра
+
+⚠️ Тарафҳои заиф:
+- Мушкилот дар геометрия
+
+💡 Тавсияҳо:
+- Формулаҳои геометрияро такрор кунед
+- Машқҳои бештар иҷро кунед
+```
+
+### Qirg'iz tilida (ky):
+```
+📊 Тест жыйынтыктары:
+- Жалпы упай: 75%
+- Туура жооптор: 15/20
+- Тест өттү: Ооба
+
+✅ Күчтүү жактары:
+- Алгебра боюнча жакшы билим
+
+⚠️ Алсыз жактары:
+- Геометрия боюнча кыйынчылыктар
+
+💡 Сунуштар:
+- Геометрия формулаларын кайталаңыз
+- Көбүрөөк машыгууларды аткарыңыз
+```
+
+## Keyingi Qadamlar
+
+✅ AI tahlil barcha 7 tilda to'liq ishlaydi
+⏳ Qolgan ishlar:
+1. Desktop versiyalardagi shablonlarni tarjima qilish
+2. Oferta va Privacy sahifalarini tarjima qilish
+3. Barcha statik matnlarni tarjima qilish (183 ta qoldi)
+
+## Texnik Ma'lumotlar
+
+- **AI Model**: DeepSeek Chat
+- **Qo'llab-quvvatlanadigan tillar**: 7 ta (uz, en, ru, kk, kaa, tg, ky)
+- **Kesh vaqti**: 24 soat
+- **Maksimal token**: 1000
+- **Temperatura**: 0.7
+- **API Key**: `.env` faylida `DEEPSEEK_API_KEY`
+
+## Test Qilish
+
+Har bir tilda test qilish uchun:
+1. Platformaga kiring
+2. Til tanlagichdan kerakli tilni tanlang
 3. Biror test topshiring
-4. Natija sahifasida "Tahlil" tugmasini bosing
-5. "AI Tahlil" tugmasini bosing va natijani kuting
+4. Natija sahifasida "AI Tahlil" tugmasini bosing
+5. AI tahlil tanlangan tilda ko'rsatilishi kerak
 
-## Xatoliklarni Bartaraf Etish
-
-### AI API ishlamasa:
-- Fallback tavsiyalar ko'rsatiladi
-- Xato xabari user-friendly
-- Funksionallik buzilmaydi
-
-### CSRF Token xatolari:
-- Base template'da token mavjudligini tekshiring
-- JavaScript'da `window.csrfToken` ishlatiladi
-
-### Template xatolari:
-- Template'larda `{{ result.id }}` mavjudligini tekshiring
-- JavaScript funksiya nomlari to'g'riligini tekshiring
-
-### Desktop/Mobile Template Issues:
-- `base_desktop.html` va `base.html` template'lar mavjudligini tekshiring
-- CSS class nomlari mos kelishini tekshiring
-- Responsive breakpoint'lar to'g'ri ishlashini tekshiring
-
-## Fayl Strukturasi
-
-```
-templates/core/
-├── topic_analysis.html              # Mobil versiya
-├── topic_analysis_desktop.html     # Desktop versiya
-├── cert_test_analysis.html         # Mobil versiya
-├── cert_test_analysis_desktop.html # Desktop versiya
-├── mock_exam_analysis.html         # Mobil versiya
-├── mock_exam_analysis_desktop.html # Desktop versiya
-├── direction_exam_analysis.html    # Mobil versiya
-└── direction_exam_analysis_desktop.html # Desktop versiya
-
-ai_assistant/
-├── services.py    # TestAnalysisService
-├── views.py       # analyze_test_result view
-└── urls.py        # API endpoint
-
-templates/
-└── base.html      # CSRF token qo'shilgan
-```
-
-Bu yangi funksiya foydalanuvchilarga o'z natijalarini chuqur tushunish va yaxshilash yo'llarini topish imkonini beradi. Mobil va desktop qurilmalarda bir xil darajada yaxshi ishlaydi.

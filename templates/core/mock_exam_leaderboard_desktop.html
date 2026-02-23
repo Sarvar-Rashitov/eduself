@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}{{ exam.title }} - Reyting - EduSelf{% endblock %}
@@ -27,8 +29,7 @@
                     </div>
                 </div>
                 <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-start-test">
-                    <i class="fas fa-play"></i> Boshlash
-                </a>
+                    <i class="fas fa-play"></i>Boshlash</a>
             </div>
         </div>
         <div class="leaderboard-grid">

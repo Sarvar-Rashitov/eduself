@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
 {% block title %}Ommaviy oferta - EduSelf{% endblock %}
 
@@ -17,7 +19,7 @@
             <h2>2. Atamalar va ta'riflar</h2>
             <ul>
                 <li><strong>Platforma</strong> - EduSelf veb-sayti va mobil ilovasi</li>
-                <li><strong>Foydalanuvchi</strong> - Platformadan foydalanuvchi shaxs</li>
+                <li><strong>{% t "Foydalanuvchi" request.LANGUAGE_CODE %}</strong> - Platformadan foydalanuvchi shaxs</li>
                 <li><strong>Xizmatlar</strong> - Platforma tomonidan taqdim etiladigan ta'lim xizmatlari</li>
                 <li><strong>Kontent</strong> - Platformadagi barcha ma'lumotlar, testlar, video darslar va boshqa materiallar</li>
             </ul>

@@ -35,6 +35,22 @@ class User(AbstractUser):
     telegram_chat_id = models.CharField(max_length=255, blank=True, null=True, verbose_name="Telegram Chat ID")
     auth_provider = models.CharField(max_length=50, default='email')  # email, phone, google, telegram
     
+    # Language preference
+    language = models.CharField(
+        max_length=10, 
+        choices=[
+            ('uz', 'O\'zbekcha'),
+            ('en', 'English'),
+            ('ru', 'Русский'),
+            ('kk', 'Қазақша'),
+            ('kaa', 'Qaraqalpaqsha'),
+            ('tg', 'Тоҷикӣ'),
+            ('ky', 'Кыргызча'),
+        ],
+        default='uz',
+        verbose_name="Til"
+    )
+    
     # Certificate file
     certificate_file = models.FileField(upload_to='user_certificates/', blank=True, null=True, verbose_name="Sertifikat fayli")
     

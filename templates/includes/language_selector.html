@@ -1,0 +1,170 @@
+{% load i18n %}
+{% load translation_tags %}
+
+<div class="language-selector">
+    <button class="lang-btn" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        {% if current_language == 'uz' %}🇺🇿{% endif %}
+        {% if current_language == 'en' %}🇬🇧{% endif %}
+        {% if current_language == 'ru' %}🇷🇺{% endif %}
+        {% if current_language == 'kk' %}🇰🇿{% endif %}
+        {% if current_language == 'kaa' %}🏴{% endif %}
+        {% if current_language == 'tg' %}🇹🇯{% endif %}
+        {% if current_language == 'ky' %}🇰🇬{% endif %}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end lang-dropdown" aria-labelledby="languageDropdown">
+        {% for lang_code, lang_name in languages %}
+        <li>
+            <a class="dropdown-item {% if current_language == lang_code %}active{% endif %}" 
+               href="#"
+               onclick="changeLanguage('{{ lang_code }}'); return false;">
+                <span class="lang-flag">
+                    {% if lang_code == 'uz' %}🇺🇿{% endif %}
+                    {% if lang_code == 'en' %}🇬🇧{% endif %}
+                    {% if lang_code == 'ru' %}🇷🇺{% endif %}
+                    {% if lang_code == 'kk' %}🇰🇿{% endif %}
+                    {% if lang_code == 'kaa' %}🏴{% endif %}
+                    {% if lang_code == 'tg' %}🇹🇯{% endif %}
+                    {% if lang_code == 'ky' %}🇰🇬{% endif %}
+                </span>
+                <span class="lang-name">{{ lang_name }}</span>
+                {% if current_language == lang_code %}
+                <i class="bi bi-check2 lang-check"></i>
+                {% endif %}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function changeLanguage(langCode) {
+    // POST request orqali til o'zgartirish
+    fetch('/change-language/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            language: langCode,
+            next: window.location.pathname + window.location.search
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            console.error('Language change failed:', data.error);
+            const url = new URL(window.location.href);
+            url.searchParams.set('lang', langCode);
+            window.location.href = url.toString();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', langCode);
+        window.location.href = url.toString();
+    });
+}
+</script>
+
+<style>
+.language-selector {
+    position: relative;
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.3rem;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.lang-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .lang-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.lang-dropdown {
+    min-width: 160px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: none;
+    padding: 0.5rem 0;
+}
+
+.lang-dropdown .dropdown-item {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s;
+}
+
+.lang-flag {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.lang-name {
+    flex: 1;
+    font-size: 0.9rem;
+}
+
+.lang-check {
+    color: #10b981;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.lang-dropdown .dropdown-item:hover {
+    background-color: #f3f4f6;
+}
+
+[data-theme="dark"] .lang-dropdown .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.lang-dropdown .dropdown-item.active {
+    background-color: #eff6ff;
+    color: #1e40af;
+}
+
+[data-theme="dark"] .lang-dropdown .dropdown-item.active {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+}
+
+.lang-dropdown .dropdown-item.active:hover {
+    background-color: #dbeafe;
+}
+
+[data-theme="dark"] .lang-dropdown .dropdown-item.active:hover {
+    background-color: rgba(59, 130, 246, 0.3);
+}
+</style>

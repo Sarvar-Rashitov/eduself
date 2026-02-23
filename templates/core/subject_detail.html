@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
-{% block title %}{{ subject.name }} - EduSelf{% endblock %}
+{% block title %}{{ subject.name|translate:request.LANGUAGE_CODE }} - EduSelf{% endblock %}
 
 {% block content %}
 <a href="{% url 'core:subjects' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> Fanlar
-</a>
+    <i class="bi bi-arrow-left"></i>{% t "Fanlar" request.LANGUAGE_CODE %}</a>
 
 <div class="card mb-4">
     <div class="card-body">
@@ -14,18 +15,18 @@
                 <i class="{{ subject.icon }}"></i>
             </div>
             <div>
-                <h4 class="mb-1">{{ subject.name }}</h4>
-                <p class="text-muted mb-0 small">{{ subject.get_topics_count }} mavzu | {{ subject.get_questions_count }} savol</p>
+                <h4 class="mb-1">{{ subject.name|translate:request.LANGUAGE_CODE }}</h4>
+                <p class="text-muted mb-0 small">{{ subject.get_topics_count }} {% t "mavzu" request.LANGUAGE_CODE %} | {{ subject.get_questions_count }} {% t "savol" request.LANGUAGE_CODE %}</p>
             </div>
         </div>
         {% if subject.description %}
-        <p class="text-muted mb-0">{{ subject.description | safe }}</p>
+        <p class="text-muted mb-0">{{ subject.description|translate:request.LANGUAGE_CODE|safe }}</p>
         {% endif %}
     </div>
 </div>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="section-title mb-0">Mavzular</div>
+    <div class="section-title mb-0">{% t "Mavzular" request.LANGUAGE_CODE %}</div>
     <button type="button" id="searchToggleBtn" class="search-icon-btn">
         <i class="bi bi-search"></i>
     </button>
@@ -35,7 +36,7 @@
 <div id="searchBar" class="search-bar-sticky" style="display: none;">
     <div class="search-input-wrapper">
         <i class="bi bi-search search-icon"></i>
-        <input type="text" id="topicSearch" class="form-control search-input" placeholder="Mavzularni qidiring...">
+        <input type="text" id="topicSearch" class="form-control search-input" placeholder="{% t 'Mavzularni qidiring...' request.LANGUAGE_CODE %}">
         <button type="button" id="clearTopicSearch" class="search-clear" style="display: none;">
             <i class="bi bi-x"></i>
         </button>
@@ -45,7 +46,7 @@
 <div id="topicSearchResults" style="display: none;">
     <div class="search-results-header">
         <span class="topic-results-count"></span>
-        <button type="button" id="showAllTopics" class="btn btn-link btn-sm">Barcha mavzularni ko'rsatish</button>
+        <button type="button" id="showAllTopics" class="btn btn-link btn-sm">{% t "Barcha mavzularni ko'rsatish" request.LANGUAGE_CODE %}</button>
     </div>
 </div>
 
@@ -57,7 +58,7 @@
             <i class="bi bi-bookmark"></i>
         </div>
         <div class="topic-info">
-            <div class="topic-name" style="font-size: 0.95rem;">{{ topic.name }}</div>
+            <div class="topic-name" style="font-size: 0.95rem;">{{ topic.name|translate:request.LANGUAGE_CODE }}</div>
             <div class="topic-meta" style="display: flex; gap: 8px; align-items: center; font-size: 0.7rem;">
                 <span style="display: flex; align-items: center; gap: 3px; color: #6366f1;">
                     <i class="bi bi-question-circle" style="font-size: 0.75rem;"></i>
@@ -66,7 +67,7 @@
                 {% if topic.time_limit %}
                 <span style="display: flex; align-items: center; gap: 3px; color: #3b82f6;">
                     <i class="bi bi-clock" style="font-size: 0.75rem;"></i>
-                    {{ topic.time_limit }}d
+                    {{ topic.time_limit }}{% t "d" request.LANGUAGE_CODE %}
                 </span>
                 {% endif %}
             </div>
@@ -74,32 +75,29 @@
         {% if topic.questions.count %}
             {% if user.is_authenticated %}
             <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-primary btn-sm topic-btn">
-                <i class="bi bi-play-fill"></i> Boshlash
-            </a>
+                <i class="bi bi-play-fill"></i>{% t "Boshlash" request.LANGUAGE_CODE %}</a>
             {% else %}
             <a href="{% url 'accounts:login' %}?next={% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-primary btn-sm topic-btn">
-                <i class="bi bi-play-fill"></i> Boshlash
-            </a>
+                <i class="bi bi-play-fill"></i>{% t "Boshlash" request.LANGUAGE_CODE %}</a>
             {% endif %}
         {% else %}
             <button class="btn btn-secondary btn-sm topic-btn" disabled>
-                <i class="bi bi-lock"></i> Yopiq
-            </button>
+                <i class="bi bi-lock"></i>{% t "Yopiq" request.LANGUAGE_CODE %}</button>
         {% endif %}
     </div>
     {% endfor %}
 {% else %}
     <div class="empty-state">
         <i class="bi bi-folder"></i>
-        <p>Mavzular hali qo'shilmagan</p>
+        <p>{% t "Mavzular hali qo'shilmagan" request.LANGUAGE_CODE %}</p>
     </div>
 {% endif %}
 </div>
 
 <div id="noTopicResults" class="empty-state" style="display: none;">
     <i class="bi bi-search"></i>
-    <p>Qidiruv bo'yicha mavzu topilmadi</p>
-    <small class="text-muted">Boshqa kalit so'zlar bilan qidirib ko'ring</small>
+    <p>{% t "Qidiruv bo'yicha mavzu topilmadi" request.LANGUAGE_CODE %}</p>
+    <small class="text-muted">{% t "Boshqa kalit so'zlar bilan qidirib ko'ring" request.LANGUAGE_CODE %}</small>
 </div>
 {% endblock %}
 

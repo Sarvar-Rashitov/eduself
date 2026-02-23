@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
-{% block title %}AI Tahlil - {{ test.title }} - EduSelf{% endblock %}
+{% block title %}AI Tahlil - {{ test.title|translate:request.LANGUAGE_CODE }} - EduSelf{% endblock %}
 
 {% block content %}
 <div class="card mb-4">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h5 class="mb-1">{{ test.title }}</h5>
+                <h5 class="mb-1">{{ test.title|translate:request.LANGUAGE_CODE }}</h5>
                 <p class="text-muted mb-0 small">{{ test.cert_questions.count }} savol | O'tish balli: {{ test.passing_score }}%</p>
             </div>
             <div class="text-end">
@@ -24,8 +26,7 @@
 <div class="card mb-4" id="ai-analysis-card">
     <div class="card-header bg-success text-white">
         <h6 class="mb-0">
-            <i class="bi bi-robot"></i> AI Hamroh Tavsiyalari
-        </h6>
+            <i class="bi bi-robot"></i>{% t "AI Hamroh Tavsiyalari" request.LANGUAGE_CODE %}</h6>
     </div>
     <div class="card-body">
         <div id="ai-analysis-content">

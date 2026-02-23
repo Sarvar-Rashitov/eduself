@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}Natija - {{ topic.name }} - EduSelf{% endblock %}
@@ -24,12 +26,12 @@
                 <p class="passing-score">O'tish balli: {{ topic.passing_score }}%</p>
                 <div class="result-actions">
                     <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary"><i class="fas fa-redo"></i> Qayta urinish</a>
-                    <a href="{% url 'core:topic_analysis' topic.pk %}" class="btn btn-info"><i class="fas fa-chart-bar"></i> AI Tahlil</a>
-                    <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-warning"><i class="fas fa-trophy"></i> Reyting</a>
+                    <a href="{% url 'core:topic_analysis' topic.pk %}" class="btn btn-info"><i class="fas fa-chart-bar"></i>AI Tahlil</a>
+                    <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-warning"><i class="fas fa-trophy"></i>Reyting</a>
                     {% if next_topic %}
-                    <a href="{% url 'core:topic_leaderboard' next_topic.pk %}" class="btn btn-success"><i class="fas fa-arrow-right"></i> Keyingi</a>
+                    <a href="{% url 'core:topic_leaderboard' next_topic.pk %}" class="btn btn-success"><i class="fas fa-arrow-right"></i>Keyingi</a>
                     {% endif %}
-                    <a href="{% url 'core:subject_detail' topic.subject.pk %}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Ortga</a>
+                    <a href="{% url 'core:subject_detail' topic.subject.pk %}" class="btn btn-outline"><i class="fas fa-arrow-left"></i>Ortga</a>
                 </div>
             </div>
             {% else %}

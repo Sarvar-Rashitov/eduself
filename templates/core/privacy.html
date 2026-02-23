@@ -1,13 +1,15 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+{% load translation_tags %}
 {% load static %}
 
-{% block title %}Maxfiylik Siyosati - EduSelf{% endblock %}
+{% block title %}{% t "Maxfiylik siyosati" request.LANGUAGE_CODE %} - EduSelf{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div class="container">
-        <h1 class="page-title">Maxfiylik Siyosati</h1>
-        <p class="page-subtitle">Shaxsiy ma'lumotlaringiz xavfsizligi bizning ustuvor vazifamiz</p>
+        <h1 class="page-title">{% t "Maxfiylik siyosati" request.LANGUAGE_CODE %}</h1>
+        <p class="page-subtitle">{% t "Shaxsiy ma'lumotlar" request.LANGUAGE_CODE %}ingiz xavfsizligi bizning ustuvor vazifamiz</p>
     </div>
 </div>
 
@@ -21,10 +23,10 @@
                 </p>
 
                 <div class="legal-section">
-                    <h2><i class="fas fa-database"></i> 1. To'planadigan Ma'lumotlar</h2>
+                    <h2><i class="fas fa-database"></i> 1. To'planadigan {% t "Ma'lumotlar" request.LANGUAGE_CODE %}</h2>
                     <p>Biz quyidagi ma'lumotlarni to'playmiz:</p>
                     <ul>
-                        <li><strong>Shaxsiy ma'lumotlar:</strong> Ism, familiya, email manzil yoki telefon raqam</li>
+                        <li><strong>{% t "Shaxsiy ma'lumotlar" request.LANGUAGE_CODE %}:</strong> Ism, familiya, email manzil yoki telefon raqam</li>
                         <li><strong>Profil ma'lumotlari:</strong> Profil rasmi, tug'ilgan sana, jinsi</li>
                         <li><strong>Ta'lim ma'lumotlari:</strong> Test natijalari, o'quv yutuqlari, sertifikatlar</li>
                         <li><strong>Texnik ma'lumotlar:</strong> IP manzil, brauzer turi, qurilma ma'lumotlari</li>
@@ -33,7 +35,7 @@
                 </div>
 
                 <div class="legal-section">
-                    <h2><i class="fas fa-bullseye"></i> 2. Ma'lumotlardan Foydalanish Maqsadlari</h2>
+                    <h2><i class="fas fa-bullseye"></i> 2. {% t "Ma'lumotlardan Foydalanish Maqsadlari" request.LANGUAGE_CODE %}</h2>
                     <p>Sizning ma'lumotlaringiz quyidagi maqsadlarda ishlatiladi:</p>
                     <ul>
                         <li>Hisobingizni yaratish va boshqarish</li>

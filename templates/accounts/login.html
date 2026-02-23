@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
+{% load translation_tags %}
 
-{% block title %}Kirish - EduSelf{% endblock %}
+{% block title %}{% t "Kirish" request.LANGUAGE_CODE %} - EduSelf{% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <div class="text-center mb-3">
         <i class="bi bi-mortarboard-fill text-primary" style="font-size: 2rem;"></i>
     </div>
-    <h5 class="auth-title" style="font-size: 1.1rem;">Xush kelibsiz!</h5>
-    <p class="auth-subtitle" style="font-size: 0.8rem;">Hisobingizga kiring</p>
+    <h5 class="auth-title" style="font-size: 1.1rem;">{% t "Xush kelibsiz" request.LANGUAGE_CODE %}!</h5>
+    <p class="auth-subtitle" style="font-size: 0.8rem;">{% t "Hisobingizga kiring" request.LANGUAGE_CODE %}</p>
     
     <!-- Social Login -->
     {% if google_client_id %}
@@ -20,7 +21,7 @@
                 <path d="M3.964 10.712c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.96H.957C.347 6.175 0 7.55 0 9.002c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
                 <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.002 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335"/>
             </svg>
-            <span style="font-size: 0.8rem;">Google bilan</span>
+            <span style="font-size: 0.8rem;">{% t "Google bilan" request.LANGUAGE_CODE %}</span>
         </button>
         <div id="google-signin-btn" style="display:none;"></div>
     </div>
@@ -32,14 +33,14 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
             </svg>
-            <span style="font-size: 0.8rem;">Telegram bilan</span>
+            <span style="font-size: 0.8rem;">{% t "Telegram bilan" request.LANGUAGE_CODE %}</span>
         </a>
     </div>
     {% endif %}
     
     {% if google_client_id or telegram_bot_username %}
     <div class="divider mb-3">
-        <span style="font-size: 0.75rem;">yoki</span>
+        <span style="font-size: 0.75rem;">{% t "yoki" request.LANGUAGE_CODE %}</span>
     </div>
     {% endif %}
     
@@ -49,7 +50,7 @@
             <i class="bi bi-envelope"></i> Email
         </button>
         <button type="button" class="tab-btn" data-type="phone">
-            <i class="bi bi-telephone"></i> Telefon
+            <i class="bi bi-telephone"></i> {% t "Telefon" request.LANGUAGE_CODE %}
         </button>
     </div>
     
@@ -65,7 +66,7 @@
         
         <!-- Phone field -->
         <div class="mb-2" id="login_phone_field" style="display: none;">
-            <label class="form-label small">Telefon raqam</label>
+            <label class="form-label small">{% t "Telefon raqam" request.LANGUAGE_CODE %}</label>
             <div class="phone-input-group-mobile">
                 <select id="login_country_code" class="country-select-mobile">
                     <option value="+998" selected>🇺🇿 +998</option>
@@ -78,7 +79,7 @@
         </div>
         
         <div class="mb-2">
-            <label class="form-label small">Parol</label>
+            <label class="form-label small">{% t "Parol" request.LANGUAGE_CODE %}</label>
             <div class="input-group input-group-sm">
                 <input type="password" name="password" id="id_password" class="form-control" placeholder="••••••••" required>
                 <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('id_password', this)">
@@ -102,17 +103,17 @@
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" name="remember" id="remember">
                 <label class="form-check-label small" for="remember">
-                    Eslab qol
+                    {% t "Eslab qol" request.LANGUAGE_CODE %}
                 </label>
             </div>
-            <a href="{% url 'accounts:forgot_password' %}" class="text-decoration-none" style="font-size: 0.75rem;">Parolni unutdingizmi?</a>
+            <a href="{% url 'accounts:forgot_password' %}" class="text-decoration-none" style="font-size: 0.75rem;">{% t "Parolni unutdingizmi" request.LANGUAGE_CODE %}?</a>
         </div>
         
-        <button type="submit" class="btn btn-primary btn-sm w-100">Kirish</button>
+        <button type="submit" class="btn btn-primary btn-sm w-100">{% t "Kirish" request.LANGUAGE_CODE %}</button>
     </form>
     
     <div class="auth-footer" style="font-size: 0.8rem; margin-top: 15px;">
-        Hisobingiz yo'qmi? <a href="{% url 'accounts:register' %}">Ro'yxatdan o'ting</a>
+        {% t "Hisobingiz yo'qmi" request.LANGUAGE_CODE %}? <a href="{% url 'accounts:register' %}">{% t "Ro'yxatdan o'ting" request.LANGUAGE_CODE %}</a>
     </div>
 </div>
 

@@ -302,7 +302,7 @@ class ResetPasswordForm(forms.Form):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'phone', 'bio', 'profile_image']
+        fields = ['first_name', 'last_name', 'email', 'phone', 'bio', 'profile_image', 'language']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ismingiz'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Familiyangiz'}),
@@ -310,6 +310,7 @@ class ProfileForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+998 90 123 45 67'}),
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': "O'zingiz haqingizda..."}),
             'profile_image': forms.FileInput(attrs={'class': 'form-control'}),
+            'language': forms.Select(attrs={'class': 'form-select'}),
         }
         labels = {
             'first_name': 'Ism',
@@ -318,4 +319,5 @@ class ProfileForm(forms.ModelForm):
             'phone': 'Telefon',
             'bio': 'Bio',
             'profile_image': 'Profil rasmi',
+            'language': 'Til',
         }

@@ -38,9 +38,12 @@ class DeepSeekAIService:
             self.client = None
             self.use_api = False
     
-    def get_system_prompt(self) -> str:
-        """Tizim prompt'ini qaytarish"""
-        return """Siz EduSelf platformasining AI Hamrohi siz. Sizning vazifangiz:
+    def get_system_prompt(self, language: str = 'uz') -> str:
+        """Tizim prompt'ini qaytarish (til bo'yicha)"""
+        
+        # Til bo'yicha system promptlar
+        prompts = {
+            'uz': """Siz EduSelf platformasining AI Hamrohi siz. Sizning vazifangiz:
 
 1. FANLAR BO'YICHA YORDAM:
    - O'quvchilarga turli fanlar bo'yicha savollariga javob berish
@@ -66,9 +69,181 @@ QOIDALAR:
 - Foydalanuvchini qo'llab-quvvatlang va motivatsiya bering
 - Har doim EduSelf platformasidan foydalanishga undang
 
-Javoblaringiz qisqa, aniq va foydali bo'lsin."""
+Javoblaringiz qisqa, aniq va foydali bo'lsin.""",
 
-    def generate_response(self, user_message: str, chat_history: List[Dict], context_data: Dict = None, attachment_url: str = None) -> Dict:
+            'en': """You are the AI Assistant of the EduSelf platform. Your tasks:
+
+1. SUBJECT HELP:
+   - Answer students' questions on various subjects
+   - Explain topics and provide examples
+   - Advise on test preparation
+   - Explain difficult topics in simple language
+
+2. EDUCATIONAL INSTITUTION SELECTION:
+   - Recommend institutions based on user needs
+   - Provide information about contract prices and directions
+   - Guide on admission process and requirements
+   - Compare institutions
+
+3. CERTIFICATE ASSISTANCE:
+   - Provide information about various certificates
+   - Explain certificate acquisition process and requirements
+   - Help prepare for certificate tests
+
+RULES:
+- Always respond in English
+- Provide clear and understandable answers
+- If information is unavailable, state it clearly
+- Support and motivate users
+- Always encourage using the EduSelf platform
+
+Keep your answers concise, accurate, and helpful.""",
+
+            'ru': """Вы - AI Помощник платформы EduSelf. Ваши задачи:
+
+1. ПОМОЩЬ ПО ПРЕДМЕТАМ:
+   - Отвечать на вопросы студентов по различным предметам
+   - Объяснять темы и приводить примеры
+   - Консультировать по подготовке к тестам
+   - Объяснять сложные темы простым языком
+
+2. ВЫБОР УЧЕБНЫХ ЗАВЕДЕНИЙ:
+   - Рекомендовать учреждения в соответствии с потребностями пользователя
+   - Предоставлять информацию о ценах контрактов и направлениях
+   - Консультировать по процессу поступления и требованиям
+   - Сравнивать учреждения
+
+3. ПОМОЩЬ С СЕРТИФИКАТАМИ:
+   - Предоставлять информацию о различных сертификатах
+   - Объяснять процесс получения сертификата и требования
+   - Помогать готовиться к сертификационным тестам
+
+ПРАВИЛА:
+- Всегда отвечайте на русском языке
+- Давайте четкие и понятные ответы
+- Если информации нет, четко об этом сообщайте
+- Поддерживайте и мотивируйте пользователей
+- Всегда поощряйте использование платформы EduSelf
+
+Ваши ответы должны быть краткими, точными и полезными.""",
+
+            'kk': """Сіз EduSelf платформасының AI Көмекшісісіз. Сіздің міндеттеріңіз:
+
+1. ПӘНДЕР БОЙЫНША КӨМЕК:
+   - Оқушылардың әртүрлі пәндер бойынша сұрақтарына жауап беру
+   - Тақырыптарды түсіндіру және мысалдар келтіру
+   - Тестке дайындық бойынша кеңес беру
+   - Қиын тақырыптарды қарапайым тілде түсіндіру
+
+2. БІЛІМ БЕРУ МЕКЕМЕЛЕРІН ТАҢДАУ:
+   - Пайдаланушы қажеттіліктеріне сәйкес мекемелерді ұсыну
+   - Келісімшарт бағалары, бағыттар туралы ақпарат беру
+   - Қабылдау процесі және талаптар туралы нұсқаулық беру
+   - Мекемелерді салыстыру
+
+3. СЕРТИФИКАТТАР БОЙЫНША КӨМЕК:
+   - Әртүрлі сертификаттар туралы ақпарат беру
+   - Сертификат алу процесі және талаптары
+   - Сертификат тесттеріне дайындық
+
+ЕРЕЖЕЛЕР:
+- Әрқашан қазақ тілінде жауап беріңіз
+- Нақты және түсінікті жауаптар беріңіз
+- Егер ақпарат болмаса, ашық айтыңыз
+- Пайдаланушыларды қолдап, мотивациялаңыз
+- Әрқашан EduSelf платформасын пайдалануға шақырыңыз
+
+Жауаптарыңыз қысқа, дәл және пайдалы болсын.""",
+
+            'kaa': """Сиз EduSelf платформасының AI Көмекшисисиз. Сиздиң мийнетлериңиз:
+
+1. ФАНЛАР БОЙЫНША КӨМЕК:
+   - Оқыўшыларға түрли фанлар бойынша сорақларына жуўап бериў
+   - Мавзуларды түсиндириў ҳәм мысаллар келтириў
+   - Тестке тайярлық бойынша кеңес бериў
+   - Қыйын мавзуларды жеңил тилде түсиндириў
+
+2. БИЛИМ БЕРИЎ МУАССАСАЛАРЫН ТАҢЛАЎ:
+   - Пайдаланыўшы қәжетликлерине сәйкес муассасаларды усыныў
+   - Контракт бағалары, йўналыслар ҳаққында ақпарат бериў
+   - Қабыл процеси ҳәм талаплар ҳаққында нусқаўлық бериў
+   - Муассасаларды салыстырыў
+
+3. СЕРТИФИКАТЛАР БОЙЫНША КӨМЕК:
+   - Түрли сертификатлар ҳаққында ақпарат бериў
+   - Сертификат алыў процеси ҳәм талаплары
+   - Сертификат тестлерине тайярлық
+
+ЕРЕЖЕЛЕР:
+- Ҳәр дайым қарақалпақ тилинде жуўап бериңиз
+   - Нақты ҳәм түсиникли жуўаплар бериңиз
+- Егер ақпарат жоқ болса, ашық айтыңыз
+- Пайдаланыўшыларды қоллап, мотивациялаңыз
+- Ҳәр дайым EduSelf платформасын пайдаланыўға шақырыңыз
+
+Жуўапларыңыз қысқа, дәл ҳәм пайдалы болсын.""",
+
+            'tg': """Шумо Ёрдамчии AI-и платформаи EduSelf ҳастед. Вазифаҳои шумо:
+
+1. КӮМАК ДАР ФАНҲО:
+   - Ба саволҳои хонандагон дар бораи фанҳои гуногун ҷавоб додан
+   - Мавзуъҳоро шарҳ додан ва мисолҳо овардан
+   - Маслиҳат додан оид ба омодагӣ ба тест
+   - Мавзуъҳои душворро бо забони содда шарҳ додан
+
+2. ИНТИХОБИ МУАССИСАҲОИ ТАҲСИЛӢ:
+   - Тавсия додани муассисаҳо мувофиқи эҳтиёҷоти корбар
+   - Додани маълумот дар бораи нархҳои шартнома ва самтҳо
+   - Роҳнамоӣ дар бораи раванди қабул ва талабот
+   - Муқоисаи муассисаҳо
+
+3. КӮМАК ДАР СЕРТИФИКАТҲО:
+   - Додани маълумот дар бораи сертификатҳои гуногун
+   - Шарҳи раванди гирифтани сертификат ва талабот
+   - Кӯмак дар омодагӣ ба тестҳои сертификатӣ
+
+ҚОИДАҲО:
+- Ҳамеша ба забони тоҷикӣ ҷавоб диҳед
+- Ҷавобҳои равшан ва фаҳмо диҳед
+- Агар маълумот набошад, ошкоро гӯед
+- Корбаронро дастгирӣ ва ҳавасманд кунед
+- Ҳамеша ба истифодаи платформаи EduSelf ташвиқ кунед
+
+Ҷавобҳои шумо мухтасар, дақиқ ва муфид бошанд.""",
+
+            'ky': """Сиз EduSelf платформасынын AI Жардамчысысыз. Сиздин милдеттериңиз:
+
+1. ПРЕДМЕТТЕР БОЮНЧА ЖАРДАМ:
+   - Окуучулардын ар кандай предметтер боюнча суроолоруна жооп берүү
+   - Темаларды түшүндүрүү жана мисалдарды келтирүү
+   - Тестке даярдануу боюнча кеңеш берүү
+   - Кыйын темаларды жөнөкөй тилде түшүндүрүү
+
+2. БИЛИМ БЕРҮҮ МЕКЕМЕЛЕРИН ТАНДОО:
+   - Колдонуучунун керектөөлөрүнө ылайык мекемелерди сунуштоо
+   - Келишим баалары, багыттар жөнүндө маалымат берүү
+   - Кабыл алуу процесси жана талаптар жөнүндө колдонмо берүү
+   - Мекемелерди салыштыруу
+
+3. СЕРТИФИКАТТАР БОЮНЧА ЖАРДАМ:
+   - Ар кандай сертификаттар жөнүндө маалымат берүү
+   - Сертификат алуу процесси жана талаптары
+   - Сертификат тесттерине даярдануу
+
+ЭРЕЖЕЛЕР:
+- Ар дайым кыргыз тилинде жооп бериңиз
+- Так жана түшүнүктүү жоопторду бериңиз
+- Эгер маалымат жок болсо, ачык айтыңыз
+- Колдонуучуларды колдоп, мотивациялаңыз
+- Ар дайым EduSelf платформасын колдонууга чакырыңыз
+
+Жоопторуңуз кыска, так жана пайдалуу болсун."""
+        }
+        
+        # Agar til topilmasa, o'zbek tilini qaytarish
+        return prompts.get(language, prompts['uz'])
+
+    def generate_response(self, user_message: str, chat_history: List[Dict], context_data: Dict = None, attachment_url: str = None, language: str = 'uz') -> Dict:
         """AI javob generatsiya qilish"""
         start_time = time.time()
         
@@ -76,7 +251,7 @@ Javoblaringiz qisqa, aniq va foydali bo'lsin."""
         if self.use_api and self.client:
             try:
                 # Chat tarixini tayyorlash
-                messages = [{"role": "system", "content": self.get_system_prompt()}]
+                messages = [{"role": "system", "content": self.get_system_prompt(language)}]
                 
                 # Kontekst ma'lumotlarini qo'shish
                 if context_data:
@@ -133,9 +308,9 @@ Javoblaringiz qisqa, aniq va foydali bo'lsin."""
                 pass
         
         # Fallback: Aqlli oddiy javoblar (API ishlamasa)
-        return self._get_smart_fallback_response(user_message, context_data, start_time)
+        return self._get_smart_fallback_response(user_message, context_data, start_time, language)
     
-    def _get_smart_fallback_response(self, user_message: str, context_data: Dict, start_time: float) -> Dict:
+    def _get_smart_fallback_response(self, user_message: str, context_data: Dict, start_time: float, language: str = 'uz') -> Dict:
         """Aqlli fallback javoblar"""
         user_lower = user_message.lower()
         
@@ -398,7 +573,7 @@ Qanday yordam kerak?"""
         
         return session
     
-    def send_message(self, session: ChatSession, user_message: str, attachment=None) -> tuple:
+    def send_message(self, session: ChatSession, user_message: str, attachment=None, language: str = 'uz') -> tuple:
         """Xabar yuborish va AI javobini olish. Returns (ChatMessage, source)"""
         try:
             # Foydalanuvchi xabarini saqlash
@@ -454,14 +629,15 @@ Qanday yordam kerak?"""
             except Exception:
                 context_data = {}
             
-            # AI javobini olish
+            # AI javobini olish (til parametri bilan)
             source = 'fallback'
             try:
                 ai_response = self.ai_service.generate_response(
                     user_message=user_message,
                     chat_history=chat_history[:-1] if chat_history else [],
                     context_data=context_data,
-                    attachment_url=attachment_url
+                    attachment_url=attachment_url,
+                    language=language
                 )
                 source = ai_response.get('source', 'fallback')
             except Exception:
@@ -541,14 +717,14 @@ class TestAnalysisService:
     def __init__(self):
         self.ai_service = DeepSeekAIService()
     
-    def analyze_test_result(self, test_result, test_type='topic') -> Dict:
+    def analyze_test_result(self, test_result, test_type='topic', language='uz') -> Dict:
         """Test natijasini tahlil qilib, AI tavsiyalar berish"""
         try:
             # Test ma'lumotlarini to'plash
             analysis_data = self._prepare_test_data(test_result, test_type)
             
-            # AI tavsiya olish
-            ai_recommendation = self._get_ai_recommendation(analysis_data)
+            # AI tavsiya olish (til parametri bilan)
+            ai_recommendation = self._get_ai_recommendation(analysis_data, language)
             
             return {
                 'success': True,
@@ -561,7 +737,7 @@ class TestAnalysisService:
             return {
                 'success': False,
                 'error': str(e),
-                'ai_recommendation': self._get_fallback_recommendation(test_result, test_type)
+                'ai_recommendation': self._get_fallback_recommendation(test_result, test_type, language)
             }
     
     def _prepare_test_data(self, test_result, test_type) -> Dict:
@@ -780,11 +956,11 @@ class TestAnalysisService:
         
         return analysis
     
-    def _get_ai_recommendation(self, analysis_data) -> str:
+    def _get_ai_recommendation(self, analysis_data, language='uz') -> str:
         """AI dan tavsiya olish"""
         try:
-            # AI uchun prompt tayyorlash
-            prompt = self._build_analysis_prompt(analysis_data)
+            # AI uchun prompt tayyorlash (til bilan)
+            prompt = self._build_analysis_prompt(analysis_data, language)
             
             # AI dan javob olish
             ai_response = self.ai_service.generate_response(
@@ -800,41 +976,28 @@ class TestAnalysisService:
             pass
         
         # Fallback tavsiya
-        return self._get_fallback_recommendation(analysis_data)
+        return self._get_fallback_recommendation(analysis_data, language=language)
     
-    def _build_analysis_prompt(self, data) -> str:
+    def _build_analysis_prompt(self, data, language='uz') -> str:
         """AI uchun tahlil prompt'ini yaratish"""
-        test_type = data.get('test_type', 'test')
-        score = data.get('score', 0)
-        correct = data.get('correct_answers', 0)
-        total = data.get('total_questions', 0)
-        incorrect = data.get('incorrect_answers', 0)
         
-        prompt = f"""Foydalanuvchi {test_type} testini topshirdi. Natijalar:
-
-📊 **Test natijalari:**
-- Umumiy ball: {score}%
-- To'g'ri javoblar: {correct}/{total}
-- Noto'g'ri javoblar: {incorrect}
-- Test o'tdi: {'Ha' if data.get('passed') else "Yo'q"}
-
-"""
-        
-        # Test turiga qarab qo'shimcha ma'lumotlar
-        if test_type == 'topic':
-            prompt += f"📚 **Fan va mavzu:** {data.get('subject_name')} - {data.get('topic_name')}\n"
-        elif test_type == 'certificate':
-            prompt += f"🏆 **Sertifikat:** {data.get('certificate_name')} - {data.get('topic_name')}\n"
-        elif test_type == 'mock_exam':
-            prompt += f"📝 **Mock imtihon:** {data.get('exam_name')} ({data.get('category_name')})\n"
-        elif test_type == 'direction_exam':
-            prompt += f"🎓 **Yo'nalish imtihoni:** {data.get('direction_name')} - {data.get('institution_name')}\n"
-            if data.get('subjects_list'):
-                prompt += f"📖 **Fanlar:** {', '.join(data['subjects_list'])}\n"
-        
-        prompt += f"""
-🎯 **O'tish balli:** {data.get('passing_score', 60)}%
-
+        # Til bo'yicha prompt matnlari
+        language_prompts = {
+            'uz': {
+                'test_results': '📊 **Test natijalari:**',
+                'total_score': 'Umumiy ball',
+                'correct_answers': "To'g'ri javoblar",
+                'incorrect_answers': "Noto'g'ri javoblar",
+                'test_passed': 'Test o\'tdi',
+                'yes': 'Ha',
+                'no': "Yo'q",
+                'subject_topic': '📚 **Fan va mavzu:**',
+                'certificate': '🏆 **Sertifikat:**',
+                'mock_exam': '📝 **Mock imtihon:**',
+                'direction_exam': '🎓 **Yo\'nalish imtihoni:**',
+                'subjects': '📖 **Fanlar:**',
+                'passing_score': '🎯 **O\'tish balli:**',
+                'instruction': """
 Iltimos, bu natijalar asosida foydalanuvchiga:
 1. Kuchli tomonlarini ta'kidlang
 2. Zaif tomonlarini aniqlang  
@@ -843,6 +1006,184 @@ Iltimos, bu natijalar asosida foydalanuvchiga:
 5. Motivatsion so'zlar bilan yakunlang
 
 Javobingiz o'zbek tilida, qisqa va amaliy bo'lsin."""
+            },
+            'en': {
+                'test_results': '📊 **Test Results:**',
+                'total_score': 'Total Score',
+                'correct_answers': 'Correct Answers',
+                'incorrect_answers': 'Incorrect Answers',
+                'test_passed': 'Test Passed',
+                'yes': 'Yes',
+                'no': 'No',
+                'subject_topic': '📚 **Subject and Topic:**',
+                'certificate': '🏆 **Certificate:**',
+                'mock_exam': '📝 **Mock Exam:**',
+                'direction_exam': '🎓 **Direction Exam:**',
+                'subjects': '📖 **Subjects:**',
+                'passing_score': '🎯 **Passing Score:**',
+                'instruction': """
+Please provide the user with:
+1. Highlight their strengths
+2. Identify weak areas
+3. Give specific recommendations for improvement
+4. Provide guidance on next steps
+5. End with motivational words
+
+Your response should be in English, concise and practical."""
+            },
+            'ru': {
+                'test_results': '📊 **Результаты теста:**',
+                'total_score': 'Общий балл',
+                'correct_answers': 'Правильные ответы',
+                'incorrect_answers': 'Неправильные ответы',
+                'test_passed': 'Тест пройден',
+                'yes': 'Да',
+                'no': 'Нет',
+                'subject_topic': '📚 **Предмет и тема:**',
+                'certificate': '🏆 **Сертификат:**',
+                'mock_exam': '📝 **Пробный экзамен:**',
+                'direction_exam': '🎓 **Экзамен по направлению:**',
+                'subjects': '📖 **Предметы:**',
+                'passing_score': '🎯 **Проходной балл:**',
+                'instruction': """
+Пожалуйста, предоставьте пользователю:
+1. Отметьте их сильные стороны
+2. Определите слабые места
+3. Дайте конкретные рекомендации по улучшению
+4. Предоставьте руководство по следующим шагам
+5. Завершите мотивационными словами
+
+Ваш ответ должен быть на русском языке, кратким и практичным."""
+            },
+            'kk': {
+                'test_results': '📊 **Тест нәтижелері:**',
+                'total_score': 'Жалпы балл',
+                'correct_answers': 'Дұрыс жауаптар',
+                'incorrect_answers': 'Қате жауаптар',
+                'test_passed': 'Тест өтті',
+                'yes': 'Иә',
+                'no': 'Жоқ',
+                'subject_topic': '📚 **Пән және тақырып:**',
+                'certificate': '🏆 **Сертификат:**',
+                'mock_exam': '📝 **Сынақ емтихан:**',
+                'direction_exam': '🎓 **Бағыт бойынша емтихан:**',
+                'subjects': '📖 **Пәндер:**',
+                'passing_score': '🎯 **Өту баллы:**',
+                'instruction': """
+Осы нәтижелер негізінде пайдаланушыға:
+1. Күшті жақтарын атап өтіңіз
+2. Әлсіз жақтарын анықтаңыз
+3. Жақсарту үшін нақты ұсыныстар беріңіз
+4. Келесі қадамдар бойынша нұсқаулық беріңіз
+5. Мотивациялық сөздермен аяқтаңыз
+
+Жауабыңыз қазақ тілінде, қысқа және практикалық болсын."""
+            },
+            'kaa': {
+                'test_results': '📊 **Test nátiyjeleri:**',
+                'total_score': 'Umumiy ball',
+                'correct_answers': "Durıs juwaplar",
+                'incorrect_answers': "Qáte juwaplar",
+                'test_passed': 'Test ótti',
+                'yes': 'Áwa',
+                'no': "Yaq",
+                'subject_topic': '📚 **Pán hám mawzıw:**',
+                'certificate': '🏆 **Sertifikat:**',
+                'mock_exam': '📝 **Sınaq imtixan:**',
+                'direction_exam': '🎓 **Bağdar imtixanı:**',
+                'subjects': '📖 **Pánler:**',
+                'passing_score': '🎯 **Ótiwshi ball:**',
+                'instruction': """
+Bul nátiyjelerdıń negizinde paydalanıwshıǵa:
+1. Kúshli táreplerın belgilań
+2. Álsiz táreplerın anıqlań
+3. Jaqsılastırıw ushın anıq táwsiyalar beriń
+4. Keyingi qádámlar boyınsha nusqawlıq beriń
+5. Motivaciyalıq sózler menen tamamlań
+
+Juwabıńız qaraqalpaq tilinde, qısqa hám ámeliy bolsın."""
+            },
+            'tg': {
+                'test_results': '📊 **Натиҷаҳои тест:**',
+                'total_score': 'Балли умумӣ',
+                'correct_answers': 'Ҷавобҳои дуруст',
+                'incorrect_answers': 'Ҷавобҳои нодуруст',
+                'test_passed': 'Тест гузашт',
+                'yes': 'Ҳа',
+                'no': 'Не',
+                'subject_topic': '📚 **Фан ва мавзӯъ:**',
+                'certificate': '🏆 **Сертификат:**',
+                'mock_exam': '📝 **Имтиҳони озмоишӣ:**',
+                'direction_exam': '🎓 **Имтиҳони самт:**',
+                'subjects': '📖 **Фанҳо:**',
+                'passing_score': '🎯 **Балли гузариш:**',
+                'instruction': """
+Илтимос, дар асоси ин натиҷаҳо ба корбар:
+1. Тарафҳои қавии онҳоро таъкид кунед
+2. Тарафҳои заифро муайян кунед
+3. Тавсияҳои мушаххас барои беҳтар кардан диҳед
+4. Дастурамал оид ба қадамҳои минбаъда пешниҳод кунед
+5. Бо суханони ҳавасмандкунанда хотима диҳед
+
+Ҷавоби шумо бояд бо забони тоҷикӣ, мухтасар ва амалӣ бошад."""
+            },
+            'ky': {
+                'test_results': '📊 **Тест жыйынтыктары:**',
+                'total_score': 'Жалпы упай',
+                'correct_answers': 'Туура жооптор',
+                'incorrect_answers': 'Туура эмес жооптор',
+                'test_passed': 'Тест өттү',
+                'yes': 'Ооба',
+                'no': 'Жок',
+                'subject_topic': '📚 **Предмет жана тема:**',
+                'certificate': '🏆 **Сертификат:**',
+                'mock_exam': '📝 **Сыноо экзамени:**',
+                'direction_exam': '🎓 **Багыт боюнча экзамен:**',
+                'subjects': '📖 **Предметтер:**',
+                'passing_score': '🎯 **Өтүү упайы:**',
+                'instruction': """
+Бул жыйынтыктардын негизинде колдонуучуга:
+1. Күчтүү жактарын белгилеңиз
+2. Алсыз жактарын аныктаңыз
+3. Жакшыртуу үчүн так сунуштарды бериңиз
+4. Кийинки кадамдар боюнча көрсөтмө бериңиз
+5. Мотивациялык сөздөр менен бүтүрүңүз
+
+Жообуңуз кыргыз тилинде, кыска жана практикалык болсун."""
+            }
+        }
+        
+        # Default to Uzbek if language not found
+        lang_text = language_prompts.get(language, language_prompts['uz'])
+        
+        test_type = data.get('test_type', 'test')
+        score = data.get('score', 0)
+        correct = data.get('correct_answers', 0)
+        total = data.get('total_questions', 0)
+        incorrect = data.get('incorrect_answers', 0)
+        
+        prompt = f"""{lang_text['test_results']}
+- {lang_text['total_score']}: {score}%
+- {lang_text['correct_answers']}: {correct}/{total}
+- {lang_text['incorrect_answers']}: {incorrect}
+- {lang_text['test_passed']}: {lang_text['yes'] if data.get('passed') else lang_text['no']}
+
+"""
+        
+        # Test turiga qarab qo'shimcha ma'lumotlar
+        if test_type == 'topic':
+            prompt += f"{lang_text['subject_topic']} {data.get('subject_name')} - {data.get('topic_name')}\n"
+        elif test_type == 'certificate':
+            prompt += f"{lang_text['certificate']} {data.get('certificate_name')} - {data.get('topic_name')}\n"
+        elif test_type == 'mock_exam':
+            prompt += f"{lang_text['mock_exam']} {data.get('exam_name')} ({data.get('category_name')})\n"
+        elif test_type == 'direction_exam':
+            prompt += f"{lang_text['direction_exam']} {data.get('direction_name')} - {data.get('institution_name')}\n"
+            if data.get('subjects_list'):
+                prompt += f"{lang_text['subjects']} {', '.join(data['subjects_list'])}\n"
+        
+        prompt += f"\n{lang_text['passing_score']} {data.get('passing_score', 60)}%\n"
+        prompt += lang_text['instruction']
         
         return prompt
     

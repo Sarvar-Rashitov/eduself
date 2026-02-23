@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
-{% block title %}{{ test.title }} - Reyting - EduSelf{% endblock %}
+{% block title %}{{ test.title|translate:request.LANGUAGE_CODE }} - Reyting - EduSelf{% endblock %}
 
 {% block content %}
 <a href="{% url 'core:cert_topic_detail' test.topic.pk %}" class="text-decoration-none text-muted mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> Orqaga
+    <i class="bi bi-arrow-left"></i> {% t "Orqaga" request.LANGUAGE_CODE %}
 </a>
 
 <div class="card mb-4">
@@ -14,7 +16,7 @@
                 <i class="bi bi-award-fill"></i>
             </div>
             <div class="flex-grow-1">
-                <h5 class="mb-1" style="font-size: 1rem;">{{ test.title }}</h5>
+                <h5 class="mb-1" style="font-size: 1rem;">{{ test.title|translate:request.LANGUAGE_CODE }}</h5>
                 <div class="d-flex flex-nowrap gap-1 mt-1" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                     <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem; padding: 3px 6px; white-space: nowrap;">
                         <i class="bi bi-question-circle" style="font-size: 0.7rem;"></i> {{ test.cert_questions.count }}
@@ -34,14 +36,14 @@
 {% if user_best %}
 <div class="card mb-4 border-success">
     <div class="card-body">
-        <h6 class="mb-3"><i class="bi bi-person-circle me-2"></i>Sizning eng yaxshi natijangiz</h6>
+        <h6 class="mb-3"><i class="bi bi-person-circle me-2"></i>{% t "Sizning eng yaxshi natijangiz" request.LANGUAGE_CODE %}</h6>
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <div class="fs-4 fw-bold text-success">{{ user_best.earned_points }} ball</div>
-                <small class="text-muted">{{ user_best.correct_answers }} / {{ user_best.total_questions }} to'g'ri</small>
+                <div class="fs-4 fw-bold text-success">{{ user_best.earned_points }} {% t "ball" request.LANGUAGE_CODE %}</div>
+                <small class="text-muted">{{ user_best.correct_answers }} / {{ user_best.total_questions }} {% t "to'g'ri" request.LANGUAGE_CODE %}</small>
             </div>
             <span class="badge {% if user_best.passed %}bg-success{% else %}bg-danger{% endif %} fs-6">
-                {% if user_best.passed %}O'tdi{% else %}O'tmadi{% endif %}
+                {% if user_best.passed %}{% t "O'tdingiz" request.LANGUAGE_CODE %}{% else %}{% t "O'tmadingiz" request.LANGUAGE_CODE %}{% endif %}
             </span>
         </div>
     </div>
@@ -57,10 +59,10 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 60px;">O'rin</th>
-                        <th>Foydalanuvchi</th>
-                        <th style="width: 100px;" class="text-center">Ball</th>
-                        <th style="width: 100px;" class="text-center">Holat</th>
+                        <th style="width: 60px;">{% t "O'rin" request.LANGUAGE_CODE %}</th>
+                        <th>{% t "Foydalanuvchi" request.LANGUAGE_CODE %}</th>
+                        <th style="width: 100px;" class="text-center">{% t "Ball" request.LANGUAGE_CODE %}</th>
+                        <th style="width: 100px;" class="text-center">{% t "Holat" request.LANGUAGE_CODE %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,14 +91,14 @@
                                 <div>
                                     <div style="font-size: 14px;">{{ result.user.first_name|default:result.user.username }}</div>
                                     {% if result.user == request.user %}
-                                    <span class="badge bg-success" style="font-size: 9px;">Siz</span>
+                                    <span class="badge bg-success" style="font-size: 9px;">{% t "Siz" request.LANGUAGE_CODE %}</span>
                                     {% endif %}
                                 </div>
                             </div>
                         </td>
                         <td class="text-center">
                             <span class="badge bg-success" style="font-size: 10px;">
-                                {{ result.earned_points }} ball
+                                {{ result.earned_points }} {% t "ball" request.LANGUAGE_CODE %}
                             </span>
                         </td>
                         <td class="text-center">
@@ -114,13 +116,12 @@
         {% else %}
         <div class="text-center text-muted py-4">
             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-            <p class="mb-0">Hali hech kim bu testni ishlamagan</p>
+            <p class="mb-0">{% t "Hali hech kim bu testni ishlamagan" request.LANGUAGE_CODE %}</p>
         </div>
         {% endif %}
     </div>
 </div>
 
 <a href="{% url 'core:take_cert_test' test.pk %}" class="btn btn-success w-100 mb-4">
-    <i class="bi bi-play-circle me-2"></i>Testni boshlash
-</a>
+    <i class="bi bi-play-circle me-2"></i>{% t "Testni boshlash" request.LANGUAGE_CODE %}</a>
 {% endblock %}

@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}Fanlar - EduSelf{% endblock %}
@@ -25,9 +27,7 @@
 <section class="filter-section">
     <div class="container">
         <div class="filter-tabs">
-            <a href="{% url 'core:subjects' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-                Barchasi
-            </a>
+            <a href="{% url 'core:subjects' %}" class="filter-tab {% if not current_category %}active{% endif %}">Barchasi</a>
             {% for cat in categories %}
             <a href="{% url 'core:subjects' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.slug == cat.slug %}active{% endif %}">
                 {{ cat.name }}

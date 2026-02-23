@@ -1,17 +1,24 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load translation_tags %}
 
 {% block title %}Muassasa Tavsiylari - AI Hamroh{% endblock %}
 
 {% block extra_css %}
 <style>
-    .recommendations-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        text-align: center;
+    /* Simple page title */
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-color);
         margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
+    }
+    
+    .page-title i {
+        color: var(--primary-color);
+        margin-right: 0.5rem;
     }
     
     .filter-form {
@@ -216,11 +223,10 @@
 
 {% block content %}
 <div class="container">
-    <!-- Hero Section -->
-    <div class="recommendations-hero">
-        <h1><i class="bi bi-building-check me-2"></i>Muassasa Tavsiylari</h1>
-        <p>AI Hamroh sizning ehtiyojlaringizga mos ta'lim muassasalarini topishga yordam beradi</p>
-    </div>
+    <!-- Simple Title -->
+    <h1 class="page-title">
+        <i class="bi bi-building-check"></i>{% t "Muassasa Tavsiylari" request.LANGUAGE_CODE %}
+    </h1>
     
     <!-- Filter Form -->
     <div class="filter-form">
@@ -373,11 +379,11 @@
     <div class="text-center mt-5 mb-4">
         <h4>Qo'shimcha yordam kerakmi?</h4>
         <p class="text-muted mb-3">AI Hamroh sizga eng mos muassasani tanlashda yordam beradi</p>
-        <a href="{% url 'ai_assistant:chat_redirect' %}" class="btn btn-primary me-2">
-            <i class="bi bi-robot me-2"></i>AI Hamroh bilan suhbatlashish
+        <a href="{% url 'ai_assistant:chat' %}" class="btn btn-primary me-2">
+            <i class="bi bi-chat-dots me-2"></i>{% t "AI Hamroh bilan suhbatlashish" request.LANGUAGE_CODE %}
         </a>
         <a href="{% url 'core:institutions' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-building me-2"></i>Barcha muassasalar
+            <i class="bi bi-building me-2"></i>{% t "Barcha muassasalar" request.LANGUAGE_CODE %}
         </a>
     </div>
 </div>

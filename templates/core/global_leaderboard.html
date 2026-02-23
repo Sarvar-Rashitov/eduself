@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 {% load static %}
 
-{% block title %}Global Leaderboard - EduSelf{% endblock %}
+{% block title %}{% t "Global Leaderboard - EduSelf" request.LANGUAGE_CODE %}{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -11,7 +13,7 @@
             <div class="card border-0 shadow-sm mb-3">
                 <div class="card-body text-center py-3">
                     <i class="bi bi-trophy-fill text-warning fs-1 mb-2"></i>
-                    <h4 class="fw-bold mb-0">Global Reyting</h4>
+                    <h4 class="fw-bold mb-0">{% t "Global Reyting" request.LANGUAGE_CODE %}</h4>
                 </div>
             </div>
 
@@ -26,8 +28,8 @@
                             </div>
                         </div>
                         <div class="col">
-                            <h5 class="mb-1">Sizning pozitsiyangiz</h5>
-                            <p class="text-muted mb-0">{{ user_position }}-o'rin • {{ user_points }} ball</p>
+                            <h5 class="mb-1">{% t "Sizning pozitsiyangiz" request.LANGUAGE_CODE %}</h5>
+                            <p class="text-muted mb-0">{{ user_position }}-{% t "o'rin" request.LANGUAGE_CODE %} • {{ user_points }} {% t "ball" request.LANGUAGE_CODE %}</p>
                         </div>
                         <div class="col-auto">
                             <span class="badge bg-primary fs-6">#{{ user_position }}</span>
@@ -42,7 +44,7 @@
                 <div class="card-header bg-transparent border-0 py-3">
                     <h4 class="mb-0">
                         <i class="bi bi-list-ol me-2"></i>
-                        Top 100 Foydalanuvchilar
+                        {% t "Top 100 Foydalanuvchilar" request.LANGUAGE_CODE %}
                     </h4>
                 </div>
                 <div class="card-body p-0">
@@ -51,9 +53,9 @@
                             <table class="table table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th class="border-0 ps-3">Foydalanuvchi</th>
-                                        <th class="border-0 text-center">Testlar</th>
-                                        <th class="border-0 text-end pe-3">Ball</th>
+                                        <th class="border-0 ps-3">{% t "Foydalanuvchi" request.LANGUAGE_CODE %}</th>
+                                        <th class="border-0 text-center">{% t "Testlar" request.LANGUAGE_CODE %}</th>
+                                        <th class="border-0 text-end pe-3">{% t "Ball" request.LANGUAGE_CODE %}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -83,7 +85,7 @@
                                             <span class="badge bg-info" style="font-size: 9px;">{{ user_item.tests_completed }}</span>
                                         </td>
                                         <td class="text-end pe-3">
-                                            <span class="badge bg-success" style="font-size: 10px;">{{ user_item.total_points }} ball</span>
+                                            <span class="badge bg-success" style="font-size: 10px;">{{ user_item.total_points }} {% t "ball" request.LANGUAGE_CODE %}</span>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -93,11 +95,11 @@
                     {% else %}
                         <div class="text-center py-5">
                             <i class="bi bi-trophy text-muted display-4 mb-3"></i>
-                            <h5 class="text-muted">Hali hech kim ball to'plamagan</h5>
-                            <p class="text-muted">Birinchi bo'lib test yechib, leaderboardda o'z o'rningizni egallang!</p>
+                            <h5 class="text-muted">{% t "Hali hech kim ball to'plamagan" request.LANGUAGE_CODE %}</h5>
+                            <p class="text-muted">{% t "Birinchi bo'lib test yechib, leaderboardda o'z o'rningizni egallang!" request.LANGUAGE_CODE %}</p>
                             <a href="{% url 'core:subjects' %}" class="btn btn-primary">
                                 <i class="bi bi-play-circle me-2"></i>
-                                Testlarni boshlash
+                                {% t "Testlarni boshlash" request.LANGUAGE_CODE %}
                             </a>
                         </div>
                     {% endif %}
@@ -108,20 +110,20 @@
             {% if user.is_authenticated %}
             <div class="card border-0 shadow-sm mt-4">
                 <div class="card-body text-center py-4">
-                    <h5 class="mb-3">Reytingda yuqoriga ko'tarilmoqchimisiz?</h5>
-                    <p class="text-muted mb-3">Ko'proq test yechib, ko'proq ball to'plang!</p>
+                    <h5 class="mb-3">{% t "Reytingda yuqoriga ko'tarilmoqchimisiz?" request.LANGUAGE_CODE %}</h5>
+                    <p class="text-muted mb-3">{% t "Ko'proq test yechib, ko'proq ball to'plang!" request.LANGUAGE_CODE %}</p>
                     <div class="d-flex gap-2 justify-content-center flex-wrap">
                         <a href="{% url 'core:subjects' %}" class="btn btn-primary">
                             <i class="bi bi-book me-2"></i>
-                            Fanlar bo'yicha testlar
+                            {% t "Fanlar bo'yicha testlar" request.LANGUAGE_CODE %}
                         </a>
                         <a href="{% url 'core:certificates' %}" class="btn btn-outline-primary">
                             <i class="bi bi-award me-2"></i>
-                            Sertifikat testlari
+                            {% t "Sertifikat testlari" request.LANGUAGE_CODE %}
                         </a>
                         <a href="{% url 'core:mock_exams' %}" class="btn btn-outline-primary">
                             <i class="bi bi-clipboard-check me-2"></i>
-                            Mock imtihonlar
+                            {% t "Mock imtihonlar" request.LANGUAGE_CODE %}
                         </a>
                     </div>
                 </div>

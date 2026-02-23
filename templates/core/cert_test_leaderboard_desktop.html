@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}{{ test.title }} - Reyting - EduSelf{% endblock %}
@@ -28,12 +30,10 @@
                 </div>
                 {% if user.is_authenticated %}
                 <a href="{% url 'core:take_cert_test' test.pk %}" class="btn btn-success btn-start-test">
-                    <i class="fas fa-play"></i> Boshlash
-                </a>
+                    <i class="fas fa-play"></i>Boshlash</a>
                 {% else %}
                 <button type="button" class="btn btn-success btn-start-test auth-required-btn" data-redirect="{% url 'core:take_cert_test' test.pk %}">
-                    <i class="fas fa-play"></i> Boshlash
-                </button>
+                    <i class="fas fa-play"></i>Boshlash</button>
                 {% endif %}
             </div>
         </div>
@@ -65,9 +65,9 @@
                     {% else %}<div class="empty-leaderboard"><i class="fas fa-inbox"></i><p>Hali hech kim bu testni ishlamagan</p></div>{% endif %}
                 </div>
                 {% if user.is_authenticated %}
-                <a href="{% url 'core:take_cert_test' test.pk %}" class="btn btn-success btn-lg btn-block"><i class="fas fa-play"></i> Testni boshlash</a>
+                <a href="{% url 'core:take_cert_test' test.pk %}" class="btn btn-success btn-lg btn-block"><i class="fas fa-play"></i>Testni boshlash</a>
                 {% else %}
-                <button type="button" class="btn btn-success btn-lg btn-block auth-required-btn" data-redirect="{% url 'core:take_cert_test' test.pk %}"><i class="fas fa-play"></i> Testni boshlash</button>
+                <button type="button" class="btn btn-success btn-lg btn-block auth-required-btn" data-redirect="{% url 'core:take_cert_test' test.pk %}"><i class="fas fa-play"></i>Testni boshlash</button>
                 {% endif %}
             </div>
         </div>

@@ -1,22 +1,24 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
-{% block title %}AI Tahlil - {{ topic.name }} - EduSelf{% endblock %}
+{% block title %}AI Tahlil - {{ topic.name|translate:request.LANGUAGE_CODE }} - EduSelf{% endblock %}
 
 {% block content %}
 <div class="card mb-4">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h5 class="mb-1">{{ topic.name }}</h5>
-                <p class="text-muted mb-0 small">{{ topic.get_questions_count }} savol | O'tish balli: {{ topic.passing_score }}%</p>
+                <h5 class="mb-1">{{ topic.name|translate:request.LANGUAGE_CODE }}</h5>
+                <p class="text-muted mb-0 small">{{ topic.get_questions_count }} {% t "savol" request.LANGUAGE_CODE %} | {% t "O'tish balli" request.LANGUAGE_CODE %}: {{ topic.passing_score }}%</p>
             </div>
             <div class="text-end">
                 <div class="result-score {% if result.passed %}text-success{% else %}text-danger{% endif %}">
                     {{ result.score }}%
                 </div>
-                <p class="text-muted mb-0 small">{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri</p>
+                <p class="text-muted mb-0 small">{{ result.correct_answers }} / {{ result.total_questions }} {% t "to'g'ri" request.LANGUAGE_CODE %}</p>
                 {% if result.earned_points is not None %}
-                <p class="text-muted mb-0 small"><strong>{{ result.earned_points }}</strong> / {{ topic.get_max_points }} ball</p>
+                <p class="text-muted mb-0 small"><strong>{{ result.earned_points }}</strong> / {{ topic.get_max_points }} {% t "ball" request.LANGUAGE_CODE %}</p>
                 {% endif %}
             </div>
         </div>
@@ -27,16 +29,15 @@
 <div class="card mb-4" id="ai-analysis-card">
     <div class="card-header bg-primary text-white">
         <h6 class="mb-0">
-            <i class="bi bi-robot"></i> AI Hamroh Tavsiyalari
-        </h6>
+            <i class="bi bi-robot"></i>{% t "AI Hamroh Tavsiyalari" request.LANGUAGE_CODE %}</h6>
     </div>
     <div class="card-body">
         <div id="ai-analysis-content">
             <div class="text-center">
                 <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Tahlil qilinmoqda...</span>
+                    <span class="visually-hidden">{% t "Tahlil qilinmoqda" request.LANGUAGE_CODE %}...</span>
                 </div>
-                <p class="mt-2">AI Hamroh sizning natijangizni tahlil qilmoqda...</p>
+                <p class="mt-2">{% t "AI Hamroh sizning natijangizni tahlil qilmoqda" request.LANGUAGE_CODE %}...</p>
             </div>
         </div>
     </div>
@@ -44,10 +45,10 @@
 
 <div class="mb-3">
     <a href="{% url 'core:topic_result' topic.pk %}" class="btn btn-outline-secondary btn-sm me-2">
-        <i class="bi bi-arrow-left"></i> Natijaga qaytish
+        <i class="bi bi-arrow-left"></i> {% t "Natijaga qaytish" request.LANGUAGE_CODE %}
     </a>
     <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary btn-sm">
-        <i class="bi bi-arrow-clockwise"></i> Qayta urinish
+        <i class="bi bi-arrow-clockwise"></i> {% t "Qayta urinish" request.LANGUAGE_CODE %}
     </a>
 </div>
 {% endblock %}

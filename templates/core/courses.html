@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 
 {% block title %}{{ title }} - EduSelf{% endblock %}
 
@@ -8,12 +10,10 @@
 <!-- Qidiruv va Kategoriyalar -->
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div class="filter-tabs-scroll flex-grow-1" style="margin-bottom: 0;">
-        <a href="{% url 'core:courses' %}" class="filter-tab-compact {% if not current_category %}active{% endif %}">
-            Barchasi
-        </a>
+        <a href="{% url 'core:courses' %}" class="filter-tab-compact {% if not current_category %}active{% endif %}">{% t "Barchasi" request.LANGUAGE_CODE %}</a>
         {% for cat in categories %}
         <a href="{% url 'core:courses' %}?category={{ cat.slug }}" class="filter-tab-compact {% if current_category.id == cat.id %}active{% endif %}">
-            {{ cat.name }}
+            {{ cat.name|translate:request.LANGUAGE_CODE }}
         </a>
         {% endfor %}
     </div>
@@ -26,7 +26,7 @@
 <div id="searchBar" class="search-bar-sticky" style="display: none;">
     <div class="search-input-wrapper">
         <i class="bi bi-search search-icon"></i>
-        <input type="text" id="courseSearch" class="form-control search-input" placeholder="Kurslarni qidiring...">
+        <input type="text" id="courseSearch" class="form-control search-input" placeholder="{% t 'Kurslarni qidiring' request.LANGUAGE_CODE %}...">
         <button type="button" id="clearCourseSearch" class="search-clear" style="display: none;">
             <i class="bi bi-x"></i>
         </button>
@@ -36,14 +36,14 @@
 <div id="courseSearchResults" style="display: none;">
     <div class="search-results-header">
         <span class="course-results-count"></span>
-        <button type="button" id="showAllCourses" class="btn btn-link btn-sm">Barcha kurslarni ko'rsatish</button>
+        <button type="button" id="showAllCourses" class="btn btn-link btn-sm">{% t "Barcha kurslarni ko'rsatish" request.LANGUAGE_CODE %}</button>
     </div>
 </div>
 
 <!-- Featured Courses -->
 {% if featured_courses %}
 <div class="mb-3">
-    <h6 class="section-subtitle">⭐ Mashhur kurslar</h6>
+    <h6 class="section-subtitle">⭐ {% t "Mashhur kurslar" request.LANGUAGE_CODE %}</h6>
     <div class="featured-courses-scroll">
         <div class="featured-courses-container" id="featuredCoursesList">
         {% for course in featured_courses %}
@@ -56,22 +56,22 @@
                     <i class="bi bi-play-circle"></i>
                 </div>
                 {% endif %}
-                <span class="course-badge-featured">Mashhur</span>
+                <span class="course-badge-featured">{% t "Mashhur" request.LANGUAGE_CODE %}</span>
             </div>
             <div class="course-card-content-horizontal">
                 <div class="course-card-header">
-                    <span class="course-category">{{ course.category.name }}</span>
+                    <span class="course-category">{{ course.category.name|translate:request.LANGUAGE_CODE }}</span>
                     {% if course.is_free %}
-                    <span class="course-price free">Bepul</span>
+                    <span class="course-price free">{% t "Bepul" request.LANGUAGE_CODE %}</span>
                     {% else %}
-                    <span class="course-price">{{ course.price|floatformat:0 }} so'm</span>
+                    <span class="course-price">{{ course.price|floatformat:0 }} {% t "so'm" request.LANGUAGE_CODE %}</span>
                     {% endif %}
                 </div>
-                <h6 class="course-title">{{ course.title }}</h6>
-                <p class="course-desc">{{ course.description|truncatewords:8 }}</p>
+                <h6 class="course-title">{{ course.title|translate:request.LANGUAGE_CODE }}</h6>
+                <p class="course-desc">{{ course.description|translate:request.LANGUAGE_CODE|truncatewords:8 }}</p>
                 <div class="course-meta">
-                    <span><i class="bi bi-person"></i> {{ course.instructor }}</span>
-                    <span><i class="bi bi-play-circle"></i> {{ course.get_lessons_count }} dars</span>
+                    <span><i class="bi bi-person"></i> {{ course.instructor|translate:request.LANGUAGE_CODE }}</span>
+                    <span><i class="bi bi-play-circle"></i> {{ course.get_lessons_count }} {% t "dars" request.LANGUAGE_CODE %}</span>
                 </div>
             </div>
         </a>
@@ -83,7 +83,7 @@
 
 <!-- All Courses -->
 {% if courses %}
-<h6 class="section-subtitle">📚 Barcha kurslar</h6>
+<h6 class="section-subtitle">📚 {% t "Barcha kurslar" request.LANGUAGE_CODE %}</h6>
 <div id="coursesList">
     {% for course in courses %}
     <a href="{% url 'core:course_detail' course.slug %}" class="course-card-compact" data-title="{{ course.title|lower }}" data-category="{{ course.category.name|lower }}" data-instructor="{{ course.instructor|lower }}">
@@ -98,17 +98,17 @@
         </div>
         <div class="course-card-content">
             <div class="course-card-header">
-                <span class="course-category">{{ course.category.name }}</span>
+                <span class="course-category">{{ course.category.name|translate:request.LANGUAGE_CODE }}</span>
                 {% if course.is_free %}
-                <span class="course-price free">Bepul</span>
+                <span class="course-price free">{% t "Bepul" request.LANGUAGE_CODE %}</span>
                 {% else %}
                 <span class="course-price">{{ course.price|floatformat:0 }} so'm</span>
                 {% endif %}
             </div>
-            <h6 class="course-title">{{ course.title }}</h6>
-            <p class="course-desc">{{ course.description|truncatewords:10 }}</p>
+            <h6 class="course-title">{{ course.title|translate:request.LANGUAGE_CODE }}</h6>
+            <p class="course-desc">{{ course.description|translate:request.LANGUAGE_CODE|truncatewords:10 }}</p>
             <div class="course-meta">
-                <span><i class="bi bi-person"></i> {{ course.instructor }}</span>
+                <span><i class="bi bi-person"></i> {{ course.instructor|translate:request.LANGUAGE_CODE }}</span>
                 <span><i class="bi bi-play-circle"></i> {{ course.get_lessons_count }} dars</span>
             </div>
         </div>
@@ -119,21 +119,21 @@
 {% else %}
     <div class="empty-state">
         <i class="bi bi-play-circle"></i>
-        <p>Hozircha kurslar mavjud emas</p>
+        <p>{% t "Hozircha kurslar mavjud emas" request.LANGUAGE_CODE %}</p>
     </div>
 {% endif %}
 
 <div id="noCourseResults" class="empty-state" style="display: none;">
     <i class="bi bi-search"></i>
-    <p>Qidiruv bo'yicha kurs topilmadi</p>
-    <small class="text-muted">Boshqa kalit so'zlar bilan qidirib ko'ring</small>
+    <p>{% t "Qidiruv bo'yicha kurs topilmadi" request.LANGUAGE_CODE %}</p>
+    <small class="text-muted">{% t "Boshqa kalit so'zlar bilan qidirib ko'ring" request.LANGUAGE_CODE %}</small>
 </div>
 
 <!-- Enrollment Modal -->
 <div class="enrollment-modal" id="enrollmentModal">
     <div class="enrollment-modal-content">
         <div class="enrollment-modal-header">
-            <h6 id="enrollmentModalTitle">Kursga yozilish</h6>
+            <h6 id="enrollmentModalTitle">{% t "Kursga yozilish" request.LANGUAGE_CODE %}</h6>
             <button type="button" class="btn-close" onclick="hideEnrollModal()">
                 <i class="bi bi-x"></i>
             </button>
@@ -141,17 +141,13 @@
         <div class="enrollment-modal-body">
             <div class="text-center mb-3">
                 <i class="bi bi-credit-card text-primary" style="font-size: 2.5rem;"></i>
-                <h6 class="mt-2" id="courseTitle">Kurs nomi</h6>
-                <p class="text-muted small" id="coursePrice">Narx: 0 so'm</p>
+                <h6 class="mt-2" id="courseTitle">{% t "Kurs nomi" request.LANGUAGE_CODE %}</h6>
+                <p class="text-muted small" id="coursePrice">{% t "Narx" request.LANGUAGE_CODE %}: 0 {% t "so'm" request.LANGUAGE_CODE %}</p>
             </div>
         </div>
         <div class="enrollment-modal-footer">
-            <button type="button" class="btn-compact btn-outline w-100 mb-2" onclick="hideEnrollModal()">
-                Bekor qilish
-            </button>
-            <button type="button" class="btn-compact btn-primary w-100" id="paymentBtn" onclick="proceedToPayment()">
-                To'lov qilish
-            </button>
+            <button type="button" class="btn-compact btn-outline w-100 mb-2" onclick="hideEnrollModal()">{% t "Bekor qilish" request.LANGUAGE_CODE %}</button>
+            <button type="button" class="btn-compact btn-primary w-100" id="paymentBtn" onclick="proceedToPayment()">{% t "To'lov qilish" request.LANGUAGE_CODE %}</button>
         </div>
     </div>
 </div>

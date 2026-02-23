@@ -1,5 +1,9 @@
+{% load static %}
+{% load translation_tags %}
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="uz" 
+      data-light-mode-text="{% t 'Oq rejim' request.LANGUAGE_CODE %}" 
+      data-dark-mode-text="{% t 'Qora rejim' request.LANGUAGE_CODE %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -23,7 +27,6 @@
     <meta name="theme-color" content="#4F46E5">
     
     <!-- Favicon -->
-    {% load static %}
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'icons/icon-32x32.png' %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'icons/icon-16x16.png' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -99,6 +102,9 @@
                 </div>
             </div>
             <div class="top-bar-right">
+                <!-- Language Selector -->
+                {% language_selector %}
+                
                 {% if user.is_authenticated %}
                 <button class="notification-btn" id="notifBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificationMenu">
                     <i class="bi bi-bell"></i>
@@ -116,11 +122,11 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                            <i class="bi bi-person-circle me-2"></i>Mening Profilim
+                            <i class="bi bi-person-circle me-2"></i>{% t "Mening Profilim" request.LANGUAGE_CODE %}
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
-                            <i class="bi bi-box-arrow-right me-2"></i>Chiqish
+                            <i class="bi bi-box-arrow-right me-2"></i>{% t "Chiqish" request.LANGUAGE_CODE %}
                         </a></li>
                     </ul>
                 </div>
@@ -136,7 +142,7 @@
         <div class="offcanvas offcanvas-end notification-offcanvas" tabindex="-1" id="notificationMenu">
             <div class="offcanvas-header border-bottom">
                 <h5 class="offcanvas-title d-flex align-items-center">
-                    <i class="bi bi-bell-fill text-warning me-2"></i> Bildirishnomalar
+                    <i class="bi bi-bell-fill text-warning me-2"></i> {% t "Bildirishnomalar" request.LANGUAGE_CODE %}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
             </div>
@@ -168,8 +174,8 @@
                     <div class="empty-icon">
                         <i class="bi bi-bell-slash"></i>
                     </div>
-                    <p class="empty-text">Bildirishnomalar yo'q</p>
-                    <p class="empty-subtext">Yangi bildirishnomalar bu yerda ko'rinadi</p>
+                    <p class="empty-text">{% t "Bildirishnomalar yo'q" request.LANGUAGE_CODE %}</p>
+                    <p class="empty-subtext">{% t "Yangi bildirishnomalar bu yerda ko'rinadi" request.LANGUAGE_CODE %}</p>
                 </div>
                 {% endif %}
             </div>
@@ -180,7 +186,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="notificationModalLabel">Bildirishnoma</h5>
+                        <h5 class="modal-title" id="notificationModalLabel">{% t "Bildirishnoma" request.LANGUAGE_CODE %}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -189,8 +195,8 @@
                         <small id="modalNotificationTime" class="text-muted"></small>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
-                        <button type="button" class="btn btn-primary" id="modalNotificationLink" style="display: none;">Sahifaga o'tish</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% t "Yopish" request.LANGUAGE_CODE %}</button>
+                        <button type="button" class="btn btn-primary" id="modalNotificationLink" style="display: none;">{% t "Sahifaga o'tish" request.LANGUAGE_CODE %}</button>
                     </div>
                 </div>
             </div>
@@ -215,21 +221,21 @@
                         <div class="theme-toggle">
                             <button class="theme-btn" id="themeToggle">
                                 <i class="bi bi-sun-fill" id="themeIcon"></i>
-                                <span id="themeText">Oq rejim</span>
+                                <span id="themeText">{% t "Oq rejim" request.LANGUAGE_CODE %}</span>
                             </button>
                         </div>
                     </div>
                     {% else %}
                     <img src="https://ui-avatars.com/api/?name=Guest&background=6366f1&color=fff" alt="Guest">
                     <div class="user-info">
-                        <h3 id="userName">Mehmon</h3>
-                        <p id="userEmail">Kirish talab qilinadi</p>
+                        <h3 id="userName">{% t "Mehmon" request.LANGUAGE_CODE %}</h3>
+                        <p id="userEmail">{% t "Kirish talab qilinadi" request.LANGUAGE_CODE %}</p>
                         
                         <!-- Theme Toggle for Guest -->
                         <div class="theme-toggle">
                             <button class="theme-btn" id="themeToggleGuest">
                                 <i class="bi bi-sun-fill" id="themeIconGuest"></i>
-                                <span id="themeTextGuest">Oq rejim</span>
+                                <span id="themeTextGuest">{% t "Oq rejim" request.LANGUAGE_CODE %}</span>
                             </button>
                         </div>
                     </div>
@@ -243,16 +249,16 @@
             <nav class="sidebar-nav">
                 <a href="{% url 'core:news_list' %}" class="nav-item">
                     <i class="bi bi-newspaper"></i>
-                    <span>Yangiliklar</span>
+                    <span>{% t "Yangiliklar" request.LANGUAGE_CODE %}</span>
                 </a>
                 <a href="{% url 'core:courses' %}" class="nav-item">
                     <i class="bi bi-play-circle"></i>
-                    <span>Online Kurslar</span>
+                    <span>{% t "Online Kurslar" request.LANGUAGE_CODE %}</span>
                 </a>
                 {% if user.is_authenticated %}
                 <a href="{% url 'ai_assistant:chat_redirect' %}" class="nav-item">
                     <i class="bi bi-robot"></i>
-                    <span>AI Hamroh</span>
+                    <span>{% t "AI Hamroh" request.LANGUAGE_CODE %}</span>
                 </a>
                 {% endif %}
                 
@@ -260,27 +266,27 @@
                 
                 <a href="{% url 'core:home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                     <i class="bi bi-house"></i>
-                    <span>Bosh sahifa</span>
+                    <span>{% t "Bosh sahifa" request.LANGUAGE_CODE %}</span>
                 </a>
                 <a href="{% url 'core:subjects' %}" class="nav-item {% if 'subjects' in request.path %}active{% endif %}">
                     <i class="bi bi-book"></i>
-                    <span>Fanlar</span>
+                    <span>{% t "Fanlar" request.LANGUAGE_CODE %}</span>
                 </a>
                 <a href="{% url 'core:certificates' %}" class="nav-item {% if 'certificates' in request.path %}active{% endif %}">
                     <i class="bi bi-award"></i>
-                    <span>Sertifikatlar</span>
+                    <span>{% t "Sertifikatlar" request.LANGUAGE_CODE %}</span>
                 </a>
                 <a href="{% url 'core:mock_exams' %}" class="nav-item {% if 'mock' in request.path %}active{% endif %}">
                     <i class="bi bi-clipboard-check"></i>
-                    <span>Imtihonlar</span>
+                    <span>{% t "Imtihonlar" request.LANGUAGE_CODE %}</span>
                 </a>
                 <a href="{% url 'core:institutions' %}" class="nav-item {% if 'institutions' in request.path %}active{% endif %}">
                     <i class="bi bi-building"></i>
-                    <span>Ta'lim Muassasalari</span>
+                    <span>{% t "Ta'lim Muassasalari" request.LANGUAGE_CODE %}</span>
                 </a>
                 <a href="{% url 'core:global_leaderboard' %}" class="nav-item {% if 'leaderboard' in request.path %}active{% endif %}">
                     <i class="bi bi-trophy"></i>
-                    <span>Reyting</span>
+                    <span>{% t "Reyting" request.LANGUAGE_CODE %}</span>
                 </a>
                 
                 <div class="nav-divider"></div>
@@ -288,12 +294,12 @@
                 {% if user.is_authenticated %}
                 <a href="{% url 'accounts:profile' %}" class="nav-item">
                     <i class="bi bi-person-circle"></i>
-                    <span>Mening Profilim</span>
+                    <span>{% t "Mening Profilim" request.LANGUAGE_CODE %}</span>
                 </a>
                 {% if user.is_staff %}
                 <a href="/nokia/" class="nav-item">
                     <i class="bi bi-gear"></i>
-                    <span>Sozlamalar</span>
+                    <span>{% t "Sozlamalar" request.LANGUAGE_CODE %}</span>
                 </a>
                 {% endif %}
                 
@@ -301,16 +307,16 @@
                 
                 <a href="{% url 'accounts:logout' %}" class="nav-item">
                     <i class="bi bi-box-arrow-right"></i>
-                    <span>Chiqish</span>
+                    <span>{% t "Chiqish" request.LANGUAGE_CODE %}</span>
                 </a>
                 {% else %}
                 <a href="{% url 'accounts:login' %}" class="nav-item">
                     <i class="bi bi-box-arrow-in-right"></i>
-                    <span>Kirish</span>
+                    <span>{% t "Kirish" request.LANGUAGE_CODE %}</span>
                 </a>
                 <a href="{% url 'accounts:register' %}" class="nav-item">
                     <i class="bi bi-person-plus"></i>
-                    <span>Ro'yxatdan o'tish</span>
+                    <span>{% t "Ro'yxatdan o'tish" request.LANGUAGE_CODE %}</span>
                 </a>
                 {% endif %}
 
@@ -341,23 +347,23 @@
         <nav class="bottom-nav">
             <a href="{% url 'core:home' %}" class="nav-btn {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                 <i class="bi bi-house"></i>
-                <span>Bosh sahifa</span>
+                <span>{% t "Bosh sahifa" request.LANGUAGE_CODE %}</span>
             </a>
             <a href="{% url 'core:subjects' %}" class="nav-btn {% if 'subjects' in request.path or 'topics' in request.path or 'tests' in request.path %}active{% endif %}">
                 <i class="bi bi-book"></i>
-                <span>Fanlar</span>
+                <span>{% t "Fanlar" request.LANGUAGE_CODE %}</span>
             </a>
             <a href="{% url 'core:certificates' %}" class="nav-btn {% if 'certificates' in request.path or 'cert' in request.path %}active{% endif %}">
                 <i class="bi bi-award"></i>
-                <span>Sertifikatlar</span>
+                <span>{% t "Sertifikatlar" request.LANGUAGE_CODE %}</span>
             </a>
             <a href="{% url 'core:mock_exams' %}" class="nav-btn {% if 'mock' in request.path %}active{% endif %}">
                 <i class="bi bi-clipboard-check"></i>
-                <span>Mock Exam</span>
+                <span>{% t "Mock Exam" request.LANGUAGE_CODE %}</span>
             </a>
             <a href="{% url 'core:institutions' %}" class="nav-btn {% if 'institutions' in request.path %}active{% endif %}">
                 <i class="bi bi-building"></i>
-                <span>Muassasalar</span>
+                <span>{% t "Muassasalar" request.LANGUAGE_CODE %}</span>
             </a>
         </nav>
 
@@ -504,16 +510,20 @@
             const themeIconGuest = document.getElementById('themeIconGuest');
             const themeTextGuest = document.getElementById('themeTextGuest');
             
+            // Get translations from data attributes
+            const lightModeText = document.documentElement.getAttribute('data-light-mode-text') || 'Oq rejim';
+            const darkModeText = document.documentElement.getAttribute('data-dark-mode-text') || 'Qora rejim';
+            
             if (theme === 'dark') {
                 if (themeIcon) themeIcon.className = 'bi bi-moon-fill';
-                if (themeText) themeText.textContent = 'Qora rejim';
+                if (themeText) themeText.textContent = darkModeText;
                 if (themeIconGuest) themeIconGuest.className = 'bi bi-moon-fill';
-                if (themeTextGuest) themeTextGuest.textContent = 'Qora rejim';
+                if (themeTextGuest) themeTextGuest.textContent = darkModeText;
             } else {
                 if (themeIcon) themeIcon.className = 'bi bi-sun-fill';
-                if (themeText) themeText.textContent = 'Oq rejim';
+                if (themeText) themeText.textContent = lightModeText;
                 if (themeIconGuest) themeIconGuest.className = 'bi bi-sun-fill';
-                if (themeTextGuest) themeTextGuest.textContent = 'Oq rejim';
+                if (themeTextGuest) themeTextGuest.textContent = lightModeText;
             }
         }
     </script>

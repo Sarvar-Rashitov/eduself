@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load translation_tags %}
 {% load static %}
 
 {% block title %}EduSelf - Bosh sahifa{% endblock %}
@@ -15,12 +17,10 @@
     <div class="hero-content">
         <div class="hero-badge">
             <i class="bi bi-stars"></i>
-            <span>O'zbekiston #1 Ta'lim Platformasi</span>
+            <span>{% t "O'zbekiston #1 Ta'lim Platformasi" request.LANGUAGE_CODE %}</span>
         </div>
-        <h1 class="hero-title">EduSelf bilan o'z kelajagingizni quring</h1>
-        <p class="hero-description">
-            AI yordamchi, 10,000+ test savollari, sertifikatlar va eng yaxshi ta'lim muassasalari haqida to'liq ma'lumot
-        </p>
+        <h1 class="hero-title">{% t "EduSelf bilan o'z kelajagingizni quring" request.LANGUAGE_CODE %}</h1>
+        <p class="hero-description">{% t "AI yordamchi, 10,000+ test savollari, sertifikatlar va eng yaxshi ta'lim muassasalari haqida to'liq ma'lumot" request.LANGUAGE_CODE %}</p>
         
         <!-- Features Grid -->
         <div class="features-grid">
@@ -29,8 +29,8 @@
                     <i class="bi bi-robot"></i>
                 </div>
                 <div class="feature-text">
-                    <h4>AI Hamroh</h4>
-                    <p>24/7 shaxsiy yordamchi</p>
+                    <h4>{% t "AI Hamroh" request.LANGUAGE_CODE %}</h4>
+                    <p>{% t "24/7 shaxsiy yordamchi" request.LANGUAGE_CODE %}</p>
                 </div>
             </div>
             <div class="feature-item">
@@ -38,8 +38,8 @@
                     <i class="bi bi-trophy"></i>
                 </div>
                 <div class="feature-text">
-                    <h4>Gamefikatsiya</h4>
-                    <p>Ball to'plang, raqobatlashing</p>
+                    <h4>{% t "Gamefikatsiya" request.LANGUAGE_CODE %}</h4>
+                    <p>{% t "Ball to'plang, raqobatlashing" request.LANGUAGE_CODE %}</p>
                 </div>
             </div>
             <div class="feature-item">
@@ -47,8 +47,8 @@
                     <i class="bi bi-graph-up"></i>
                 </div>
                 <div class="feature-text">
-                    <h4>Progress Tracking</h4>
-                    <p>Rivojlanishingizni kuzating</p>
+                    <h4>{% t "Progress Tracking" request.LANGUAGE_CODE %}</h4>
+                    <p>{% t "Rivojlanishingizni kuzating" request.LANGUAGE_CODE %}</p>
                 </div>
             </div>
             <div class="feature-item">
@@ -56,8 +56,8 @@
                     <i class="bi bi-award"></i>
                 </div>
                 <div class="feature-text">
-                    <h4>Sertifikatlar</h4>
-                    <p>Bilimingizni tasdiqlang</p>
+                    <h4>{% t "Sertifikatlar" request.LANGUAGE_CODE %}</h4>
+                    <p>{% t "Bilimingizni tasdiqlang" request.LANGUAGE_CODE %}</p>
                 </div>
             </div>
         </div>
@@ -65,11 +65,11 @@
         <div class="hero-actions">
             <a href="{% url 'accounts:register' %}" class="btn-hero-primary">
                 <i class="bi bi-rocket-takeoff"></i>
-                <span>Bepul Boshlash</span>
+                <span>{% t "Bepul Boshlash" request.LANGUAGE_CODE %}</span>
             </a>
             <a href="{% url 'accounts:login' %}" class="btn-hero-secondary">
                 <i class="bi bi-box-arrow-in-right"></i>
-                <span>Kirish</span>
+                <span>{% t "Kirish" request.LANGUAGE_CODE %}</span>
             </a>
         </div>
         
@@ -77,15 +77,15 @@
         <div class="stats-preview">
             <div class="stat-preview-item">
                 <div class="stat-preview-value">{{ statistics.0.value }}</div>
-                <div class="stat-preview-label">Foydalanuvchilar</div>
+                <div class="stat-preview-label">{% t "Foydalanuvchilar" request.LANGUAGE_CODE %}</div>
             </div>
             <div class="stat-preview-item">
                 <div class="stat-preview-value">{{ statistics.1.value }}</div>
-                <div class="stat-preview-label">Test Savollari</div>
+                <div class="stat-preview-label">{% t "Test Savollari" request.LANGUAGE_CODE %}</div>
             </div>
             <div class="stat-preview-item">
                 <div class="stat-preview-value">{{ statistics.2.value }}</div>
-                <div class="stat-preview-label">Sertifikatlar</div>
+                <div class="stat-preview-label">{% t "Sertifikatlar" request.LANGUAGE_CODE %}</div>
             </div>
         </div>
     </div>
@@ -98,7 +98,7 @@
     <!-- User Stats Card -->
     <div class="stats-card">
         <div class="stats-header">
-            <h1 class="stats-greeting">Salom, {{ user.first_name|default:user.username }}! 👋</h1>
+            <h1 class="stats-greeting">{% t "Salom" request.LANGUAGE_CODE %}, {{ user.first_name|default:user.username }}! 👋</h1>
         </div>
         
         <!-- Quick Stats -->
@@ -109,7 +109,7 @@
                 </div>
                 <div class="quick-stat-content">
                     <div class="quick-stat-value">{{ user_stats.total_tests }}</div>
-                    <div class="quick-stat-label">Testlar</div>
+                    <div class="quick-stat-label">{% t "Testlar" request.LANGUAGE_CODE %}</div>
                 </div>
             </div>
             <div class="quick-stat-item">
@@ -118,7 +118,7 @@
                 </div>
                 <div class="quick-stat-content">
                     <div class="quick-stat-value">{{ user_stats.passed_tests }}</div>
-                    <div class="quick-stat-label">Muvaffaqiyatli</div>
+                    <div class="quick-stat-label">{% t "Muvaffaqiyatli" request.LANGUAGE_CODE %}</div>
                 </div>
             </div>
             <div class="quick-stat-item">
@@ -127,7 +127,7 @@
                 </div>
                 <div class="quick-stat-content">
                     <div class="quick-stat-value">{{ user.total_points }}</div>
-                    <div class="quick-stat-label">Ballar</div>
+                    <div class="quick-stat-label">{% t "Ballar" request.LANGUAGE_CODE %}</div>
                 </div>
             </div>
         </div>
@@ -143,8 +143,8 @@
                     <i class="bi bi-clock-history"></i>
                 </div>
                 <div class="test-info">
-                    <h3>Oxirgi Test</h3>
-                    <p>{{ last_test_result.topic.name }}</p>
+                    <h3>{% t "Oxirgi Test" request.LANGUAGE_CODE %}</h3>
+                    <p>{{ last_test_result.topic.name|translate:request.LANGUAGE_CODE }}</p>
                 </div>
             </div>
             <div class="test-card-body">
@@ -155,27 +155,27 @@
                     <div class="result-details">
                         <span class="result-label">
                             {% if last_test_result.passed %}
-                            <i class="bi bi-check-circle-fill text-success"></i> O'tdingiz
+                            <i class="bi bi-check-circle-fill text-success"></i> {% t "O'tdingiz" request.LANGUAGE_CODE %}
                             {% else %}
-                            <i class="bi bi-x-circle-fill text-danger"></i> O'tmadingiz
+                            <i class="bi bi-x-circle-fill text-danger"></i> {% t "O'tmadingiz" request.LANGUAGE_CODE %}
                             {% endif %}
                         </span>
-                        <span class="result-points">{{ last_test_result.earned_points }} ball</span>
+                        <span class="result-points">{{ last_test_result.earned_points }} {% t "ball" request.LANGUAGE_CODE %}</span>
                     </div>
                 </div>
                 <div class="test-actions">
                     <a href="{% url 'core:topic_analysis' last_test_result.topic.pk %}" class="btn-test-action">
                         <i class="bi bi-bar-chart"></i>
-                        <span>Tahlil Ko'rish</span>
+                        <span>{% t "Tahlil Ko'rish" request.LANGUAGE_CODE %}</span>
                     </a>
                     {% if next_test %}
                     <a href="{% url 'core:take_topic_test' next_test.pk %}" class="btn-test-action primary">
                         {% if last_test_result.passed %}
                         <i class="bi bi-play-circle"></i>
-                        <span>Keyingi Testni Boshlash</span>
+                        <span>{% t "Keyingi Testni Boshlash" request.LANGUAGE_CODE %}</span>
                         {% else %}
                         <i class="bi bi-arrow-clockwise"></i>
-                        <span>Qayta Urinish</span>
+                        <span>{% t "Qayta Urinish" request.LANGUAGE_CODE %}</span>
                         {% endif %}
                     </a>
                     {% endif %}
@@ -192,8 +192,8 @@
                     <i class="bi bi-award"></i>
                 </div>
                 <div class="test-info">
-                    <h3>Oxirgi Sertifikat Testi</h3>
-                    <p>{{ last_cert_result.test.title }}</p>
+                    <h3>{% t "Oxirgi Sertifikat Testi" request.LANGUAGE_CODE %}</h3>
+                    <p>{{ last_cert_result.test.title|translate:request.LANGUAGE_CODE }}</p>
                 </div>
             </div>
             <div class="test-card-body">
@@ -204,27 +204,27 @@
                     <div class="result-details">
                         <span class="result-label">
                             {% if last_cert_result.passed %}
-                            <i class="bi bi-check-circle-fill text-success"></i> O'tdingiz
+                            <i class="bi bi-check-circle-fill text-success"></i> {% t "O'tdingiz" request.LANGUAGE_CODE %}
                             {% else %}
-                            <i class="bi bi-x-circle-fill text-danger"></i> O'tmadingiz
+                            <i class="bi bi-x-circle-fill text-danger"></i> {% t "O'tmadingiz" request.LANGUAGE_CODE %}
                             {% endif %}
                         </span>
-                        <span class="result-points">{{ last_cert_result.earned_points }} ball</span>
+                        <span class="result-points">{{ last_cert_result.earned_points }} {% t "ball" request.LANGUAGE_CODE %}</span>
                     </div>
                 </div>
                 <div class="test-actions">
                     <a href="{% url 'core:cert_test_analysis' last_cert_result.test.pk %}" class="btn-test-action">
                         <i class="bi bi-bar-chart"></i>
-                        <span>Tahlil Ko'rish</span>
+                        <span>{% t "Tahlil Ko'rish" request.LANGUAGE_CODE %}</span>
                     </a>
                     {% if next_cert_test %}
                     <a href="{% url 'core:take_cert_test' next_cert_test.pk %}" class="btn-test-action primary">
                         {% if last_cert_result.passed %}
                         <i class="bi bi-play-circle"></i>
-                        <span>Keyingi Testni Boshlash</span>
+                        <span>{% t "Keyingi Testni Boshlash" request.LANGUAGE_CODE %}</span>
                         {% else %}
                         <i class="bi bi-arrow-clockwise"></i>
-                        <span>Qayta Urinish</span>
+                        <span>{% t "Qayta Urinish" request.LANGUAGE_CODE %}</span>
                         {% endif %}
                     </a>
                     {% endif %}
@@ -242,14 +242,14 @@
                     <i class="bi bi-robot"></i>
                 </div>
                 <div class="ai-card-content">
-                    <h3>AI Hamroh</h3>
-                    <p>Savollaringizga javob oling, tavsiyalar oling</p>
+                    <h3>{% t "AI Hamroh" request.LANGUAGE_CODE %}</h3>
+                    <p>{% t "Savollaringizga javob oling, tavsiyalar oling" request.LANGUAGE_CODE %}</p>
                 </div>
             </div>
             <div class="ai-card-actions">
                 <a href="{% url 'ai_assistant:chat_redirect' %}" class="btn-ai-primary">
                     <i class="bi bi-chat-dots"></i>
-                    <span>Suhbat Boshlash</span>
+                    <span>{% t "Suhbat Boshlash" request.LANGUAGE_CODE %}</span>
                 </a>
             </div>
         </div>
@@ -261,9 +261,7 @@
 <div class="main-features">
     <div class="section-header">
         <h2 class="section-title-main">
-            <i class="bi bi-grid-3x3-gap"></i>
-            Platformaning Imkoniyatlari
-        </h2>
+            <i class="bi bi-grid-3x3-gap"></i>{% t "Platformaning Imkoniyatlari" request.LANGUAGE_CODE %}</h2>
     </div>
     
     <div class="features-carousel-container">
@@ -275,8 +273,8 @@
                         <i class="bi bi-play-circle-fill"></i>
                     </div>
                     <div class="feature-card-content">
-                        <h3>Online Kurslar</h3>
-                        <p>Video darslar</p>
+                        <h3>{% t "Online Kurslar" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Video darslar" request.LANGUAGE_CODE %}</p>
                     </div>
                 </a>
             </div>
@@ -288,8 +286,8 @@
                         <i class="bi bi-book"></i>
                     </div>
                     <div class="feature-card-content">
-                        <h3>Fanlar</h3>
-                        <p>Barcha fanlar</p>
+                        <h3>{% t "Fanlar" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Barcha fanlar" request.LANGUAGE_CODE %}</p>
                     </div>
                 </a>
             </div>
@@ -301,8 +299,8 @@
                         <i class="bi bi-award"></i>
                     </div>
                     <div class="feature-card-content">
-                        <h3>Sertifikatlar</h3>
-                        <p>Bilimingizni tasdiqlang</p>
+                        <h3>{% t "Sertifikatlar" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Bilimingizni tasdiqlang" request.LANGUAGE_CODE %}</p>
                     </div>
                 </a>
             </div>
@@ -314,8 +312,8 @@
                         <i class="bi bi-clipboard-check"></i>
                     </div>
                     <div class="feature-card-content">
-                        <h3>Mock Imtihonlar</h3>
-                        <p>Real tajriba</p>
+                        <h3>{% t "Mock Imtihonlar" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Real tajriba" request.LANGUAGE_CODE %}</p>
                     </div>
                 </a>
             </div>
@@ -327,8 +325,8 @@
                         <i class="bi bi-building"></i>
                     </div>
                     <div class="feature-card-content">
-                        <h3>Muassasalar</h3>
-                        <p>Universitet va maktablar</p>
+                        <h3>{% t "Muassasalar" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Universitet va maktablar" request.LANGUAGE_CODE %}</p>
                     </div>
                 </a>
             </div>
@@ -340,8 +338,8 @@
                         <i class="bi bi-trophy"></i>
                     </div>
                     <div class="feature-card-content">
-                        <h3>Reyting</h3>
-                        <p>Top o'quvchilar</p>
+                        <h3>{% t "Reyting" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Top o'quvchilar" request.LANGUAGE_CODE %}</p>
                     </div>
                 </a>
             </div>
@@ -353,8 +351,8 @@
                         <i class="bi bi-play-circle-fill"></i>
                     </div>
                     <div class="feature-card-content">
-                        <h3>Online Kurslar</h3>
-                        <p>Video darslar</p>
+                        <h3>{% t "Online Kurslar" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Video darslar" request.LANGUAGE_CODE %}</p>
                     </div>
                 </a>
             </div>
@@ -365,8 +363,8 @@
                         <i class="bi bi-book"></i>
                     </div>
                     <div class="feature-card-content">
-                        <h3>Fanlar</h3>
-                        <p>Barcha fanlar</p>
+                        <h3>{% t "Fanlar" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Barcha fanlar" request.LANGUAGE_CODE %}</p>
                     </div>
                 </a>
             </div>
@@ -377,8 +375,8 @@
                         <i class="bi bi-award"></i>
                     </div>
                     <div class="feature-card-content">
-                        <h3>Sertifikatlar</h3>
-                        <p>Bilimingizni tasdiqlang</p>
+                        <h3>{% t "Sertifikatlar" request.LANGUAGE_CODE %}</h3>
+                        <p>{% t "Bilimingizni tasdiqlang" request.LANGUAGE_CODE %}</p>
                     </div>
                 </a>
             </div>
@@ -391,9 +389,7 @@
 <div class="featured-section">
     <div class="section-header">
         <h2 class="section-title-main">
-            <i class="bi bi-star-fill"></i>
-            Tavsiya Etamiz
-        </h2>
+            <i class="bi bi-star-fill"></i>{% t "Tavsiya Etamiz" request.LANGUAGE_CODE %}</h2>
     </div>
     
     <div id="adCarousel" class="carousel slide featured-carousel" data-bs-ride="carousel">
@@ -413,12 +409,12 @@
                 {% endif %}
                     <div class="featured-overlay">
                         <div class="featured-content">
-                            <h3>{{ ad.title }}</h3>
+                            <h3>{{ ad.title|translate:request.LANGUAGE_CODE }}</h3>
                             {% if ad.description %}
-                            <p>{{ ad.description|truncatewords:15 }}</p>
+                            <p>{{ ad.description|translate:request.LANGUAGE_CODE|truncatewords:15 }}</p>
                             {% endif %}
                             {% if ad.link_url %}
-                            <span class="featured-link">Batafsil <i class="bi bi-arrow-right"></i></span>
+                            <span class="featured-link">{% t "Batafsil" request.LANGUAGE_CODE %}<i class="bi bi-arrow-right"></i></span>
                             {% endif %}
                         </div>
                     </div>
@@ -441,11 +437,8 @@
 <div class="content-section">
     <div class="section-header">
         <h2 class="section-title-main">
-            <i class="bi bi-building"></i>
-            Ta'lim Muassasalari
-        </h2>
-        <a href="{% url 'core:institutions' %}" class="section-link">
-            Barchasi <i class="bi bi-arrow-right"></i>
+            <i class="bi bi-building"></i>{% t "Ta'lim Muassasalari" request.LANGUAGE_CODE %}</h2>
+        <a href="{% url 'core:institutions' %}" class="section-link">{% t "Barchasi" request.LANGUAGE_CODE %}<i class="bi bi-arrow-right"></i>
         </a>
     </div>
     
@@ -469,19 +462,19 @@
                 {% endif %}
             </div>
             <div class="institution-card-body">
-                <h3>{{ inst.name }}</h3>
+                <h3>{{ inst.name|translate:request.LANGUAGE_CODE }}</h3>
                 {% if inst.short_description %}
-                <p>{{ inst.short_description|truncatewords:10 }}</p>
+                <p>{{ inst.short_description|translate:request.LANGUAGE_CODE|truncatewords:10 }}</p>
                 {% endif %}
                 <div class="institution-meta">
                     <span class="meta-badge">
                         <i class="bi bi-mortarboard"></i>
-                        {{ inst.get_directions_count }} yo'nalish
+                        {{ inst.get_directions_count }} {% t "yo'nalish" request.LANGUAGE_CODE %}
                     </span>
                     {% if inst.category %}
                     <span class="meta-badge">
                         <i class="{{ inst.category.icon }}"></i>
-                        {{ inst.category.name }}
+                        {{ inst.category.name|translate:request.LANGUAGE_CODE }}
                     </span>
                     {% endif %}
                 </div>
@@ -498,10 +491,9 @@
     <div class="section-header">
         <h2 class="section-title-main">
             <i class="bi bi-book"></i>
-            Fanlar
+            {% t "Fanlar" request.LANGUAGE_CODE %}
         </h2>
-        <a href="{% url 'core:subjects' %}" class="section-link">
-            Barchasi <i class="bi bi-arrow-right"></i>
+        <a href="{% url 'core:subjects' %}" class="section-link">{% t "Barchasi" request.LANGUAGE_CODE %}<i class="bi bi-arrow-right"></i>
         </a>
     </div>
     
@@ -512,8 +504,8 @@
                 <i class="{{ subject.icon }}"></i>
             </div>
             <div class="subject-content">
-                <h3>{{ subject.name }}</h3>
-                <p>{{ subject.get_topics_count }} mavzu • {{ subject.get_questions_count }} savol</p>
+                <h3>{{ subject.name|translate:request.LANGUAGE_CODE }}</h3>
+                <p>{{ subject.get_topics_count }} {% t "mavzu" request.LANGUAGE_CODE %} • {{ subject.get_questions_count }} {% t "savol" request.LANGUAGE_CODE %}</p>
             </div>
             <div class="subject-arrow">
                 <i class="bi bi-chevron-right"></i>
@@ -530,10 +522,9 @@
     <div class="section-header">
         <h2 class="section-title-main">
             <i class="bi bi-award"></i>
-            Sertifikatlar
+            {% t "Sertifikatlar" request.LANGUAGE_CODE %}
         </h2>
-        <a href="{% url 'core:certificates' %}" class="section-link">
-            Barchasi <i class="bi bi-arrow-right"></i>
+        <a href="{% url 'core:certificates' %}" class="section-link">{% t "Barchasi" request.LANGUAGE_CODE %}<i class="bi bi-arrow-right"></i>
         </a>
     </div>
     
@@ -544,9 +535,9 @@
                 <i class="bi bi-award"></i>
             </div>
             <div class="certificate-content">
-                <h3>{{ cert.name }}</h3>
+                <h3>{{ cert.name|translate:request.LANGUAGE_CODE }}</h3>
                 {% if cert.description %}
-                <p>{{ cert.description|truncatewords:8 }}</p>
+                <p>{{ cert.description|translate:request.LANGUAGE_CODE|truncatewords:8 }}</p>
                 {% endif %}
             </div>
             <div class="certificate-badge">
@@ -563,11 +554,8 @@
 <div class="content-section">
     <div class="section-header">
         <h2 class="section-title-main">
-            <i class="bi bi-trophy-fill text-warning"></i>
-            Top Reyting
-        </h2>
-        <a href="{% url 'core:global_leaderboard' %}" class="section-link">
-            Barchasi <i class="bi bi-arrow-right"></i>
+            <i class="bi bi-trophy-fill text-warning"></i>{% t "Top Reyting" request.LANGUAGE_CODE %}</h2>
+        <a href="{% url 'core:global_leaderboard' %}" class="section-link">{% t "Barchasi" request.LANGUAGE_CODE %}<i class="bi bi-arrow-right"></i>
         </a>
     </div>
     
@@ -603,12 +591,12 @@
                 </div>
                 <div class="user-info-small">
                     <h4>{{ user_item.first_name|default:user_item.username }}</h4>
-                    <p>{{ user_item.get_total_tests_taken }} test</p>
+                    <p>{{ user_item.get_total_tests_taken }} {% t "test" request.LANGUAGE_CODE %}</p>
                 </div>
             </div>
             <div class="leaderboard-points">
                 <span class="points-value">{{ user_item.total_points }}</span>
-                <span class="points-label">ball</span>
+                <span class="points-label">{% t "ball" request.LANGUAGE_CODE %}</span>
             </div>
         </div>
         {% endfor %}
@@ -617,8 +605,8 @@
         <div class="leaderboard-user-position">
             <div class="user-position-content">
                 <i class="bi bi-person-circle"></i>
-                <span>Sizning o'rningiz: <strong>#{{ user_position }}</strong></span>
-                <span class="user-position-points">{{ user.total_points }} ball</span>
+                <span>{% t "Sizning o'rningiz" request.LANGUAGE_CODE %}: <strong>#{{ user_position }}</strong></span>
+                <span class="user-position-points">{{ user.total_points }} {% t "ball" request.LANGUAGE_CODE %}</span>
             </div>
         </div>
         {% endif %}
@@ -655,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Partners Section -->
 {% if partners %}
 <section class="partners-section">
-    <div class="section-title text-center mb-3" style="font-size: 1rem; font-weight: 600; color: white;">Bizga Ishonadigan Hamkorlar</div>
+    <div class="section-title text-center mb-3" style="font-size: 1rem; font-weight: 600; color: white;">{% t "Bizga Ishonadigan Hamkorlar" request.LANGUAGE_CODE %}</div>
     <div class="partners-mobile-carousel-container">
         <div class="partners-mobile-carousel">
             {% for partner in partners %}
@@ -674,9 +662,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             {% endif %}
                         </div>
                         <div class="partner-mobile-info">
-                            <h4>{{ partner.name }}</h4>
+                            <h4>{{ partner.name|translate:request.LANGUAGE_CODE }}</h4>
                             {% if partner.description %}
-                            <p>{{ partner.description|truncatewords:6 }}</p>
+                            <p>{{ partner.description|translate:request.LANGUAGE_CODE|truncatewords:6 }}</p>
                             {% endif %}
                         </div>
                     </div>
@@ -702,9 +690,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             {% endif %}
                         </div>
                         <div class="partner-mobile-info">
-                            <h4>{{ partner.name }}</h4>
+                            <h4>{{ partner.name|translate:request.LANGUAGE_CODE }}</h4>
                             {% if partner.description %}
-                            <p>{{ partner.description|truncatewords:6 }}</p>
+                            <p>{{ partner.description|translate:request.LANGUAGE_CODE|truncatewords:6 }}</p>
                             {% endif %}
                         </div>
                     </div>
@@ -724,23 +712,23 @@ document.addEventListener('DOMContentLoaded', function() {
             <h3 class="footer-logo" style="font-size: 1.1rem;">
                 <i class="bi bi-mortarboard-fill"></i> EduSelf
             </h3>
-            <p class="footer-tagline" style="font-size: 0.7rem;">O'zbekistonda ta'limni rivojlantirish platformasi</p>
+            <p class="footer-tagline" style="font-size: 0.7rem;">{% t "O'zbekistonda ta'limni rivojlantirish platformasi" request.LANGUAGE_CODE %}</p>
         </div>
 
         <div class="footer-links">
             <div class="footer-section">
-                <h4 class="footer-title" style="font-size: 0.8rem;">Platformamiz</h4>
+                <h4 class="footer-title" style="font-size: 0.8rem;">{% t "Platformamiz" request.LANGUAGE_CODE %}</h4>
                 <ul class="footer-list" style="font-size: 0.7rem;">
-                    <li><a href="{% url 'core:subjects' %}"><i class="bi bi-book"></i> Fanlar</a></li>
-                    <li><a href="{% url 'core:certificates' %}"><i class="bi bi-award"></i> Sertifikatlar</a></li>
-                    <li><a href="{% url 'core:mock_exams' %}"><i class="bi bi-clipboard-check"></i> Mock Exam</a></li>
-                    <li><a href="{% url 'core:institutions' %}"><i class="bi bi-building"></i> Muassasalar</a></li>
-                    <li><a href="{% url 'core:courses' %}"><i class="bi bi-play-circle"></i> Online Kurslar</a></li>
+                    <li><a href="{% url 'core:subjects' %}"><i class="bi bi-book"></i> {% t "Fanlar" request.LANGUAGE_CODE %}</a></li>
+                    <li><a href="{% url 'core:certificates' %}"><i class="bi bi-award"></i> {% t "Sertifikatlar" request.LANGUAGE_CODE %}</a></li>
+                    <li><a href="{% url 'core:mock_exams' %}"><i class="bi bi-clipboard-check"></i> {% t "Mock Imtihonlar" request.LANGUAGE_CODE %}</a></li>
+                    <li><a href="{% url 'core:institutions' %}"><i class="bi bi-building"></i> {% t "Muassasalar" request.LANGUAGE_CODE %}</a></li>
+                    <li><a href="{% url 'core:courses' %}"><i class="bi bi-play-circle"></i> {% t "Online Kurslar" request.LANGUAGE_CODE %}</a></li>
                 </ul>
             </div>
 
             <div class="footer-section">
-                <h4 class="footer-title" style="font-size: 0.8rem;">Bog'lanish</h4>
+                <h4 class="footer-title" style="font-size: 0.8rem;">{% t "Bog'lanish" request.LANGUAGE_CODE %}</h4>
                 <ul class="footer-list" style="font-size: 0.7rem;">
                     <li><a href="mailto:info@eduself.uz"><i class="bi bi-envelope"></i> info@eduself.uz</a></li>
                     <li><a href="tel:+998500104307"><i class="bi bi-telephone"></i> +998 50 010 43 07</a></li>
@@ -748,7 +736,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             <div class="footer-section">
-                <h4 class="footer-title" style="font-size: 0.8rem;">Ijtimoiy tarmoqlar</h4>
+                <h4 class="footer-title" style="font-size: 0.8rem;">{% t "Ijtimoiy tarmoqlar" request.LANGUAGE_CODE %}</h4>
                 <div class="social-links">
                     <a href="https://t.me/eduselfuz" target="_blank" class="social-link" aria-label="Telegram" style="width: 30px; height: 30px;">
                         <i class="bi bi-telegram"></i>
@@ -767,7 +755,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
 
         <div class="footer-bottom text-center">
-            <p class="copyright" style="font-size: 0.65rem;">© 2025 EduSelf. Barcha huquqlar himoyalangan.</p>
+            <p class="copyright" style="font-size: 0.65rem;">© 2025 EduSelf. {% t "Barcha huquqlar himoyalangan" request.LANGUAGE_CODE %}.</p>
         </div>
     </div>
 </footer>

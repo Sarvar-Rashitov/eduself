@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}Natija - {{ exam.title }} - EduSelf{% endblock %}
@@ -91,8 +93,7 @@
                 {% endif %}
                 
                 <a href="{% url 'core:direction_exam_analysis' exam.pk %}" class="btn-action btn-analysis">
-                    <i class="fas fa-chart-bar"></i> AI Tahlil
-                </a>
+                    <i class="fas fa-chart-bar"></i>AI Tahlil</a>
                 
                 {% if not result.passed %}
                 <a href="{% url 'core:direction_exam_intro' exam.pk %}" class="btn-action btn-retry">

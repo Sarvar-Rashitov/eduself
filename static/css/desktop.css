@@ -2400,3 +2400,88 @@ body {
 .auth-checkbox-label a:hover {
     text-decoration: underline;
 }
+
+
+/* Language Selector - Desktop */
+.language-selector-desktop {
+    margin-left: 0.5rem;
+}
+
+.language-selector-desktop .language-selector {
+    display: inline-block;
+}
+
+.language-selector-desktop .dropdown-toggle {
+    background: var(--light-color);
+    border: 1px solid #e2e8f0;
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.language-selector-desktop .dropdown-toggle:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.language-selector-desktop .dropdown-toggle i {
+    margin-right: 0.5rem;
+}
+
+.language-selector-desktop .dropdown-menu {
+    min-width: 200px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.language-selector-desktop .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.language-selector-desktop .dropdown-item:hover {
+    background: var(--light-color);
+    transform: translateX(5px);
+}
+
+.language-selector-desktop .dropdown-item.active {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+.language-selector-desktop .dropdown-item.active:hover {
+    background: var(--secondary-color);
+}
+
+.language-selector-desktop .dropdown-item i.fa-check {
+    margin-left: auto;
+    font-size: 0.8rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 968px) {
+    .language-selector-desktop {
+        margin: 1rem 0;
+        width: 100%;
+    }
+    
+    .language-selector-desktop .dropdown-toggle {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

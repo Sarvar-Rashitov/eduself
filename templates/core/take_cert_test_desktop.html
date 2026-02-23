@@ -1,4 +1,6 @@
 {% extends 'base_desktop.html' %}
+{% load i18n %}
+
 {% load static %}
 
 {% block title %}{{ test.title }} - Sertifikat - EduSelf{% endblock %}
@@ -7,7 +9,7 @@
 {% block content %}
 <div class="test-page cert-test">
     <aside class="test-sidebar">
-        <div class="sidebar-header"><h3><i class="fas fa-list-ol"></i> Savollar</h3></div>
+        <div class="sidebar-header"><h3><i class="fas fa-list-ol"></i>Savollar</h3></div>
         <div class="questions-nav" id="questionsNav">
             {% for question in questions %}
             <button class="question-nav-btn {% if forloop.first %}active{% endif %}" id="navBtn-{{ forloop.counter0 }}">{{ forloop.counter }}</button>
@@ -33,7 +35,7 @@
             </div>
         </div>
         <div class="test-progress">
-            <div class="progress-info"><span>Savol <strong id="currentQuestionNum">1</strong> / {{ questions|length }}</span><span id="progressPercent">0%</span></div>
+            <div class="progress-info"><span>Savol<strong id="currentQuestionNum">1</strong> / {{ questions|length }}</span><span id="progressPercent">0%</span></div>
             <div class="progress-bar-wrapper"><div class="progress-bar cert" id="progressBar"></div></div>
         </div>
         <form method="post" id="testForm" style="display: none;">
@@ -123,7 +125,7 @@
         </div>
         <p class="modal-warning">Tugatilgandan so'ng qaytib bo'lmaydi!</p>
         <div class="modal-actions">
-            <button class="btn-modal btn-cancel" onclick="hideFinishConfirmation()"><i class="fas fa-arrow-left"></i> Davom etish</button>
+            <button class="btn-modal btn-cancel" onclick="hideFinishConfirmation()"><i class="fas fa-arrow-left"></i>Davom etish</button>
             <button class="btn-modal btn-confirm" onclick="confirmFinishTest()"><i class="fas fa-check"></i> Tugatish</button>
         </div>
     </div>
