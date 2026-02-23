@@ -198,6 +198,11 @@ a, button, input, textarea, select {
 
 .bottom-nav .nav-btn.active {
     color: var(--primary-color) !important;
+    background: rgba(99, 102, 241, 0.08) !important;
+}
+
+[data-theme="dark"] .bottom-nav .nav-btn.active {
+    background: rgba(129, 140, 248, 0.12) !important;
 }
 
 .bottom-nav .nav-btn.active i {
