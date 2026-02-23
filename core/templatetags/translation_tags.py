@@ -44,10 +44,23 @@ def translate(text, target_lang):
     if not text:
         return ''
     
+    # Agar til bir xil bo'lsa, original matnni qaytarish
+    if target_lang == 'uz':
+        return text
+    
+    # Uzunlik limiti - 200 chars (multiple API keys bilan)
+    if len(text) > 200:
+        return text
+    
     # Default source language - uzbek
     source_lang = 'uz'
     
-    return translator.translate(text, source_lang, target_lang)
+    # Try-except bilan xavfsiz tarjima
+    try:
+        return translator.translate(text, source_lang, target_lang)
+    except Exception as e:
+        # Agar xatolik bo'lsa, original matnni qaytarish
+        return text
 
 
 @register.filter(name='trans')
@@ -68,7 +81,7 @@ def trans(text, target_lang='uz'):
         if target_lang in translations:
             return translations[target_lang]
     
-    # Agar topilmasa va matn juda uzun bo'lsa, original matnni qaytarish
+    # Uzunlik limiti - 200 chars (multiple API keys bilan)
     if len(text) > 200:
         return text
     
@@ -130,7 +143,7 @@ def t(text, lang='uz'):
         if lang in translations:
             return translations[lang]
     
-    # Agar topilmasa va matn juda uzun bo'lsa, original matnni qaytarish
+    # Uzunlik limiti - 200 chars (multiple API keys bilan)
     if len(text) > 200:
         return text
     

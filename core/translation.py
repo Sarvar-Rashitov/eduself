@@ -1,6 +1,7 @@
 """
 AI-powered translation system using DeepSeek API
 Dinamik kontentni tarjima qilish uchun
+Multiple API keys support for load balancing
 """
 import os
 import requests
@@ -8,12 +9,13 @@ from django.core.cache import cache
 from django.conf import settings
 import hashlib
 import logging
+import random
 
 logger = logging.getLogger(__name__)
 
 
 class AITranslator:
-    """DeepSeek AI orqali matnlarni tarjima qilish"""
+    """DeepSeek AI orqali matnlarni tarjima qilish - Multiple API keys bilan"""
     
     LANGUAGE_NAMES = {
         'uz': 'Uzbek',
@@ -26,8 +28,43 @@ class AITranslator:
     }
     
     def __init__(self):
-        self.api_key = settings.DEEPSEEK_API_KEY
+        # Ko'p API keylarni yuklash
+        self.api_keys = self._load_api_keys()
         self.api_url = settings.DEEPSEEK_API_URL
+        self.current_key_index = 0
+    
+    def _load_api_keys(self):
+        """Barcha mavjud API keylarni yuklash"""
+        keys = []
+        
+        # Numbered keys (DEEPSEEK_API_KEY_1, DEEPSEEK_API_KEY_2, ...)
+        for i in range(1, 11):  # 1 dan 10 gacha
+            key = getattr(settings, f'DEEPSEEK_API_KEY_{i}', None)
+            if key and key.strip():
+                keys.append(key.strip())
+        
+        # Agar numbered keylar bo'lmasa, legacy key ishlatish
+        if not keys:
+            legacy_key = getattr(settings, 'DEEPSEEK_API_KEY', None)
+            if legacy_key and legacy_key.strip():
+                keys.append(legacy_key.strip())
+        
+        if keys:
+            logger.info(f"✅ Loaded {len(keys)} DeepSeek API key(s) for load balancing")
+        else:
+            logger.warning("⚠️ No DeepSeek API keys configured")
+        
+        return keys
+    
+    def _get_next_api_key(self):
+        """Keyingisi API keyni olish (round-robin)"""
+        if not self.api_keys:
+            return None
+        
+        # Round-robin: har safar keyingisi keyni ishlatish
+        key = self.api_keys[self.current_key_index]
+        self.current_key_index = (self.current_key_index + 1) % len(self.api_keys)
+        return key
     
     def _get_cache_key(self, text, source_lang, target_lang):
         """Cache key yaratish"""
@@ -36,7 +73,7 @@ class AITranslator:
     
     def translate(self, text, source_lang='uz', target_lang='en'):
         """
-        Matnni tarjima qilish
+        Matnni tarjima qilish - Multiple API keys bilan
         
         Args:
             text: Tarjima qilinadigan matn
@@ -54,6 +91,11 @@ class AITranslator:
         if not text or not text.strip():
             return text
         
+        # Uzunlik limiti - ko'p keylar bor, shuning uchun 200 gacha ruxsat
+        if len(text) > 200:
+            logger.warning(f"Text too long for translation ({len(text)} chars), returning original")
+            return text
+        
         # Cache'dan tekshirish
         cache_key = self._get_cache_key(text, source_lang, target_lang)
         cached_translation = cache.get(cache_key)
@@ -61,9 +103,12 @@ class AITranslator:
             return cached_translation
         
         # API key yo'q bo'lsa, original matnni qaytarish
-        if not self.api_key:
-            logger.warning("DEEPSEEK_API_KEY not configured. Returning original text.")
+        if not self.api_keys:
+            logger.warning("No DeepSeek API keys configured. Returning original text.")
             return text
+        
+        # Keyingisi API keyni olish
+        api_key = self._get_next_api_key()
         
         try:
             # DeepSeek API ga so'rov yuborish
@@ -79,7 +124,7 @@ Text to translate:
 Translation:"""
             
             headers = {
-                'Authorization': f'Bearer {self.api_key}',
+                'Authorization': f'Bearer {api_key}',
                 'Content-Type': 'application/json'
             }
             
@@ -89,14 +134,14 @@ Translation:"""
                     {'role': 'user', 'content': prompt}
                 ],
                 'temperature': 0.3,
-                'max_tokens': len(text) * 3  # Tarjima uchun yetarli token
+                'max_tokens': 200  # Increased for longer texts
             }
             
             response = requests.post(
                 self.api_url,
                 headers=headers,
                 json=data,
-                timeout=10  # Reduced timeout to prevent worker timeouts
+                timeout=8  # 8 seconds - balanced timeout
             )
             
             if response.status_code == 200:
@@ -110,7 +155,13 @@ Translation:"""
             else:
                 logger.error(f"DeepSeek API error: {response.status_code} - {response.text}")
                 return text
-                
+        
+        except requests.exceptions.Timeout:
+            logger.warning(f"Translation timeout for text: {text[:50]}...")
+            return text
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Translation request error: {str(e)}")
+            return text
         except Exception as e:
             logger.error(f"Translation error: {str(e)}")
             return text
