@@ -218,6 +218,20 @@
             </div>
             {% endif %}
             
+            {% if institution.application_url %}
+            <div class="col-md-6 mb-3">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-file-earmark-text text-primary me-3 fs-5"></i>
+                    <div>
+                        <small class="text-muted d-block">{% t "Ariza qoldirish" request.LANGUAGE_CODE %}</small>
+                        <a href="{{ institution.application_url }}" class="btn btn-outline-primary btn-sm mt-1" target="_blank" style="font-size: 0.85rem; padding: 0.35rem 0.75rem;">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>{% t "Ariza qoldirish" request.LANGUAGE_CODE %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
             {% if institution.address %}
             <div class="col-12 mb-3">
                 <div class="d-flex align-items-start">

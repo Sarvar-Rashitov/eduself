@@ -23,13 +23,13 @@ try:
         if os.path.exists(translations_file):
             with open(translations_file, 'r', encoding='utf-8') as f:
                 STATIC_TRANSLATIONS = json.load(f)
-            print(f"✅ Loaded {len(STATIC_TRANSLATIONS)} static translations from {translations_file}")
+            print(f"[OK] Loaded {len(STATIC_TRANSLATIONS)} static translations from {translations_file}")
             break
     
     if not STATIC_TRANSLATIONS:
-        print("⚠️ Warning: static_translations.json not found")
+        print("[WARNING] static_translations.json not found")
 except Exception as e:
-    print(f"❌ Error loading static translations: {e}")
+    print(f"[ERROR] Error loading static translations: {e}")
 
 
 @register.simple_tag(takes_context=True)

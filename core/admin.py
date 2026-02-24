@@ -317,7 +317,7 @@ class InstitutionAdmin(admin.ModelAdmin):
             'fields': ('license_file', 'video_url')
         }),
         ('Aloqa ma\'lumotlari', {
-            'fields': ('phone', 'email', 'website', 'address', 'address_iframe')
+            'fields': ('phone', 'email', 'website', 'application_url', 'address', 'address_iframe')
         }),
         ('Ijtimoiy tarmoqlar', {
             'fields': ('telegram', 'instagram', 'youtube', 'facebook')

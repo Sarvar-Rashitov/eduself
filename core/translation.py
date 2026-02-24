@@ -66,9 +66,9 @@ class AITranslator:
                 keys.append(legacy_key.strip())
         
         if keys:
-            logger.info(f"✅ Loaded {len(keys)} DeepSeek API key(s) for page-based load balancing")
+            logger.info(f"[OK] Loaded {len(keys)} DeepSeek API key(s) for page-based load balancing")
         else:
-            logger.warning("⚠️ No DeepSeek API keys configured")
+            logger.warning("[WARNING] No DeepSeek API keys configured")
         
         return keys
     
@@ -156,12 +156,12 @@ class AITranslator:
                 # Memory cache'ga ham saqlash
                 cache.set(cache_key, db_cache.translated_text, 60 * 60 * 24 * 7)
                 
-                logger.info(f"✅ DB CACHE HIT: {text[:50]}... (hit_count: {db_cache.hit_count})")
+                logger.info(f"[DB CACHE HIT] {text[:50]}... (hit_count: {db_cache.hit_count})")
                 return db_cache.translated_text
             else:
-                logger.info(f"⚠️ DB CACHE MISS: {text[:50]}...")
+                logger.info(f"[DB CACHE MISS] {text[:50]}...")
         except Exception as e:
-            logger.error(f"❌ DB cache lookup error: {str(e)}")
+            logger.error(f"[ERROR] DB cache lookup error: {str(e)}")
         
         # API key yo'q bo'lsa, original matnni qaytarish
         if not self.api_keys:
@@ -226,11 +226,11 @@ Translation:"""
                         }
                     )
                     if created:
-                        logger.info(f"💾 NEW translation saved to DB: {text[:50]}...")
+                        logger.info(f"[NEW] Translation saved to DB: {text[:50]}...")
                     else:
-                        logger.info(f"🔄 UPDATED translation in DB: {text[:50]}...")
+                        logger.info(f"[UPDATED] Translation in DB: {text[:50]}...")
                 except Exception as e:
-                    logger.error(f"❌ DB cache save error: {str(e)}")
+                    logger.error(f"[ERROR] DB cache save error: {str(e)}")
                 
                 return translated_text
             else:

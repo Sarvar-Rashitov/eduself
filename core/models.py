@@ -454,6 +454,7 @@ class Institution(models.Model):
     phone = models.CharField(max_length=50, blank=True, verbose_name="Telefon")
     email = models.EmailField(blank=True, verbose_name="Email")
     website = models.URLField(blank=True, verbose_name="Veb-sayt")
+    application_url = models.URLField(blank=True, verbose_name="Ariza qoldirish havolasi")
     contract_price_min = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Kontrakt summasi (min)")
     contract_price_max = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Kontrakt summasi (max)")
     admission_start_date = models.DateField(null=True, blank=True, verbose_name="Qabul boshlanish sanasi")
