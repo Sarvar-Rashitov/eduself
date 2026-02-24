@@ -2,7 +2,13 @@
 {% load i18n %}
 {% load translation_tags %}
 
+{% block body_attrs %}data-page="certificates"{% endblock %}
+
 {% block title %}Sertifikatlar - EduSelf{% endblock %}
+
+{% block show_back_button %}{% endblock %}
+
+{% block page_title %}{% t "Sertifikatlar" request.LANGUAGE_CODE %}{% endblock %}
 
 {% block content %}
 <div class="page-header certificates-header">
@@ -29,7 +35,6 @@
 <!-- Qidiruv -->
 <div class="search-container mb-4">
     <div class="search-input-wrapper">
-        <i class="bi bi-search search-icon"></i>
         <input type="text" id="certificateSearch" class="form-control search-input" placeholder="{% t 'Sertifikatlarni qidiring...' request.LANGUAGE_CODE %}">
         <button type="button" id="clearCertificateSearch" class="search-clear" style="display: none;">
             <i class="bi bi-x"></i>

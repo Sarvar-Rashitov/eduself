@@ -927,7 +927,7 @@ def take_mock_exam_view(request, pk):
     
     # Translate exam and questions if not Uzbek
     if lang != 'uz':
-        exam.translated_name = translator.translate(exam.name, 'uz', lang, 'mock_exam')
+        exam.translated_name = translator.translate(exam.title, 'uz', lang, 'mock_exam')
         exam.translated_description = translator.translate(exam.description, 'uz', lang, 'mock_exam') if exam.description else ''
         
         # Translate questions and answers
@@ -936,7 +936,7 @@ def take_mock_exam_view(request, pk):
             for answer in question.mock_answers.all():
                 answer.translated_text = translator.translate(answer.text, 'uz', lang, 'mock_exam')
     else:
-        exam.translated_name = exam.name
+        exam.translated_name = exam.title
         exam.translated_description = exam.description if exam.description else ''
         
         for question in questions:

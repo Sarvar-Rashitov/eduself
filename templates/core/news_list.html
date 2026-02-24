@@ -2,7 +2,13 @@
 {% load i18n %}
 {% load translation_tags %}
 
+{% block body_attrs %}data-page="news"{% endblock %}
+
 {% block title %}{{ title }} - EduSelf{% endblock %}
+
+{% block show_back_button %}{% endblock %}
+
+{% block page_title %}{% t "Yangiliklar" request.LANGUAGE_CODE %}{% endblock %}
 
 {% block content %}
 

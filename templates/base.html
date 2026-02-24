@@ -87,57 +87,26 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body {% block body_attrs %}{% endblock %}>
     <!-- Mobile App Container -->
     <div class="mobile-app">
         
-        <!-- Top Bar -->
-        <header class="top-bar">
-            <div class="top-bar-left">
-                <button class="menu-btn" id="menuBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideMenu">
-                    <i class="bi bi-list"></i>
-                </button>
-                <div class="logo-mini">
-                    <i class="bi bi-mortarboard-fill"></i>
-                    <span>EduSelf</span>
-                </div>
-            </div>
-            <div class="top-bar-right">
-                <!-- Language Selector -->
-                {% language_selector %}
-                
-                {% if user.is_authenticated %}
-                <button class="notification-btn" id="notifBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificationMenu">
-                    <i class="bi bi-bell"></i>
-                    {% if unread_notifications_count > 0 %}
-                    <span class="notif-badge">{{ unread_notifications_count }}</span>
-                    {% endif %}
-                </button>
-                <div class="dropdown">
-                    <button class="user-avatar" id="userAvatar" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        {% if user.profile_image %}
-                        <img src="{{ user.profile_image.url }}" alt="User" class="profile-img">
-                        {% else %}
-                        <img src="https://ui-avatars.com/api/?name={{ user.username|default:'User' }}&background=6366f1&color=fff" alt="User">
-                        {% endif %}
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                            <i class="bi bi-person-circle me-2"></i>{% t "Mening Profilim" request.LANGUAGE_CODE %}
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
-                            <i class="bi bi-box-arrow-right me-2"></i>{% t "Chiqish" request.LANGUAGE_CODE %}
-                        </a></li>
-                    </ul>
-                </div>
-                {% else %}
-                <a href="{% url 'accounts:login' %}" class="profile-btn">
-                    <i class="bi bi-person-circle"></i>
-                </a>
-                {% endif %}
+        {% block header %}
+        <!-- Simple Page Header -->
+        <header class="page-header-simple">
+            {% block show_back_button %}
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            {% endblock %}
+            <h1 class="page-title">{% block page_title %}EduSelf{% endblock %}</h1>
+            <div class="page-header-actions">
+                {% block header_actions %}
+                <div class="header-spacer"></div>
+                {% endblock %}
             </div>
         </header>
+        {% endblock header %}
 
         {% if user.is_authenticated %}
         <div class="offcanvas offcanvas-end notification-offcanvas" tabindex="-1" id="notificationMenu">
@@ -207,44 +176,28 @@
         <!-- Sidebar Menu -->
         <div class="offcanvas offcanvas-start sidebar-menu" tabindex="-1" id="sideMenu">
             <div class="sidebar-header">
-                <div class="user-profile">
-                    {% if user.is_authenticated %}
-                    {% if user.profile_image %}
-                    <img src="{{ user.profile_image.url }}" alt="User">
-                    {% else %}
-                    <img src="https://ui-avatars.com/api/?name={{ user.username|default:'User' }}&background=6366f1&color=fff" alt="User">
-                    {% endif %}
-                    <div class="user-info">
-                        <h3 id="userName">{{ user.username|default:'Foydalanuvchi' }}</h3>
-                        <p id="userEmail">{{ user.email|default:'user@eduself.uz' }}</p>
-                        
-                        <!-- Theme Toggle -->
-                        <div class="theme-toggle">
-                            <button class="theme-btn" id="themeToggle">
-                                <i class="bi bi-sun-fill" id="themeIcon"></i>
-                                <span id="themeText">{% t "Oq rejim" request.LANGUAGE_CODE %}</span>
-                            </button>
-                        </div>
+                <div class="eduself-logo-header">
+                    <div class="logo-icon">
+                        <i class="bi bi-mortarboard-fill"></i>
                     </div>
-                    {% else %}
-                    <img src="https://ui-avatars.com/api/?name=Guest&background=6366f1&color=fff" alt="Guest">
-                    <div class="user-info">
-                        <h3 id="userName">{% t "Mehmon" request.LANGUAGE_CODE %}</h3>
-                        <p id="userEmail">{% t "Kirish talab qilinadi" request.LANGUAGE_CODE %}</p>
-                        
-                        <!-- Theme Toggle for Guest -->
-                        <div class="theme-toggle">
-                            <button class="theme-btn" id="themeToggleGuest">
-                                <i class="bi bi-sun-fill" id="themeIconGuest"></i>
-                                <span id="themeTextGuest">{% t "Oq rejim" request.LANGUAGE_CODE %}</span>
-                            </button>
-                        </div>
+                    <div class="logo-text">
+                        <h3>EduSelf</h3>
+                        <p>{% t "Ta'lim Platformasi" request.LANGUAGE_CODE %}</p>
                     </div>
-                    {% endif %}
                 </div>
                 <button class="close-sidebar" type="button" data-bs-dismiss="offcanvas">
                     <i class="bi bi-x"></i>
                 </button>
+            </div>
+            
+            <!-- Theme Toggle Section -->
+            <div class="sidebar-theme-section">
+                <div class="theme-toggle">
+                    <button class="theme-btn" id="themeToggle">
+                        <i class="bi bi-sun-fill" id="themeIcon"></i>
+                        <span id="themeText">{% t "Oq rejim" request.LANGUAGE_CODE %}</span>
+                    </button>
+                </div>
             </div>
             
             <nav class="sidebar-nav">
@@ -441,6 +394,46 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize theme
             initTheme();
+            
+            // Page Header Scroll Detection
+            const pageHeader = document.querySelector('.page-header-simple');
+            const searchBar = document.getElementById('searchBar');
+            
+            if (pageHeader && searchBar) {
+                let lastScrollTop = 0;
+                const searchInput = searchBar.querySelector('.search-input');
+                
+                window.addEventListener('scroll', function() {
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    
+                    // Pastga scroll qilganda (50px dan ko'p)
+                    if (scrollTop > 50) {
+                        if (scrollTop > lastScrollTop) {
+                            // Pastga scroll - header yashirish, qidiruv ko'rsatish
+                            pageHeader.classList.add('hidden');
+                            searchBar.style.display = 'block';
+                            
+                            // Qidiruvga avtomatik focus
+                            if (searchInput) {
+                                setTimeout(() => {
+                                    searchInput.focus();
+                                }, 300);
+                            }
+                        }
+                    } else {
+                        // Tepada - header ko'rsatish, qidiruv yashirish
+                        pageHeader.classList.remove('hidden');
+                        searchBar.style.display = 'none';
+                        
+                        // Focus ni olib tashlash
+                        if (searchInput && document.activeElement === searchInput) {
+                            searchInput.blur();
+                        }
+                    }
+                    
+                    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+                }, { passive: true });
+            }
             
             // AI FAB Scroll Detection
             const aiFab = document.getElementById('aiFab');

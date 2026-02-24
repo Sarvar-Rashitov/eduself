@@ -5,9 +5,6 @@
 {% block title %}{{ direction.name|translate:request.LANGUAGE_CODE }} - {{ direction.institution.name }} - EduSelf{% endblock %}
 
 {% block content %}
-<a href="{% url 'core:institution_detail' direction.institution.pk %}" class="text-decoration-none text-muted mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> {{ direction.institution.name }}
-</a>
 
 <div class="card">
     <div class="card-header">

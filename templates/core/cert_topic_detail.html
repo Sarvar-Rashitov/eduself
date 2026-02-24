@@ -6,9 +6,6 @@
 {% block title %}{{ topic.name|translate:request.LANGUAGE_CODE }} - EduSelf{% endblock %}
 
 {% block content %}
-<a href="{% url 'core:certificate_detail' topic.certificate.pk %}" class="text-decoration-none text-muted mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> {{ topic.certificate.name|translate:request.LANGUAGE_CODE }}
-</a>
 
 <div class="card mb-4">
     <div class="card-body">

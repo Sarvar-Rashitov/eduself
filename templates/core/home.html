@@ -6,8 +6,61 @@
 {% block title %}EduSelf - Bosh sahifa{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/home-mobile.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
 {% endblock %}
+
+{% block header %}
+<!-- Home Page Custom Header with Hero -->
+<header class="home-hero-header">
+    <div class="home-hero-content">
+        <div class="home-hero-top">
+            <div class="home-hero-left">
+                {% if user.is_authenticated %}
+                <a href="{% url 'accounts:profile' %}" class="user-greeting-large" style="text-decoration: none; color: inherit;">
+                    <div class="user-avatar-large">
+                        {% if user.profile_image %}
+                        <img src="{{ user.profile_image.url }}" alt="{{ user.username }}">
+                        {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ user.username|default:'User' }}&background=6366f1&color=fff" alt="User">
+                        {% endif %}
+                    </div>
+                    <div class="greeting-text-large">
+                        <span class="greeting-label-large">{% t "Xayrli tong" request.LANGUAGE_CODE %}</span>
+                        <h1 class="user-name-large">{{ user.first_name|default:user.username }}</h1>
+                    </div>
+                </a>
+                {% else %}
+                <div class="logo-header-large">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    <span>EduSelf</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="home-hero-right">
+                <!-- Language Selector -->
+                {% language_selector %}
+                
+                {% if user.is_authenticated %}
+                <!-- Notification Button -->
+                <button class="header-icon-btn-large" id="notifBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificationMenu">
+                    <i class="bi bi-bell"></i>
+                    {% if unread_notifications_count > 0 %}
+                    <span class="notif-badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </button>
+                {% endif %}
+                
+                <!-- Menu Button (3 dots) -->
+                <button class="header-icon-btn-large" id="menuBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideMenu">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+            </div>
+        </div>
+        
+
+    </div>
+</header>
+{% endblock header %}
 
 {% block content %}
 
@@ -92,49 +145,9 @@
 </div>
 {% endif %}
 
-<!-- User Dashboard - Login qilingan foydalanuvchilar uchun -->
+<!-- Last Tests Section - Login qilingan foydalanuvchilar uchun -->
 {% if user.is_authenticated %}
-<div class="user-dashboard">
-    <!-- User Stats Card -->
-    <div class="stats-card">
-        <div class="stats-header">
-            <h1 class="stats-greeting">{% t "Salom" request.LANGUAGE_CODE %}, {{ user.first_name|default:user.username }}! 👋</h1>
-        </div>
-        
-        <!-- Quick Stats -->
-        <div class="quick-stats">
-            <div class="quick-stat-item">
-                <div class="quick-stat-icon">
-                    <i class="bi bi-clipboard-check"></i>
-                </div>
-                <div class="quick-stat-content">
-                    <div class="quick-stat-value">{{ user_stats.total_tests }}</div>
-                    <div class="quick-stat-label">{% t "Testlar" request.LANGUAGE_CODE %}</div>
-                </div>
-            </div>
-            <div class="quick-stat-item">
-                <div class="quick-stat-icon success">
-                    <i class="bi bi-check-circle"></i>
-                </div>
-                <div class="quick-stat-content">
-                    <div class="quick-stat-value">{{ user_stats.passed_tests }}</div>
-                    <div class="quick-stat-label">{% t "Muvaffaqiyatli" request.LANGUAGE_CODE %}</div>
-                </div>
-            </div>
-            <div class="quick-stat-item">
-                <div class="quick-stat-icon warning">
-                    <i class="bi bi-star-fill"></i>
-                </div>
-                <div class="quick-stat-content">
-                    <div class="quick-stat-value">{{ user.total_points }}</div>
-                    <div class="quick-stat-label">{% t "Ballar" request.LANGUAGE_CODE %}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Last Tests Section -->
-    <div class="test-progress-section">
+<div class="test-progress-section">
         <!-- Last Topic Test -->
         {% if last_test_result %}
         <div class="last-test-card">
@@ -233,7 +246,6 @@
         </div>
         {% endif %}
     </div>
-</div>
 {% endif %}
 
 <!-- Main Features Carousel -->

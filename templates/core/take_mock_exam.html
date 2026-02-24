@@ -4,6 +4,12 @@
 
 {% block title %}{{ exam.title|translate:request.LANGUAGE_CODE }} - EduSelf{% endblock %}
 
+{% block header_actions %}
+<button type="button" class="header-icon-btn" id="finishTestHeaderBtn" onclick="showFinishConfirmation()" style="display: none;" title="{% t 'Imtihonni tugatish' request.LANGUAGE_CODE %}">
+    <i class="bi bi-check-circle"></i>
+</button>
+{% endblock %}
+
 {% block content %}
 <div class="card mb-4">
     <div class="card-body d-flex justify-content-end align-items-center" style="min-height: 50px;">
@@ -75,9 +81,6 @@
                 <button type="button" class="btn btn-primary" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" data-is-last="true">{% t "Imtihonni yakunlash" request.LANGUAGE_CODE %}</button>
                 {% else %}
                 <button type="button" class="btn btn-primary" id="nextQuestion-{{ forloop.counter0 }}" onclick="handleNextQuestion({{ forloop.counter0 }})" data-is-last="false">{% t "Keyingi savol" request.LANGUAGE_CODE %}</button>
-                <button type="button" class="btn btn-danger" onclick="showFinishConfirmation()">
-                    <i class="bi bi-stop-circle"></i> {% t "Imtihonni tugatish" request.LANGUAGE_CODE %}
-                </button>
                 {% endif %}
             </div>
         </div>
@@ -446,6 +449,12 @@ function checkAnswer(questionIndex, questionId) {
         document.getElementById(`checkAnswer-${questionIndex}`).style.display = 'none';
         document.getElementById(`afterCheckButtons-${questionIndex}`).style.display = 'flex';
         document.getElementById(`afterCheckButtons-${questionIndex}`).style.gap = '12px';
+        
+        // Show finish button in header after first answer is checked
+        const finishBtn = document.getElementById('finishTestHeaderBtn');
+        if (finishBtn) {
+            finishBtn.style.display = 'flex';
+        }
         
         document.querySelectorAll(`input[name="question_${questionId}"]`).forEach(input => {
             input.disabled = true;

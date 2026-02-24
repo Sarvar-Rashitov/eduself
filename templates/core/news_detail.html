@@ -5,9 +5,6 @@
 {% block title %}{{ news.translated_title }} - EduSelf{% endblock %}
 
 {% block content %}
-<a href="{% url 'core:news_list' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> {% t "Yangiliklarga qaytish" request.LANGUAGE_CODE %}
-</a>
 
 <div class="card mb-4">
     {% if news.image %}

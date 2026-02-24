@@ -2,7 +2,13 @@
 {% load i18n %}
 {% load translation_tags %}
 
+{% block body_attrs %}data-page="courses"{% endblock %}
+
 {% block title %}{{ title }} - EduSelf{% endblock %}
+
+{% block show_back_button %}{% endblock %}
+
+{% block page_title %}{% t "Online Kurslar" request.LANGUAGE_CODE %}{% endblock %}
 
 {% block content %}
 <div class="section-title">{{ title }}</div>
@@ -17,9 +23,6 @@
         </a>
         {% endfor %}
     </div>
-    <button type="button" id="searchToggleBtn" class="search-icon-btn">
-        <i class="bi bi-search"></i>
-    </button>
 </div>
 
 <!-- Qidiruv (yashirin) -->
@@ -619,7 +622,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentCourseFree = false;
 
     // Search functionality
-    const searchToggleBtn = document.getElementById('searchToggleBtn');
     const searchBar = document.getElementById('searchBar');
     const searchInput = document.getElementById('courseSearch');
     const clearButton = document.getElementById('clearCourseSearch');
@@ -633,20 +635,27 @@ document.addEventListener('DOMContentLoaded', function() {
     let searchTimeout;
     let isSearchOpen = false;
 
-    // Toggle search bar
-    searchToggleBtn.addEventListener('click', function() {
-        isSearchOpen = !isSearchOpen;
-        if (isSearchOpen) {
+    // Auto-open search on scroll
+    let lastScroll = 0;
+    window.addEventListener('scroll', function() {
+        const currentScroll = window.pageYOffset;
+        
+        // Auto-open when scrolling down past 150px
+        if (currentScroll > 150 && !isSearchOpen) {
+            isSearchOpen = true;
             searchBar.style.display = 'block';
             setTimeout(() => searchInput.focus(), 100);
-            this.innerHTML = '<i class="bi bi-x"></i>';
-        } else {
-            searchBar.style.display = 'none';
-            this.innerHTML = '<i class="bi bi-search"></i>';
-            clearSearch();
         }
+        
+        // Add shadow when scrolled
+        if (isSearchOpen && currentScroll > 100) {
+            searchBar.classList.add('scrolled');
+        } else {
+            searchBar.classList.remove('scrolled');
+        }
+        
+        lastScroll = currentScroll;
     });
-
     searchInput.addEventListener('input', function() {
         clearTimeout(searchTimeout);
         const query = this.value.trim().toLowerCase();

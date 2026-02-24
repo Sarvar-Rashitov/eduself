@@ -5,9 +5,6 @@
 {% block title %}{{ lesson.translated_title }} - {{ course.translated_name }} - EduSelf{% endblock %}
 
 {% block content %}
-<a href="{% url 'core:course_detail' course.slug %}" class="text-decoration-none text-muted mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> {{ course.translated_name }}
-</a>
 
 <div class="card mb-4">
     <div class="card-body">

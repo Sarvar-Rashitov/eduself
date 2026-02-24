@@ -2,9 +2,21 @@
 {% load static %}
 {% load translation_tags %}
 
+{% block body_attrs %}data-page="ai-assistant"{% endblock %}
+
 {% block title %}{% t "AI Hamroh - EduSelf" request.LANGUAGE_CODE %}{% endblock %}
 
-{% block header %}{% endblock %}
+{% block page_title %}{% t "AI Hamroh" request.LANGUAGE_CODE %}{% endblock %}
+
+{% block header_actions %}
+<button class="header-icon-btn" id="clearChatBtn" title="{% t 'Tozalash' request.LANGUAGE_CODE %}">
+    <i class="bi bi-trash"></i>
+</button>
+<a href="{% url 'ai_assistant:new_session' %}" class="header-icon-btn" title="{% t 'Yangi suhbat' request.LANGUAGE_CODE %}">
+    <i class="bi bi-plus-lg"></i>
+</a>
+{% endblock %}
+
 {% block messages %}{% endblock %}
 {% block ai_fab %}{% endblock %}
 {% block footer %}{% endblock %}
@@ -236,94 +248,12 @@
     background: var(--ai-bg-color);
     margin: -16px;
     width: calc(100% + 32px);
+    padding-top: 72px;
 }
 
 /* Hide bottom navigation on AI chat page */
 .bottom-nav {
     display: none !important;
-}
-
-/* Header */
-.ai-mobile-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-    animation: headerGlow 3s ease-in-out infinite;
-}
-
-@keyframes headerGlow {
-    0%, 100% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
-    50% { box-shadow: 0 4px 30px rgba(118, 75, 162, 0.5); }
-}
-
-.ai-header-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.ai-header-avatar {
-    width: 38px;
-    height: 38px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    animation: robotPulse 2s ease-in-out infinite;
-}
-
-@keyframes robotPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-.ai-header-info h2 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: white !important;
-}
-
-.ai-header-info p {
-    margin: 0;
-    font-size: 0.65rem;
-    opacity: 0.85;
-    color: white !important;
-}
-
-.ai-header-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.header-action-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.15);
-    border: none;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.header-action-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: scale(1.1);
-}
-
-.header-action-btn:active {
-    transform: scale(0.95);
 }
 
 /* Messages Container */
@@ -772,30 +702,6 @@
 </div>
 
 <div class="ai-chat-page">
-    <!-- Header -->
-    <div class="ai-mobile-header">
-        <div class="ai-header-left">
-            <a href="{% url 'core:home' %}" class="header-action-btn" style="margin-right: 0.5rem;" title="{% t 'Orqaga' request.LANGUAGE_CODE %}">
-                <i class="bi bi-arrow-left"></i>
-            </a>
-            <div class="ai-header-avatar">
-                <i class="bi bi-robot"></i>
-            </div>
-            <div class="ai-header-info">
-                <h2>{% t "AI Hamroh" request.LANGUAGE_CODE %}</h2>
-                <p><span style="color: #10b981;">●</span> {% t "Online" request.LANGUAGE_CODE %}</p>
-            </div>
-        </div>
-        <div class="ai-header-actions">
-            <button class="header-action-btn" id="clearChatBtn" title="{% t 'Tozalash' request.LANGUAGE_CODE %}">
-                <i class="bi bi-trash"></i>
-            </button>
-            <a href="{% url 'ai_assistant:new_session' %}" class="header-action-btn" title="{% t 'Yangi suhbat' request.LANGUAGE_CODE %}">
-                <i class="bi bi-plus-lg"></i>
-            </a>
-        </div>
-    </div>
-    
     <!-- Messages -->
     <div class="ai-messages-area" id="messagesContainer">
         {% if messages_list %}

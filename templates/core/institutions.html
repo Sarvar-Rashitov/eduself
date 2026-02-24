@@ -2,7 +2,13 @@
 {% load i18n %}
 {% load translation_tags %}
 
+{% block body_attrs %}data-page="institutions"{% endblock %}
+
 {% block title %}{% t title request.LANGUAGE_CODE %} - EduSelf{% endblock %}
+
+{% block show_back_button %}{% endblock %}
+
+{% block page_title %}{% t "Ta'lim Muassasalari" request.LANGUAGE_CODE %}{% endblock %}
 
 {% block content %}
 <div class="page-header institutions-header">
@@ -50,9 +56,6 @@
         {% endfor %}
     </div>
     {% endif %}
-    <button type="button" id="searchToggleBtn" class="search-icon-btn">
-        <i class="bi bi-search"></i>
-    </button>
 </div>
 
 <!-- Qidiruv (yashirin) -->
@@ -239,7 +242,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const searchToggleBtn = document.getElementById('searchToggleBtn');
     const searchBar = document.getElementById('searchBar');
     const searchInput = document.getElementById('institutionSearch');
     const clearButton = document.getElementById('clearInstitutionSearch');
@@ -251,22 +253,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let searchTimeout;
     let isSearchOpen = false;
-    let autoOpenedByScroll = false;
-    
-    // Toggle search bar
-    searchToggleBtn.addEventListener('click', function() {
-        isSearchOpen = !isSearchOpen;
-        if (isSearchOpen) {
-            searchBar.style.display = 'block';
-            setTimeout(() => searchInput.focus(), 100);
-            this.innerHTML = '<i class="bi bi-x"></i>';
-        } else {
-            searchBar.style.display = 'none';
-            this.innerHTML = '<i class="bi bi-search"></i>';
-            clearSearch();
-            autoOpenedByScroll = false;
-        }
-    });
     
     // Auto-open search on scroll
     let lastScroll = 0;
@@ -274,11 +260,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentScroll = window.pageYOffset;
         
         // Auto-open when scrolling down past 150px
-        if (currentScroll > 150 && !isSearchOpen && !autoOpenedByScroll) {
+        if (currentScroll > 150 && !isSearchOpen) {
             isSearchOpen = true;
-            autoOpenedByScroll = true;
             searchBar.style.display = 'block';
-            searchToggleBtn.innerHTML = '<i class="bi bi-x"></i>';
+            setTimeout(() => searchInput.focus(), 100);
         }
         
         // Add shadow when scrolled
