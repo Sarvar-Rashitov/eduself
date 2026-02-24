@@ -108,7 +108,7 @@ class AITranslator:
     
     def translate(self, text, source_lang='uz', target_lang='en', page_name=None):
         """
-        Matnni tarjima qilish - Page-based load balancing
+        Matnni tarjima qilish - Page-based load balancing + Database cache
         
         Args:
             text: Tarjima qilinadigan matn
@@ -127,16 +127,39 @@ class AITranslator:
         if not text or not text.strip():
             return text
         
-        # Uzunlik limiti - 200 chars (page-based load balancing bilan)
-        if len(text) > 200:
+        # Uzunlik limiti - 1000 chars (database cache bilan)
+        if len(text) > 1000:
             logger.debug(f"Text too long for AI translation ({len(text)} chars), returning original")
             return text
         
-        # Cache'dan tekshirish - bu eng muhim!
+        # 1. Memory cache'dan tekshirish (eng tez)
         cache_key = self._get_cache_key(text, source_lang, target_lang)
         cached_translation = cache.get(cache_key)
         if cached_translation:
             return cached_translation
+        
+        # 2. Database cache'dan tekshirish
+        text_hash = hashlib.md5(text.encode()).hexdigest()
+        try:
+            from core.models import TranslationCache
+            db_cache = TranslationCache.objects.filter(
+                text_hash=text_hash,
+                source_lang=source_lang,
+                target_lang=target_lang
+            ).first()
+            
+            if db_cache:
+                # Hit count'ni oshirish
+                db_cache.hit_count += 1
+                db_cache.save(update_fields=['hit_count'])
+                
+                # Memory cache'ga ham saqlash
+                cache.set(cache_key, db_cache.translated_text, 60 * 60 * 24 * 7)
+                
+                logger.debug(f"✅ Translation found in DB cache (hit_count: {db_cache.hit_count})")
+                return db_cache.translated_text
+        except Exception as e:
+            logger.warning(f"DB cache lookup error: {str(e)}")
         
         # API key yo'q bo'lsa, original matnni qaytarish
         if not self.api_keys:
@@ -170,22 +193,39 @@ Translation:"""
                     {'role': 'user', 'content': prompt}
                 ],
                 'temperature': 0.3,
-                'max_tokens': 200  # For longer texts
+                'max_tokens': 1000  # For longer texts
             }
             
             response = requests.post(
                 self.api_url,
                 headers=headers,
                 json=data,
-                timeout=8  # 8 seconds timeout
+                timeout=15  # 15 seconds timeout for longer texts
             )
             
             if response.status_code == 200:
                 result = response.json()
                 translated_text = result['choices'][0]['message']['content'].strip()
                 
-                # Cache'ga saqlash (7 kun - uzoq muddat)
+                # 1. Memory cache'ga saqlash (7 kun)
                 cache.set(cache_key, translated_text, 60 * 60 * 24 * 7)
+                
+                # 2. Database cache'ga saqlash
+                try:
+                    from core.models import TranslationCache
+                    TranslationCache.objects.update_or_create(
+                        text_hash=text_hash,
+                        source_lang=source_lang,
+                        target_lang=target_lang,
+                        defaults={
+                            'original_text': text,
+                            'translated_text': translated_text,
+                            'hit_count': 1
+                        }
+                    )
+                    logger.debug(f"✅ Translation saved to DB cache")
+                except Exception as e:
+                    logger.warning(f"DB cache save error: {str(e)}")
                 
                 return translated_text
             else:

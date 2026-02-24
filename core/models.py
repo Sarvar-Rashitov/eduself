@@ -966,3 +966,27 @@ class Partner(models.Model):
     
     def __str__(self):
         return self.name
+
+
+class TranslationCache(models.Model):
+    """AI tarjimalarini database cache qilish"""
+    text_hash = models.CharField(max_length=32, db_index=True, verbose_name="Matn hash")
+    source_lang = models.CharField(max_length=10, db_index=True, verbose_name="Manba til")
+    target_lang = models.CharField(max_length=10, db_index=True, verbose_name="Maqsad til")
+    original_text = models.TextField(verbose_name="Original matn")
+    translated_text = models.TextField(verbose_name="Tarjima qilingan matn")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Yangilangan sana")
+    hit_count = models.PositiveIntegerField(default=0, verbose_name="Ishlatilgan soni")
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Tarjima cache"
+        verbose_name_plural = "Tarjima cache'lari"
+        unique_together = ['text_hash', 'source_lang', 'target_lang']
+        indexes = [
+            models.Index(fields=['text_hash', 'source_lang', 'target_lang']),
+        ]
+    
+    def __str__(self):
+        return f"{self.source_lang} → {self.target_lang}: {self.original_text[:50]}"

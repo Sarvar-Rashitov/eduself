@@ -5,7 +5,7 @@ from .models import (
     MockExamCategory, MockExam, MockExamQuestion, MockExamAnswer, MockExamResult,
     InstitutionCategory, Institution, InstitutionDirection, Advertisement, Statistic, NewsCategory, News,
     CourseCategory, Course, Lesson, CourseEnrollment, LessonProgress, Notification, NotificationRead,
-    DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult, Partner
+    DirectionExam, DirectionExamQuestion, DirectionExamAnswer, DirectionExamResult, Partner, TranslationCache
 )
 
 
@@ -674,3 +674,38 @@ class PartnerAdmin(admin.ModelAdmin):
             'fields': ('order', 'is_active')
         }),
     )
+
+
+@admin.register(TranslationCache)
+class TranslationCacheAdmin(admin.ModelAdmin):
+    list_display = ['original_text_short', 'source_lang', 'target_lang', 'translated_text_short', 'hit_count', 'created_at']
+    list_filter = ['source_lang', 'target_lang', 'created_at']
+    search_fields = ['original_text', 'translated_text', 'text_hash']
+    readonly_fields = ['text_hash', 'created_at', 'updated_at', 'hit_count']
+    ordering = ['-hit_count', '-created_at']
+    
+    def original_text_short(self, obj):
+        return obj.original_text[:50] + '...' if len(obj.original_text) > 50 else obj.original_text
+    original_text_short.short_description = 'Original matn'
+    
+    def translated_text_short(self, obj):
+        return obj.translated_text[:50] + '...' if len(obj.translated_text) > 50 else obj.translated_text
+    translated_text_short.short_description = 'Tarjima'
+    
+    fieldsets = (
+        ('Tarjima ma\'lumotlari', {
+            'fields': ('source_lang', 'target_lang', 'original_text', 'translated_text')
+        }),
+        ('Texnik ma\'lumotlar', {
+            'fields': ('text_hash', 'hit_count', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    actions = ['clear_low_hit_cache']
+    
+    def clear_low_hit_cache(self, request, queryset):
+        """Hit count 5 dan kam bo'lgan cache'larni o'chirish"""
+        count = queryset.filter(hit_count__lt=5).delete()[0]
+        self.message_user(request, f"{count} ta kam ishlatilgan cache o'chirildi.")
+    clear_low_hit_cache.short_description = "Kam ishlatilgan cache'larni o'chirish (hit < 5)"
