@@ -59,7 +59,7 @@
 <div id="searchBar" class="search-bar-sticky" style="display: none;">
     <div class="search-input-wrapper">
         <i class="bi bi-search search-icon"></i>
-        <input type="text" id="mockExamSearch" class="form-control search-input" placeholder="{% t 'Mock imtihonlarni qidiring...' request.LANGUAGE_CODE %}">
+        <input type="text" id="mockExamSearch" class="form-control search-input" placeholder="{% t 'Mock imtihonlarni qidiring...' request.LANGUAGE_CODE %}" readonly onfocus="this.removeAttribute('readonly');">
         <button type="button" id="clearMockExamSearch" class="search-clear" style="display: none;">
             <i class="bi bi-x"></i>
         </button>

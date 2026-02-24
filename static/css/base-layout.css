@@ -60,8 +60,10 @@ a, button, input, textarea, select {
 .back-btn {
     width: 36px;
     height: 36px;
-    border: none;
-    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: var(--text-primary);
     font-size: 20px;
     display: flex;
@@ -73,6 +75,7 @@ a, button, input, textarea, select {
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .back-btn:focus {
@@ -84,11 +87,21 @@ a, button, input, textarea, select {
 }
 
 .back-btn:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .back-btn {
+    background: rgba(30, 30, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="dark"] .back-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(40, 40, 40, 0.9);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .page-title {
