@@ -24,14 +24,20 @@
     <p class="small text-muted mt-2 mb-0">{% t "O'tish balli" request.LANGUAGE_CODE %}: {{ topic.passing_score }}%</p>
     
     <div class="result-buttons">
-        <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary btn-sm">{% t "Qayta urinish" request.LANGUAGE_CODE %}</a>
-        <a href="{% url 'core:topic_analysis' topic.pk %}" class="btn btn-info btn-sm">{% t "AI Tahlil" request.LANGUAGE_CODE %}</a>
-        <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-warning btn-sm">
-            <i class="bi bi-trophy me-1"></i>{% t "Reyting" request.LANGUAGE_CODE %}</a>
+        <a href="{% url 'core:take_topic_test' topic.pk %}" class="btn btn-primary">
+            <i class="bi bi-arrow-repeat me-1"></i>{% t "Qayta urinish" request.LANGUAGE_CODE %}
+        </a>
+        <a href="{% url 'core:topic_analysis' topic.pk %}" class="btn btn-info">
+            <i class="bi bi-graph-up me-1"></i>{% t "AI Tahlil" request.LANGUAGE_CODE %}
+        </a>
+        <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-warning">
+            <i class="bi bi-trophy me-1"></i>{% t "Reyting" request.LANGUAGE_CODE %}
+        </a>
         {% if next_topic %}
-        <a href="{% url 'core:topic_leaderboard' next_topic.pk %}" class="btn btn-success btn-sm">{% t "Keyingi" request.LANGUAGE_CODE %}</a>
+        <a href="{% url 'core:take_topic_test' next_topic.pk %}" class="btn btn-success">
+            <i class="bi bi-arrow-right me-1"></i>{% t "Keyingi mavzu" request.LANGUAGE_CODE %}
+        </a>
         {% endif %}
-        <a href="{% url 'core:subject_detail' topic.subject.pk %}" class="btn btn-outline-primary btn-sm">{% t "Ortga" request.LANGUAGE_CODE %}</a>
     </div>
 </div>
 {% else %}
@@ -47,71 +53,145 @@
 {% block extra_css %}
 <style>
 .result-wrapper {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px 0;
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
 }
 
 .result-card {
     background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 32px 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     text-align: center;
+    max-width: 400px;
+    width: 100%;
 }
 
 .result-icon {
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 16px;
-    font-size: 2rem;
+    margin: 0 auto 20px;
+    font-size: 2.5rem;
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
 }
 
 .result-icon.success {
     background: linear-gradient(135deg, #10b981, #34d399);
     color: white;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
 }
 
 .result-icon.fail {
     background: linear-gradient(135deg, #ef4444, #f87171);
     color: white;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
 }
 
 .result-score {
-    font-size: 3rem;
-    font-weight: 700;
-    color: #6366f1;
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 16px 0;
 }
 
 .result-buttons {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin-top: 20px;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 24px;
 }
 
 .result-buttons .btn {
-    font-size: 0.8rem;
-    padding: 6px 12px;
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.result-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.result-buttons .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+}
+
+.result-buttons .btn-info {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    border: none;
+}
+
+.result-buttons .btn-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border: none;
+}
+
+.result-buttons .btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #cbd5e1;
+    margin-bottom: 16px;
 }
 
 @media (max-width: 576px) {
     .result-wrapper {
-        padding: 10px;
+        padding: 16px;
+        min-height: calc(100vh - 100px);
     }
     
-    .result-buttons {
-        flex-direction: column;
-        gap: 6px;
+    .result-card {
+        padding: 24px 20px;
+    }
+    
+    .result-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 2rem;
+    }
+    
+    .result-score {
+        font-size: 3rem;
     }
     
     .result-buttons .btn {
-        width: 100%;
+        padding: 10px 16px;
+        font-size: 0.9rem;
     }
 }
 </style>

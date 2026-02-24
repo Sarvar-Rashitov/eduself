@@ -18,6 +18,7 @@ urlpatterns = [
     path('topics/<int:pk>/result/', views.topic_result_view, name='topic_result'),
     path('topics/<int:pk>/analysis/', views.topic_analysis_view, name='topic_analysis'),
     path('check-answer/<int:question_id>/<int:answer_id>/', views.check_answer_view, name='check_answer'),
+    path('translate-question/<int:question_id>/', views.translate_question_ajax, name='translate_question'),
     
     path('certificates/', views.certificates_view, name='certificates'),
     path('certificates/<int:pk>/', views.certificate_detail_view, name='certificate_detail'),
@@ -27,6 +28,7 @@ urlpatterns = [
     path('cert-tests/<int:pk>/result/', views.cert_test_result_view, name='cert_test_result'),
     path('cert-tests/<int:pk>/analysis/', views.cert_test_analysis_view, name='cert_test_analysis'),
     path('check-cert-answer/<int:question_id>/<int:answer_id>/', views.check_cert_answer_view, name='check_cert_answer'),
+    path('translate-cert-question/<int:question_id>/', views.translate_cert_question_ajax, name='translate_cert_question'),
     
     path('mock-exams/', views.mock_exams_view, name='mock_exams'),
     path('mock-exams/<int:pk>/leaderboard/', views.mock_exam_leaderboard_view, name='mock_exam_leaderboard'),
@@ -34,6 +36,7 @@ urlpatterns = [
     path('mock-exams/<int:pk>/result/', views.mock_exam_result_view, name='mock_exam_result'),
     path('mock-exams/<int:pk>/analysis/', views.mock_exam_analysis_view, name='mock_exam_analysis'),
     path('check-mock-answer/<int:question_id>/<int:answer_id>/', views.check_mock_answer_view, name='check_mock_answer'),
+    path('translate-mock-question/<int:question_id>/', views.translate_mock_question_ajax, name='translate_mock_question'),
     
     path('leaderboard/', views.global_leaderboard_view, name='global_leaderboard'),
     

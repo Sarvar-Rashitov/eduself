@@ -151,15 +151,17 @@ class AITranslator:
             if db_cache:
                 # Hit count'ni oshirish
                 db_cache.hit_count += 1
-                db_cache.save(update_fields=['hit_count'])
+                db_cache.save(update_fields=['hit_count', 'updated_at'])
                 
                 # Memory cache'ga ham saqlash
                 cache.set(cache_key, db_cache.translated_text, 60 * 60 * 24 * 7)
                 
-                logger.debug(f"✅ Translation found in DB cache (hit_count: {db_cache.hit_count})")
+                logger.info(f"✅ DB CACHE HIT: {text[:50]}... (hit_count: {db_cache.hit_count})")
                 return db_cache.translated_text
+            else:
+                logger.info(f"⚠️ DB CACHE MISS: {text[:50]}...")
         except Exception as e:
-            logger.warning(f"DB cache lookup error: {str(e)}")
+            logger.error(f"❌ DB cache lookup error: {str(e)}")
         
         # API key yo'q bo'lsa, original matnni qaytarish
         if not self.api_keys:
@@ -213,19 +215,22 @@ Translation:"""
                 # 2. Database cache'ga saqlash
                 try:
                     from core.models import TranslationCache
-                    TranslationCache.objects.update_or_create(
+                    obj, created = TranslationCache.objects.update_or_create(
                         text_hash=text_hash,
                         source_lang=source_lang,
                         target_lang=target_lang,
                         defaults={
-                            'original_text': text,
+                            'original_text': text[:1000],  # Limit to 1000 chars
                             'translated_text': translated_text,
                             'hit_count': 1
                         }
                     )
-                    logger.debug(f"✅ Translation saved to DB cache")
+                    if created:
+                        logger.info(f"💾 NEW translation saved to DB: {text[:50]}...")
+                    else:
+                        logger.info(f"🔄 UPDATED translation in DB: {text[:50]}...")
                 except Exception as e:
-                    logger.warning(f"DB cache save error: {str(e)}")
+                    logger.error(f"❌ DB cache save error: {str(e)}")
                 
                 return translated_text
             else:

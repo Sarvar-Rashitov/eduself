@@ -315,24 +315,14 @@ def take_topic_test_view(request, pk):
     # Get current language
     lang = getattr(request, 'LANGUAGE_CODE', 'uz')
     
-    # Translate topic and questions if not Uzbek
+    # CRITICAL: DO NOT translate questions here - let frontend do it via AJAX
+    # This prevents timeout errors when starting tests
     if lang != 'uz':
         topic.translated_name = translator.translate(topic.name, 'uz', lang, 'topic_test')
         topic.translated_description = translator.translate(topic.description, 'uz', lang, 'topic_test') if topic.description else ''
-        
-        # Translate questions and answers
-        for question in questions:
-            question.translated_text = translator.translate(question.text, 'uz', lang, 'topic_test')
-            for answer in question.answers.all():
-                answer.translated_text = translator.translate(answer.text, 'uz', lang, 'topic_test')
     else:
         topic.translated_name = topic.name
         topic.translated_description = topic.description if topic.description else ''
-        
-        for question in questions:
-            question.translated_text = question.text
-            for answer in question.answers.all():
-                answer.translated_text = answer.text
     
     if request.method == 'POST':
         # JSON formatdagi javoblarni olish
@@ -503,6 +493,50 @@ def check_answer_view(request, question_id, answer_id):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+def translate_question_ajax(request, question_id):
+    """AJAX orqali savolni tarjima qilish - bitta-bitta"""
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            import logging
+            logger = logging.getLogger(__name__)
+            
+            question = get_object_or_404(Question, id=question_id)
+            lang = request.GET.get('lang', 'uz')
+            
+            logger.info(f"🔄 Translating question {question_id} to {lang}")
+            
+            if lang == 'uz':
+                return JsonResponse({
+                    'question_text': question.text,
+                    'answers': [{'id': a.id, 'text': a.text} for a in question.answers.all()]
+                })
+            
+            # Translate question and answers
+            translated_question = translator.translate(question.text, 'uz', lang, 'topic_test')
+            translated_answers = []
+            
+            for answer in question.answers.all():
+                translated_answer = translator.translate(answer.text, 'uz', lang, 'topic_test')
+                translated_answers.append({
+                    'id': answer.id,
+                    'text': translated_answer
+                })
+            
+            logger.info(f"✅ Question {question_id} translated successfully")
+            
+            return JsonResponse({
+                'question_text': translated_question,
+                'answers': translated_answers
+            })
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"❌ Translation error for question {question_id}: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
 def certificates_view(request):
     certificates = Certificate.objects.filter(is_active=True)
     context = {'certificates': certificates}
@@ -633,6 +667,40 @@ def check_cert_answer_view(request, question_id, answer_id):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+def translate_cert_question_ajax(request, question_id):
+    """AJAX orqali sertifikat savolini tarjima qilish - bitta-bitta"""
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            question = get_object_or_404(CertificateQuestion, id=question_id)
+            lang = request.GET.get('lang', 'uz')
+            
+            if lang == 'uz':
+                return JsonResponse({
+                    'question_text': question.text,
+                    'answers': [{'id': a.id, 'text': a.text} for a in question.cert_answers.all()]
+                })
+            
+            # Translate question and answers
+            translated_question = translator.translate(question.text, 'uz', lang, 'cert_test')
+            translated_answers = []
+            
+            for answer in question.cert_answers.all():
+                translated_answer = translator.translate(answer.text, 'uz', lang, 'cert_test')
+                translated_answers.append({
+                    'id': answer.id,
+                    'text': translated_answer
+                })
+            
+            return JsonResponse({
+                'question_text': translated_question,
+                'answers': translated_answers
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
 @login_required
 def take_cert_test_view(request, pk):
     test = get_object_or_404(CertificateTest, pk=pk, is_active=True)
@@ -647,24 +715,14 @@ def take_cert_test_view(request, pk):
     # Get current language
     lang = getattr(request, 'LANGUAGE_CODE', 'uz')
     
-    # Translate test and questions if not Uzbek
+    # CRITICAL: DO NOT translate questions here - let frontend do it via AJAX
+    # This prevents timeout errors when starting tests
     if lang != 'uz':
         test.translated_title = translator.translate(test.title, 'uz', lang, 'cert_test')
         test.translated_description = translator.translate(test.description, 'uz', lang, 'cert_test') if test.description else ''
-        
-        # Translate questions and answers
-        for question in questions:
-            question.translated_text = translator.translate(question.text, 'uz', lang, 'cert_test')
-            for answer in question.cert_answers.all():
-                answer.translated_text = translator.translate(answer.text, 'uz', lang, 'cert_test')
     else:
         test.translated_title = test.title
         test.translated_description = test.description if test.description else ''
-        
-        for question in questions:
-            question.translated_text = question.text
-            for answer in question.cert_answers.all():
-                answer.translated_text = answer.text
     
     if request.method == 'POST':
         # JSON formatdagi javoblarni olish
@@ -914,6 +972,40 @@ def check_mock_answer_view(request, question_id, answer_id):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+def translate_mock_question_ajax(request, question_id):
+    """AJAX orqali mock exam savolini tarjima qilish - bitta-bitta"""
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            question = get_object_or_404(MockExamQuestion, id=question_id)
+            lang = request.GET.get('lang', 'uz')
+            
+            if lang == 'uz':
+                return JsonResponse({
+                    'question_text': question.text,
+                    'answers': [{'id': a.id, 'text': a.text} for a in question.mock_answers.all()]
+                })
+            
+            # Translate question and answers
+            translated_question = translator.translate(question.text, 'uz', lang, 'mock_exam')
+            translated_answers = []
+            
+            for answer in question.mock_answers.all():
+                translated_answer = translator.translate(answer.text, 'uz', lang, 'mock_exam')
+                translated_answers.append({
+                    'id': answer.id,
+                    'text': translated_answer
+                })
+            
+            return JsonResponse({
+                'question_text': translated_question,
+                'answers': translated_answers
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
 @login_required
 def take_mock_exam_view(request, pk):
     exam = get_object_or_404(MockExam, pk=pk, is_active=True)
@@ -925,24 +1017,14 @@ def take_mock_exam_view(request, pk):
     # Get current language
     lang = getattr(request, 'LANGUAGE_CODE', 'uz')
     
-    # Translate exam and questions if not Uzbek
+    # CRITICAL: DO NOT translate questions here - let frontend do it via AJAX
+    # This prevents timeout errors when starting tests
     if lang != 'uz':
         exam.translated_name = translator.translate(exam.title, 'uz', lang, 'mock_exam')
         exam.translated_description = translator.translate(exam.description, 'uz', lang, 'mock_exam') if exam.description else ''
-        
-        # Translate questions and answers
-        for question in questions:
-            question.translated_text = translator.translate(question.text, 'uz', lang, 'mock_exam')
-            for answer in question.mock_answers.all():
-                answer.translated_text = translator.translate(answer.text, 'uz', lang, 'mock_exam')
     else:
         exam.translated_name = exam.title
         exam.translated_description = exam.description if exam.description else ''
-        
-        for question in questions:
-            question.translated_text = question.text
-            for answer in question.mock_answers.all():
-                answer.translated_text = answer.text
     
     if request.method == 'POST':
         # JSON formatdagi javoblarni olish

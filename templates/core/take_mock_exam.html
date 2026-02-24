@@ -53,7 +53,7 @@
         </div>
         {% endif %}
         
-        <div class="question-text">{{ question.text|translate:request.LANGUAGE_CODE|safe }}</div>
+        <div class="question-text" data-original-text="{{ question.text|safe }}">{{ question.text|safe }}</div>
         {% if question.image %}
         <img src="{{ question.image.url }}" alt="Question image" class="img-fluid mb-3 rounded">
         {% endif %}
@@ -63,7 +63,7 @@
             <label class="answer-option" data-answer-id="{{ answer.id }}">
                 <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" data-question-id="{{ question.id }}">
                 <div class="answer-content">
-                    <span class="answer-text">{{ answer.text|translate:request.LANGUAGE_CODE|safe }}</span>
+                    <span class="answer-text" data-original-text="{{ answer.text|safe }}">{{ answer.text|safe }}</span>
                     {% if answer.image %}
                     <div class="answer-image">
                         <img src="{{ answer.image.url }}" alt="Answer image" class="img-fluid rounded">
@@ -359,6 +359,43 @@ let timerInterval;
 let userAnswers = {};
 let questionResults = {};
 let currentScore = 0.0; // Joriy ball hisobi
+const currentLang = '{{ request.LANGUAGE_CODE }}';
+const questionIds = [{% for question in questions %}{{ question.id }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+// Translate current question via AJAX
+function translateCurrentQuestion() {
+    if (currentLang === 'uz') return; // No translation needed for Uzbek
+    
+    const questionId = questionIds[currentQuestion];
+    const questionCard = document.getElementById(`question-${currentQuestion}`);
+    
+    // Show loading indicator
+    const questionText = questionCard.querySelector('.question-text');
+    const originalText = questionText.getAttribute('data-original-text');
+    questionText.innerHTML = '<i class="bi bi-hourglass-split"></i> Tarjima qilinmoqda...';
+    
+    fetch(`/translate-mock-question/${questionId}/?lang=${currentLang}`, {
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update question text
+        questionText.textContent = data.question_text;
+        
+        // Update answers
+        data.answers.forEach(answer => {
+            const answerElement = questionCard.querySelector(`[data-answer-id="${answer.id}"] .answer-text`);
+            if (answerElement) {
+                answerElement.textContent = answer.text;
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Translation error:', error);
+        // Fallback to original text
+        questionText.textContent = originalText;
+    });
+}
 
 function startTimer() {
     timerInterval = setInterval(function() {
@@ -516,6 +553,9 @@ function nextQuestion(questionIndex) {
     currentQuestion = questionIndex + 1;
     document.getElementById(`question-${currentQuestion}`).style.display = 'block';
     updateProgressBar();
+    
+    // Translate the new question
+    translateCurrentQuestion();
 }
 
 function submitExam() {
@@ -564,6 +604,9 @@ function submitExam() {
 document.addEventListener('DOMContentLoaded', function() {
     startTimer();
     updateProgressBar();
+    
+    // Translate first question on page load
+    translateCurrentQuestion();
 });
 
 let testCompleted = false;
