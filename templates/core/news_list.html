@@ -30,8 +30,8 @@
             {% endif %}
             <div class="news-card-content-horizontal">
                 <span class="badge bg-primary mb-2">{{ news.category.name|translate:request.LANGUAGE_CODE }}</span>
-                <h6 class="news-title">{{ news.title|translate:request.LANGUAGE_CODE }}</h6>
-                <p class="news-summary">{{ news.summary|translate:request.LANGUAGE_CODE|truncatewords:12 }}</p>
+                <h6 class="news-title">{{ news.translated_title }}</h6>
+                <p class="news-summary">{{ news.translated_summary|truncatewords:12 }}</p>
                 <div class="news-meta">
                     <small>
                         <i class="bi bi-calendar3"></i> {{ news.published_at|date:"d.m.Y" }}
@@ -76,8 +76,8 @@
                 {% endif %}
                     <div class="card-body">
                         <span class="badge bg-primary mb-2">{{ news.category.name|translate:request.LANGUAGE_CODE }}</span>
-                        <h6 class="card-title text-dark">{{ news.title|translate:request.LANGUAGE_CODE }}</h6>
-                        <p class="card-text text-muted small mb-2">{{ news.summary|translate:request.LANGUAGE_CODE|truncatewords:15 }}</p>
+                        <h6 class="card-title text-dark">{{ news.translated_title }}</h6>
+                        <p class="card-text text-muted small mb-2">{{ news.translated_summary|truncatewords:15 }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">
                                 <i class="bi bi-calendar3"></i> {{ news.published_at|date:"d.m.Y" }}

@@ -1114,7 +1114,24 @@ def institution_detail_view(request, pk):
     # Translate institution details if not Uzbek
     if lang != 'uz':
         institution.translated_name = translator.translate(institution.name, 'uz', lang, 'institution_detail')
-        institution.translated_description = translator.translate(institution.description, 'uz', lang, 'institution_detail')
+        institution.translated_short_description = translator.translate(institution.short_description, 'uz', lang, 'institution_detail') if institution.short_description else ''
+        
+        # Handle long description - split if needed
+        if institution.description:
+            desc_length = len(institution.description)
+            if desc_length > 1000:
+                # Split into chunks of 900 chars (leaving buffer)
+                chunks = []
+                for i in range(0, desc_length, 900):
+                    chunk = institution.description[i:i+900]
+                    translated_chunk = translator.translate(chunk, 'uz', lang, 'institution_detail')
+                    chunks.append(translated_chunk)
+                institution.translated_description = ' '.join(chunks)
+            else:
+                institution.translated_description = translator.translate(institution.description, 'uz', lang, 'institution_detail')
+        else:
+            institution.translated_description = ''
+        
         institution.translated_address = translator.translate(institution.address, 'uz', lang, 'institution_detail') if institution.address else ''
         
         # Translate category
@@ -1129,7 +1146,8 @@ def institution_detail_view(request, pk):
             direction.translated_description = translator.translate(direction.description, 'uz', lang, 'institution_detail') if direction.description else ''
     else:
         institution.translated_name = institution.name
-        institution.translated_description = institution.description
+        institution.translated_short_description = institution.short_description if institution.short_description else ''
+        institution.translated_description = institution.description if institution.description else ''
         institution.translated_address = institution.address if institution.address else ''
         institution.translated_category = institution.category.name if institution.category else ''
         
@@ -1194,6 +1212,27 @@ def news_list_view(request):
     categories = NewsCategory.objects.filter(is_active=True)
     featured_news = News.objects.filter(is_featured=True, is_published=True)[:3]
     
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Translate news list if not Uzbek
+    if lang != 'uz':
+        for news in news_list:
+            news.translated_title = translator.translate(news.title, 'uz', lang, 'news')
+            news.translated_summary = translator.translate(news.summary, 'uz', lang, 'news')
+        
+        for news in featured_news:
+            news.translated_title = translator.translate(news.title, 'uz', lang, 'news')
+            news.translated_summary = translator.translate(news.summary, 'uz', lang, 'news')
+    else:
+        for news in news_list:
+            news.translated_title = news.title
+            news.translated_summary = news.summary
+        
+        for news in featured_news:
+            news.translated_title = news.title
+            news.translated_summary = news.summary
+    
     context = {
         'news_list': news_list,
         'categories': categories,
@@ -1218,7 +1257,23 @@ def news_detail_view(request, slug):
     # Translate news content if not Uzbek
     if lang != 'uz':
         news.translated_title = translator.translate(news.title, 'uz', lang, 'news_detail')
-        news.translated_content = translator.translate(news.content, 'uz', lang, 'news_detail')
+        
+        # Handle long content - split if needed
+        if news.content:
+            content_length = len(news.content)
+            if content_length > 1000:
+                # Split into chunks of 900 chars (leaving buffer)
+                chunks = []
+                for i in range(0, content_length, 900):
+                    chunk = news.content[i:i+900]
+                    translated_chunk = translator.translate(chunk, 'uz', lang, 'news_detail')
+                    chunks.append(translated_chunk)
+                news.translated_content = ' '.join(chunks)
+            else:
+                news.translated_content = translator.translate(news.content, 'uz', lang, 'news_detail')
+        else:
+            news.translated_content = ''
+        
         if news.category:
             news.translated_category = translator.translate(news.category.name, 'uz', lang, 'news_detail')
     else:
@@ -1424,12 +1479,12 @@ def lesson_detail_view(request, course_slug, lesson_id):
         lesson.translated_title = translator.translate(lesson.title, 'uz', lang, 'lesson_detail')
         lesson.translated_content = translator.translate(lesson.content, 'uz', lang, 'lesson_detail')
         lesson.translated_description = translator.translate(lesson.description, 'uz', lang, 'lesson_detail') if lesson.description else ''
-        course.translated_name = translator.translate(course.name, 'uz', lang, 'lesson_detail')
+        course.translated_title = translator.translate(course.title, 'uz', lang, 'lesson_detail')
     else:
         lesson.translated_title = lesson.title
         lesson.translated_content = lesson.content
         lesson.translated_description = lesson.description if lesson.description else ''
-        course.translated_name = course.name
+        course.translated_title = course.title
     
     context = {
         'course': course,

@@ -15,8 +15,8 @@
         </div>
         {% endif %}
         <h3 class="mb-3">{{ institution.translated_name }}</h3>
-        {% if institution.short_description %}
-        <p class="lead text-muted">{{ institution.short_description|translate:request.LANGUAGE_CODE|safe }}</p>
+        {% if institution.translated_short_description %}
+        <p class="lead text-muted">{{ institution.translated_short_description|safe }}</p>
         {% endif %}
     </div>
 </div>
