@@ -31,7 +31,7 @@
 <div id="searchBar" class="search-bar-sticky" style="display: none;">
     <div class="search-input-wrapper">
         <i class="bi bi-search search-icon"></i>
-        <input type="text" id="topicSearch" class="form-control search-input" placeholder="{% t 'Mavzularni qidiring...' request.LANGUAGE_CODE %}" readonly onfocus="this.removeAttribute('readonly');">
+        <input type="text" id="topicSearch" class="form-control search-input" placeholder="{% t 'Mavzularni qidiring...' request.LANGUAGE_CODE %}" readonly onfocus="this.removeAttribute('readonly'); this.removeAttribute('inputmode');" inputmode="none">
         <button type="button" id="clearTopicSearch" class="search-clear" style="display: none;">
             <i class="bi bi-x"></i>
         </button>
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentScroll > 150 && !isSearchOpen) {
             isSearchOpen = true;
             searchBar.style.display = 'block';
-            setTimeout(() => searchInput.focus(), 100);
+            // Don't auto-focus to prevent keyboard from opening on mobile
         }
         
         // Add shadow when scrolled
