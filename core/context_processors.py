@@ -41,19 +41,19 @@ def notifications(request):
         # Jami o'qilmagan notificationlar soni
         unread_count = global_notifications.count() + personal_notifications.count()
         
-        # Oxirgi 10 ta notification (global + personal)
-        recent_notifications = Notification.objects.filter(
-            models.Q(is_global=True) | models.Q(user=request.user)
-        ).order_by('-created_at')[:10]
+        # Faqat o'qilmagan notificationlarni qaytarish (oxirgi 10 ta)
+        unread_notifications = list(global_notifications) + list(personal_notifications)
+        unread_notifications.sort(key=lambda x: x.created_at, reverse=True)
+        unread_notifications = unread_notifications[:10]
         
         return {
             'unread_notifications_count': unread_count,
-            'recent_notifications': recent_notifications,
+            'notifications': unread_notifications,
         }
     
     return {
         'unread_notifications_count': 0,
-        'recent_notifications': [],
+        'notifications': [],
     }
 
 
