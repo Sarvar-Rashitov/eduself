@@ -869,7 +869,7 @@ def profile_view(request):
             avatar_number = request.POST.get('avatar_number')
             try:
                 avatar_num = int(avatar_number)
-                if 1 <= avatar_num <= 8:
+                if 1 <= avatar_num <= 18:
                     request.user.avatar_number = avatar_num
                     request.user.save(update_fields=['avatar_number'])
                     messages.success(request, "Avatar muvaffaqiyatli o'zgartirildi!")

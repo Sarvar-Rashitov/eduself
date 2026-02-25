@@ -18,7 +18,7 @@ class User(AbstractUser):
     
     # Qo'shimcha maydonlar
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True, verbose_name="Profil rasmi")
-    avatar_number = models.PositiveIntegerField(default=0, verbose_name="Avatar raqami")  # 1-8 oralig'ida
+    avatar_number = models.PositiveIntegerField(default=0, verbose_name="Avatar raqami")  # 1-18 oralig'ida
     bio = models.TextField(blank=True, verbose_name="Bio")
     total_points = models.PositiveIntegerField(default=0, verbose_name="Umumiy ball")
     
@@ -92,7 +92,7 @@ class User(AbstractUser):
         # Agar avatar_number 0 bo'lsa, tasodifiy raqam berish
         if self.avatar_number == 0:
             import random
-            self.avatar_number = random.randint(1, 8)
+            self.avatar_number = random.randint(1, 18)
         
         super().save(*args, **kwargs)
     
@@ -151,7 +151,7 @@ class User(AbstractUser):
             return self.profile_image.url
         
         # Lokal avatar rasmlaridan foydalanish
-        avatar_num = self.avatar_number if 1 <= self.avatar_number <= 8 else 1
+        avatar_num = self.avatar_number if 1 <= self.avatar_number <= 18 else 1
         
         # Static URL dan foydalanish
         from django.templatetags.static import static
