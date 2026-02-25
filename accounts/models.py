@@ -20,7 +20,7 @@ class User(AbstractUser):
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True, verbose_name="Profil rasmi")
     avatar_number = models.PositiveIntegerField(default=0, verbose_name="Avatar raqami")  # 1-18 oralig'ida
     bio = models.TextField(blank=True, verbose_name="Bio")
-    total_points = models.PositiveIntegerField(default=0, verbose_name="Umumiy ball")
+    total_points = models.PositiveIntegerField(default=0, verbose_name="Umumiy XP")
     
     # Email verification
     email_verified = models.BooleanField(default=False)

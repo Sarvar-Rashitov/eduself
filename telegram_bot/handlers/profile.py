@@ -1,4 +1,4 @@
-"""Profil handlerlari"""
+﻿"""Profil handlerlari"""
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
 from asgiref.sync import sync_to_async
@@ -103,7 +103,7 @@ async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text += f"📱 Username: @{username}\n"
     text += f"\n━━━━━━━━━━━━━━━\n"
     text += f"📊 *Statistika:*\n\n"
-    text += f"🏆 Umumiy ball: *{user.total_points}*\n"
+    text += f"🏆 Umumiy XP: *{user.total_points}*\n"
     if position:
         text += f"🥇 Reyting: *{position}-o'rin*\n"
     text += f"📝 Yechilgan testlar: {stats['total_tests']}\n"

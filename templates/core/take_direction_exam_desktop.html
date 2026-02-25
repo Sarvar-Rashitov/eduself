@@ -1,4 +1,4 @@
-{% extends 'base_desktop.html' %}
+﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
 
 {% load static %}
@@ -85,7 +85,7 @@
             <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
                 <div class="question-header">
                     <span class="question-badge">Savol {{ forloop.counter }}</span>
-                    <span class="question-points"><i class="fas fa-star"></i> {{ question.points|floatformat:1 }} ball</span>
+                    <span class="question-points"><i class="fas fa-star"></i> {{ question.points|floatformat:1 }} XP</span>
                 </div>
                 
                 <div class="question-content">

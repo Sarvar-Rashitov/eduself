@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load i18n %}
 {% load translation_tags %}
 {% load static %}
@@ -97,7 +97,7 @@
                     {% else %}
                         <div class="text-center py-5">
                             <i class="bi bi-trophy text-muted display-4 mb-3"></i>
-                            <h5 class="text-muted">{% t "Hali hech kim ball to'plamagan" request.LANGUAGE_CODE %}</h5>
+                            <h5 class="text-muted">{% t "Hali hech kim XP to'plamagan" request.LANGUAGE_CODE %}</h5>
                             <p class="text-muted">{% t "Birinchi bo'lib test yechib, leaderboardda o'z o'rningizni egallang!" request.LANGUAGE_CODE %}</p>
                             <a href="{% url 'core:subjects' %}" class="btn btn-primary">
                                 <i class="bi bi-play-circle me-2"></i>
@@ -113,7 +113,7 @@
             <div class="card border-0 shadow-sm mt-4">
                 <div class="card-body text-center py-4">
                     <h5 class="mb-3">{% t "Reytingda yuqoriga ko'tarilmoqchimisiz?" request.LANGUAGE_CODE %}</h5>
-                    <p class="text-muted mb-3">{% t "Ko'proq test yechib, ko'proq ball to'plang!" request.LANGUAGE_CODE %}</p>
+                    <p class="text-muted mb-3">{% t "Ko'proq test yechib, ko'proq XP to'plang!" request.LANGUAGE_CODE %}</p>
                     <div class="d-flex gap-2 justify-content-center flex-wrap">
                         <a href="{% url 'core:subjects' %}" class="btn btn-primary">
                             <i class="bi bi-book me-2"></i>

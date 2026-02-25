@@ -1,4 +1,4 @@
-{% extends 'base_desktop.html' %}
+﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
 
 {% load static %}
@@ -103,7 +103,7 @@
                 </div>
                 <div class="user-stat-info">
                     <h3>{{ user.total_points }}</h3>
-                    <p>Jami ball</p>
+                    <p>Jami XP</p>
                 </div>
             </div>
         </div>
@@ -323,14 +323,14 @@
                     </div>
                     <div class="leaderboard-points">
                         <span class="points-value">{{ user_item.total_points }}</span>
-                        <span class="points-label">ball</span>
+                        <span class="points-label">XP</span>
                     </div>
                 </div>
                 {% endfor %}
             </div>
             {% if user.is_authenticated and user_position and user_position > 5 %}
             <div class="user-position">
-                <p>Sizning pozitsiyangiz: <strong>#{{ user_position }}</strong> ({{ user.total_points }} ball)</p>
+                <p>Sizning pozitsiyangiz: <strong>#{{ user_position }}</strong> ({{ user.total_points }} XP)</p>
             </div>
             {% endif %}
         </div>

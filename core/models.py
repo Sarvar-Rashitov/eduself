@@ -1,4 +1,4 @@
-
+﻿
 
 from django.db import models
 from django.conf import settings
@@ -89,7 +89,7 @@ class Topic(models.Model):
     name = models.CharField(max_length=200, verbose_name="Mavzu nomi")
     description = models.TextField(blank=True, verbose_name="Tavsif")
     time_limit = models.PositiveIntegerField(default=30, verbose_name="Vaqt limiti (daqiqa)")
-    passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish balli (%)")
+    passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish XP (%)")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -118,7 +118,7 @@ class Question(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    points = models.PositiveIntegerField(default=1, verbose_name="Ball")
+    points = models.PositiveIntegerField(default=1, verbose_name="XP")
     
     class Meta:
         ordering = ['order']
@@ -152,7 +152,7 @@ class TopicResult(models.Model):
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
-    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
+    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan XP")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -202,9 +202,9 @@ class CertificateTest(models.Model):
     title = models.CharField(max_length=200, verbose_name="Test nomi")
     description = models.TextField(blank=True, verbose_name="Tavsif")
     time_limit = models.PositiveIntegerField(default=30, verbose_name="Vaqt limiti (daqiqa)")
-    passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish balli (%)")
+    passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish XP (%)")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    unlock_score = models.PositiveIntegerField(default=60, verbose_name="Ochish uchun kerakli ball (%)")
+    unlock_score = models.PositiveIntegerField(default=60, verbose_name="Ochish uchun kerakli XP (%)")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -264,7 +264,7 @@ class CertificateQuestion(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='cert_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    points = models.PositiveIntegerField(default=1, verbose_name="Ball")
+    points = models.PositiveIntegerField(default=1, verbose_name="XP")
     
     class Meta:
         ordering = ['order']
@@ -298,7 +298,7 @@ class CertificateResult(models.Model):
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
-    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
+    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan XP")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -335,8 +335,8 @@ class MockExam(models.Model):
     description = models.TextField(blank=True, verbose_name="Tavsif")
     image = models.ImageField(upload_to='mock_exams/', blank=True, null=True, verbose_name="Rasm")
     time_limit = models.PositiveIntegerField(default=120, verbose_name="Vaqt limiti (daqiqa)")
-    passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish balli (%)")
-    unlock_score = models.PositiveIntegerField(default=60, verbose_name="Ochish uchun kerakli ball (%)")
+    passing_score = models.PositiveIntegerField(default=60, verbose_name="O'tish XP (%)")
+    unlock_score = models.PositiveIntegerField(default=60, verbose_name="Ochish uchun kerakli XP (%)")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -366,7 +366,7 @@ class MockExamQuestion(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='mock_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    points = models.FloatField(default=1.0, verbose_name="Ball")
+    points = models.FloatField(default=1.0, verbose_name="XP")
     
     class Meta:
         ordering = ['order']
@@ -400,7 +400,7 @@ class MockExamResult(models.Model):
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0)
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
-    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan ball")
+    earned_points = models.PositiveIntegerField(default=0, verbose_name="Olingan XP")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -855,7 +855,7 @@ class DirectionExam(models.Model):
     description = models.TextField(blank=True, verbose_name="Tavsif")
     subjects = models.CharField(max_length=500, verbose_name="Fanlar (vergul bilan ajratilgan)")
     time_limit = models.PositiveIntegerField(default=120, verbose_name="Vaqt limiti (daqiqa)")
-    passing_score = models.FloatField(default=60.0, verbose_name="O'tish balli (ball)")
+    passing_score = models.FloatField(default=60.0, verbose_name="O'tish XP")
     application_url = models.URLField(blank=True, verbose_name="Ariza qoldirish URL")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
@@ -890,7 +890,7 @@ class DirectionExamQuestion(models.Model):
     text = models.TextField(verbose_name="Savol matni")
     image = models.ImageField(upload_to='direction_questions/', blank=True, null=True, verbose_name="Rasm")
     order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
-    points = models.FloatField(default=1.1, verbose_name="Ball")
+    points = models.FloatField(default=1.1, verbose_name="XP")
     
     class Meta:
         ordering = ['order']
@@ -926,7 +926,7 @@ class DirectionExamResult(models.Model):
     passed = models.BooleanField(default=False)
     time_taken = models.PositiveIntegerField(default=0, verbose_name="Sarflangan vaqt (soniya)")
     user_answers = models.JSONField(default=dict, blank=True, verbose_name="Foydalanuvchi javoblari")
-    earned_points = models.FloatField(default=0, verbose_name="Olingan ball")
+    earned_points = models.FloatField(default=0, verbose_name="Olingan XP")
     completed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

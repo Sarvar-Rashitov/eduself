@@ -1,4 +1,4 @@
-{% extends 'base_desktop.html' %}
+﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
 
 {% load static %}
@@ -12,7 +12,7 @@
             <div class="analysis-info">
                 <a href="{% url 'core:mock_exam_result' exam.pk %}" class="back-link"><i class="fas fa-arrow-left"></i> Natijaga qaytish</a>
                 <h1>{{ exam.title }}</h1>
-                <p>{{ exam.mock_questions.count }} savol | O'tish balli: {{ exam.passing_score }}%</p>
+                <p>{{ exam.mock_questions.count }} savol | O'tish XP: {{ exam.passing_score }}%</p>
             </div>
             <div class="analysis-score">
                 <div class="score-value {% if result.passed %}success{% else %}fail{% endif %}">{{ result.score }}%</div>

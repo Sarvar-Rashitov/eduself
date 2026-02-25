@@ -1,4 +1,4 @@
-"""Topic test handlerlari - Mock uslubida"""
+﻿"""Topic test handlerlari - Mock uslubida"""
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CallbackQueryHandler
 from asgiref.sync import sync_to_async
@@ -179,7 +179,7 @@ async def show_topic_question(query, context: ContextTypes.DEFAULT_TYPE, questio
         letter = chr(65 + i)
         text += f"*{letter})* {answer.text}\n"
 
-    text += f"\n💎 Ball: {question.points}"
+    text += f"\n💎 XP: {question.points}"
 
     context.user_data['current_answers'] = {chr(65 + i): ans.id for i, ans in enumerate(answers)}
     context.user_data['current_question'] = question
@@ -263,7 +263,7 @@ async def handle_topic_inline_answer(update: Update, context: ContextTypes.DEFAU
             else:
                 text += f"*{letter})* {ans.text}\n"
         
-        text += f"\n💎 Ball: {current_question.points}"
+        text += f"\n💎 XP: {current_question.points}"
         
         if answer.is_correct:
             session['correct_count'] += 1
@@ -378,8 +378,8 @@ async def finish_topic_from_callback(query, context: ContextTypes.DEFAULT_TYPE):
     text += f"━━━━━━━━━━━━━━━\n"
     text += f"📊 *Natija: {status}*\n\n"
     text += f"✅ To'g'ri: {correct}/{total}\n"
-    text += f"📈 Ball: {score}%\n"
-    text += f"🏆 Olingan ball: {session['earned_points']}\n"
+    text += f"📈 XP: {score}%\n"
+    text += f"🏆 Olingan XP: {session['earned_points']}\n"
     text += f"⏱ Vaqt: {time_taken // 60}:{time_taken % 60:02d}\n"
 
     if passed:
@@ -441,7 +441,7 @@ async def topic_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for i, result in enumerate(top_results):
         medal = medals[i] if i < 3 else f"{i+1}."
         name = result['user__first_name'] or result['user__username']
-        text += f"{medal} {name}: {result['best_score']} ball\n"
+        text += f"{medal} {name}: {result['best_score']} XP\n"
 
     if not top_results:
         text += "Hali natijalar yo'q."

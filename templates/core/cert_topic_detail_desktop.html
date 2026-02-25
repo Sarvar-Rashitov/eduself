@@ -63,7 +63,7 @@
                         <span><i class="fas fa-clock"></i> {{ test.time_limit }} daqiqa</span>
                     </div>
                     {% if not test.is_unlocked and not forloop.first %}
-                    <div class="unlock-info"><i class="fas fa-info-circle"></i> Ochish uchun: {{ test.unlock_score }}% ball kerak</div>
+                    <div class="unlock-info"><i class="fas fa-info-circle"></i> Ochish uchun: {{ test.unlock_score }}% XP kerak</div>
                     {% endif %}
                     {% if test.id in user_results %}
                     <div class="result-badge {% if user_results|get_item:test.id|get_item:'passed' %}success{% else %}fail{% endif %}">

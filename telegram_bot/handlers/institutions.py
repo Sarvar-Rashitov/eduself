@@ -1,4 +1,4 @@
-"""Ta'lim muassasalari handlerlari"""
+﻿"""Ta'lim muassasalari handlerlari"""
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters, ConversationHandler, CommandHandler
 from asgiref.sync import sync_to_async
@@ -467,13 +467,13 @@ async def direction_exam_detail(update: Update, context: ContextTypes.DEFAULT_TY
     text += f"❓ Savollar: {questions_count} ta\n"
     text += f"⏱ Vaqt: {exam.time_limit} daqiqa\n"
     text += f"✅ O'tish bali: {exam.passing_score}\n"
-    text += f"🏆 Maksimal ball: {max_points}\n\n"
+    text += f"🏆 Maksimal XP: {max_points}\n\n"
 
     if best_result:
         status = "✅ O'tdi" if best_result.passed else "❌ O'tmadi"
         text += f"📊 *Sizning natijangiz:*\n"
-        text += f"Ball: {best_result.score:.1f} {status}\n"
-        text += f"Olingan ball: {best_result.earned_points}\n\n"
+        text += f"XP: {best_result.score:.1f} {status}\n"
+        text += f"Olingan XP: {best_result.earned_points}\n\n"
 
     keyboard = []
     
@@ -592,7 +592,7 @@ async def show_direction_exam_question(query, context: ContextTypes.DEFAULT_TYPE
         letter = chr(65 + i)
         text += f"*{letter})* {answer.text}\n"
 
-    text += f"\n💎 Ball: {question.points}"
+    text += f"\n💎 XP: {question.points}"
 
     context.user_data['current_answers'] = {chr(65 + i): ans.id for i, ans in enumerate(answers)}
     context.user_data['current_question'] = question
@@ -676,7 +676,7 @@ async def handle_direction_exam_answer(update: Update, context: ContextTypes.DEF
             else:
                 text += f"*{letter})* {ans.text}\n"
         
-        text += f"\n💎 Ball: {current_question.points}"
+        text += f"\n💎 XP: {current_question.points}"
         
         if answer.is_correct:
             session['correct_count'] += 1
@@ -795,8 +795,8 @@ async def finish_direction_exam(query, context: ContextTypes.DEFAULT_TYPE):
     text += f"━━━━━━━━━━━━━━━\n"
     text += f"📊 *Natija: {status}*\n\n"
     text += f"✅ To'g'ri: {correct}/{total}\n"
-    text += f"📈 Ball: {score:.1f}%\n"
-    text += f"🏆 Olingan ball: {session['earned_points']}\n"
+    text += f"📈 XP: {score:.1f}%\n"
+    text += f"🏆 Olingan XP: {session['earned_points']}\n"
     text += f"⏱ Vaqt: {time_taken // 60}:{time_taken % 60:02d}\n"
 
     if passed:
@@ -804,7 +804,7 @@ async def finish_direction_exam(query, context: ContextTypes.DEFAULT_TYPE):
         if exam.application_url:
             text += "\nEndi ariza qoldirish mumkin."
     else:
-        text += f"\n💪 O'tish uchun {exam.passing_score} ball kerak."
+        text += f"\n💪 O'tish uchun {exam.passing_score} XP kerak."
 
     # Barcha test xabarlarini o'chirish
     previous_messages = context.user_data.get('question_messages', [])

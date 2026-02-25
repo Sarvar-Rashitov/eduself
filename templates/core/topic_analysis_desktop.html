@@ -1,4 +1,4 @@
-{% extends 'base_desktop.html' %}
+﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
 
 {% load static %}
@@ -11,13 +11,13 @@
         <div class="analysis-header">
             <div class="analysis-info">
                 <h1>{{ topic.name }}</h1>
-                <p>{{ topic.get_questions_count }} savol | O'tish balli: {{ topic.passing_score }}%</p>
+                <p>{{ topic.get_questions_count }} savol | O'tish XP: {{ topic.passing_score }}%</p>
             </div>
             <div class="analysis-score {% if result.passed %}success{% else %}fail{% endif %}">
                 <div class="score-value">{{ result.score }}%</div>
                 <div class="score-details">{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri</div>
                 {% if result.earned_points is not None %}
-                <div class="score-points">{{ result.earned_points }} / {{ topic.get_max_points }} ball</div>
+                <div class="score-points">{{ result.earned_points }} / {{ topic.get_max_points }} XP</div>
                 {% endif %}
             </div>
         </div>

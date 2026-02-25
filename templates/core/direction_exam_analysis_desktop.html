@@ -1,4 +1,4 @@
-{% extends 'base_desktop.html' %}
+﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
 
 {% load static %}
@@ -12,12 +12,12 @@
             <div class="analysis-info">
                 <a href="{% url 'core:direction_exam_result' exam.pk %}" class="back-link"><i class="fas fa-arrow-left"></i> Natijaga qaytish</a>
                 <h1>{{ exam.title }}</h1>
-                <p>{{ exam.direction_questions.count }} savol | O'tish balli: {{ exam.passing_score }} ball</p>
+                <p>{{ exam.direction_questions.count }} savol | O'tish XP: {{ exam.passing_score }} XP</p>
             </div>
             <div class="analysis-score">
                 <div class="score-value {% if result.passed %}success{% else %}fail{% endif %}">{{ result.score|floatformat:1 }}%</div>
                 <p>{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri</p>
-                <p class="score-points">{{ result.earned_points|floatformat:1 }} ball</p>
+                <p class="score-points">{{ result.earned_points|floatformat:1 }} XP</p>
             </div>
         </div>
         
@@ -173,12 +173,12 @@ function getAIAnalysis() {
             <div class="analysis-info">
                 <a href="{% url 'core:direction_exam_result' exam.pk %}" class="back-link"><i class="fas fa-arrow-left"></i> Natijaga qaytish</a>
                 <h1>{{ exam.title }}</h1>
-                <p>{{ exam.direction_questions.count }} savol | O'tish balli: {{ exam.passing_score }} ball</p>
+                <p>{{ exam.direction_questions.count }} savol | O'tish XP: {{ exam.passing_score }} XP</p>
             </div>
             <div class="analysis-score">
                 <div class="score-value {% if result.passed %}success{% else %}fail{% endif %}">{{ result.score|floatformat:1 }}%</div>
                 <p>{{ result.correct_answers }} / {{ result.total_questions }} to'g'ri</p>
-                <p class="score-points">{{ result.earned_points|floatformat:1 }} ball</p>
+                <p class="score-points">{{ result.earned_points|floatformat:1 }} XP</p>
             </div>
         </div>
         
@@ -223,7 +223,7 @@ function getAIAnalysis() {
                         <span class="question-status {% if item.is_correct %}correct{% else %}incorrect{% endif %}">
                             {% if item.is_correct %}To'g'ri{% else %}Noto'g'ri{% endif %}
                         </span>
-                        <span class="question-points">{{ item.points|floatformat:1 }} ball</span>
+                        <span class="question-points">{{ item.points|floatformat:1 }} XP</span>
                     </div>
                 </div>
                 <div class="question-text">{{ item.question.text|safe }}</div>

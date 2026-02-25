@@ -1,4 +1,4 @@
-{% extends 'base_desktop.html' %}
+﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
 
 {% load static %}
@@ -12,7 +12,7 @@
             <div class="analysis-info">
                 <a href="{% url 'core:cert_test_result' test.pk %}" class="back-link"><i class="fas fa-arrow-left"></i> Natijaga qaytish</a>
                 <h1>{{ test.title }}</h1>
-                <p>{{ test.cert_questions.count }} savol | O'tish balli: {{ test.passing_score }}%</p>
+                <p>{{ test.cert_questions.count }} savol | O'tish XP: {{ test.passing_score }}%</p>
             </div>
             <div class="analysis-score">
                 <div class="score-value {% if result.passed %}success{% else %}fail{% endif %}">{{ result.score }}%</div>

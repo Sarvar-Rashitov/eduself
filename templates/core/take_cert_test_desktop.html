@@ -1,4 +1,4 @@
-{% extends 'base_desktop.html' %}
+﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
 
 {% load static %}
@@ -27,7 +27,7 @@
             </div>
             <div class="test-stats">
                 <div class="stat-box score cert"><i class="fas fa-trophy"></i>
-                    <div class="stat-content"><span class="stat-value" id="currentScore">0.00</span><span class="stat-label">/ {{ test.get_max_points|floatformat:2 }} ball</span></div>
+                    <div class="stat-content"><span class="stat-value" id="currentScore">0.00</span><span class="stat-label">/ {{ test.get_max_points|floatformat:2 }} XP</span></div>
                 </div>
                 <div class="stat-box timer" id="timerBox"><i class="fas fa-clock"></i>
                     <div class="stat-content"><span class="stat-value" id="timer">{{ test.time_limit }}:00</span><span class="stat-label">qoldi</span></div>
@@ -47,7 +47,7 @@
             <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
                 <div class="question-header">
                     <span class="question-badge cert">Savol {{ forloop.counter }}</span>
-                    <span class="question-points"><i class="fas fa-star"></i> {{ question.points|floatformat:2 }} ball</span>
+                    <span class="question-points"><i class="fas fa-star"></i> {{ question.points|floatformat:2 }} XP</span>
                 </div>
                 <div class="question-content">
                     {% if question.long_text %}
@@ -121,7 +121,7 @@
         <h3>Testni tugatmoqchimisiz?</h3>
         <div class="modal-stats">
             <div class="modal-stat"><span class="modal-stat-value" id="answeredCount">0</span><span class="modal-stat-label">javob berildi</span></div>
-            <div class="modal-stat"><span class="modal-stat-value" id="modalCurrentScore">0</span><span class="modal-stat-label">ball</span></div>
+            <div class="modal-stat"><span class="modal-stat-value" id="modalCurrentScore">0</span><span class="modal-stat-label">XP</span></div>
         </div>
         <p class="modal-warning">Tugatilgandan so'ng qaytib bo'lmaydi!</p>
         <div class="modal-actions">

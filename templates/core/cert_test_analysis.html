@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load i18n %}
 {% load translation_tags %}
 
@@ -10,7 +10,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
                 <h5 class="mb-1">{{ test.title|translate:request.LANGUAGE_CODE }}</h5>
-                <p class="text-muted mb-0 small">{{ test.cert_questions.count }} savol | O'tish balli: {{ test.passing_score }}%</p>
+                <p class="text-muted mb-0 small">{{ test.cert_questions.count }} savol | O'tish XP: {{ test.passing_score }}%</p>
             </div>
             <div class="text-end">
                 <div class="result-score {% if result.passed %}text-success{% else %}text-danger{% endif %}">

@@ -1,4 +1,4 @@
-"""Mock imtihonlar handlerlari"""
+﻿"""Mock imtihonlar handlerlari"""
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
 from asgiref.sync import sync_to_async
@@ -154,11 +154,11 @@ async def mock_exam_detail(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text += f"Savollar: {questions_count} ta\n"
     text += f"Vaqt: {exam.time_limit} daqiqa\n"
     text += f"Otish balli: {exam.passing_score}%\n"
-    text += f"Maksimal ball: {max_points}\n\n"
+    text += f"Maksimal XP: {max_points}\n\n"
 
     if best_result:
         status = "Otdi" if best_result.passed else "Otmadi"
-        text += f"*Sizning natijangiz:*\nBall: {best_result.score}% {status}\n"
+        text += f"*Sizning natijangiz:*\nXP: {best_result.score}% {status}\n"
 
     keyboard = [
         [InlineKeyboardButton("Imtihonni boshlash", callback_data=f"start_mock_{exam_id}")],
@@ -264,7 +264,7 @@ async def show_mock_question(query, context, question, num, total):
         letter = chr(65 + i)
         text += f"*{letter})* {answer.text}\n"
 
-    text += f"\n💎 Ball: {question.points}"
+    text += f"\n💎 XP: {question.points}"
 
     context.user_data['current_answers'] = {chr(65 + i): ans.id for i, ans in enumerate(answers)}
     context.user_data['current_question'] = question
@@ -343,7 +343,7 @@ async def handle_mock_inline_answer(update: Update, context: ContextTypes.DEFAUL
             else:
                 text += f"*{letter})* {ans.text}\n"
         
-        text += f"\nBall: {current_question.points}"
+        text += f"\nXP: {current_question.points}"
         
         if answer.is_correct:
             session['correct_count'] += 1
@@ -455,8 +455,8 @@ async def finish_mock_from_callback(query, context):
     text += f"---------------\n"
     text += f"*Natija: {status}*\n\n"
     text += f"Togri: {correct}/{total}\n"
-    text += f"Ball: {score}%\n"
-    text += f"Olingan ball: {session['earned_points']}\n"
+    text += f"XP: {score}%\n"
+    text += f"Olingan XP: {session['earned_points']}\n"
     text += f"Vaqt: {time_taken // 60}:{time_taken % 60:02d}\n"
 
     if passed:
@@ -516,7 +516,7 @@ async def mock_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for i, result in enumerate(top_results):
         medal = medals[i] if i < 3 else f"{i+1}."
         name = result['user__first_name'] or result['user__username']
-        text += f"{medal} {name}: {result['best_score']} ball\n"
+        text += f"{medal} {name}: {result['best_score']} XP\n"
 
     if not top_results:
         text += "Hali natijalar yoq."

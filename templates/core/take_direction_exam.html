@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load i18n %}
 {% load translation_tags %}
 {% load static %}
@@ -32,7 +32,7 @@
         <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
             <div class="question-header">
                 <span class="q-num">Savol {{ forloop.counter }}</span>
-                <span class="q-points">{{ question.points|floatformat:1 }} ball</span>
+                <span class="q-points">{{ question.points|floatformat:1 }} XP</span>
             </div>
             
             {% if question.long_text %}

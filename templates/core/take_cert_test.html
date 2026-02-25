@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load i18n %}
 {% load translation_tags %}
 
@@ -358,7 +358,7 @@ let timeRemaining = timeLimit;
 let timerInterval;
 let userAnswers = {};
 let questionResults = {};
-let currentScore = 0.0; // Joriy ball hisobi
+let currentScore = 0.0; // Joriy XP hisobi
 const currentLang = '{{ request.LANGUAGE_CODE }}';
 const questionIds = [{% for question in questions %}{{ question.id }}{% if not forloop.last %},{% endif %}{% endfor %}];
 
@@ -480,7 +480,7 @@ function checkAnswer(questionIndex, questionId) {
         questionResults[questionId] = data;
         showAnswerResults(questionIndex, questionId, data);
         
-        // Real-time score yangilash (sertifikat testlari uchun har bir to'g'ri javob 1 ball)
+        // Real-time score yangilash (sertifikat testlari uchun har bir to'g'ri javob 1 XP)
         updateCurrentScore(data.points_earned);
         
         document.getElementById(`checkAnswer-${questionIndex}`).style.display = 'none';

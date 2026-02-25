@@ -1,4 +1,4 @@
-{% extends 'base_desktop.html' %}
+﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
 
 {% load static %}
@@ -43,7 +43,7 @@
                 <div class="user-best-card">
                     <h3><i class="fas fa-user"></i> Sizning eng yaxshi natijangiz</h3>
                     <div class="user-best-content">
-                        <div class="user-best-score">{{ user_best.earned_points }} ball</div>
+                        <div class="user-best-score">{{ user_best.earned_points }} XP</div>
                         <span class="user-best-details">{{ user_best.correct_answers }} / {{ user_best.total_questions }} to'g'ri</span>
                         <span class="badge {% if user_best.passed %}success{% else %}fail{% endif %}">{% if user_best.passed %}O'tdi{% else %}O'tmadi{% endif %}</span>
                     </div>
@@ -60,7 +60,7 @@
                                 <img src="{{ result.user.get_avatar_url }}" alt="{{ result.user.username }}">
                                 <span>{{ result.user.get_full_name|default:result.user.first_name|default:result.user.username }}{% if result.user == request.user %} <span class="you-badge">Siz</span>{% endif %}</span>
                             </div>
-                            <div class="score">{{ result.earned_points }} ball</div>
+                            <div class="score">{{ result.earned_points }} XP</div>
                             <div class="status">{% if result.passed %}<i class="fas fa-check-circle text-success"></i>{% else %}<i class="fas fa-times-circle text-danger"></i>{% endif %}</div>
                         </div>
                         {% endfor %}

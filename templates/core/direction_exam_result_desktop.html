@@ -1,4 +1,4 @@
-{% extends 'base_desktop.html' %}
+﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
 
 {% load static %}
@@ -58,7 +58,7 @@
                     </div>
                     <div class="stat-info">
                         <span class="stat-value">{{ result.earned_points|floatformat:1 }}</span>
-                        <span class="stat-label">Ball to'plandi</span>
+                        <span class="stat-label">XP to'plandi</span>
                     </div>
                 </div>
                 
@@ -81,7 +81,7 @@
                         <span>{{ exam.passing_score|floatformat:0 }}</span>
                     </div>
                 </div>
-                <p>O'tish balli: <strong>{{ exam.passing_score|floatformat:1 }} ball</strong> (maksimum: {{ exam.get_max_points }} ball)</p>
+                <p>O'tish XP: <strong>{{ exam.passing_score|floatformat:1 }} XP</strong> (maksimum: {{ exam.get_max_points }} XP)</p>
             </div>
             
             <!-- Action Buttons -->

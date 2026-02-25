@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load i18n %}
 {% load translation_tags %}
 {% load static %}
@@ -34,11 +34,11 @@
         </div>
         <div class="stat">
             <i class="fas fa-star text-warning"></i>
-            <span>{{ result.earned_points|floatformat:1 }} / {{ exam.passing_score|floatformat:1 }} ball</span>
+            <span>{{ result.earned_points|floatformat:1 }} / {{ exam.passing_score|floatformat:1 }} XP</span>
         </div>
     </div>
     
-    <p class="passing-info-text">O'tish balli: <strong>{{ exam.passing_score|floatformat:1 }} ball</strong></p>
+    <p class="passing-info-text">O'tish XP: <strong>{{ exam.passing_score|floatformat:1 }} XP</strong></p>
     
     <div class="result-actions">
         {% if result.passed and exam.application_url %}

@@ -1,4 +1,4 @@
-{% extends 'base_desktop.html' %}
+﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
 
 {% load static %}
@@ -36,7 +36,7 @@
                 </div>
                 <h3>{{ top_users.1.get_full_name|default:top_users.1.username }}</h3>
                 <p>@{{ top_users.1.username }}</p>
-                <div class="user-points">{{ top_users.1.total_points }} ball</div>
+                <div class="user-points">{{ top_users.1.total_points }} XP</div>
             </div>
             {% endif %}
             
@@ -50,7 +50,7 @@
                 </div>
                 <h3>{{ top_users.0.get_full_name|default:top_users.0.username }}</h3>
                 <p>@{{ top_users.0.username }}</p>
-                <div class="user-points">{{ top_users.0.total_points }} ball</div>
+                <div class="user-points">{{ top_users.0.total_points }} XP</div>
             </div>
             {% endif %}
             
@@ -63,7 +63,7 @@
                 </div>
                 <h3>{{ top_users.2.get_full_name|default:top_users.2.username }}</h3>
                 <p>@{{ top_users.2.username }}</p>
-                <div class="user-points">{{ top_users.2.total_points }} ball</div>
+                <div class="user-points">{{ top_users.2.total_points }} XP</div>
             </div>
             {% endif %}
         </div>
@@ -78,7 +78,7 @@
                 <span class="col-rank">#</span>
                 <span class="col-user">Foydalanuvchi</span>
                 <span class="col-tests">Testlar</span>
-                <span class="col-points">Ball</span>
+                <span class="col-points">XP</span>
             </div>
             <div class="leaderboard-body">
                 {% for user_item in users %}
@@ -124,7 +124,7 @@
             <div class="your-position-content">
                 <i class="fas fa-map-marker-alt"></i>
                 <span>Sizning pozitsiyangiz: <strong>#{{ user_position }}</strong></span>
-                <span class="your-points">{{ user.total_points }} ball</span>
+                <span class="your-points">{{ user.total_points }} XP</span>
             </div>
         </div>
         {% endif %}

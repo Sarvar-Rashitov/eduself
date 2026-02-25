@@ -1,4 +1,4 @@
-"""Start va help handlerlari"""
+﻿"""Start va help handlerlari"""
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler
 from telegram_bot.keyboards import main_menu_keyboard
@@ -91,7 +91,7 @@ async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 1️⃣ Menyudan bo'lim tanlang
 2️⃣ Kanalga obuna bo'ling
 3️⃣ Test yeching
-4️⃣ Ball to'plang
+4️⃣ XP to'plang
 5️⃣ Reytingda ko'taring!
 
 Savollar bo'lsa: @eduself_support"""
