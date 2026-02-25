@@ -1363,65 +1363,184 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Avatar Tanlash Modal -->
 <div class="modal fade" id="avatarModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 20px; border: none;">
-            <div class="modal-header" style="border-bottom: 2px solid #f3f4f6;">
-                <h5 class="modal-title" style="font-weight: 700; color: #667eea;">
-                    <i class="bi bi-person-circle me-2"></i>{% t "Avatar tanlash" request.LANGUAGE_CODE %}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.12); max-width: 480px; margin: auto;">
+            <!-- Header -->
+            <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 1.25rem 1.5rem;">
+                <h6 class="modal-title" style="font-weight: 600; font-size: 1rem; color: #1e293b; margin: 0;">
+                    {% t "Avatar tanlash" request.LANGUAGE_CODE %}
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="font-size: 0.75rem; opacity: 0.5;"></button>
             </div>
+            
+            <!-- Body with 2 rows visible -->
             <div class="modal-body" style="padding: 1.5rem;">
-                <p class="text-muted mb-3" style="font-size: 0.9rem;">{% t "O'zingizga yoqqan avatarni tanlang" request.LANGUAGE_CODE %}</p>
                 <form method="post" id="avatarForm">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="change_avatar">
                     <input type="hidden" name="avatar_number" id="selectedAvatar">
                     
-                    <div class="row g-3">
-                        {% for i in "12345678" %}
-                        <div class="col-3">
-                            <div class="avatar-option {% if user.avatar_number == forloop.counter %}active{% endif %}" 
-                                 data-avatar="{{ forloop.counter }}"
-                                 style="cursor: pointer; border-radius: 15px; padding: 8px; border: 3px solid transparent; transition: all 0.3s ease; position: relative;">
-                                <img src="{% static 'images/avatars/avatar-' %}{{ forloop.counter }}.png" 
-                                     alt="Avatar {{ forloop.counter }}" 
-                                     style="width: 100%; border-radius: 12px;">
-                                <div class="avatar-check" style="position: absolute; top: 5px; right: 5px; background: #10b981; color: white; border-radius: 50%; width: 24px; height: 24px; display: none; align-items: center; justify-content: center;">
-                                    <i class="bi bi-check-lg"></i>
+                    <!-- Scrollable container showing 2 rows -->
+                    <div class="avatar-grid-scroll" style="max-height: 200px; overflow-y: auto; margin: 0 -0.5rem; padding: 0 0.5rem;">
+                        <div class="row g-3">
+                            {% for i in "123456789012345678" %}
+                            <div class="col-4">
+                                <div class="avatar-option-compact {% if user.avatar_number == forloop.counter %}active{% endif %}" 
+                                     data-avatar="{{ forloop.counter }}">
+                                    <img src="{% static 'images/avatars/avatar-' %}{{ forloop.counter }}.png" 
+                                         alt="Avatar {{ forloop.counter }}">
+                                    <div class="avatar-check-compact">
+                                        <i class="bi bi-check2"></i>
+                                    </div>
                                 </div>
                             </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
                 </form>
             </div>
-            <div class="modal-footer" style="border-top: 2px solid #f3f4f6;">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 12px;">
+            
+            <!-- Footer -->
+            <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 1rem 1.5rem; gap: 0.75rem;">
+                <button type="button" class="btn-cancel-compact" data-bs-dismiss="modal">
                     {% t "Bekor qilish" request.LANGUAGE_CODE %}
                 </button>
-                <button type="button" class="btn btn-primary" onclick="submitAvatar()" style="border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
-                    <i class="bi bi-check-lg me-1"></i>{% t "Saqlash" request.LANGUAGE_CODE %}
+                <button type="button" class="btn-save-compact" onclick="submitAvatar()">
+                    {% t "Saqlash" request.LANGUAGE_CODE %}
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+/* Scrollbar styling */
+.avatar-grid-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.avatar-grid-scroll::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+.avatar-grid-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.avatar-grid-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Avatar option styling */
+.avatar-option-compact {
+    position: relative;
+    cursor: pointer;
+    border-radius: 14px;
+    padding: 6px;
+    background: #f8fafc;
+    border: 2px solid transparent;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.avatar-option-compact img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.avatar-option-compact:hover {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.avatar-option-compact:hover img {
+    transform: scale(1.05);
+}
+
+.avatar-option-compact.active {
+    background: #faf5ff;
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+}
+
+.avatar-check-compact {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
+.avatar-option-compact.active .avatar-check-compact {
+    display: flex;
+}
+
+/* Button styling */
+.btn-cancel-compact {
+    padding: 0.5rem 1.25rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel-compact:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+.btn-save-compact {
+    padding: 0.5rem 1.5rem;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+}
+
+.btn-save-compact:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+}
+
+.btn-save-compact:active {
+    transform: translateY(0);
+}
+</style>
+
 <script>
 // Avatar tanlash
-document.querySelectorAll('.avatar-option').forEach(option => {
+document.querySelectorAll('.avatar-option-compact').forEach(option => {
     option.addEventListener('click', function() {
         // Barcha avatarlardan active class'ni olib tashlash
-        document.querySelectorAll('.avatar-option').forEach(opt => {
+        document.querySelectorAll('.avatar-option-compact').forEach(opt => {
             opt.classList.remove('active');
-            opt.style.borderColor = 'transparent';
-            opt.querySelector('.avatar-check').style.display = 'none';
         });
         
         // Tanlangan avatarga active class qo'shish
         this.classList.add('active');
-        this.style.borderColor = '#667eea';
-        this.querySelector('.avatar-check').style.display = 'flex';
         
         // Hidden input'ga avatar raqamini yozish
         document.getElementById('selectedAvatar').value = this.dataset.avatar;
@@ -1441,10 +1560,9 @@ function submitAvatar() {
 // Sahifa yuklanganda hozirgi avatarni belgilash
 document.addEventListener('DOMContentLoaded', function() {
     const currentAvatar = {{ user.avatar_number }};
-    const currentOption = document.querySelector(`.avatar-option[data-avatar="${currentAvatar}"]`);
+    const currentOption = document.querySelector(`.avatar-option-compact[data-avatar="${currentAvatar}"]`);
     if (currentOption) {
-        currentOption.style.borderColor = '#667eea';
-        currentOption.querySelector('.avatar-check').style.display = 'flex';
+        currentOption.classList.add('active');
         document.getElementById('selectedAvatar').value = currentAvatar;
     }
 });
