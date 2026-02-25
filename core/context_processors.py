@@ -24,7 +24,7 @@ def notifications(request):
     """
     Foydalanuvchi notificationlarini barcha template'larga qo'shish
     """
-    if request.user.is_authenticated:
+    if hasattr(request, 'user') and request.user.is_authenticated:
         # Global notificationlar (o'qilmaganlar)
         global_notifications = Notification.objects.filter(
             is_global=True

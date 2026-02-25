@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load translation_tags %}
+{% load static %}
 
 {% block body_attrs %}data-page="profile"{% endblock %}
 
@@ -553,14 +554,11 @@
 <div class="profile-header-card">
     <div class="d-flex align-items-center">
         <!-- Profil rasmi -->
-        <div class="profile-avatar-wrapper me-3">
-            {% if user.profile_image %}
-            <img src="{{ user.profile_image.url }}" alt="Profile" class="profile-avatar">
-            {% else %}
-            <div class="profile-avatar-placeholder">
-                <i class="bi bi-person fs-3 text-white"></i>
+        <div class="profile-avatar-wrapper me-3" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#avatarModal">
+            <img src="{{ user.get_avatar_url }}" alt="Profile" class="profile-avatar">
+            <div style="position: absolute; bottom: 0; right: 0; background: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                <i class="bi bi-pencil" style="font-size: 0.7rem; color: #667eea;"></i>
             </div>
-            {% endif %}
         </div>
         
         <!-- Ism va ma'lumotlar -->
@@ -1361,4 +1359,95 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 500;
 }
 </style>
+
+<!-- Avatar Tanlash Modal -->
+<div class="modal fade" id="avatarModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; border: none;">
+            <div class="modal-header" style="border-bottom: 2px solid #f3f4f6;">
+                <h5 class="modal-title" style="font-weight: 700; color: #667eea;">
+                    <i class="bi bi-person-circle me-2"></i>{% t "Avatar tanlash" request.LANGUAGE_CODE %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem;">
+                <p class="text-muted mb-3" style="font-size: 0.9rem;">{% t "O'zingizga yoqqan avatarni tanlang" request.LANGUAGE_CODE %}</p>
+                <form method="post" id="avatarForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="change_avatar">
+                    <input type="hidden" name="avatar_number" id="selectedAvatar">
+                    
+                    <div class="row g-3">
+                        {% for i in "12345678" %}
+                        <div class="col-3">
+                            <div class="avatar-option {% if user.avatar_number == forloop.counter %}active{% endif %}" 
+                                 data-avatar="{{ forloop.counter }}"
+                                 style="cursor: pointer; border-radius: 15px; padding: 8px; border: 3px solid transparent; transition: all 0.3s ease; position: relative;">
+                                <img src="{% static 'images/avatars/avatar-' %}{{ forloop.counter }}.png" 
+                                     alt="Avatar {{ forloop.counter }}" 
+                                     style="width: 100%; border-radius: 12px;">
+                                <div class="avatar-check" style="position: absolute; top: 5px; right: 5px; background: #10b981; color: white; border-radius: 50%; width: 24px; height: 24px; display: none; align-items: center; justify-content: center;">
+                                    <i class="bi bi-check-lg"></i>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 2px solid #f3f4f6;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 12px;">
+                    {% t "Bekor qilish" request.LANGUAGE_CODE %}
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitAvatar()" style="border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                    <i class="bi bi-check-lg me-1"></i>{% t "Saqlash" request.LANGUAGE_CODE %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Avatar tanlash
+document.querySelectorAll('.avatar-option').forEach(option => {
+    option.addEventListener('click', function() {
+        // Barcha avatarlardan active class'ni olib tashlash
+        document.querySelectorAll('.avatar-option').forEach(opt => {
+            opt.classList.remove('active');
+            opt.style.borderColor = 'transparent';
+            opt.querySelector('.avatar-check').style.display = 'none';
+        });
+        
+        // Tanlangan avatarga active class qo'shish
+        this.classList.add('active');
+        this.style.borderColor = '#667eea';
+        this.querySelector('.avatar-check').style.display = 'flex';
+        
+        // Hidden input'ga avatar raqamini yozish
+        document.getElementById('selectedAvatar').value = this.dataset.avatar;
+    });
+});
+
+// Avatar saqlash
+function submitAvatar() {
+    const selectedAvatar = document.getElementById('selectedAvatar').value;
+    if (!selectedAvatar) {
+        alert('{% t "Iltimos, avatar tanlang" request.LANGUAGE_CODE %}');
+        return;
+    }
+    document.getElementById('avatarForm').submit();
+}
+
+// Sahifa yuklanganda hozirgi avatarni belgilash
+document.addEventListener('DOMContentLoaded', function() {
+    const currentAvatar = {{ user.avatar_number }};
+    const currentOption = document.querySelector(`.avatar-option[data-avatar="${currentAvatar}"]`);
+    if (currentOption) {
+        currentOption.style.borderColor = '#667eea';
+        currentOption.querySelector('.avatar-check').style.display = 'flex';
+        document.getElementById('selectedAvatar').value = currentAvatar;
+    }
+});
+</script>
+
 {% endblock %}

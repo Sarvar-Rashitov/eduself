@@ -78,10 +78,7 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center">
-                                {% if result.user.profile_image %}
-                                <img src="{{ result.user.profile_image.url }}" alt="{{ result.user.username }}" class="rounded-circle me-2" style="width: 28px; height: 28px; object-fit: cover;">
-                                {% else %}
-                                <div class="bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 12px;">
+                                <img src="{{ result.user.get_avatar_url }}" alt="{{ result.user.username }}" class="rounded-circle me-2" style="width: 28px; height: 28px; object-fit: cover;">
                                     {{ result.user.username|slice:":1"|upper }}
                                 </div>
                                 {% endif %}

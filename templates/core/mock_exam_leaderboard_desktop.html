@@ -51,7 +51,7 @@
                         {% for result in top_results %}
                         <div class="leaderboard-row {% if result.user == request.user %}current-user{% endif %}">
                             <div class="rank">{% if forloop.counter <= 3 %}<i class="fas fa-trophy" style="color: {% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% else %}#cd7f32{% endif %};"></i>{% else %}{{ forloop.counter }}{% endif %}</div>
-                            <div class="user-info">{% if result.user.profile_image %}<img src="{{ result.user.profile_image.url }}">{% else %}<div class="avatar">{{ result.user.username|slice:":1"|upper }}</div>{% endif %}<span>{{ result.user.get_full_name|default:result.user.first_name|default:result.user.username }}</span></div>
+                            <div class="user-info"><img src="{{ result.user.get_avatar_url }}"><span>{{ result.user.get_full_name|default:result.user.first_name|default:result.user.username }}</span></div>
                             <div class="score">{{ result.earned_points }} ball</div>
                             <div class="status">{% if result.passed %}<i class="fas fa-check-circle text-success"></i>{% else %}<i class="fas fa-times-circle text-danger"></i>{% endif %}</div>
                         </div>

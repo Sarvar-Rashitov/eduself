@@ -864,6 +864,21 @@ def profile_view(request):
     if request.method == 'POST':
         action = request.POST.get('action')
         
+        # Avatar o'zgartirish
+        if action == 'change_avatar':
+            avatar_number = request.POST.get('avatar_number')
+            try:
+                avatar_num = int(avatar_number)
+                if 1 <= avatar_num <= 8:
+                    request.user.avatar_number = avatar_num
+                    request.user.save(update_fields=['avatar_number'])
+                    messages.success(request, "Avatar muvaffaqiyatli o'zgartirildi!")
+                else:
+                    messages.error(request, "Noto'g'ri avatar raqami!")
+            except (ValueError, TypeError):
+                messages.error(request, "Noto'g'ri avatar raqami!")
+            return redirect('accounts:profile')
+        
         # Parolni o'zgartirish
         if action == 'change_password':
             current_password = request.POST.get('current_password')

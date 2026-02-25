@@ -18,11 +18,7 @@
                 {% if user.is_authenticated %}
                 <a href="{% url 'accounts:profile' %}" class="user-greeting-large" style="text-decoration: none; color: inherit;">
                     <div class="user-avatar-large">
-                        {% if user.profile_image %}
-                        <img src="{{ user.profile_image.url }}" alt="{{ user.username }}">
-                        {% else %}
-                        <img src="https://ui-avatars.com/api/?name={{ user.username|default:'User' }}&background=6366f1&color=fff" alt="User">
-                        {% endif %}
+                        <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}">
                     </div>
                     <div class="greeting-text-large">
                         <span class="greeting-label-large">{% t "Salom" request.LANGUAGE_CODE %}</span>
@@ -500,13 +496,7 @@
             </div>
             <div class="leaderboard-user">
                 <div class="user-avatar-small">
-                    {% if user_item.profile_image %}
-                    <img src="{{ user_item.profile_image.url }}" alt="{{ user_item.username }}">
-                    {% else %}
-                    <div class="avatar-placeholder-small">
-                        <i class="bi bi-person-fill"></i>
-                    </div>
-                    {% endif %}
+                    <img src="{{ user_item.get_avatar_url }}" alt="{{ user_item.username }}">
                 </div>
                 <div class="user-info-small">
                     <h4>{{ user_item.first_name|default:user_item.username }}</h4>

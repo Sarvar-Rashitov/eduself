@@ -52,11 +52,7 @@
                     {% if user.is_authenticated %}
                     <div class="user-dropdown">
                         <button class="user-btn" id="userDropdownBtn">
-                            {% if user.profile_image %}
-                            <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="user-avatar-img">
-                            {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ user.username|default:'User' }}&background=6366f1&color=fff" alt="{{ user.username }}" class="user-avatar-img">
-                            {% endif %}
+                            <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="user-avatar-img">
                             <span>{{ user.get_full_name|default:user.first_name|default:user.username }}</span>
                             {% if unread_notifications_count > 0 %}
                             <span class="user-notification-badge" style="background: #ef4444; color: white; font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center;">{{ unread_notifications_count }}</span>

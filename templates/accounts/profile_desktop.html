@@ -17,15 +17,11 @@
     </div>
     <div class="container">
         <div class="profile-header-content">
-            <div class="profile-avatar-large">
-                {% if user.profile_image %}
-                <img src="{{ user.profile_image.url }}" alt="{{ user.username }}">
-                {% else %}
-                <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=6366f1&color=fff&size=200" alt="{{ user.username }}">
-                {% endif %}
-                <label for="avatar-upload" class="avatar-edit-btn">
-                    <i class="fas fa-camera"></i>
-                </label>
+            <div class="profile-avatar-large" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#avatarModal">
+                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}">
+                <div class="avatar-edit-btn">
+                    <i class="fas fa-pencil-alt"></i>
+                </div>
             </div>
             <div class="profile-info-large">
                 {% if user.auth_provider == 'telegram' and user.first_name %}
@@ -2250,3 +2246,110 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
+
+<!-- Avatar Tanlash Modal -->
+<div class="modal fade" id="avatarModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div class="modal-header" style="border-bottom: 2px solid #f3f4f6; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title" style="font-weight: 700;">
+                    <i class="fas fa-user-circle me-2"></i>Avatar tanlash
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <p class="text-muted mb-4" style="font-size: 1rem;">O'zingizga yoqqan avatarni tanlang</p>
+                <form method="post" id="avatarFormDesktop">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="change_avatar">
+                    <input type="hidden" name="avatar_number" id="selectedAvatarDesktop">
+                    
+                    <div class="row g-4">
+                        {% for i in "12345678" %}
+                        <div class="col-3">
+                            <div class="avatar-option-desktop {% if user.avatar_number == forloop.counter %}active{% endif %}" 
+                                 data-avatar="{{ forloop.counter }}"
+                                 style="cursor: pointer; border-radius: 20px; padding: 12px; border: 4px solid transparent; transition: all 0.3s ease; position: relative; background: #f9fafb;">
+                                <img src="{% static 'images/avatars/avatar-' %}{{ forloop.counter }}.png" 
+                                     alt="Avatar {{ forloop.counter }}" 
+                                     style="width: 100%; border-radius: 16px; transition: transform 0.3s ease;">
+                                <div class="avatar-check-desktop" style="position: absolute; top: 8px; right: 8px; background: #10b981; color: white; border-radius: 50%; width: 32px; height: 32px; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);">
+                                    <i class="fas fa-check" style="font-size: 1rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 2px solid #f3f4f6; padding: 1.5rem;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 12px; padding: 0.75rem 1.5rem;">
+                    <i class="fas fa-times me-2"></i>Bekor qilish
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitAvatarDesktop()" style="border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 0.75rem 1.5rem;">
+                    <i class="fas fa-check me-2"></i>Saqlash
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-option-desktop:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.avatar-option-desktop:hover img {
+    transform: scale(1.05);
+}
+
+.avatar-option-desktop.active {
+    border-color: #667eea !important;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%) !important;
+}
+</style>
+
+<script>
+// Avatar tanlash (Desktop)
+document.querySelectorAll('.avatar-option-desktop').forEach(option => {
+    option.addEventListener('click', function() {
+        // Barcha avatarlardan active class'ni olib tashlash
+        document.querySelectorAll('.avatar-option-desktop').forEach(opt => {
+            opt.classList.remove('active');
+            opt.style.borderColor = 'transparent';
+            opt.querySelector('.avatar-check-desktop').style.display = 'none';
+        });
+        
+        // Tanlangan avatarga active class qo'shish
+        this.classList.add('active');
+        this.style.borderColor = '#667eea';
+        this.querySelector('.avatar-check-desktop').style.display = 'flex';
+        
+        // Hidden input'ga avatar raqamini yozish
+        document.getElementById('selectedAvatarDesktop').value = this.dataset.avatar;
+    });
+});
+
+// Avatar saqlash (Desktop)
+function submitAvatarDesktop() {
+    const selectedAvatar = document.getElementById('selectedAvatarDesktop').value;
+    if (!selectedAvatar) {
+        alert('Iltimos, avatar tanlang');
+        return;
+    }
+    document.getElementById('avatarFormDesktop').submit();
+}
+
+// Sahifa yuklanganda hozirgi avatarni belgilash (Desktop)
+document.addEventListener('DOMContentLoaded', function() {
+    const currentAvatar = {{ user.avatar_number }};
+    const currentOption = document.querySelector(`.avatar-option-desktop[data-avatar="${currentAvatar}"]`);
+    if (currentOption) {
+        currentOption.style.borderColor = '#667eea';
+        currentOption.querySelector('.avatar-check-desktop').style.display = 'flex';
+        document.getElementById('selectedAvatarDesktop').value = currentAvatar;
+    }
+});
+</script>
