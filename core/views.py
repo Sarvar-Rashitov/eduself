@@ -376,6 +376,15 @@ def take_topic_test_view(request, pk):
                 except Question.DoesNotExist:
                     continue
         
+        # Oldingi eng yaxshi natijani topish
+        previous_best = TopicResult.objects.filter(
+            user=request.user,
+            topic=topic
+        ).order_by('-earned_points').first()
+        
+        previous_best_points = previous_best.earned_points if previous_best else 0
+        
+        # Yangi natijani saqlash
         TopicResult.objects.create(
             user=request.user,
             topic=topic,
@@ -386,6 +395,12 @@ def take_topic_test_view(request, pk):
             user_answers=user_answers,
             earned_points=earned_points
         )
+        
+        # Faqat yangi natija oldingi eng yaxshi natijadan yaxshi bo'lsa, farqni qo'shish
+        if earned_points > previous_best_points:
+            points_to_add = earned_points - previous_best_points
+            request.user.total_points += points_to_add
+            request.user.save(update_fields=['total_points'])
         
         return redirect('core:topic_result', pk=topic.pk)
     
@@ -775,6 +790,15 @@ def take_cert_test_view(request, pk):
                 except CertificateQuestion.DoesNotExist:
                     continue
         
+        # Oldingi eng yaxshi natijani topish
+        previous_best = CertificateResult.objects.filter(
+            user=request.user,
+            test=test
+        ).order_by('-earned_points').first()
+        
+        previous_best_points = previous_best.earned_points if previous_best else 0
+        
+        # Yangi natijani saqlash
         CertificateResult.objects.create(
             user=request.user,
             test=test,
@@ -785,6 +809,12 @@ def take_cert_test_view(request, pk):
             user_answers=user_answers,
             earned_points=earned_points
         )
+        
+        # Faqat yangi natija oldingi eng yaxshi natijadan yaxshi bo'lsa, farqni qo'shish
+        if earned_points > previous_best_points:
+            points_to_add = earned_points - previous_best_points
+            request.user.total_points += points_to_add
+            request.user.save(update_fields=['total_points'])
         
         return redirect('core:cert_test_result', pk=test.pk)
     
@@ -1077,6 +1107,15 @@ def take_mock_exam_view(request, pk):
                 except MockExamQuestion.DoesNotExist:
                     continue
         
+        # Oldingi eng yaxshi natijani topish
+        previous_best = MockExamResult.objects.filter(
+            user=request.user,
+            exam=exam
+        ).order_by('-earned_points').first()
+        
+        previous_best_points = previous_best.earned_points if previous_best else 0
+        
+        # Yangi natijani saqlash
         MockExamResult.objects.create(
             user=request.user,
             exam=exam,
@@ -1087,6 +1126,12 @@ def take_mock_exam_view(request, pk):
             user_answers=user_answers,
             earned_points=earned_points
         )
+        
+        # Faqat yangi natija oldingi eng yaxshi natijadan yaxshi bo'lsa, farqni qo'shish
+        if earned_points > previous_best_points:
+            points_to_add = int(earned_points) - int(previous_best_points)
+            request.user.total_points += points_to_add
+            request.user.save(update_fields=['total_points'])
         
         return redirect('core:mock_exam_result', pk=exam.pk)
     
@@ -1818,6 +1863,15 @@ def take_direction_exam_view(request, pk):
         # O'tish balli ball asosida tekshiriladi
         passed = earned_points >= exam.passing_score
         
+        # Oldingi eng yaxshi natijani topish
+        previous_best = DirectionExamResult.objects.filter(
+            user=request.user,
+            exam=exam
+        ).order_by('-earned_points').first()
+        
+        previous_best_points = float(previous_best.earned_points) if previous_best else 0.0
+        
+        # Yangi natijani saqlash
         result = DirectionExamResult.objects.create(
             user=request.user,
             exam=exam,
@@ -1829,6 +1883,12 @@ def take_direction_exam_view(request, pk):
             user_answers=user_answers,
             earned_points=earned_points
         )
+        
+        # Faqat yangi natija oldingi eng yaxshi natijadan yaxshi bo'lsa, farqni qo'shish
+        if earned_points > previous_best_points:
+            points_to_add = int(earned_points - previous_best_points)
+            request.user.total_points += points_to_add
+            request.user.save(update_fields=['total_points'])
         
         return redirect('core:direction_exam_result', pk=exam.pk)
     
