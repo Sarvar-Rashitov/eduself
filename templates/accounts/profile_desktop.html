@@ -2431,7 +2431,14 @@ document.querySelectorAll('.avatar-option-compact-desktop').forEach(option => {
         this.classList.add('active');
         
         // Hidden input'ga avatar raqamini yozish
-        document.getElementById('selectedAvatarDesktop').value = this.dataset.avatar;
+        const avatarNum = this.dataset.avatar;
+        document.getElementById('selectedAvatarDesktop').value = avatarNum;
+        
+        // Real-time preview - profile header'dagi avatarni yangilash
+        const profileAvatar = document.querySelector('.profile-avatar-large img');
+        if (profileAvatar) {
+            profileAvatar.src = `/static/images/avatars/avatar-${avatarNum}.png`;
+        }
     });
 });
 
@@ -2454,4 +2461,26 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('selectedAvatarDesktop').value = currentAvatar;
     }
 });
+
+// Modal ochilganda hozirgi avatarga scroll qilish
+const avatarModalDesktop = document.getElementById('avatarModal');
+if (avatarModalDesktop) {
+    avatarModalDesktop.addEventListener('shown.bs.modal', function () {
+        const currentAvatar = {{ user.avatar_number }};
+        const currentOption = document.querySelector(`.avatar-option-compact-desktop[data-avatar="${currentAvatar}"]`);
+        if (currentOption) {
+            // Scroll container'ni topish
+            const scrollContainer = document.querySelector('.avatar-grid-scroll-desktop');
+            if (scrollContainer) {
+                // Avatar elementining pozitsiyasini hisoblash
+                const optionTop = currentOption.offsetTop;
+                const containerHeight = scrollContainer.clientHeight;
+                const optionHeight = currentOption.offsetHeight;
+                
+                // Markazga scroll qilish
+                scrollContainer.scrollTop = optionTop - (containerHeight / 2) + (optionHeight / 2);
+            }
+        }
+    });
+}
 </script>

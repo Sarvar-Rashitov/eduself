@@ -328,35 +328,40 @@ body[data-page="ai-assistant"] .page-title {
     font-size: 24px;
 }
 
-/* Bottom Navigation - Telegram Style with Blur */
+/* Bottom Navigation - Premium Glassmorphism Style */
 .bottom-nav {
     position: fixed !important;
-    bottom: 8px !important;
-    left: 8px !important;
-    right: 8px !important;
-    width: calc(100% - 16px) !important;
-    height: 56px !important;
-    background: rgba(255, 255, 255, 0.75) !important;
-    backdrop-filter: blur(30px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
-    border: 1px solid rgba(0, 0, 0, 0.06) !important;
-    border-radius: 16px !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 0 0.5px rgba(0, 0, 0, 0.04) !important;
+    bottom: 12px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: calc(100% - 24px) !important;
+    height: 72px !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 22px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 
+                0 2px 8px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
     z-index: 1000 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-around !important;
-    padding: 0 8px !important;
-    transition: all 0.3s ease !important;
+    padding: 8px 12px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     -webkit-tap-highlight-color: transparent !important;
+    overflow: hidden !important;
 }
 
 [data-theme="dark"] .bottom-nav {
-    background: rgba(30, 30, 30, 0.75) !important;
-    backdrop-filter: blur(30px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 0.5px rgba(255, 255, 255, 0.06) !important;
+    background: rgba(20, 20, 20, 0.25) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 
+                0 2px 8px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
 }
 
 .bottom-nav .nav-btn {
@@ -366,19 +371,24 @@ body[data-page="ai-assistant"] .page-title {
     align-items: center !important;
     justify-content: center !important;
     gap: 4px !important;
-    padding: 8px 4px !important;
+    padding: 10px 8px !important;
     text-decoration: none !important;
-    color: var(--text-secondary) !important;
+    color: #8E8E93 !important;
     font-size: 11px !important;
     font-weight: 500 !important;
-    border-radius: 12px !important;
-    transition: all 0.2s ease !important;
+    border-radius: 16px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     position: relative !important;
-    max-width: 80px !important;
+    max-width: 72px !important;
     -webkit-tap-highlight-color: transparent !important;
     -webkit-touch-callout: none !important;
     -webkit-user-select: none !important;
     user-select: none !important;
+    z-index: 1 !important;
+}
+
+[data-theme="dark"] .bottom-nav .nav-btn {
+    color: #98989D !important;
 }
 
 .bottom-nav .nav-btn:focus {
@@ -386,17 +396,14 @@ body[data-page="ai-assistant"] .page-title {
 }
 
 .bottom-nav .nav-btn:active {
-    transform: scale(0.95) !important;
-    background: rgba(0, 0, 0, 0.05) !important;
-}
-
-[data-theme="dark"] .bottom-nav .nav-btn:active {
-    background: rgba(255, 255, 255, 0.08) !important;
+    transform: scale(0.96) !important;
 }
 
 .bottom-nav .nav-btn i {
-    font-size: 22px !important;
-    transition: all 0.2s ease !important;
+    font-size: 24px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 .bottom-nav .nav-btn span {
@@ -404,34 +411,69 @@ body[data-page="ai-assistant"] .page-title {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     max-width: 100% !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif !important;
+    letter-spacing: -0.01em !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
-.bottom-nav .nav-btn:hover {
-    background: rgba(0, 0, 0, 0.03) !important;
-    color: var(--primary-color) !important;
+/* Hover effect for inactive items */
+.bottom-nav .nav-btn:not(.active):hover {
+    transform: scale(1.05) !important;
 }
 
-[data-theme="dark"] .bottom-nav .nav-btn:hover {
-    background: rgba(255, 255, 255, 0.05) !important;
+.bottom-nav .nav-btn:not(.active):hover i {
+    color: #6366F1 !important;
 }
 
+/* Active state - Premium pill design */
 .bottom-nav .nav-btn.active {
-    color: var(--primary-color) !important;
-    background: rgba(99, 102, 241, 0.08) !important;
+    color: white !important;
+    font-weight: 600 !important;
 }
 
-[data-theme="dark"] .bottom-nav .nav-btn.active {
-    background: rgba(129, 140, 248, 0.12) !important;
+.bottom-nav .nav-btn.active::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: calc(100% - 4px) !important;
+    height: calc(100% - 4px) !important;
+    background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%) !important;
+    border-radius: 14px !important;
+    z-index: 0 !important;
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35),
+                0 2px 8px rgba(99, 102, 241, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[data-theme="dark"] .bottom-nav .nav-btn.active::before {
+    background: linear-gradient(135deg, #9F7AEA 0%, #7C3AED 100%) !important;
+    box-shadow: 0 4px 16px rgba(159, 122, 234, 0.4),
+                0 2px 8px rgba(124, 58, 237, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
 .bottom-nav .nav-btn.active i {
-    transform: scale(1.1) !important;
+    transform: scale(1.08) !important;
+    color: white !important;
+}
+
+.bottom-nav .nav-btn.active span {
+    color: white !important;
+}
+
+/* Prevent any overflow outside container */
+.bottom-nav .nav-btn.active::before {
+    clip-path: inset(0 round 14px) !important;
 }
 
 /* Main Container Padding for Fixed Header/Nav */
 .main-container {
     padding-top: 72px !important;
-    padding-bottom: 72px !important;
+    padding-bottom: 92px !important;
     min-height: 100vh !important;
     flex: 1 !important;
 }
@@ -547,26 +589,29 @@ body[data-page="ai-assistant"] .page-title {
     }
     
     .bottom-nav {
-        left: max(8px, env(safe-area-inset-left)) !important;
-        right: max(8px, env(safe-area-inset-right)) !important;
-        bottom: max(8px, env(safe-area-inset-bottom)) !important;
-        width: calc(100% - max(16px, env(safe-area-inset-left) + env(safe-area-inset-right))) !important;
+        left: max(12px, env(safe-area-inset-left)) !important;
+        right: max(12px, env(safe-area-inset-right)) !important;
+        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        width: calc(100% - max(24px, env(safe-area-inset-left) + env(safe-area-inset-right))) !important;
+        padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
     }
 }
 
 /* Mobile Optimization */
 @media (max-width: 480px) {
     .bottom-nav {
-        height: 52px !important;
+        height: 68px !important;
+        bottom: 10px !important;
     }
     
     .bottom-nav .nav-btn {
         font-size: 10px !important;
-        padding: 6px 2px !important;
+        padding: 8px 6px !important;
+        max-width: 68px !important;
     }
     
     .bottom-nav .nav-btn i {
-        font-size: 20px !important;
+        font-size: 22px !important;
     }
 }
 
