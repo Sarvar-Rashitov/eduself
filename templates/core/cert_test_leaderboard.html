@@ -79,9 +79,6 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 <img src="{{ result.user.get_avatar_url }}" alt="{{ result.user.username }}" class="rounded-circle me-2" style="width: 28px; height: 28px; object-fit: cover;">
-                                    {{ result.user.username|slice:":1"|upper }}
-                                </div>
-                                {% endif %}
                                 <div>
                                     <div style="font-size: 14px;">{{ result.user.first_name|default:result.user.username }}</div>
                                     {% if result.user == request.user %}

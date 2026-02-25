@@ -29,9 +29,7 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-auto">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
+                            <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
                         </div>
                         <div class="col">
                             <h5 class="mb-1">{% t "Sizning pozitsiyangiz" request.LANGUAGE_CODE %}</h5>
@@ -78,9 +76,7 @@
                                                 {% else %}
                                                     <span class="text-muted me-2" style="font-size: 12px; width: 20px;">#{{ forloop.counter }}</span>
                                                 {% endif %}
-                                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px; font-size: 11px;">
-                                                    <i class="bi bi-person-fill"></i>
-                                                </div>
+                                                <img src="{{ user_item.get_avatar_url }}" alt="{{ user_item.username }}" class="rounded-circle me-2" style="width: 28px; height: 28px; object-fit: cover;">
                                                 <div>
                                                     <div class="fw-bold" style="font-size: 13px;">{{ user_item.first_name|default:user_item.username }}</div>
                                                     <small class="text-muted" style="font-size: 10px;">@{{ user_item.username }}</small>
