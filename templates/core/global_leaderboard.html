@@ -33,7 +33,7 @@
                         </div>
                         <div class="col">
                             <h5 class="mb-1">{% t "Sizning pozitsiyangiz" request.LANGUAGE_CODE %}</h5>
-                            <p class="text-muted mb-0">{{ user_position }}-{% t "o'rin" request.LANGUAGE_CODE %} • {{ user_points }} {% t "ball" request.LANGUAGE_CODE %}</p>
+                            <p class="text-muted mb-0">{{ user_position }}-{% t "o'rin" request.LANGUAGE_CODE %} • {{ user_points }} XP</p>
                         </div>
                         <div class="col-auto">
                             <span class="badge bg-primary fs-6">#{{ user_position }}</span>
@@ -59,7 +59,7 @@
                                     <tr>
                                         <th class="border-0 ps-3">{% t "Foydalanuvchi" request.LANGUAGE_CODE %}</th>
                                         <th class="border-0 text-center">{% t "Testlar" request.LANGUAGE_CODE %}</th>
-                                        <th class="border-0 text-end pe-3">{% t "Ball" request.LANGUAGE_CODE %}</th>
+                                        <th class="border-0 text-end pe-3">XP</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -87,7 +87,7 @@
                                             <span class="badge bg-info" style="font-size: 9px;">{{ user_item.tests_completed }}</span>
                                         </td>
                                         <td class="text-end pe-3">
-                                            <span class="badge bg-success" style="font-size: 10px;">{{ user_item.total_points }} {% t "ball" request.LANGUAGE_CODE %}</span>
+                                            <span class="badge bg-success" style="font-size: 10px;">{{ user_item.total_points }} XP</span>
                                         </td>
                                     </tr>
                                     {% endfor %}

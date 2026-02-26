@@ -16,7 +16,7 @@
         <div class="d-flex gap-3">
             <div class="score-display">
                 <i class="bi bi-trophy"></i>
-                <span id="currentScore">0.00</span> / <span id="maxScore">{{ exam.get_max_points|floatformat:2 }}</span>{% t "ball" request.LANGUAGE_CODE %}</div>
+                <span id="currentScore">0.00</span> / <span id="maxScore">{{ exam.get_max_points|floatformat:2 }}</span> XP</div>
             <div class="timer-display">
                 <i class="bi bi-clock"></i>
                 <span id="timer">{{ exam.time_limit }}:00</span>
@@ -39,7 +39,7 @@
     <div class="question-card" id="question-{{ forloop.counter0 }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
         <div class="question-header-mobile">
             <div class="question-number">{% t "Savol" request.LANGUAGE_CODE %} {{ forloop.counter }} / {{ questions|length }}</div>
-            <div class="question-points-mobile"><i class="bi bi-star-fill"></i> {{ question.points|floatformat:2 }} {% t "ball" request.LANGUAGE_CODE %}</div>
+            <div class="question-points-mobile"><i class="bi bi-star-fill"></i> {{ question.points|floatformat:2 }} XP</div>
         </div>
         
         {% if question.long_text %}
@@ -104,7 +104,7 @@
                 </div>
                 <h5>{% t "Imtihonni tugatmoqchimisiz" request.LANGUAGE_CODE %}?</h5>
                 <p class="text-muted mb-0">{% t "Hozircha" request.LANGUAGE_CODE %} <strong id="answeredCount">0</strong> {% t "ta savolga javob berdingiz." request.LANGUAGE_CODE %}</p>
-                <p class="text-muted">{% t "Joriy ballingiz" request.LANGUAGE_CODE %}: <strong id="modalCurrentScore">0</strong> {% t "ball" request.LANGUAGE_CODE %}</p>
+                <p class="text-muted">{% t "Joriy XP" request.LANGUAGE_CODE %}: <strong id="modalCurrentScore">0</strong> XP</p>
                 <p class="text-danger small">{% t "Tugatilgandan so'ng qaytib bo'lmaydi" request.LANGUAGE_CODE %}!</p>
             </div>
             <div class="modal-footer justify-content-center gap-2">

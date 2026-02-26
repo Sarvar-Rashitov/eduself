@@ -98,7 +98,7 @@ Sizni sog'indik! Siz EduSelf platformasida {days_inactive} kun faol bo'lmadingiz
 Sizning natijalaringiz:
 - Jami testlar: {total_tests}
 - O'tgan testlar: {passed_tests}
-- Umumiy ball: {total_points}
+- Umumiy XP: {total_points}
 - Progress: {progress}%
 
 Qaytib kelib, o'qishni davom ettiring: {settings.SITE_URL}
@@ -128,7 +128,7 @@ EduSelf jamoasi'''
                                         f"📊 Natijalaringiz:\n"
                                         f"• Jami testlar: {total_tests}\n"
                                         f"• O'tgan testlar: {passed_tests}\n"
-                                        f"• Umumiy ball: {total_points}\n"
+                                        f"• Umumiy XP: {total_points}\n"
                                         f"• Progress: {progress}%\n\n"
                                         f"Qaytib kelib, o'qishni davom ettiring!",
                                 link=settings.SITE_URL

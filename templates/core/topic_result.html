@@ -15,7 +15,7 @@
     <div class="result-score">{{ result.score }}%</div>
     <p class="text-muted mb-1">{{ result.correct_answers }} / {{ result.total_questions }} {% t "to'g'ri javob" request.LANGUAGE_CODE %}</p>
     {% if result.earned_points is not None %}
-    <p class="text-muted mb-0"><strong>{{ result.earned_points }}</strong> / {{ topic.get_max_points }} {% t "ball" request.LANGUAGE_CODE %}</p>
+    <p class="text-muted mb-0"><strong>{{ result.earned_points }}</strong> / {{ topic.get_max_points }} XP</p>
     {% endif %}
     
     <div class="progress mt-3" style="height: 10px;">

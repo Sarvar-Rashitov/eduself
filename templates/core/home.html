@@ -169,7 +169,7 @@
                             <i class="bi bi-x-circle-fill text-danger"></i> {% t "O'tmadingiz" request.LANGUAGE_CODE %}
                             {% endif %}
                         </span>
-                        <span class="result-points">{{ last_test_result.earned_points }} {% t "ball" request.LANGUAGE_CODE %}</span>
+                        <span class="result-points">{{ last_test_result.earned_points }} XP</span>
                     </div>
                 </div>
                 <div class="test-actions">
@@ -218,7 +218,7 @@
                             <i class="bi bi-x-circle-fill text-danger"></i> {% t "O'tmadingiz" request.LANGUAGE_CODE %}
                             {% endif %}
                         </span>
-                        <span class="result-points">{{ last_cert_result.earned_points }} {% t "ball" request.LANGUAGE_CODE %}</span>
+                        <span class="result-points">{{ last_cert_result.earned_points }} XP</span>
                     </div>
                 </div>
                 <div class="test-actions">
@@ -505,7 +505,7 @@
             </div>
             <div class="leaderboard-points">
                 <span class="points-value">{{ user_item.total_points }}</span>
-                <span class="points-label">{% t "ball" request.LANGUAGE_CODE %}</span>
+                <span class="points-label">XP</span>
             </div>
         </div>
         {% endfor %}
@@ -515,7 +515,7 @@
             <div class="user-position-content">
                 <i class="bi bi-person-circle"></i>
                 <span>{% t "Sizning o'rningiz" request.LANGUAGE_CODE %}: <strong>#{{ user_position }}</strong></span>
-                <span class="user-position-points">{{ user.total_points }} {% t "ball" request.LANGUAGE_CODE %}</span>
+                <span class="user-position-points">{{ user.total_points }} XP</span>
             </div>
         </div>
         {% endif %}

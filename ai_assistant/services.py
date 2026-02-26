@@ -985,7 +985,7 @@ class TestAnalysisService:
         language_prompts = {
             'uz': {
                 'test_results': '📊 **Test natijalari:**',
-                'total_score': 'Umumiy ball',
+                'total_score': 'Umumiy XP',
                 'correct_answers': "To'g'ri javoblar",
                 'incorrect_answers': "Noto'g'ri javoblar",
                 'test_passed': 'Test o\'tdi',
@@ -1081,7 +1081,7 @@ Your response should be in English, concise and practical."""
             },
             'kaa': {
                 'test_results': '📊 **Test nátiyjeleri:**',
-                'total_score': 'Umumiy ball',
+                'total_score': 'Umumiy XP',
                 'correct_answers': "Durıs juwaplar",
                 'incorrect_answers': "Qáte juwaplar",
                 'test_passed': 'Test ótti',
@@ -1092,7 +1092,7 @@ Your response should be in English, concise and practical."""
                 'mock_exam': '📝 **Sınaq imtixan:**',
                 'direction_exam': '🎓 **Bağdar imtixanı:**',
                 'subjects': '📖 **Pánler:**',
-                'passing_score': '🎯 **Ótiwshi ball:**',
+                'passing_score': '🎯 **Ótiwshi XP:**',
                 'instruction': """
 Bul nátiyjelerdıń negizinde paydalanıwshıǵa:
 1. Kúshli táreplerın belgilań
@@ -1204,7 +1204,7 @@ Juwabıńız qaraqalpaq tilinde, qısqa hám ámeliy bolsın."""
         if score >= 90:
             return f"""🎉 **Ajoyib natija!**
 
-Siz {score}% ball to'pladingiz - bu juda yuqori natija!
+Siz {score}% XP to'pladingiz - bu juda yuqori natija!
 
 ✅ **Kuchli tomonlaringiz:**
 - {correct}/{total} savolga to'g'ri javob berdingiz
@@ -1223,7 +1223,7 @@ Tabriklaymiz! Davom eting! 💪"""
             test_status = "Testni muvaffaqiyatli o'tdingiz" if passed else "Deyarli o'tish balliga yetdingiz"
             return f"""👍 **Yaxshi natija!**
 
-Siz {score}% ball to'pladingiz - bu yaxshi ko'rsatkich.
+Siz {score}% XP to'pladingiz - bu yaxshi ko'rsatkich.
 
 ✅ **Kuchli tomonlaringiz:**
 - {correct}/{total} savolga to'g'ri javob berdingiz
@@ -1241,7 +1241,7 @@ Siz to'g'ri yo'ldasiz! 🎯"""
         elif score >= 50:
             return f"""📖 **O'rtacha natija**
 
-Siz {score}% ball to'pladingiz. Yaxshilash uchun ish bor.
+Siz {score}% XP to'pladingiz. Yaxshilash uchun ish bor.
 
 ✅ **Kuchli tomonlaringiz:**
 - {correct}/{total} savolga to'g'ri javob berdingiz
@@ -1259,7 +1259,7 @@ Taslim bo'lmang, davom eting! 💪"""
         else:
             return f"""📚 **Takrorlash kerak**
 
-Siz {score}% ball to'pladingiz. Asosiy mavzularni qayta o'rganish kerak.
+Siz {score}% XP to'pladingiz. Asosiy mavzularni qayta o'rganish kerak.
 
 🎯 **Tavsiyalar:**
 - Barcha mavzularni boshidan o'rganing
@@ -1285,7 +1285,7 @@ Har bir katta muvaffaqiyat kichik qadamlardan boshlanadi! 🌟"""
         weak_areas = analysis_data.get('weak_areas', [])
         strong_areas = analysis_data.get('strong_areas', [])
         
-        # Ball asosida umumiy tavsiyalar
+        # XP asosida umumiy tavsiyalar
         if score >= 90:
             recommendations.extend([
                 "Ajoyib! Ushbu darajangizni saqlab qoling",

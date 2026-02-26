@@ -18,7 +18,7 @@
                 </div>
                 <p class="text-muted mb-0 small">{{ result.correct_answers }} / {{ result.total_questions }} {% t "to'g'ri" request.LANGUAGE_CODE %}</p>
                 {% if result.earned_points is not None %}
-                <p class="text-muted mb-0 small"><strong>{{ result.earned_points }}</strong> / {{ topic.get_max_points }} {% t "ball" request.LANGUAGE_CODE %}</p>
+                <p class="text-muted mb-0 small"><strong>{{ result.earned_points }}</strong> / {{ topic.get_max_points }} XP</p>
                 {% endif %}
             </div>
         </div>

@@ -27,7 +27,7 @@ class Command(BaseCommand):
                 total=Sum('earned_points')
             )['total'] or 0
             
-            # Umumiy ball
+            # Umumiy XP
             total_points = topic_points + cert_points + mock_points
             
             # Faqat o'zgargan bo'lsa yangilash
@@ -37,7 +37,7 @@ class Command(BaseCommand):
                 updated_count += 1
                 
                 self.stdout.write(
-                    f"Yangilandi: {user.username} - {total_points} ball "
+                    f"Yangilandi: {user.username} - {total_points} XP "
                     f"(Topic: {topic_points}, Cert: {cert_points}, Mock: {mock_points})"
                 )
         

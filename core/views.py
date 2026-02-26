@@ -103,7 +103,7 @@ def home_view(request):
     total_questions = Question.objects.count() + CertificateQuestion.objects.count() + MockExamQuestion.objects.count()
     total_certificates = Certificate.objects.filter(is_active=True).count()
     
-    # Reyting hisoblash (o'rtacha ball)
+    # Reyting hisoblash (o'rtacha XP)
     avg_rating = 4.8  # Hozircha statik, keyinchalik dinamik qilish mumkin
     
     # Dinamik statistikalar ro'yxati
@@ -290,7 +290,7 @@ def topic_leaderboard_view(request, pk):
         if result:
             top_results.append(result)
     
-    # Ball bo'yicha saralash (yuqoridan pastga), keyin vaqt bo'yicha (tezroq birinchi)
+    # XP bo'yicha saralash (yuqoridan pastga), keyin vaqt bo'yicha (tezroq birinchi)
     top_results = sorted(top_results, key=lambda x: (-x.earned_points, x.completed_at))[:10]
     
     # Foydalanuvchining eng yaxshi natijasi
@@ -366,7 +366,7 @@ def take_topic_test_view(request, pk):
         score = int((correct / total) * 100) if total > 0 else 0
         passed = score >= topic.passing_score
         
-        # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
+        # Earned points hisoblash - to'g'ri javoblar uchun XP yig'ish
         earned_points = 0
         for question_id, answer_data in user_answers.items():
             if answer_data.get('is_correct', False):
@@ -491,7 +491,7 @@ def check_answer_view(request, question_id, answer_id):
             selected_answer = get_object_or_404(Answer, id=answer_id, question=question)
             correct_answer = question.answers.filter(is_correct=True).first()
             
-            # Ball ma'lumotini qo'shish
+            # XP ma'lumotini qo'shish
             points_earned = question.points if selected_answer.is_correct else 0
             
             return JsonResponse({
@@ -639,7 +639,7 @@ def cert_test_leaderboard_view(request, pk):
         if result:
             top_results.append(result)
     
-    # Ball bo'yicha saralash (yuqoridan pastga), keyin vaqt bo'yicha (tezroq birinchi)
+    # XP bo'yicha saralash (yuqoridan pastga), keyin vaqt bo'yicha (tezroq birinchi)
     top_results = sorted(top_results, key=lambda x: (-x.earned_points, x.completed_at))[:10]
     
     # Foydalanuvchining eng yaxshi natijasi
@@ -665,7 +665,7 @@ def check_cert_answer_view(request, question_id, answer_id):
             selected_answer = get_object_or_404(CertificateAnswer, id=answer_id, question=question)
             correct_answer = question.cert_answers.filter(is_correct=True).first()
             
-            # Ball ma'lumotini qo'shish (float sifatida)
+            # XP ma'lumotini qo'shish (float sifatida)
             points_earned = float(question.points) if selected_answer.is_correct else 0.0
             
             return JsonResponse({
@@ -780,7 +780,7 @@ def take_cert_test_view(request, pk):
         score = int((correct / total) * 100) if total > 0 else 0
         passed = score >= test.passing_score
         
-        # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
+        # Earned points hisoblash - to'g'ri javoblar uchun XP yig'ish
         earned_points = 0
         for question_id, answer_data in user_answers.items():
             if answer_data.get('is_correct', False):
@@ -959,7 +959,7 @@ def mock_exam_leaderboard_view(request, pk):
         if result:
             top_results.append(result)
     
-    # Ball bo'yicha saralash (yuqoridan pastga), keyin vaqt bo'yicha (tezroq birinchi)
+    # XP bo'yicha saralash (yuqoridan pastga), keyin vaqt bo'yicha (tezroq birinchi)
     top_results = sorted(top_results, key=lambda x: (-x.earned_points, x.completed_at))[:10]
     
     # Foydalanuvchining eng yaxshi natijasi
@@ -985,7 +985,7 @@ def check_mock_answer_view(request, question_id, answer_id):
             selected_answer = get_object_or_404(MockExamAnswer, id=answer_id, question=question)
             correct_answer = question.mock_answers.filter(is_correct=True).first()
             
-            # Ball ma'lumotini qo'shish (float sifatida)
+            # XP ma'lumotini qo'shish (float sifatida)
             points_earned = float(question.points) if selected_answer.is_correct else 0.0
             
             return JsonResponse({
@@ -1097,7 +1097,7 @@ def take_mock_exam_view(request, pk):
         score = int((correct / total) * 100) if total > 0 else 0
         passed = score >= exam.passing_score
         
-        # Earned points hisoblash - to'g'ri javoblar uchun ball yig'ish
+        # Earned points hisoblash - to'g'ri javoblar uchun XP yig'ish
         earned_points = 0
         for question_id, answer_data in user_answers.items():
             if answer_data.get('is_correct', False):
@@ -1706,7 +1706,7 @@ def global_leaderboard_view(request):
     if request.user.is_authenticated:
         user_points = request.user.total_points
         if user_points > 0:
-            # Foydalanuvchidan yuqori ball to'plagan foydalanuvchilar sonini hisoblash
+            # Foydalanuvchidan yuqori XP to'plagan foydalanuvchilar sonini hisoblash
             higher_users_count = User.objects.filter(total_points__gt=user_points).count()
             user_position = higher_users_count + 1
     
@@ -1860,7 +1860,7 @@ def take_direction_exam_view(request, pk):
         max_points = exam.get_max_points()
         score = (earned_points / max_points * 100) if max_points > 0 else 0
         
-        # O'tish balli ball asosida tekshiriladi
+        # O'tish XP asosida tekshiriladi
         passed = earned_points >= exam.passing_score
         
         # Oldingi eng yaxshi natijani topish
