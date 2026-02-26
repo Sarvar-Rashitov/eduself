@@ -155,57 +155,35 @@
                 <a href="{% url 'core:certificates' %}" class="btn btn-primary">Sertifikatlarni ko'rish</a>
             </div>
             <div class="certificate-image">
-                <div class="antique-clock">
-                    <div class="clock-ornament top-ornament">⚜</div>
-                    <div class="clock-frame">
-                        <div class="clock-glow"></div>
-                        <div class="clock-face">
-                            <div class="clock-brand">TEMPUS</div>
-                            <div class="clock-center"></div>
-                            <div class="clock-hand hour-hand">
-                                <div class="hand-decoration"></div>
-                            </div>
-                            <div class="clock-hand minute-hand">
-                                <div class="hand-decoration"></div>
-                            </div>
-                            <div class="clock-hand second-hand"></div>
-                            <!-- Clock numbers -->
-                            <div class="clock-number" style="--i:1;"><span>I</span></div>
-                            <div class="clock-number" style="--i:2;"><span>II</span></div>
-                            <div class="clock-number" style="--i:3;"><span>III</span></div>
-                            <div class="clock-number" style="--i:4;"><span>IV</span></div>
-                            <div class="clock-number" style="--i:5;"><span>V</span></div>
-                            <div class="clock-number" style="--i:6;"><span>VI</span></div>
-                            <div class="clock-number" style="--i:7;"><span>VII</span></div>
-                            <div class="clock-number" style="--i:8;"><span>VIII</span></div>
-                            <div class="clock-number" style="--i:9;"><span>IX</span></div>
-                            <div class="clock-number" style="--i:10;"><span>X</span></div>
-                            <div class="clock-number" style="--i:11;"><span>XI</span></div>
-                            <div class="clock-number" style="--i:12;"><span>XII</span></div>
-                            <!-- Decorative elements -->
-                            <div class="clock-tick" style="--i:1;"></div>
-                            <div class="clock-tick" style="--i:2;"></div>
-                            <div class="clock-tick" style="--i:3;"></div>
-                            <div class="clock-tick" style="--i:4;"></div>
-                            <div class="clock-tick" style="--i:5;"></div>
-                            <div class="clock-tick" style="--i:6;"></div>
-                            <div class="clock-tick" style="--i:7;"></div>
-                            <div class="clock-tick" style="--i:8;"></div>
-                            <div class="clock-tick" style="--i:9;"></div>
-                            <div class="clock-tick" style="--i:10;"></div>
-                            <div class="clock-tick" style="--i:11;"></div>
-                            <div class="clock-tick" style="--i:12;"></div>
+                <div class="modern-clock">
+                    <div class="clock-container">
+                        <div class="clock-face-modern">
+                            <!-- Hour markers -->
+                            <div class="hour-marker" style="--i:0"></div>
+                            <div class="hour-marker" style="--i:1"></div>
+                            <div class="hour-marker" style="--i:2"></div>
+                            <div class="hour-marker" style="--i:3"></div>
+                            <div class="hour-marker" style="--i:4"></div>
+                            <div class="hour-marker" style="--i:5"></div>
+                            <div class="hour-marker" style="--i:6"></div>
+                            <div class="hour-marker" style="--i:7"></div>
+                            <div class="hour-marker" style="--i:8"></div>
+                            <div class="hour-marker" style="--i:9"></div>
+                            <div class="hour-marker" style="--i:10"></div>
+                            <div class="hour-marker" style="--i:11"></div>
+                            
+                            <!-- Clock hands -->
+                            <div class="clock-hand-modern hour-hand-modern" id="hourHand"></div>
+                            <div class="clock-hand-modern minute-hand-modern" id="minuteHand"></div>
+                            <div class="clock-hand-modern second-hand-modern" id="secondHand"></div>
+                            
+                            <!-- Center dot -->
+                            <div class="clock-center-modern"></div>
                         </div>
-                        <div class="clock-chain left-chain"></div>
-                        <div class="clock-chain right-chain"></div>
+                        
+                        <!-- Digital time display -->
+                        <div class="digital-time" id="digitalTime"></div>
                     </div>
-                    <div class="clock-pendulum">
-                        <div class="pendulum-rod"></div>
-                        <div class="pendulum-weight">
-                            <div class="weight-shine"></div>
-                        </div>
-                    </div>
-                    <div class="clock-ornament bottom-ornament">⚜</div>
                 </div>
             </div>
         </div>
@@ -813,104 +791,85 @@
     to { opacity: 1; transform: translateX(0); }
 }
 
-/* Antique Clock Styles */
-.antique-clock {
+/* Premium Glassmorphism Clock - Apple Level Polish */
+.modern-clock {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
-}
-
-.clock-ornament {
-    font-size: 2rem;
-    color: #8b7355;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    animation: ornamentFloat 3s ease-in-out infinite;
-}
-
-.top-ornament {
-    animation-delay: 0s;
-}
-
-.bottom-ornament {
-    animation-delay: 1s;
-}
-
-@keyframes ornamentFloat {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-5px) scale(1.1); }
-}
-
-.clock-frame {
-    width: 300px;
-    height: 300px;
-    background: 
-        linear-gradient(145deg, #a0826d, #6b5644),
-        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), transparent);
-    border-radius: 50%;
-    padding: 22px;
-    box-shadow: 
-        0 0 0 3px #3a2a1a,
-        0 0 0 8px #5a4636,
-        0 0 0 12px #8b7355,
-        0 0 0 14px #3a2a1a,
-        0 25px 60px rgba(0, 0, 0, 0.5),
-        inset 0 5px 20px rgba(0, 0, 0, 0.4),
-        inset 0 -5px 20px rgba(255, 255, 255, 0.1);
+    justify-content: center;
+    gap: 2.5rem;
+    padding: 3rem;
+    min-height: 500px;
+    background: transparent;
+    border-radius: 24px;
     position: relative;
-    animation: clockFloat 4s ease-in-out infinite;
+    overflow: visible;
+}
+
+.modern-clock::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.clock-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    z-index: 1;
+}
+
+/* Glass Clock Face */
+.clock-face-modern {
+    width: 340px;
+    height: 340px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    position: relative;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.35),
+        0 4px 12px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: clockFloat 6s ease-in-out infinite;
 }
 
 @keyframes clockFloat {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-10px) rotate(2deg); }
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-8px) scale(1.01);
+    }
 }
 
-.clock-glow {
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    right: -10px;
-    bottom: -10px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(212, 175, 55, 0.3), transparent 70%);
-    animation: glowPulse 3s ease-in-out infinite;
-    pointer-events: none;
-}
-
-@keyframes glowPulse {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.05); }
-}
-
-.clock-frame::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.2), transparent 50%);
-    pointer-events: none;
-}
-
-.clock-face {
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(circle at 30% 30%, #faf8f3 0%, #f5f1e8 40%, #e8dcc8 100%);
-    border-radius: 50%;
-    position: relative;
+.clock-face-modern:hover {
+    transform: scale(1.02) translateY(-5px);
     box-shadow: 
-        inset 0 0 30px rgba(0, 0, 0, 0.15),
-        inset 0 3px 8px rgba(255, 255, 255, 0.6),
-        inset 0 -3px 8px rgba(0, 0, 0, 0.2);
+        0 30px 80px rgba(0, 0, 0, 0.4),
+        0 8px 20px rgba(0, 0, 0, 0.3),
+        0 0 40px rgba(139, 92, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
-.clock-face::before {
+/* Inner glass ring */
+.clock-face-modern::before {
     content: '';
     position: absolute;
     top: 50%;
@@ -919,301 +878,287 @@
     width: 92%;
     height: 92%;
     border-radius: 50%;
-    border: 3px solid rgba(139, 115, 85, 0.2);
-    box-shadow: 0 0 10px rgba(139, 115, 85, 0.1);
-}
-
-.clock-face::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 85%;
-    height: 85%;
-    border-radius: 50%;
-    border: 1px solid rgba(139, 115, 85, 0.15);
-}
-
-.clock-brand {
-    position: absolute;
-    top: 30%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'Georgia', serif;
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: #5a4636;
-    letter-spacing: 3px;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
-}
-
-.clock-number {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    transform: rotate(calc(var(--i) * 30deg));
-    font-family: 'Georgia', serif;
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #3a2a1a;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
-}
-
-.clock-number span {
-    display: inline-block;
-    transform: rotate(calc(var(--i) * -30deg));
-    margin-top: 12px;
-    transition: all 0.3s ease;
-}
-
-.clock-tick {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transform: rotate(calc(var(--i) * 30deg));
-}
-
-.clock-tick::before {
-    content: '';
-    position: absolute;
-    top: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 8px;
-    background: linear-gradient(to bottom, #8b7355, #5a4636);
-    border-radius: 1px;
-}
-
-.clock-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 24px;
-    height: 24px;
-    background: 
-        radial-gradient(circle at 30% 30%, #a0826d, #5a4636);
-    border-radius: 50%;
+    border: 1px solid rgba(139, 92, 246, 0.15);
     box-shadow: 
-        0 0 0 2px #3a2a1a,
-        0 3px 10px rgba(0, 0, 0, 0.5),
-        inset 0 2px 5px rgba(255, 255, 255, 0.3);
-    z-index: 10;
+        inset 0 2px 10px rgba(0, 0, 0, 0.2),
+        0 0 20px rgba(139, 92, 246, 0.05);
 }
 
-.clock-center::after {
+/* Subtle inner shadow for depth */
+.clock-face-modern::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 10px;
-    height: 10px;
-    background: radial-gradient(circle at 30% 30%, #d4af37, #3a2a1a);
+    inset: 0;
     border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 8px 20px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
 }
 
-.clock-hand {
+/* Hour markers - Minimal & Elegant */
+.hour-marker {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    transform: rotate(calc(var(--i) * 30deg));
+}
+
+.hour-marker::before {
+    content: '';
+    width: 2px;
+    height: 10px;
+    background: linear-gradient(180deg, rgba(139, 92, 246, 0.6), rgba(139, 92, 246, 0.3));
+    border-radius: 2px;
+    margin-top: 15px;
+    box-shadow: 
+        0 2px 6px rgba(139, 92, 246, 0.3),
+        0 0 8px rgba(139, 92, 246, 0.2);
+}
+
+.hour-marker:nth-child(3n)::before {
+    height: 16px;
+    width: 3px;
+    background: linear-gradient(180deg, rgba(139, 92, 246, 0.8), rgba(139, 92, 246, 0.5));
+    box-shadow: 
+        0 3px 10px rgba(139, 92, 246, 0.4),
+        0 0 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Clock numbers - White elegant */
+.hour-marker::after {
+    content: '';
+    position: absolute;
+    top: 35px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transform: rotate(calc(var(--i) * -30deg));
+    text-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.3),
+        0 0 10px rgba(139, 92, 246, 0.2);
+}
+
+.hour-marker:nth-child(1)::after { content: '12'; }
+.hour-marker:nth-child(2)::after { content: '1'; }
+.hour-marker:nth-child(3)::after { content: '2'; }
+.hour-marker:nth-child(4)::after { content: '3'; }
+.hour-marker:nth-child(5)::after { content: '4'; }
+.hour-marker:nth-child(6)::after { content: '5'; }
+.hour-marker:nth-child(7)::after { content: '6'; }
+.hour-marker:nth-child(8)::after { content: '7'; }
+.hour-marker:nth-child(9)::after { content: '8'; }
+.hour-marker:nth-child(10)::after { content: '9'; }
+.hour-marker:nth-child(11)::after { content: '10'; }
+.hour-marker:nth-child(12)::after { content: '11'; }
+
+/* Clock hands - Perfect positioning */
+.clock-hand-modern {
     position: absolute;
     bottom: 50%;
     left: 50%;
     transform-origin: bottom center;
-    background: linear-gradient(to top, #2a1a0a, #5a4636, #3a2a1a);
-    border-radius: 4px 4px 0 0;
-    box-shadow: 
-        0 0 5px rgba(0, 0, 0, 0.5),
-        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    border-radius: 10px 10px 0 0;
+    transition: transform 0.05s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.hand-decoration {
+/* Hour hand - Thick & Short */
+.hour-hand-modern {
+    width: 10px;
+    height: 85px;
+    background: linear-gradient(180deg, #1E293B 0%, #334155 100%);
+    margin-left: -5px;
+    z-index: 3;
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.15),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.hour-hand-modern::before {
+    content: '';
     position: absolute;
-    top: 20%;
+    top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    width: 8px;
-    height: 8px;
-    background: radial-gradient(circle, #d4af37, #8b7355);
-    border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    width: 60%;
+    height: 30px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent);
+    border-radius: 10px;
 }
 
-.hour-hand {
+/* Minute hand - Long & Elegant */
+.minute-hand-modern {
     width: 8px;
-    height: 65px;
+    height: 120px;
+    background: linear-gradient(180deg, #334155 0%, #475569 100%);
     margin-left: -4px;
-    animation: rotateHour 43200s linear infinite;
+    z-index: 4;
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.15),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
-.minute-hand {
-    width: 6px;
-    height: 85px;
-    margin-left: -3px;
-    animation: rotateMinute 3600s linear infinite;
-}
-
-.second-hand {
-    width: 3px;
-    height: 95px;
-    margin-left: -1.5px;
-    background: linear-gradient(to top, #c41e3a, #ff4444, #8b0000);
-    animation: rotateSecond 60s steps(60) infinite;
-    box-shadow: 0 0 8px rgba(196, 30, 58, 0.5);
-}
-
-@keyframes rotateHour {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@keyframes rotateMinute {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@keyframes rotateSecond {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.clock-chain {
+.minute-hand-modern::before {
+    content: '';
     position: absolute;
-    width: 4px;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
     height: 40px;
-    background: repeating-linear-gradient(
-        to bottom,
-        #8b7355 0px,
-        #5a4636 3px,
-        #8b7355 6px
-    );
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent);
+    border-radius: 10px;
+}
+
+/* Second hand - Elegant Red */
+.second-hand-modern {
+    width: 3px;
+    height: 135px;
+    background: linear-gradient(180deg, #F87171 0%, #EF4444 100%);
+    margin-left: -1.5px;
+    z-index: 5;
+    box-shadow: 
+        0 4px 20px rgba(239, 68, 68, 0.5),
+        0 0 15px rgba(239, 68, 68, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3);
     border-radius: 2px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-.left-chain {
-    bottom: -35px;
-    left: 25%;
-    animation: chainSwing 3s ease-in-out infinite;
-}
-
-.right-chain {
-    bottom: -35px;
-    right: 25%;
-    animation: chainSwing 3s ease-in-out infinite 1.5s;
-}
-
-@keyframes chainSwing {
-    0%, 100% { transform: rotate(-3deg); }
-    50% { transform: rotate(3deg); }
-}
-
-.clock-pendulum {
-    position: relative;
-    width: 60px;
-    height: 130px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.pendulum-rod {
-    width: 4px;
-    height: 85px;
-    background: linear-gradient(to bottom, #8b7355, #5a4636, #3a2a1a);
-    border-radius: 2px;
-    transform-origin: top center;
-    animation: pendulumSwing 2s ease-in-out infinite;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-.pendulum-weight {
-    width: 45px;
-    height: 45px;
+/* Center glass orb */
+.clock-center-modern {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 28px;
+    height: 28px;
     background: 
-        radial-gradient(circle at 25% 25%, #ffd700, #d4af37, #b8941e);
+        radial-gradient(circle at 30% 30%, rgba(139, 92, 246, 0.9), rgba(99, 102, 241, 0.8));
     border-radius: 50%;
     box-shadow: 
-        0 0 0 2px #8b7355,
-        0 5px 15px rgba(0, 0, 0, 0.4),
-        inset 0 3px 8px rgba(255, 255, 255, 0.4),
+        0 0 0 5px rgba(255, 255, 255, 0.1),
+        0 0 0 8px rgba(139, 92, 246, 0.1),
+        0 6px 25px rgba(139, 92, 246, 0.4),
+        inset 0 3px 8px rgba(255, 255, 255, 0.3),
         inset 0 -3px 8px rgba(0, 0, 0, 0.3);
-    margin-top: -5px;
-    animation: pendulumSwing 2s ease-in-out infinite;
+    z-index: 10;
+    animation: centerGlow 3s ease-in-out infinite;
+}
+
+@keyframes centerGlow {
+    0%, 100% {
+        box-shadow: 
+            0 0 0 5px rgba(255, 255, 255, 0.1),
+            0 0 0 8px rgba(139, 92, 246, 0.1),
+            0 6px 25px rgba(139, 92, 246, 0.4),
+            inset 0 3px 8px rgba(255, 255, 255, 0.3),
+            inset 0 -3px 8px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 
+            0 0 0 5px rgba(255, 255, 255, 0.15),
+            0 0 0 10px rgba(139, 92, 246, 0.15),
+            0 8px 30px rgba(139, 92, 246, 0.5),
+            inset 0 3px 8px rgba(255, 255, 255, 0.3),
+            inset 0 -3px 8px rgba(0, 0, 0, 0.3);
+    }
+}
+
+.clock-center-modern::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.5));
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Digital time - Glass card */
+.digital-time {
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 1.2rem 2.5rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.3),
+        0 4px 12px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    letter-spacing: 0.2em;
+    text-align: center;
+    text-shadow: 
+        0 2px 10px rgba(139, 92, 246, 0.3),
+        0 1px 3px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 }
 
-.weight-shine {
+.digital-time::before {
+    content: '';
     position: absolute;
-    top: 15%;
-    left: 15%;
-    width: 50%;
-    height: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent);
-    border-radius: 50%;
-    animation: shineRotate 4s linear infinite;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-@keyframes shineRotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+.digital-time:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 15px 50px rgba(0, 0, 0, 0.35),
+        0 8px 20px rgba(0, 0, 0, 0.25),
+        0 0 30px rgba(139, 92, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    border-color: rgba(139, 92, 246, 0.3);
 }
 
-@keyframes pendulumSwing {
-    0%, 100% { transform: rotate(-18deg); }
-    50% { transform: rotate(18deg); }
+.digital-time:hover::before {
+    opacity: 1;
 }
 
-/* Responsive Clock */
+/* Responsive */
 @media (max-width: 768px) {
-    .clock-frame {
-        width: 220px;
-        height: 220px;
-        padding: 16px;
+    .modern-clock {
+        padding: 2rem;
+        min-height: 400px;
     }
     
-    .clock-ornament {
-        font-size: 1.5rem;
+    .clock-face-modern {
+        width: 280px;
+        height: 280px;
     }
     
-    .clock-brand {
-        font-size: 0.7rem;
-    }
-    
-    .clock-number {
-        font-size: 1rem;
-    }
-    
-    .hour-hand {
-        height: 48px;
-    }
-    
-    .minute-hand {
-        height: 62px;
-    }
-    
-    .second-hand {
+    .hour-hand-modern {
         height: 70px;
     }
     
-    .clock-pendulum {
-        height: 90px;
+    .minute-hand-modern {
+        height: 100px;
     }
     
-    .pendulum-rod {
-        height: 55px;
+    .second-hand-modern {
+        height: 110px;
     }
     
-    .pendulum-weight {
-        width: 35px;
-        height: 35px;
-    }
-    
-    .clock-chain {
-        height: 30px;
+    .digital-time {
+        font-size: 1.5rem;
+        padding: 1rem 2rem;
     }
 }
 
@@ -2147,6 +2092,46 @@ if (aiPreviewInput) {
         document.querySelector('[data-tab="signup"]').classList.add('active');
         document.getElementById('signupForm').classList.add('active');
     });
+}
+
+// Real-time clock with Tashkent timezone (UTC+5)
+function updateClock() {
+    const now = new Date();
+    
+    // Convert to Tashkent time (UTC+5)
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const tashkentTime = new Date(utc + (3600000 * 5));
+    
+    const hours = tashkentTime.getHours();
+    const minutes = tashkentTime.getMinutes();
+    const seconds = tashkentTime.getSeconds();
+    
+    // Calculate degrees for each hand
+    const secondDeg = (seconds / 60) * 360;
+    const minuteDeg = ((minutes + seconds / 60) / 60) * 360;
+    const hourDeg = ((hours % 12 + minutes / 60) / 12) * 360;
+    
+    // Update clock hands
+    const hourHand = document.getElementById('hourHand');
+    const minuteHand = document.getElementById('minuteHand');
+    const secondHand = document.getElementById('secondHand');
+    
+    if (hourHand) hourHand.style.transform = `rotate(${hourDeg}deg)`;
+    if (minuteHand) minuteHand.style.transform = `rotate(${minuteDeg}deg)`;
+    if (secondHand) secondHand.style.transform = `rotate(${secondDeg}deg)`;
+    
+    // Update digital time
+    const digitalTime = document.getElementById('digitalTime');
+    if (digitalTime) {
+        const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        digitalTime.textContent = timeString;
+    }
+}
+
+// Initialize clock
+if (document.getElementById('hourHand')) {
+    updateClock();
+    setInterval(updateClock, 1000);
 }
 </script>
 {% endblock %}
