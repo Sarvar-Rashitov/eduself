@@ -645,14 +645,8 @@
                     <div class="chart-bars-mobile" id="chartBarsMobile">
                         <!-- JavaScript orqali to'ldiriladi -->
                     </div>
-                    <div class="chart-labels-mobile">
-                        <div class="day-label-mobile">Du</div>
-                        <div class="day-label-mobile">Se</div>
-                        <div class="day-label-mobile">Ch</div>
-                        <div class="day-label-mobile">Pa</div>
-                        <div class="day-label-mobile">Ju</div>
-                        <div class="day-label-mobile">Sh</div>
-                        <div class="day-label-mobile">Ya</div>
+                    <div class="chart-labels-mobile" id="chartLabelsMobile">
+                        <!-- JavaScript orqali to'ldiriladi -->
                     </div>
                 </div>
             </div>
@@ -964,15 +958,28 @@ function switchActivityPeriodMobile(period) {
 
 function generateWeeklyActivityMobile() {
     const chartBars = document.getElementById('chartBarsMobile');
-    if (!chartBars) return;
+    const chartLabels = document.getElementById('chartLabelsMobile');
+    if (!chartBars || !chartLabels) return;
     
     chartBars.innerHTML = ''; // Tozalash
+    chartLabels.innerHTML = ''; // Tozalash
     
     if (!weeklyDataMobile || weeklyDataMobile.length === 0) return;
     
     let weeklyTotal = 0;
     let mostActiveDay = '';
     let maxActivity = 0;
+    
+    // Kun nomlarini qisqartirish uchun mapping
+    const dayShortNames = {
+        'Dushanba': 'Du',
+        'Seshanba': 'Se',
+        'Chorshanba': 'Ch',
+        'Payshanba': 'Pa',
+        'Juma': 'Ju',
+        'Shanba': 'Sh',
+        'Yakshanba': 'Ya'
+    };
     
     // Maksimal faollikni topish va jami faollikni hisoblash
     weeklyDataMobile.forEach(day => {
@@ -985,8 +992,9 @@ function generateWeeklyActivityMobile() {
         }
     });
     
-    // Ustunlarni yaratish
+    // Ustunlar va labellarni yaratish
     weeklyDataMobile.forEach((day, index) => {
+        // Bar yaratish
         const barElement = document.createElement('div');
         barElement.className = 'chart-bar-mobile';
         
@@ -1001,10 +1009,6 @@ function generateWeeklyActivityMobile() {
         
         if (day.is_today) {
             barElement.classList.add('today');
-            const dayLabels = document.querySelectorAll('.day-label-mobile');
-            if (dayLabels[index]) {
-                dayLabels[index].classList.add('today');
-            }
         }
         
         const date = new Date(day.date);
@@ -1018,6 +1022,17 @@ function generateWeeklyActivityMobile() {
         }
         
         chartBars.appendChild(barElement);
+        
+        // Label yaratish
+        const labelElement = document.createElement('div');
+        labelElement.className = 'day-label-mobile';
+        labelElement.textContent = dayShortNames[day.day_name] || day.day_name.substring(0, 2);
+        
+        if (day.is_today) {
+            labelElement.classList.add('today');
+        }
+        
+        chartLabels.appendChild(labelElement);
     });
     
     // Statistikalarni yangilash

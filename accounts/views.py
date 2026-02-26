@@ -978,7 +978,7 @@ def profile_view(request):
     
     # Haftalik faollik (oxirgi 7 kun)
     weekly_activity = []
-    day_names = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya']
+    day_names = ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba']
     
     for i in range(7):
         day_date = today - timedelta(days=6-i)
