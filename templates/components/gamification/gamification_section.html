@@ -1,86 +1,69 @@
 {% load static %}
 {% load translation_tags %}
 
-<!-- 🎮 GAMIFICATION SECTION -->
+<!-- 🎮 GAMIFICATION SECTION - DESKTOP PREMIUM -->
 <link rel="stylesheet" href="{% static 'css/gamification-3d.css' %}">
 
-<div class="gamification-section" style="margin-bottom: 20px;">
-    <!-- 🔥 Streak Section -->
-    <div class="streak-card">
-        <div class="streak-header">
-            <div class="streak-icon">🔥</div>
-            <h6>{% t "Kunlik Streak" request.LANGUAGE_CODE %}</h6>
+<div class="gamification-section-desktop">
+    <!-- 🔥 Streak - Horizontal Compact -->
+    <div class="streak-card-desktop">
+        <div class="streak-content-desktop">
+            <span class="streak-emoji-desktop">🔥</span>
+            <div class="streak-info-desktop">
+                <span class="streak-number-desktop">{{ streak_days }}</span>
+                <span class="streak-text-desktop">{% t "day streak" request.LANGUAGE_CODE %}</span>
+            </div>
         </div>
         
-        <div class="streak-content">
-            <div class="streak-display">
-                <div class="streak-flame-big">🔥</div>
-                <div class="streak-number">{{ streak_days }}</div>
-                <div class="streak-label">DAYS</div>
-            </div>
-            
-            <div class="streak-message">
-                {% if streak_days > 0 %}
-                    {% if streak_days >= 30 %}
-                        <span class="streak-status legendary">🏆 Legendary Streak!</span>
-                    {% elif streak_days >= 7 %}
-                        <span class="streak-status hot">🔥 On Fire!</span>
-                    {% elif streak_days >= 3 %}
-                        <span class="streak-status warm">💪 Keep Going!</span>
-                    {% else %}
-                        <span class="streak-status">🌟 Great Start!</span>
-                    {% endif %}
-                {% else %}
-                    <span class="streak-status empty">🚀 Start your learning streak today!</span>
-                {% endif %}
-            </div>
-        </div>
+        {% if streak_days == 0 %}
+        <span class="streak-hint-desktop">🚀 {% t "Start today" request.LANGUAGE_CODE %}</span>
+        {% elif streak_days >= 30 %}
+        <span class="streak-hint-desktop legendary">🏆 {% t "Legendary" request.LANGUAGE_CODE %}!</span>
+        {% elif streak_days >= 7 %}
+        <span class="streak-hint-desktop hot">🔥 {% t "On fire" request.LANGUAGE_CODE %}!</span>
+        {% elif streak_days >= 3 %}
+        <span class="streak-hint-desktop">💪 {% t "Keep going" request.LANGUAGE_CODE %}!</span>
+        {% endif %}
     </div>
     
-    <!-- 🏆 Achievements & Badges -->
-    <div class="achievements-card">
-        <div class="achievements-header">
-            <div class="achievements-title">
-                <div class="trophy-icon">🏆</div>
-                <h6>{% t "Yutuqlar" request.LANGUAGE_CODE %}</h6>
-            </div>
-            <div class="achievements-count">
-                <span class="count-current">{{ unlocked_badges_count }}</span>
-                <span class="count-separator">/</span>
-                <span class="count-total">{{ total_badges_count }}</span>
-            </div>
+    <!-- 🏆 Achievements - Horizontal Scroll -->
+    <div class="achievements-card-desktop">
+        <div class="achievements-header-desktop">
+            <h6>🏆 {% t "Yutuqlar" request.LANGUAGE_CODE %}</h6>
+            <span class="badge-counter-desktop">{{ unlocked_badges_count }} / {{ total_badges_count }}</span>
         </div>
         
-        <!-- Badge Grid -->
-        <div class="badges-grid-modern">
+        <div class="badges-scroll-desktop">
             {% for badge in all_badges %}
-            <div class="badge-item {% if badge.is_unlocked %}unlocked{% else %}locked{% endif %}">
-                {% if not badge.is_unlocked %}<div class="badge-lock">🔒</div>{% endif %}
-                <div class="badge-glow"></div>
-                <img src="{{ badge.image }}" alt="{{ badge.name }}">
-                <span class="badge-name">{{ badge.name }}</span>
+            <div class="badge-card-desktop {% if badge.is_unlocked %}unlocked{% else %}locked{% endif %}">
+                {% if not badge.is_unlocked %}
+                <div class="badge-overlay-desktop"></div>
+                <div class="badge-lock-desktop">🔒</div>
+                {% endif %}
+                
+                <img src="{{ badge.image }}" alt="{{ badge.name }}" class="badge-image-desktop">
+                <span class="badge-name-desktop">{{ badge.name }}</span>
+                
                 {% if not badge.is_unlocked and badge.requirement_text %}
-                <span class="badge-requirement">{{ badge.requirement_text }}</span>
+                <span class="badge-req-desktop">{{ badge.requirement_text }}</span>
                 {% endif %}
             </div>
             {% endfor %}
         </div>
     </div>
     
-    <!-- 🎯 Next Reward Preview -->
-    <div class="next-reward-card">
-        <div class="next-reward-content">
-            <div class="next-badge-image">
-                <img src="{{ next_badge.image_path }}" alt="{{ next_badge.name }}">
+    <!-- 🎯 Next Reward -->
+    <div class="next-reward-card-desktop">
+        <div class="next-badge-thumb-desktop">
+            <img src="{{ next_badge.image_path }}" alt="{{ next_badge.name }}">
+        </div>
+        <div class="next-info-desktop">
+            <span class="next-label-desktop">{% t "NEXT" request.LANGUAGE_CODE %}</span>
+            <h6 class="next-name-desktop">{{ next_badge.name }}</h6>
+            <div class="next-progress-desktop">
+                <div class="next-fill-desktop" style="width: {{ next_badge_progress }}%"></div>
             </div>
-            <div class="next-reward-info">
-                <span class="next-label">{% t "Keyingi mukofot" request.LANGUAGE_CODE %}</span>
-                <h6 class="next-name">{{ next_badge.name }}</h6>
-                <div class="next-progress-bar">
-                    <div class="next-progress-fill" style="width: {{ next_badge_progress }}%"></div>
-                </div>
-                <span class="next-xp">{{ user.total_points|floatformat:0 }} / {{ next_badge.required_xp|floatformat:0 }} XP</span>
-            </div>
+            <span class="next-xp-desktop">{{ user.total_points|floatformat:0 }} / {{ next_badge.required_xp|floatformat:0 }} XP</span>
         </div>
     </div>
 </div>
@@ -88,78 +71,61 @@
 <script src="{% static 'js/gamification-system.js' %}"></script>
 
 <style>
-/* 🎨 MODERN CLEAN GAMIFICATION STYLES */
+/* 🎨 DESKTOP MINIMAL GAMIFICATION - WHITE THEME */
 
-.gamification-section {
+.gamification-section-desktop {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-}
-
-/* Streak Card - WHITE BACKGROUND */
-.streak-card {
-    background: #FFFFFF;
-    border-radius: 16px;
-    padding: 24px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s ease;
-}
-
-.streak-card:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
-}
-
-.streak-header {
-    display: flex;
-    align-items: center;
     gap: 12px;
     margin-bottom: 20px;
 }
 
-.streak-icon {
-    font-size: 28px;
-    filter: drop-shadow(0 2px 6px rgba(255, 107, 53, 0.4));
-}
+/* ============================================
+   🔥 STREAK - HORIZONTAL COMPACT
+   ============================================ */
 
-.streak-header h6 {
-    color: #1e293b;
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0;
-}
-
-.streak-content {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-}
-
-.streak-display {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+.streak-card-desktop {
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 14px;
-    padding: 20px 28px;
+    padding: 14px 18px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 6px;
-    border: 2px solid rgba(99, 102, 241, 0.15);
+    justify-content: space-between;
+    transition: all 0.3s ease;
 }
 
-.streak-flame-big {
-    font-size: 36px;
-    filter: drop-shadow(0 2px 8px rgba(255, 107, 53, 0.5));
+.streak-card-desktop:hover {
+    border-color: rgba(99, 102, 241, 0.2);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+}
+
+.streak-content-desktop {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.streak-emoji-desktop {
+    font-size: 26px;
+    filter: drop-shadow(0 2px 6px rgba(255, 107, 53, 0.4));
     animation: flameFlicker 2s ease-in-out infinite;
 }
 
 @keyframes flameFlicker {
-    0%, 100% { transform: scale(1) rotate(-2deg); }
-    50% { transform: scale(1.05) rotate(2deg); }
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
 }
 
-.streak-number {
-    font-size: 42px;
+.streak-info-desktop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.streak-number-desktop {
+    font-size: 22px;
     font-weight: 700;
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     -webkit-background-clip: text;
@@ -168,337 +134,295 @@
     line-height: 1;
 }
 
-.streak-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #64748b;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-}
-
-.streak-message {
-    flex: 1;
-}
-
-.streak-status {
-    display: inline-block;
-    padding: 10px 18px;
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    border-radius: 10px;
-    color: #6366f1;
+.streak-text-desktop {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
+    color: #64748b;
 }
 
-.streak-status.warm {
-    background: rgba(245, 158, 11, 0.1);
-    border-color: rgba(245, 158, 11, 0.2);
-    color: #f59e0b;
+.streak-hint-desktop {
+    padding: 5px 12px;
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 16px;
+    font-size: 12px;
+    color: #6366f1;
+    font-weight: 500;
 }
 
-.streak-status.hot {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.2);
+.streak-hint-desktop.hot {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.15);
     color: #ef4444;
 }
 
-.streak-status.legendary {
-    background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(139, 92, 246, 0.1));
-    border-color: rgba(236, 72, 153, 0.3);
+.streak-hint-desktop.legendary {
+    background: rgba(236, 72, 153, 0.08);
+    border-color: rgba(236, 72, 153, 0.15);
     color: #ec4899;
 }
 
-.streak-status.empty {
-    background: rgba(100, 116, 139, 0.08);
-    border-color: rgba(100, 116, 139, 0.15);
-    color: #64748b;
-}
+/* ============================================
+   🏆 ACHIEVEMENTS - HORIZONTAL SCROLL
+   ============================================ */
 
-/* Achievements Card - WHITE BACKGROUND */
-.achievements-card {
+.achievements-card-desktop {
     background: #FFFFFF;
-    border-radius: 16px;
-    padding: 24px;
     border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-.achievements-header {
+.achievements-header-desktop {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
-.achievements-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.trophy-icon {
-    font-size: 26px;
-}
-
-.achievements-title h6 {
-    color: #1e293b;
-    font-size: 18px;
+.achievements-header-desktop h6 {
+    font-size: 16px;
     font-weight: 600;
+    color: #1e293b;
     margin: 0;
 }
 
-.achievements-count {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    border-radius: 12px;
-    padding: 6px 14px;
-    font-size: 14px;
+.badge-counter-desktop {
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    color: #6366f1;
+    font-size: 12px;
     font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 10px;
 }
 
-.count-current {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.count-separator {
-    color: #cbd5e1;
-    margin: 0 3px;
-}
-
-.count-total {
-    color: #94a3b8;
-}
-
-/* Badge Grid */
-.badges-grid-modern {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+.badges-scroll-desktop {
+    display: flex;
     gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.2) transparent;
 }
 
-.badge-item {
+.badges-scroll-desktop::-webkit-scrollbar {
+    height: 5px;
+}
+
+.badges-scroll-desktop::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 10px;
+}
+
+.badges-scroll-desktop::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 10px;
+}
+
+.badges-scroll-desktop::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.3);
+}
+
+.badge-card-desktop {
     position: relative;
+    flex-shrink: 0;
+    width: 180px;
+    height: 210px;
     background: #f8fafc;
-    border: 2px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 16px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 }
 
-.badge-item.locked {
-    opacity: 0.45;
-    filter: grayscale(1);
+.badge-card-desktop.locked {
     cursor: not-allowed;
 }
 
-.badge-item.unlocked {
-    border-color: rgba(99, 102, 241, 0.3);
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+.badge-overlay-desktop {
+    position: absolute;
+    inset: 0;
+    background: rgba(248, 250, 252, 0.85);
+    backdrop-filter: blur(1px);
+    border-radius: 12px;
+    z-index: 1;
 }
 
-.badge-item.unlocked:hover {
-    transform: translateY(-6px) scale(1.02);
-    border-color: rgba(99, 102, 241, 0.5);
-    box-shadow: 0 12px 28px rgba(99, 102, 241, 0.25);
-}
-
-.badge-glow {
+.badge-lock-desktop {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 70px;
-    height: 70px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-    border-radius: 50%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.badge-item.unlocked .badge-glow {
-    opacity: 1;
-    animation: glowPulse 3s ease-in-out infinite;
-}
-
-@keyframes glowPulse {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.2; }
-    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.4; }
-}
-
-.badge-item img {
-    width: 56px;
-    height: 56px;
-    object-fit: contain;
-    position: relative;
-    z-index: 1;
-}
-
-.badge-lock {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 16px;
+    font-size: 28px;
+    opacity: 0.3;
     z-index: 2;
-    opacity: 0.6;
 }
 
-.badge-name {
-    font-size: 12px;
+.badge-card-desktop.locked .badge-image-desktop {
+    filter: grayscale(1) brightness(0.95) opacity(0.6);
+}
+
+.badge-card-desktop.unlocked {
+    border-color: rgba(99, 102, 241, 0.25);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(139, 92, 246, 0.04));
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.1);
+}
+
+.badge-card-desktop.unlocked:hover {
+    transform: translateY(-3px);
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.12);
+}
+
+.badge-image-desktop {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 10px rgba(99, 102, 241, 0.15));
+    position: relative;
+    z-index: 0;
+}
+
+.badge-card-desktop.unlocked .badge-image-desktop {
+    filter: drop-shadow(0 4px 14px rgba(99, 102, 241, 0.25));
+}
+
+.badge-name-desktop {
+    font-size: 13px;
     font-weight: 600;
     color: #1e293b;
     text-align: center;
+    margin-top: 2px;
+    position: relative;
+    z-index: 0;
 }
 
-.badge-requirement {
-    font-size: 10px;
+.badge-card-desktop.locked .badge-name-desktop {
+    color: #94a3b8;
+    z-index: 2;
+}
+
+.badge-req-desktop {
+    font-size: 11px;
     color: #64748b;
-    text-align: center;
     font-weight: 500;
+    text-align: center;
+    z-index: 2;
+    position: relative;
 }
 
-/* Next Reward Card - WHITE BACKGROUND */
-.next-reward-card {
+/* ============================================
+   🎯 NEXT REWARD
+   ============================================ */
+
+.next-reward-card-desktop {
     background: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.next-reward-content {
+    padding: 14px 18px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 14px;
 }
 
-.next-badge-image {
-    width: 70px;
-    height: 70px;
+.next-badge-thumb-desktop {
+    width: 56px;
+    height: 56px;
     flex-shrink: 0;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
+    border: 1px solid rgba(99, 102, 241, 0.15);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid rgba(99, 102, 241, 0.15);
 }
 
-.next-badge-image img {
-    width: 50px;
-    height: 50px;
+.next-badge-thumb-desktop img {
+    width: 40px;
+    height: 40px;
     object-fit: contain;
-    filter: brightness(0.85) saturate(0.8);
+    filter: brightness(0.9) saturate(0.85);
 }
 
-.next-reward-info {
+.next-info-desktop {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 5px;
 }
 
-.next-label {
-    font-size: 11px;
+.next-label-desktop {
+    font-size: 10px;
     color: #64748b;
     font-weight: 600;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-.next-name {
-    font-size: 16px;
+.next-name-desktop {
+    font-size: 14px;
     font-weight: 600;
     color: #1e293b;
     margin: 0;
 }
 
-.next-progress-bar {
-    height: 8px;
+.next-progress-desktop {
+    height: 4px;
     background: #e2e8f0;
-    border-radius: 8px;
+    border-radius: 4px;
     overflow: hidden;
 }
 
-.next-progress-fill {
+.next-fill-desktop {
     height: 100%;
-    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
-    border-radius: 8px;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 4px;
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
 }
 
-.next-xp {
-    font-size: 12px;
+.next-xp-desktop {
+    font-size: 11px;
     color: #64748b;
     font-weight: 600;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .streak-content {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .streak-display {
-        padding: 24px;
-    }
-    
-    .badges-grid-modern {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-    }
-    
-    .badge-item {
-        padding: 14px 10px;
-    }
-    
-    .badge-item img {
-        width: 48px;
-        height: 48px;
-    }
+/* ============================================
+   ⚡ PERFORMANCE
+   ============================================ */
+
+.badge-card-desktop,
+.streak-emoji-desktop {
+    will-change: transform;
+    transform: translateZ(0);
 }
 
-@media (max-width: 480px) {
-    .gamification-section {
-        gap: 14px;
-    }
-    
-    .streak-card,
-    .achievements-card {
-        padding: 20px;
-    }
-    
-    .next-reward-card {
-        padding: 16px;
-    }
-    
-    .streak-number {
-        font-size: 36px;
-    }
-    
-    .badges-grid-modern {
-        grid-template-columns: repeat(2, 1fr);
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    .streak-emoji-desktop,
+    .badge-card-desktop {
+        animation: none !important;
+        transition: none !important;
     }
 }
 </style>
 
 <script>
-// Initialize gamification with user data
+// Initialize gamification
 document.addEventListener('DOMContentLoaded', function() {
-    // Check for level up
     const justLeveledUp = {{ just_leveled_up|yesno:"true,false" }};
     if (justLeveledUp && window.gamificationSystem) {
-        const levelNode = document.querySelector('.badge-item.unlocked:last-child');
+        const levelNode = document.querySelector('.badge-card-desktop.unlocked:last-of-type');
         if (levelNode) {
             setTimeout(() => {
                 window.gamificationSystem.unlockLevel(levelNode);

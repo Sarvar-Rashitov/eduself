@@ -77,7 +77,7 @@
 }
 
 /* ============================================
-   🔥 STREAK CHIP - WHITE BACKGROUND
+   🔥 STREAK CHIP - MOBILE (WHITE)
    ============================================ */
 
 .streak-chip {
@@ -143,7 +143,78 @@
 }
 
 /* ============================================
-   🏆 ACHIEVEMENTS - WHITE BACKGROUND
+   🔥 STREAK - DESKTOP VERSION (DARK PREMIUM)
+   ============================================ */
+
+@media (min-width: 768px) {
+    .streak-chip {
+        background: #0F172A;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 16px 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .streak-chip-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    
+    .streak-emoji {
+        font-size: 28px;
+    }
+    
+    .streak-info-compact {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .streak-number-compact {
+        font-size: 24px;
+        font-weight: 700;
+        color: #FFFFFF;
+        background: none;
+        -webkit-text-fill-color: unset;
+    }
+    
+    .streak-text-compact {
+        font-size: 14px;
+        font-weight: 500;
+        color: #94A3B8;
+    }
+    
+    .streak-hint {
+        margin: 0;
+        padding: 6px 14px;
+        background: rgba(99, 102, 241, 0.1);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 20px;
+        font-size: 12px;
+        color: #A5B4FC;
+        font-weight: 500;
+    }
+    
+    .streak-hint.hot {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.2);
+        color: #FCA5A5;
+    }
+    
+    .streak-hint.legendary {
+        background: rgba(236, 72, 153, 0.1);
+        border-color: rgba(236, 72, 153, 0.2);
+        color: #F9A8D4;
+    }
+}
+
+/* ============================================
+   🏆 ACHIEVEMENTS - WHITE BACKGROUND (MOBILE)
    ============================================ */
 
 .achievements-minimal {
@@ -250,7 +321,150 @@
 }
 
 /* ============================================
-   🎯 NEXT REWARD - WHITE BACKGROUND
+   🏆 ACHIEVEMENTS - DESKTOP VERSION (DARK PREMIUM)
+   ============================================ */
+
+@media (min-width: 768px) {
+    .achievements-minimal {
+        background: #0B1220;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 24px 32px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .achievements-header-minimal {
+        margin-bottom: 20px;
+    }
+    
+    .achievements-header-minimal h6 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #FFFFFF;
+    }
+    
+    .badge-counter {
+        background: rgba(99, 102, 241, 0.12);
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        color: #A5B4FC;
+        font-size: 13px;
+        padding: 5px 12px;
+        border-radius: 12px;
+    }
+    
+    .badges-scroll {
+        gap: 18px;
+        padding: 8px 0;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+    }
+    
+    .badges-scroll::-webkit-scrollbar {
+        display: block;
+        height: 6px;
+    }
+    
+    .badges-scroll::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+    }
+    
+    .badges-scroll::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+    
+    .badges-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .badge-mini {
+        width: 200px;
+        height: 230px;
+        background: #111827;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 20px 16px;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .badge-mini.locked {
+        opacity: 1;
+        filter: none;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .badge-mini.locked::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(2px);
+        z-index: 1;
+    }
+    
+    .badge-mini.locked .mini-lock {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 32px;
+        opacity: 0.4;
+        z-index: 2;
+    }
+    
+    .badge-mini.locked img {
+        filter: grayscale(1) brightness(0.6);
+    }
+    
+    .badge-mini.unlocked {
+        border-color: rgba(99, 102, 241, 0.3);
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
+        box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.2);
+    }
+    
+    .badge-mini.unlocked:hover {
+        transform: translateY(-4px);
+        border-color: rgba(99, 102, 241, 0.5);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+    }
+    
+    .badge-mini img {
+        width: 120px;
+        height: 120px;
+        filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.2));
+    }
+    
+    .badge-mini.unlocked img {
+        filter: drop-shadow(0 4px 16px rgba(99, 102, 241, 0.4));
+    }
+    
+    .badge-mini-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #FFFFFF;
+        margin-top: 4px;
+    }
+    
+    .badge-mini.locked .badge-mini-label {
+        color: #64748B;
+        z-index: 2;
+        position: relative;
+    }
+    
+    .mini-req {
+        font-size: 12px;
+        color: #64748B;
+        font-weight: 500;
+        z-index: 2;
+        position: relative;
+    }
+}
+
+/* ============================================
+   🎯 NEXT REWARD - WHITE BACKGROUND (MOBILE)
    ============================================ */
 
 .next-reward-minimal {
@@ -329,6 +543,65 @@
     font-size: 11px;
     color: #64748b;
     font-weight: 600;
+}
+
+/* ============================================
+   🎯 NEXT REWARD - DESKTOP VERSION (DARK PREMIUM)
+   ============================================ */
+
+@media (min-width: 768px) {
+    .next-reward-minimal {
+        background: #0F172A;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 16px 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .next-reward-row {
+        gap: 16px;
+    }
+    
+    .next-badge-thumb {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.12));
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    
+    .next-badge-thumb img {
+        width: 44px;
+        height: 44px;
+        filter: brightness(0.9) saturate(0.85);
+    }
+    
+    .next-label-mini {
+        font-size: 11px;
+        color: #64748B;
+        letter-spacing: 1px;
+    }
+    
+    .next-name-mini {
+        font-size: 15px;
+        font-weight: 600;
+        color: #FFFFFF;
+    }
+    
+    .next-progress-mini {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+    }
+    
+    .next-fill-mini {
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+    }
+    
+    .next-xp-mini {
+        font-size: 12px;
+        color: #94A3B8;
+    }
 }
 
 /* ============================================
