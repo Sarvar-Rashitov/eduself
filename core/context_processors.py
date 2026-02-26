@@ -62,7 +62,8 @@ def auth_settings(request):
     Authentication settings'ni barcha template'larga qo'shish
     """
     return {
-        'GOOGLE_CLIENT_ID': settings.GOOGLE_CLIENT_ID,
+        'google_client_id': settings.GOOGLE_CLIENT_ID,
+        'telegram_bot_username': settings.TELEGRAM_BOT_USERNAME,
     }
 
 
