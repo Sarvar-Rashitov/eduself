@@ -4,6 +4,97 @@ from django.utils import timezone
 from datetime import timedelta
 import uuid
 
+
+class Level(models.Model):
+    """Dinamik level tizimi"""
+    name = models.CharField(max_length=100, verbose_name="Level nomi")
+    level_number = models.PositiveIntegerField(unique=True, verbose_name="Level raqami")
+    required_xp = models.PositiveIntegerField(verbose_name="Kerakli XP")
+    icon = models.ImageField(upload_to='levels/', blank=True, null=True, verbose_name="Level ikonkasi")
+    color = models.CharField(max_length=7, default='#6366f1', verbose_name="Rang (hex)")
+    description = models.TextField(blank=True, verbose_name="Tavsif")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['level_number']
+        verbose_name = "Level"
+        verbose_name_plural = "Levellar"
+    
+    def __str__(self):
+        return f"{self.name} (Level {self.level_number}) - {self.required_xp} XP"
+
+
+class Badge(models.Model):
+    """Dinamik badge tizimi"""
+    BADGE_TYPE_CHOICES = [
+        ('level', 'Level Badge'),
+        ('streak', 'Streak Badge'),
+        ('achievement', 'Achievement Badge'),
+        ('special', 'Special Badge'),
+    ]
+    
+    name = models.CharField(max_length=100, verbose_name="Badge nomi")
+    description = models.TextField(blank=True, verbose_name="Tavsif")
+    badge_type = models.CharField(max_length=20, choices=BADGE_TYPE_CHOICES, default='achievement', verbose_name="Badge turi")
+    image = models.ImageField(upload_to='badges/', blank=True, null=True, verbose_name="Badge rasmi")
+    
+    # Level badge uchun
+    required_level = models.ForeignKey(Level, on_delete=models.CASCADE, null=True, blank=True, related_name='badges', verbose_name="Kerakli level")
+    
+    # Streak badge uchun
+    required_streak_days = models.PositiveIntegerField(null=True, blank=True, verbose_name="Kerakli streak kunlari")
+    
+    # Achievement badge uchun
+    required_xp = models.PositiveIntegerField(null=True, blank=True, verbose_name="Kerakli XP")
+    required_tests_passed = models.PositiveIntegerField(null=True, blank=True, verbose_name="Kerakli o'tgan testlar")
+    
+    # Umumiy
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = "Badge"
+        verbose_name_plural = "Badge'lar"
+    
+    def __str__(self):
+        return f"{self.name} ({self.get_badge_type_display()})"
+    
+    def is_unlocked_for_user(self, user):
+        """Foydalanuvchi uchun badge ochilganmi?"""
+        if self.badge_type == 'level' and self.required_level:
+            return user.total_points >= self.required_level.required_xp
+        elif self.badge_type == 'streak' and self.required_streak_days:
+            return user.streak_days >= self.required_streak_days
+        elif self.badge_type == 'achievement':
+            if self.required_xp and user.total_points < self.required_xp:
+                return False
+            if self.required_tests_passed and user.get_passed_tests() < self.required_tests_passed:
+                return False
+            return True
+        return False
+
+
+class UserBadge(models.Model):
+    """Foydalanuvchi badge'lari"""
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='user_badges')
+    badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
+    unlocked_at = models.DateTimeField(auto_now_add=True, verbose_name="Ochilgan vaqt")
+    
+    class Meta:
+        unique_together = ['user', 'badge']
+        ordering = ['-unlocked_at']
+        verbose_name = "Foydalanuvchi Badge'i"
+        verbose_name_plural = "Foydalanuvchi Badge'lari"
+    
+    def __str__(self):
+        return f"{self.user.get_display_name()} - {self.badge.name}"
+
+
 class User(AbstractUser):
     # Username ni optional qilamiz - faqat backend uchun
     username = models.CharField(max_length=150, unique=True, blank=True, null=True)
@@ -21,6 +112,11 @@ class User(AbstractUser):
     avatar_number = models.PositiveIntegerField(default=0, verbose_name="Avatar raqami")  # 1-18 oralig'ida
     bio = models.TextField(blank=True, verbose_name="Bio")
     total_points = models.PositiveIntegerField(default=0, verbose_name="Umumiy XP")
+    
+    # Gamification fields
+    streak_days = models.PositiveIntegerField(default=0, verbose_name="Kunlik streak")
+    last_active_date = models.DateField(null=True, blank=True, verbose_name="Oxirgi faol kun")
+    level = models.PositiveIntegerField(default=1, verbose_name="Level")
     
     # Email verification
     email_verified = models.BooleanField(default=False)
@@ -156,6 +252,55 @@ class User(AbstractUser):
         # Static URL dan foydalanish
         from django.templatetags.static import static
         return static(f'images/avatars/avatar-{avatar_num}.png')
+    
+    def get_current_level(self):
+        """Foydalanuvchining hozirgi levelini qaytaradi"""
+        levels = Level.objects.filter(is_active=True, required_xp__lte=self.total_points).order_by('-required_xp')
+        if levels.exists():
+            return levels.first()
+        return None
+    
+    def get_next_level(self):
+        """Keyingi levelni qaytaradi"""
+        levels = Level.objects.filter(is_active=True, required_xp__gt=self.total_points).order_by('required_xp')
+        if levels.exists():
+            return levels.first()
+        return None
+    
+    def update_level(self):
+        """Foydalanuvchi levelini yangilaydi"""
+        current_level = self.get_current_level()
+        if current_level:
+            self.level = current_level.level_number
+        else:
+            self.level = 0
+        self.save(update_fields=['level'])
+    
+    def check_and_unlock_badges(self):
+        """Yangi badge'larni tekshiradi va ochadi"""
+        all_badges = Badge.objects.filter(is_active=True)
+        
+        # Foydalanuvchining mavjud badge'lari
+        user_badge_ids = self.user_badges.values_list('badge_id', flat=True)
+        
+        newly_unlocked = []
+        for badge in all_badges:
+            if badge.id not in user_badge_ids and badge.is_unlocked_for_user(self):
+                UserBadge.objects.create(user=self, badge=badge)
+                newly_unlocked.append(badge)
+        
+        return newly_unlocked
+    
+    def add_xp(self, points):
+        """XP qo'shish va avtomatik badge ochish"""
+        self.total_points += points
+        self.save(update_fields=['total_points'])
+        
+        # Level va badge'larni yangilash
+        self.update_level()
+        newly_unlocked = self.check_and_unlock_badges()
+        
+        return newly_unlocked
 
 
 class PasswordResetToken(models.Model):

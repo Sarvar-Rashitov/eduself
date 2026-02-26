@@ -1067,9 +1067,149 @@ def profile_view(request):
         'user_position': user_position,
         'weekly_activity': json.dumps(weekly_activity),
         'monthly_activity': json.dumps(monthly_activity),
+        # Gamification data - DYNAMIC
+        'streak_days': getattr(request.user, 'streak_days', 0),
+        'all_badges': get_all_badges_for_user(request.user),
+        'unlocked_badges_count': get_unlocked_badges_count(request.user),
+        'total_badges_count': get_total_badges_count(),
+        'next_badge': get_next_badge(request.user),
+        'next_badge_progress': get_next_badge_progress(request.user),
+        'just_leveled_up': request.session.pop('just_leveled_up', False),
     }
     
     if is_mobile(request):
         return render(request, 'accounts/profile.html', context)
     else:
         return render(request, 'accounts/profile_desktop.html', context)
+
+
+def get_all_badges_for_user(user):
+    """Get all badges with unlock status for user"""
+    from accounts.models import Badge
+    from django.templatetags.static import static
+    
+    badges = []
+    for badge in Badge.objects.filter(is_active=True).order_by('order'):
+        is_unlocked = badge.is_unlocked_for_user(user)
+        
+        # Requirement text
+        requirement_text = ""
+        if not is_unlocked:
+            if badge.badge_type == 'level' and badge.required_level:
+                requirement_text = f"{badge.required_level.required_xp:,} XP"
+            elif badge.badge_type == 'streak' and badge.required_streak_days:
+                requirement_text = f"{badge.required_streak_days} days"
+            elif badge.badge_type == 'achievement':
+                parts = []
+                if badge.required_xp:
+                    parts.append(f"{badge.required_xp:,} XP")
+                if badge.required_tests_passed:
+                    parts.append(f"{badge.required_tests_passed} tests")
+                requirement_text = " & ".join(parts)
+        
+        # Badge image URL - agar yo'q bo'lsa default rasm
+        image_url = badge.image.url if badge.image else static('images/bagee/level-1.png')
+        
+        badges.append({
+            'name': badge.name,
+            'image': image_url,
+            'is_unlocked': is_unlocked,
+            'requirement_text': requirement_text,
+        })
+    
+    return badges
+
+
+def get_total_badges_count():
+    """Get total number of active badges"""
+    from accounts.models import Badge
+    return Badge.objects.filter(is_active=True).count()
+
+
+def get_unlocked_badges_count(user):
+    """Calculate number of unlocked badges - DYNAMIC VERSION"""
+    from accounts.models import Badge
+    
+    count = 0
+    for badge in Badge.objects.filter(is_active=True):
+        if badge.is_unlocked_for_user(user):
+            count += 1
+    
+    return count
+
+
+def get_next_badge(user):
+    """Get next badge to unlock - DYNAMIC VERSION"""
+    from accounts.models import Badge
+    from django.templatetags.static import static
+    
+    # Barcha faol badge'larni olish
+    all_badges = Badge.objects.filter(is_active=True).order_by('order')
+    
+    # Foydalanuvchi uchun ochilmagan badge'larni topish
+    for badge in all_badges:
+        if not badge.is_unlocked_for_user(user):
+            # Badge ma'lumotlarini qaytarish
+            result = {
+                'name': badge.name,
+                'image_path': badge.image.url if badge.image else static('images/bagee/level-1.png'),
+            }
+            
+            # Kerakli qiymatlarni qo'shish
+            if badge.badge_type == 'level' and badge.required_level:
+                result['required_xp'] = badge.required_level.required_xp
+            elif badge.badge_type == 'streak' and badge.required_streak_days:
+                result['required_streak'] = badge.required_streak_days
+                result['required_xp'] = user.total_points  # Hozirgi XP
+            elif badge.badge_type == 'achievement':
+                if badge.required_xp:
+                    result['required_xp'] = badge.required_xp
+                elif badge.required_tests_passed:
+                    result['required_xp'] = user.total_points
+                    result['required_tests'] = badge.required_tests_passed
+            
+            return result
+    
+    # Barcha badge'lar ochilgan - oxirgi badge rasmini ko'rsatish
+    last_badge = Badge.objects.filter(is_active=True).order_by('-order').first()
+    return {
+        'name': 'All Unlocked!',
+        'image_path': last_badge.image.url if last_badge and last_badge.image else static('images/bagee/level-40.png'),
+        'required_xp': user.total_points
+    }
+
+
+def get_next_badge_progress(user):
+    """Calculate progress to next badge - DYNAMIC VERSION"""
+    from accounts.models import Badge
+    
+    next_badge_data = get_next_badge(user)
+    
+    # Agar streak badge bo'lsa
+    if 'required_streak' in next_badge_data:
+        streak = getattr(user, 'streak_days', 0)
+        required = next_badge_data['required_streak']
+        return int((streak / required) * 100) if required > 0 else 0
+    
+    # Agar test badge bo'lsa
+    if 'required_tests' in next_badge_data:
+        passed = user.get_passed_tests()
+        required = next_badge_data['required_tests']
+        return int((passed / required) * 100) if required > 0 else 0
+    
+    # XP badge uchun
+    if 'required_xp' in next_badge_data:
+        required = next_badge_data['required_xp']
+        current = user.total_points
+        
+        # Oldingi milestone'ni topish
+        from accounts.models import Level
+        levels = Level.objects.filter(is_active=True, required_xp__lt=required).order_by('-required_xp')
+        prev_milestone = levels.first().required_xp if levels.exists() else 0
+        
+        progress_range = required - prev_milestone
+        current_progress = current - prev_milestone
+        
+        return int((current_progress / progress_range) * 100) if progress_range > 0 else 0
+    
+    return 100  # Barcha badge'lar ochilgan

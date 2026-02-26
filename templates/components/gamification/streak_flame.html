@@ -1,0 +1,174 @@
+{% load static %}
+{% load translation_tags %}
+
+<!-- 🔥 Streak Flame Component -->
+<div class="streak-container">
+    <div class="streak-flame 
+                {% if streak_days >= 30 %}legendary
+                {% elif streak_days >= 7 %}hot
+                {% elif streak_days >= 3 %}warm
+                {% endif %}"
+         data-days="{{ streak_days }}">
+        🔥
+    </div>
+    
+    <div class="streak-info">
+        <div class="streak-count">{{ streak_days }}</div>
+        <div class="streak-label">{% if streak_days == 1 %}day{% else %}days{% endif %}</div>
+    </div>
+    
+    <!-- Milestone indicator -->
+    {% if streak_days >= 30 %}
+    <div class="streak-milestone legendary">
+        <i class="fas fa-crown"></i>
+        <span>Legendary!</span>
+    </div>
+    {% elif streak_days >= 7 %}
+    <div class="streak-milestone hot">
+        <i class="fas fa-fire"></i>
+        <span>On Fire!</span>
+    </div>
+    {% elif streak_days >= 3 %}
+    <div class="streak-milestone warm">
+        <i class="fas fa-bolt"></i>
+        <span>Keep Going!</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Streak motivation message -->
+{% if streak_days > 0 %}
+<div class="streak-motivation">
+    {% if streak_days >= 30 %}
+        <p>🏆 You're unstoppable! {{ streak_days }} days of pure dedication!</p>
+    {% elif streak_days >= 7 %}
+        <p>🔥 Amazing! You're on a {{ streak_days }}-day streak!</p>
+    {% elif streak_days >= 3 %}
+        <p>💪 Great start! Keep the momentum going!</p>
+    {% else %}
+        <p>🌟 Day {{ streak_days }}! Every journey starts with a single step.</p>
+    {% endif %}
+</div>
+{% else %}
+<div class="streak-motivation empty">
+    <p>🚀 Start your learning streak today!</p>
+</div>
+{% endif %}
+
+<style>
+.streak-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Milestone badge */
+.streak-milestone {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+    animation: milestoneAppear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes milestoneAppear {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.streak-milestone.warm {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.streak-milestone.hot {
+    background: rgba(255, 87, 34, 0.2);
+    color: #ff5722;
+}
+
+.streak-milestone.legendary {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
+    color: #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+/* Motivation message */
+.streak-motivation {
+    margin-top: 15px;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+}
+
+.streak-motivation p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    margin: 0;
+    font-weight: 500;
+}
+
+.streak-motivation.empty {
+    border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+.streak-motivation.empty p {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .streak-container {
+        padding: 10px 16px;
+    }
+    
+    .streak-milestone {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+    
+    .streak-motivation {
+        padding: 12px 16px;
+    }
+    
+    .streak-motivation p {
+        font-size: 13px;
+    }
+}
+</style>
+
+<script>
+// Streak break detection
+document.addEventListener('DOMContentLoaded', function() {
+    const streakFlame = document.querySelector('.streak-flame');
+    if (!streakFlame) return;
+    
+    const lastActiveDate = localStorage.getItem('lastActiveDate');
+    const today = new Date().toDateString();
+    
+    if (lastActiveDate && lastActiveDate !== today) {
+        const lastDate = new Date(lastActiveDate);
+        const todayDate = new Date(today);
+        const daysDiff = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff > 1 && window.gamificationSystem) {
+            // Streak broken
+            window.gamificationSystem.breakStreak();
+        }
+    }
+    
+    // Update last active date
+    localStorage.setItem('lastActiveDate', today);
+});
+</script>

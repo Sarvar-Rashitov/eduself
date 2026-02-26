@@ -1,0 +1,150 @@
+{% load static %}
+{% load translation_tags %}
+
+<!-- 🛣 Road Progression Timeline Component -->
+
+<!-- Desktop Version - Horizontal -->
+<div class="road-timeline-desktop">
+    {% for level in levels %}
+    <div class="level-node {% if level.is_current %}current{% endif %} {% if level.is_locked %}locked{% endif %}"
+         data-level="{{ level.number }}">
+        
+        {% include 'components/gamification/badge_card.html' with badge=level.badge %}
+        
+        <!-- Connection line -->
+        {% if not forloop.last %}
+        <div class="connection-line"></div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Mobile Version - Vertical -->
+<div class="road-timeline-mobile">
+    <!-- Animated progress path -->
+    <div class="progress-path" style="height: {{ progress_percentage }}%"></div>
+    
+    {% for level in levels %}
+    <div class="level-node {% if level.is_current %}current{% endif %} {% if level.is_locked %}locked{% endif %}"
+         data-level="{{ level.number }}">
+        
+        <div class="level-row">
+            <!-- Level number indicator -->
+            <div class="level-indicator">
+                <div class="level-number">{{ level.number }}</div>
+            </div>
+            
+            <!-- Badge card -->
+            {% include 'components/gamification/badge_card.html' with badge=level.badge %}
+            
+            <!-- Level info -->
+            <div class="level-info">
+                <h4>{{ level.title }}</h4>
+                <p>{{ level.description }}</p>
+                {% if level.xp_required %}
+                <div class="xp-requirement">
+                    <i class="fas fa-star"></i> {{ level.xp_required }} XP
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+/* Connection line between nodes (desktop) */
+.connection-line {
+    width: 40px;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        rgba(102, 126, 234, 0.6), 
+        rgba(102, 126, 234, 0.2));
+    position: relative;
+}
+
+/* Level row layout (mobile) */
+.level-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Level indicator circle */
+.level-indicator {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    flex-shrink: 0;
+}
+
+.level-number {
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.level-node.locked .level-indicator {
+    background: linear-gradient(135deg, #3a3a4e, #2a2a3e);
+    box-shadow: none;
+}
+
+/* Level info */
+.level-info {
+    flex: 1;
+}
+
+.level-info h4 {
+    color: white;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.level-info p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.xp-requirement {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(102, 126, 234, 0.2);
+    border-radius: 12px;
+    font-size: 12px;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.xp-requirement i {
+    color: #ffd700;
+}
+
+/* Scrollbar styling for desktop */
+.road-timeline-desktop::-webkit-scrollbar {
+    height: 8px;
+}
+
+.road-timeline-desktop::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.road-timeline-desktop::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 4px;
+}
+
+.road-timeline-desktop::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #764ba2, #667eea);
+}
+</style>

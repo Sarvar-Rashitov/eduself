@@ -1,0 +1,650 @@
+/**
+ * 🎨 3D GAMIFICATION STYLES
+ * Neumorphism + Glassmorphism + Advanced Animations
+ */
+
+/* ============================================
+   🎯 CORE 3D BADGE CONTAINER
+   ============================================ */
+
+.badge-card {
+    position: relative;
+    width: 120px;
+    height: 140px;
+    margin: 20px;
+    perspective: 1000px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.badge-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.badge-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #1e1e2e, #2a2a3e);
+    box-shadow: 
+        8px 8px 16px rgba(0, 0, 0, 0.4),
+        -8px -8px 16px rgba(255, 255, 255, 0.05),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Glass layer effect */
+.badge-inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, 
+        rgba(255, 255, 255, 0.15) 0%, 
+        transparent 100%);
+    border-radius: 20px 20px 0 0;
+    pointer-events: none;
+}
+
+/* Inner light reflection */
+.badge-inner::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.badge-card:hover .badge-inner::after {
+    opacity: 1;
+}
+
+/* Hover tilt effect */
+.badge-card:hover {
+    transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+}
+
+.badge-card:hover .badge-inner {
+    box-shadow: 
+        12px 12px 24px rgba(0, 0, 0, 0.5),
+        -12px -12px 24px rgba(255, 255, 255, 0.08),
+        inset 2px 2px 6px rgba(255, 255, 255, 0.15),
+        0 0 30px rgba(102, 126, 234, 0.3);
+}
+
+/* Badge image container */
+.badge-image-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 15px auto 10px;
+    z-index: 2;
+}
+
+.badge-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    transition: all 0.3s ease;
+}
+
+.badge-card:hover .badge-image {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 8px 16px rgba(102, 126, 234, 0.5));
+}
+
+/* Badge label */
+.badge-label {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0 10px;
+    position: relative;
+    z-index: 2;
+}
+
+/* ============================================
+   🔒 LOCKED STATE
+   ============================================ */
+
+.badge-card.locked .badge-inner {
+    background: linear-gradient(145deg, #1a1a24, #22222e);
+    filter: grayscale(1);
+    opacity: 0.6;
+}
+
+.badge-card.locked .badge-image {
+    filter: grayscale(1) blur(2px) brightness(0.5);
+}
+
+.badge-card.locked .badge-label {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Lock icon overlay */
+.lock-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    backdrop-filter: blur(4px);
+}
+
+.lock-overlay i {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 20px;
+}
+
+/* ============================================
+   ✨ UNLOCKED STATE - GLOW & SHINE
+   ============================================ */
+
+.badge-card.unlocked .badge-inner {
+    background: linear-gradient(145deg, #2a2a3e, #3a3a4e);
+    box-shadow: 
+        8px 8px 16px rgba(0, 0, 0, 0.4),
+        -8px -8px 16px rgba(255, 255, 255, 0.08),
+        0 0 20px rgba(102, 126, 234, 0.4),
+        inset 0 0 20px rgba(102, 126, 234, 0.1);
+    animation: unlockGlow 2s ease-in-out infinite;
+}
+
+@keyframes unlockGlow {
+    0%, 100% {
+        box-shadow: 
+            8px 8px 16px rgba(0, 0, 0, 0.4),
+            -8px -8px 16px rgba(255, 255, 255, 0.08),
+            0 0 20px rgba(102, 126, 234, 0.4);
+    }
+    50% {
+        box-shadow: 
+            8px 8px 16px rgba(0, 0, 0, 0.4),
+            -8px -8px 16px rgba(255, 255, 255, 0.08),
+            0 0 30px rgba(102, 126, 234, 0.6);
+    }
+}
+
+/* Shine sweep animation */
+.badge-card.unlocked .badge-inner::before {
+    animation: shineSweep 3s ease-in-out infinite;
+}
+
+@keyframes shineSweep {
+    0% {
+        transform: translateX(-100%) rotate(45deg);
+    }
+    50%, 100% {
+        transform: translateX(200%) rotate(45deg);
+    }
+}
+
+/* ============================================
+   🛣 ROAD PROGRESSION TIMELINE
+   ============================================ */
+
+/* Desktop - Horizontal */
+.road-timeline-desktop {
+    display: flex;
+    align-items: center;
+    padding: 40px 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    gap: 40px;
+    position: relative;
+}
+
+.road-timeline-desktop::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        rgba(102, 126, 234, 0.2) 0%, 
+        rgba(102, 126, 234, 0.6) 50%, 
+        rgba(102, 126, 234, 0.2) 100%);
+    z-index: 0;
+}
+
+/* Mobile - Vertical */
+.road-timeline-mobile {
+    display: none;
+    flex-direction: column;
+    padding: 20px;
+    gap: 30px;
+    position: relative;
+}
+
+.road-timeline-mobile::before {
+    content: '';
+    position: absolute;
+    left: 60px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, 
+        rgba(102, 126, 234, 0.2) 0%, 
+        rgba(102, 126, 234, 0.6) 50%, 
+        rgba(102, 126, 234, 0.2) 100%);
+    z-index: 0;
+}
+
+/* Level node */
+.level-node {
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.level-node.current {
+    animation: currentNodePulse 2s ease-in-out infinite;
+}
+
+@keyframes currentNodePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Animated path line */
+.progress-path {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(180deg, #667eea, #764ba2);
+    width: 4px;
+    transform-origin: top;
+    animation: pathGrow 1s ease-out forwards;
+}
+
+@keyframes pathGrow {
+    from {
+        transform: scaleY(0);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+/* ============================================
+   🔥 STREAK FLAME SYSTEM
+   ============================================ */
+
+.streak-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #1e1e2e, #2a2a3e);
+    border-radius: 50px;
+    box-shadow: 
+        4px 4px 8px rgba(0, 0, 0, 0.3),
+        -4px -4px 8px rgba(255, 255, 255, 0.05);
+}
+
+.streak-flame {
+    font-size: 24px;
+    position: relative;
+    display: inline-block;
+    filter: drop-shadow(0 0 8px rgba(255, 100, 0, 0.6));
+}
+
+/* 3 days - Small glow */
+.streak-flame.warm {
+    animation: flameFlicker 1.5s ease-in-out infinite;
+}
+
+@keyframes flameFlicker {
+    0%, 100% {
+        transform: scale(1) rotate(-2deg);
+        filter: drop-shadow(0 0 8px rgba(255, 100, 0, 0.6));
+    }
+    50% {
+        transform: scale(1.1) rotate(2deg);
+        filter: drop-shadow(0 0 12px rgba(255, 100, 0, 0.8));
+    }
+}
+
+/* 7 days - Bigger animated flame */
+.streak-flame.hot {
+    font-size: 32px;
+    animation: flameDance 1s ease-in-out infinite;
+}
+
+@keyframes flameDance {
+    0%, 100% {
+        transform: scale(1) rotate(-5deg);
+    }
+    25% {
+        transform: scale(1.15) rotate(5deg);
+    }
+    50% {
+        transform: scale(1.1) rotate(-3deg);
+    }
+    75% {
+        transform: scale(1.15) rotate(3deg);
+    }
+}
+
+/* 30 days - Legendary with gold aura */
+.streak-flame.legendary {
+    font-size: 40px;
+    animation: flameLoop 0.8s ease-in-out infinite;
+}
+
+@keyframes flameLoop {
+    0%, 100% {
+        transform: scale(1) rotate(-8deg);
+        filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1));
+    }
+    50% {
+        transform: scale(1.2) rotate(8deg);
+        filter: drop-shadow(0 0 30px rgba(255, 215, 0, 1));
+    }
+}
+
+.streak-aura {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, 
+        rgba(255, 215, 0, 0.3) 0%, 
+        transparent 70%);
+    border-radius: 50%;
+    animation: auraExpand 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes auraExpand {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 0.3;
+    }
+}
+
+/* Streak break animation */
+@keyframes flameFadeOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+    }
+}
+
+.streak-count {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   💥 UNLOCK ANIMATIONS
+   ============================================ */
+
+@keyframes unlockZoomVibrate {
+    0% {
+        transform: scale(1);
+    }
+    20% {
+        transform: scale(1.1) rotate(2deg);
+    }
+    40% {
+        transform: scale(1.15) rotate(-2deg);
+    }
+    60% {
+        transform: scale(1.1) rotate(1deg);
+    }
+    80% {
+        transform: scale(1.15) rotate(-1deg);
+    }
+    100% {
+        transform: scale(1.2);
+    }
+}
+
+@keyframes badgeFlip3D {
+    0% {
+        transform: rotateY(0deg) scale(1);
+    }
+    50% {
+        transform: rotateY(180deg) scale(1.2);
+    }
+    100% {
+        transform: rotateY(360deg) scale(1);
+    }
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   🎯 NEXT REWARD PREVIEW
+   ============================================ */
+
+.next-reward-preview {
+    position: relative;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-radius: 16px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    margin: 20px 0;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
+        border-color: rgba(102, 126, 234, 0.6);
+    }
+}
+
+/* ============================================
+   💔 MOTIVATION POPUP
+   ============================================ */
+
+.motivation-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+.motivation-content {
+    background: linear-gradient(135deg, #1e1e2e, #2a2a3e);
+    padding: 40px;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: popupBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popupBounce {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.crack-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    animation: crackShake 0.5s ease;
+}
+
+@keyframes crackShake {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-10deg);
+    }
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+.motivation-content h3 {
+    color: #fff;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.motivation-content p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 20px;
+}
+
+.motivation-content button {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.motivation-content button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ============================================
+   📱 RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .road-timeline-desktop {
+        display: none;
+    }
+    
+    .road-timeline-mobile {
+        display: flex;
+    }
+    
+    .badge-card {
+        width: 100px;
+        height: 120px;
+        margin: 10px;
+    }
+    
+    .badge-image-wrapper {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .badge-label {
+        font-size: 11px;
+    }
+    
+    .streak-flame {
+        font-size: 20px;
+    }
+    
+    .streak-flame.hot {
+        font-size: 26px;
+    }
+    
+    .streak-flame.legendary {
+        font-size: 32px;
+    }
+}
+
+/* ============================================
+   ⚡ PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+.badge-card,
+.level-node,
+.streak-flame {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

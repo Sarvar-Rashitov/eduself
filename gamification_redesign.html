@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamification Dashboard - Premium Redesign</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #F7F8FA;
+            color: #1A1A1A;
+            padding: 32px 24px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Streak Card */
+        .streak-card {
+            background: #FFFFFF;
+            border-radius: 18px;
+            padding: 28px 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .streak-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+            transform: translateY(-1px);
+        }
+
+        .streak-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .streak-icon {
+            font-size: 56px;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(255, 107, 0, 0.2));
+        }
+
+        .streak-content {
+            flex: 1;
+        }
+
+        .streak-label {
+            font-size: 15px;
+            color: #5F6368;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .streak-value {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .streak-count {
+            font-size: 40px;
+            font-weight: 700;
+            color: #1A1A1A;
+            letter-spacing: -0.02em;
+        }
+
+        .streak-unit {
+            font-size: 20px;
+            font-weight: 600;
+            color: #5F6368;
+        }
+
+        .streak-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #6366F1;
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 16px;
+            padding: 10px 18px;
+            background: rgba(99, 102, 241, 0.08);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(99, 102, 241, 0.12);
+        }
+
+        .streak-cta:hover {
+            background: rgba(99, 102, 241, 0.12);
+            transform: translateX(2px);
+        }
+
+        .streak-cta .rocket {
+            font-size: 18px;
+        }
+
+        /* Achievements Card */
+        .achievements-card {
+            background: #FFFFFF;
+            border-radius: 18px;
+            padding: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .achievements-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .achievements-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 600;
+            color: #1A1A1A;
+            letter-spacing: -0.01em;
+        }
+
+        .trophy-icon {
+            font-size: 26px;
+        }
+
+        .progress-badge {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366F1;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .achievement-item {
+            background: #F7F8FA;
+            border-radius: 14px;
+            padding: 20px 12px;
+            text-align: center;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .achievement-item.active {
+            background: rgba(99, 102, 241, 0.08);
+            border-color: #6366F1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12), 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .achievement-item.active::before {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: #6366F1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .achievement-item.locked {
+            opacity: 0.4;
+            filter: grayscale(100%);
+            cursor: not-allowed;
+        }
+
+        .achievement-item:hover:not(.locked) {
+            transform: translateY(-4px);
+            background: #FFFFFF;
+            border-color: #E8EAED;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .achievement-badge {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 14px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .achievement-level {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 4px;
+        }
+
+        .achievement-requirement {
+            font-size: 13px;
+            color: #5F6368;
+            font-weight: 500;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: #FFFFFF;
+            border-radius: 18px;
+            padding: 28px 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .progress-icon {
+            font-size: 24px;
+        }
+
+        .progress-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1A1A1A;
+            letter-spacing: -0.01em;
+        }
+
+        .progress-bar-container {
+            background: #E8EAED;
+            height: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 14px;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366F1 0%, #8B5CF6 100%);
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 11.11%;
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #5F6368;
+            font-weight: 500;
+        }
+
+        .progress-percentage {
+            font-size: 14px;
+            font-weight: 700;
+            color: #6366F1;
+            letter-spacing: 0.01em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 16px;
+            }
+
+            .streak-card,
+            .achievements-card,
+            .progress-section {
+                padding: 24px 20px;
+            }
+
+            .achievements-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .streak-icon {
+                font-size: 48px;
+            }
+
+            .streak-count {
+                font-size: 36px;
+            }
+
+            .achievements-title {
+                font-size: 20px;
+            }
+
+            .achievement-badge {
+                width: 64px;
+                height: 64px;
+                font-size: 32px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .achievements-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .progress-badge {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Streak Section -->
+        <div class="streak-card">
+            <div class="streak-header">
+                <div class="streak-icon">🔥</div>
+                <div class="streak-content">
+                    <div class="streak-label">Kunlik Streak</div>
+                    <div class="streak-value">
+                        <span class="streak-count">0</span>
+                        <span class="streak-unit">days</span>
+                    </div>
+                </div>
+            </div>
+            <div class="streak-cta">
+                <span class="rocket">🚀</span>
+                <span>Start today</span>
+            </div>
+        </div>
+
+        <!-- Achievements Section -->
+        <div class="achievements-card">
+            <div class="achievements-header">
+                <div class="achievements-title">
+                    <span class="trophy-icon">🏆</span>
+                    <span>Yutuqlar</span>
+                </div>
+                <div class="progress-badge">1/9</div>
+            </div>
+
+            <div class="achievements-grid">
+                <div class="achievement-item active">
+                    <div class="achievement-badge">🌟</div>
+                    <div class="achievement-level">Level 1</div>
+                    <div class="achievement-requirement">Unlocked</div>
+                </div>
+
+                <div class="achievement-item locked">
+                    <div class="achievement-badge">🏅</div>
+                    <div class="achievement-level">Level 5</div>
+                    <div class="achievement-requirement">1k</div>
+                </div>
+
+                <div class="achievement-item locked">
+                    <div class="achievement-badge">💎</div>
+                    <div class="achievement-level">Level 10</div>
+                    <div class="achievement-requirement">2k</div>
+                </div>
+
+                <div class="achievement-item locked">
+                    <div class="achievement-badge">👑</div>
+                    <div class="achievement-level">Level 20</div>
+                    <div class="achievement-requirement">3k</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <span class="progress-icon">💪</span>
+                <div class="progress-title">Level 1 Progress</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill"></div>
+            </div>
+            <div class="progress-stats">
+                <span class="progress-text">Keep going to reach Level 5</span>
+                <span class="progress-percentage">1/9</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

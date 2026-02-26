@@ -1,0 +1,94 @@
+{% load static %}
+{% load translation_tags %}
+
+<!-- 🎨 3D Badge Card Component -->
+<div class="badge-card {% if badge.is_locked %}locked{% else %}unlocked{% endif %}" 
+     data-badge-id="{{ badge.id }}"
+     data-level="{{ badge.level }}">
+    
+    <div class="badge-inner">
+        <!-- Badge Image -->
+        <div class="badge-image-wrapper">
+            <img src="{% static badge.image_path %}" 
+                 alt="{{ badge.name }}" 
+                 class="badge-image"
+                 loading="lazy">
+        </div>
+        
+        <!-- Badge Label -->
+        <div class="badge-label">
+            {{ badge.name }}
+        </div>
+        
+        <!-- Lock Overlay (if locked) -->
+        {% if badge.is_locked %}
+        <div class="lock-overlay">
+            <i class="fas fa-lock"></i>
+        </div>
+        {% endif %}
+        
+        <!-- Progress indicator (if applicable) -->
+        {% if badge.progress %}
+        <div class="badge-progress">
+            <div class="progress-bar" style="width: {{ badge.progress }}%"></div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Unlock requirement tooltip -->
+    {% if badge.is_locked and badge.unlock_requirement %}
+    <div class="unlock-tooltip">
+        <i class="fas fa-info-circle"></i>
+        {{ badge.unlock_requirement }}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+/* Badge progress bar */
+.badge-progress {
+    position: absolute;
+    bottom: 5px;
+    left: 10px;
+    right: 10px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    z-index: 3;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+
+/* Unlock tooltip */
+.unlock-tooltip {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.badge-card:hover .unlock-tooltip {
+    opacity: 1;
+}
+
+.unlock-tooltip i {
+    margin-right: 4px;
+    color: #667eea;
+}
+</style>
