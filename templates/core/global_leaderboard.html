@@ -12,162 +12,376 @@
 {% block page_title %}{% t "Reyting" request.LANGUAGE_CODE %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <!-- Header -->
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-body text-center py-3">
-                    <i class="bi bi-trophy-fill text-warning fs-1 mb-2"></i>
-                    <h4 class="fw-bold mb-0">{% t "Global Reyting" request.LANGUAGE_CODE %}</h4>
-                </div>
+<div class="leaderboard-mobile-container">
+    <!-- Top 3 Users -->
+    <div class="top-three-mobile">
+        {% if top_users|length >= 2 %}
+        <!-- 2nd Place -->
+        <div class="top-user-mobile second">
+            <div class="user-avatar-top">
+                <img src="{{ top_users.1.get_avatar_url }}" alt="{{ top_users.1.username }}">
+                <div class="rank-badge">2</div>
             </div>
+            <div class="user-name-top">{{ top_users.1.first_name|default:top_users.1.username }}</div>
+            <div class="user-points-top">🔥 {{ top_users.1.total_points }} XP</div>
+        </div>
+        {% endif %}
+        
+        {% if top_users|length >= 1 %}
+        <!-- 1st Place -->
+        <div class="top-user-mobile first">
+            <div class="crown-icon">👑</div>
+            <div class="user-avatar-top">
+                <img src="{{ top_users.0.get_avatar_url }}" alt="{{ top_users.0.username }}">
+                <div class="rank-badge gold">1</div>
+            </div>
+            <div class="user-name-top">{{ top_users.0.first_name|default:top_users.0.username }}</div>
+            <div class="user-points-top">🔥 {{ top_users.0.total_points }} XP</div>
+        </div>
+        {% endif %}
+        
+        {% if top_users|length >= 3 %}
+        <!-- 3rd Place -->
+        <div class="top-user-mobile third">
+            <div class="user-avatar-top">
+                <img src="{{ top_users.2.get_avatar_url }}" alt="{{ top_users.2.username }}">
+                <div class="rank-badge">3</div>
+            </div>
+            <div class="user-name-top">{{ top_users.2.first_name|default:top_users.2.username }}</div>
+            <div class="user-points-top">🔥 {{ top_users.2.total_points }} XP</div>
+        </div>
+        {% endif %}
+    </div>
 
-            <!-- User's Position (if authenticated and has points) -->
-            {% if user.is_authenticated and user_position %}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-                        </div>
-                        <div class="col">
-                            <h5 class="mb-1">{% t "Sizning pozitsiyangiz" request.LANGUAGE_CODE %}</h5>
-                            <p class="text-muted mb-0">{{ user_position }}-{% t "o'rin" request.LANGUAGE_CODE %} • {{ user_points }} XP</p>
-                        </div>
-                        <div class="col-auto">
-                            <span class="badge bg-primary fs-6">#{{ user_position }}</span>
-                        </div>
-                    </div>
+    <!-- Leaderboard Table -->
+    <div class="leaderboard-table-mobile">
+        <div class="table-header-mobile">
+            <div class="col-rank-mobile">Rank</div>
+            <div class="col-player-mobile">Player</div>
+            <div class="col-points-mobile">XP</div>
+        </div>
+        
+        <div class="table-body-mobile">
+            {% for user_item in top_users %}
+            {% if forloop.counter > 3 %}
+            <div class="table-row-mobile {% if user.is_authenticated and user_item.id == user.id %}current-user-row{% endif %}">
+                <div class="col-rank-mobile">{{ forloop.counter }}</div>
+                <div class="col-player-mobile">
+                    <img src="{{ user_item.get_avatar_url }}" alt="{{ user_item.username }}" class="player-avatar-mobile">
+                    <span class="player-name-mobile">{{ user_item.first_name|default:user_item.username }}{% if user.is_authenticated and user_item.id == user.id %} (You){% endif %}</span>
                 </div>
+                <div class="col-points-mobile">{{ user_item.total_points }} XP</div>
             </div>
             {% endif %}
-
-            <!-- Leaderboard -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent border-0 py-3">
-                    <h4 class="mb-0">
-                        <i class="bi bi-list-ol me-2"></i>
-                        {% t "Top 100 Foydalanuvchilar" request.LANGUAGE_CODE %}
-                    </h4>
-                </div>
-                <div class="card-body p-0">
-                    {% if top_users %}
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="border-0 ps-3">{% t "Foydalanuvchi" request.LANGUAGE_CODE %}</th>
-                                        <th class="border-0 text-center">{% t "Testlar" request.LANGUAGE_CODE %}</th>
-                                        <th class="border-0 text-end pe-3">XP</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for user_item in top_users %}
-                                    <tr class="{% if user.is_authenticated and user_item.id == user.id %}table-primary{% endif %}">
-                                        <td class="ps-3">
-                                            <div class="d-flex align-items-center">
-                                                {% if forloop.counter <= 3 %}
-                                                    <span class="badge 
-                                                        {% if forloop.counter == 1 %}bg-warning text-dark{% elif forloop.counter == 2 %}bg-secondary{% else %}bg-dark{% endif %} 
-                                                        me-2" style="font-size: 10px;">
-                                                        {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}
-                                                    </span>
-                                                {% else %}
-                                                    <span class="text-muted me-2" style="font-size: 12px; width: 20px;">#{{ forloop.counter }}</span>
-                                                {% endif %}
-                                                <img src="{{ user_item.get_avatar_url }}" alt="{{ user_item.username }}" class="rounded-circle me-2" style="width: 28px; height: 28px; object-fit: cover;">
-                                                <div>
-                                                    <div class="fw-bold" style="font-size: 13px;">{{ user_item.first_name|default:user_item.username }}</div>
-                                                    <small class="text-muted" style="font-size: 10px;">@{{ user_item.username }}</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-info" style="font-size: 9px;">{{ user_item.tests_completed }}</span>
-                                        </td>
-                                        <td class="text-end pe-3">
-                                            <span class="badge bg-success" style="font-size: 10px;">{{ user_item.total_points }} XP</span>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-trophy text-muted display-4 mb-3"></i>
-                            <h5 class="text-muted">{% t "Hali hech kim XP to'plamagan" request.LANGUAGE_CODE %}</h5>
-                            <p class="text-muted">{% t "Birinchi bo'lib test yechib, leaderboardda o'z o'rningizni egallang!" request.LANGUAGE_CODE %}</p>
-                            <a href="{% url 'core:subjects' %}" class="btn btn-primary">
-                                <i class="bi bi-play-circle me-2"></i>
-                                {% t "Testlarni boshlash" request.LANGUAGE_CODE %}
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Call to Action -->
-            {% if user.is_authenticated %}
-            <div class="card border-0 shadow-sm mt-4">
-                <div class="card-body text-center py-4">
-                    <h5 class="mb-3">{% t "Reytingda yuqoriga ko'tarilmoqchimisiz?" request.LANGUAGE_CODE %}</h5>
-                    <p class="text-muted mb-3">{% t "Ko'proq test yechib, ko'proq XP to'plang!" request.LANGUAGE_CODE %}</p>
-                    <div class="d-flex gap-2 justify-content-center flex-wrap">
-                        <a href="{% url 'core:subjects' %}" class="btn btn-primary">
-                            <i class="bi bi-book me-2"></i>
-                            {% t "Fanlar bo'yicha testlar" request.LANGUAGE_CODE %}
-                        </a>
-                        <a href="{% url 'core:certificates' %}" class="btn btn-outline-primary">
-                            <i class="bi bi-award me-2"></i>
-                            {% t "Sertifikat testlari" request.LANGUAGE_CODE %}
-                        </a>
-                        <a href="{% url 'core:mock_exams' %}" class="btn btn-outline-primary">
-                            <i class="bi bi-clipboard-check me-2"></i>
-                            {% t "Mock imtihonlar" request.LANGUAGE_CODE %}
-                        </a>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
+            {% endfor %}
         </div>
     </div>
+    
+    <!-- User Position Card -->
+    {% if user.is_authenticated and user_position and user_position > 3 %}
+    <div class="user-position-card-mobile">
+        <div class="position-content-mobile">
+            <div class="position-label-mobile">{% t "Sizning o'rningiz" request.LANGUAGE_CODE %}</div>
+            <div class="position-details-mobile">
+                <div class="position-rank-mobile">#{{ user_position }}</div>
+                <div class="position-user-mobile">
+                    <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="position-avatar-mobile">
+                    <span class="position-name-mobile">{{ user.first_name|default:user.username }}</span>
+                </div>
+                <div class="position-xp-mobile">{{ user.total_points }} XP</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <style>
-/* Dark mode support */
-[data-theme="dark"] .table {
-    --bs-table-bg: var(--bs-dark);
-    --bs-table-color: var(--bs-light);
+.leaderboard-mobile-container {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #E8F5FF 0%, #F5F5F5 100%);
+    padding: 10px 16px 20px;
 }
 
-[data-theme="dark"] .table-light {
-    --bs-table-bg: var(--bs-gray-800);
-    --bs-table-color: var(--bs-light);
+/* Top 3 Users */
+.top-three-mobile {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 10px 0;
 }
 
-[data-theme="dark"] .table-hover > tbody > tr:hover > * {
-    --bs-table-bg: var(--bs-gray-700);
+.top-user-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    max-width: 90px;
 }
 
-[data-theme="dark"] .table-primary {
-    --bs-table-bg: rgba(13, 110, 253, 0.2);
-    --bs-table-color: var(--bs-light);
+.top-user-mobile.first {
+    order: 2;
+    max-width: 110px;
 }
 
-[data-theme="dark"] .card {
-    background-color: var(--bs-dark);
-    border-color: var(--bs-gray-700);
+.top-user-mobile.second {
+    order: 1;
 }
 
-[data-theme="dark"] .card-header {
-    background-color: var(--bs-gray-800);
-    border-color: var(--bs-gray-700);
+.top-user-mobile.third {
+    order: 3;
 }
 
-[data-theme="dark"] .text-muted {
-    color: var(--bs-gray-400) !important;
+.crown-icon {
+    font-size: 28px;
+    margin-bottom: -8px;
+    z-index: 10;
+    position: relative;
+}
+
+.user-avatar-top {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3px;
+    position: relative;
+    margin-bottom: 6px;
+}
+
+.top-user-mobile.first .user-avatar-top {
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.user-avatar-top img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+}
+
+.rank-badge {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    border: 2px solid white;
+}
+
+.rank-badge.gold {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    width: 28px;
+    height: 28px;
+}
+
+.user-name-top {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 3px;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-points-top {
+    font-size: 11px;
+    color: #FF6B35;
+    font-weight: 600;
+}
+
+/* Leaderboard Table */
+.leaderboard-table-mobile {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.table-header-mobile {
+    display: grid;
+    grid-template-columns: 60px 1fr 90px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #FF9A56 0%, #FF6B35 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.col-rank-mobile {
+    text-align: center;
+}
+
+.col-player-mobile {
+    text-align: left;
+}
+
+.col-points-mobile {
+    text-align: right;
+}
+
+.table-body-mobile {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.table-row-mobile {
+    display: grid;
+    grid-template-columns: 60px 1fr 90px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #7B68EE 0%, #6A5ACD 100%);
+    margin-bottom: 8px;
+    border-radius: 12px;
+    align-items: center;
+    color: white;
+    font-size: 13px;
+    margin: 0 12px 8px;
+}
+
+.table-row-mobile:first-child {
+    margin-top: 12px;
+}
+
+.table-row-mobile:last-child {
+    margin-bottom: 12px;
+}
+
+.current-user-row {
+    background: linear-gradient(135deg, #4A148C 0%, #6A1B9A 100%);
+    box-shadow: 0 4px 12px rgba(106, 27, 154, 0.4);
+}
+
+.col-rank-mobile {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.col-player-mobile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.player-avatar-mobile {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    flex-shrink: 0;
+}
+
+.player-name-mobile {
+    font-weight: 600;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.col-points-mobile {
+    font-weight: 700;
+    font-size: 12px;
+    text-align: right;
+}
+
+/* Scrollbar styling */
+.table-body-mobile::-webkit-scrollbar {
+    width: 6px;
+}
+
+.table-body-mobile::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-body-mobile::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.table-body-mobile::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* User Position Card */
+.user-position-card-mobile {
+    margin-top: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.position-content-mobile {
+    color: white;
+}
+
+.position-label-mobile {
+    font-size: 12px;
+    opacity: 0.9;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.position-details-mobile {
+    display: grid;
+    grid-template-columns: 50px 1fr 80px;
+    align-items: center;
+    gap: 12px;
+}
+
+.position-rank-mobile {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.position-user-mobile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+}
+
+.position-avatar-mobile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    flex-shrink: 0;
+}
+
+.position-name-mobile {
+    font-weight: 600;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.position-xp-mobile {
+    font-weight: 700;
+    font-size: 14px;
+    text-align: right;
 }
 </style>
 {% endblock %}
