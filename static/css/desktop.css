@@ -788,8 +788,9 @@ body {
 .hero {
     background: var(--gradient);
     color: var(--white);
-    padding: 100px 0;
+    padding: 60px 0 40px;
     margin-top: 60px;
+    margin-bottom: 0;
     position: relative;
     overflow: hidden;
 }
@@ -887,8 +888,8 @@ body {
 /* Stats Section */
 .stats {
     background: var(--white);
-    padding: 60px 0;
-    margin-top: -50px;
+    padding: 40px 0;
+    margin-top: 0;
     position: relative;
     z-index: 10;
 }
@@ -931,6 +932,7 @@ body {
 .user-stats-section {
     background: var(--white);
     padding: 40px 0;
+    margin-top: 0;
 }
 
 .user-stats-grid {
@@ -991,7 +993,8 @@ body {
 
 /* Section */
 .section {
-    padding: 80px 0;
+    padding: 60px 0;
+    margin-top: 0;
 }
 
 .section-title {
@@ -1087,6 +1090,7 @@ body {
 
 /* Certificate Section */
 .certificate-section {
+    margin-top: 0;
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: var(--white);
 }
@@ -1269,6 +1273,7 @@ body {
 
 /* Leaderboard Section */
 .leaderboard-section {
+    margin-top: 0;
     background: var(--white);
 }
 
@@ -1387,6 +1392,7 @@ body {
 
 /* AI Assistant Section */
 .ai-section {
+    margin-top: 0;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: var(--white);
 }
@@ -1683,6 +1689,7 @@ body {
 
 /* CTA Section */
 .cta-section {
+    margin-top: 0;
     background: var(--dark-color);
     color: var(--white);
     padding: 80px 0;
@@ -2081,7 +2088,8 @@ body {
 .page-header {
     background: var(--gradient);
     color: var(--white);
-    padding: 60px 0;
+    padding: 50px 0 30px;
+    margin-bottom: 0;
     text-align: center;
 }
 
@@ -2097,6 +2105,7 @@ body {
 
 /* Filter Section */
 .filter-section {
+    margin-top: 0;
     background: var(--white);
     padding: 20px 0;
     box-shadow: var(--shadow);
@@ -2231,6 +2240,8 @@ body {
 
 .main-content {
     min-height: calc(100vh - 80px);
+    margin-top: 60px;
+    padding-top: 0;
 }
 
 /* Test page - main-content ichida grid ishlashi uchun */
