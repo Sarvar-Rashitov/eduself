@@ -980,8 +980,12 @@ def profile_view(request):
     weekly_activity = []
     day_names = ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba']
     
+    # Haftaning boshini topish (Dushanba)
+    days_since_monday = today.weekday()  # 0=Dushanba, 6=Yakshanba
+    week_start = today - timedelta(days=days_since_monday)
+    
     for i in range(7):
-        day_date = today - timedelta(days=6-i)
+        day_date = week_start + timedelta(days=i)
         day_start = timezone.make_aware(timezone.datetime.combine(day_date, timezone.datetime.min.time()))
         day_end = timezone.make_aware(timezone.datetime.combine(day_date, timezone.datetime.max.time()))
         
