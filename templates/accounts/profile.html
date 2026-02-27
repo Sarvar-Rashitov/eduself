@@ -256,6 +256,86 @@
     background-clip: text;
 }
 
+/* Lives Profile Card */
+.lives-profile-card {
+    background: linear-gradient(135deg, #FF6B9D 0%, #C06C84 100%);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+    animation: statsSlideUp 0.6s ease-out 0.3s both;
+}
+
+.lives-profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.lives-profile-title {
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lives-profile-count {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.lives-profile-count .current-lives {
+    font-size: 1.5rem;
+}
+
+.lives-profile-count .max-lives {
+    opacity: 0.7;
+    font-size: 1rem;
+}
+
+.lives-profile-hearts {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.lives-profile-hearts .heart-icon {
+    font-size: 28px;
+    animation: heartBeat 1.5s ease-in-out infinite;
+}
+
+.lives-profile-timer {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 0.85rem;
+}
+
+.lives-profile-timer i {
+    font-size: 1rem;
+}
+
+.lives-profile-info {
+    margin-top: 10px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.75rem;
+}
+
+.lives-profile-info i {
+    margin-right: 4px;
+}
+
 .stat-label {
     font-size: 0.75rem;
     color: #6b7280;

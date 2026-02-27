@@ -310,6 +310,15 @@ def topic_leaderboard_view(request, pk):
 @login_required
 def take_topic_test_view(request, pk):
     topic = get_object_or_404(Topic, pk=pk, is_active=True)
+    
+    # Lives tekshirish - test boshlashdan oldin
+    from accounts.models import LivesSettings
+    lives_settings = LivesSettings.get_settings()
+    
+    if lives_settings.is_active and not request.user.has_lives():
+        messages.error(request, "Yurakchalaringiz tugagan! Keyingi yurakcha tiklanishini kuting yoki ertaga qaytib keling.")
+        return redirect('core:topic_leaderboard', pk=topic.pk)
+    
     questions = topic.questions.all().prefetch_related('answers')
     
     # Get current language
@@ -395,6 +404,14 @@ def take_topic_test_view(request, pk):
             user_answers=user_answers,
             earned_points=earned_points
         )
+        
+        # Lives tekshirish - muvaffaqiyatsiz bo'lsa yurakcha yo'qotish
+        from accounts.models import LivesSettings
+        lives_settings = LivesSettings.get_settings()
+        
+        if lives_settings.is_active and not passed:
+            request.user.lose_life()
+            messages.warning(request, f"Test muvaffaqiyatsiz! Yurakcha yo'qotdingiz. Qolgan: {request.user.current_lives} ❤️")
         
         # Faqat yangi natija oldingi eng yaxshi natijadan yaxshi bo'lsa, farqni qo'shish
         if earned_points > previous_best_points:
@@ -725,6 +742,14 @@ def take_cert_test_view(request, pk):
         messages.error(request, "Bu testni yechish uchun oldingi testlarni muvaffaqiyatli yakunlashingiz kerak.")
         return redirect('core:cert_topic_detail', pk=test.topic.pk)
     
+    # Lives tekshirish - test boshlashdan oldin
+    from accounts.models import LivesSettings
+    lives_settings = LivesSettings.get_settings()
+    
+    if lives_settings.is_active and not request.user.has_lives():
+        messages.error(request, "Yurakchalaringiz tugagan! Keyingi yurakcha tiklanishini kuting yoki ertaga qaytib keling.")
+        return redirect('core:cert_test_leaderboard', pk=test.pk)
+    
     questions = test.cert_questions.all().prefetch_related('cert_answers')
     
     # Get current language
@@ -809,6 +834,14 @@ def take_cert_test_view(request, pk):
             user_answers=user_answers,
             earned_points=earned_points
         )
+        
+        # Lives tekshirish - muvaffaqiyatsiz bo'lsa yurakcha yo'qotish
+        from accounts.models import LivesSettings
+        lives_settings = LivesSettings.get_settings()
+        
+        if lives_settings.is_active and not passed:
+            request.user.lose_life()
+            messages.warning(request, f"Test muvaffaqiyatsiz! Yurakcha yo'qotdingiz. Qolgan: {request.user.current_lives} ❤️")
         
         # Faqat yangi natija oldingi eng yaxshi natijadan yaxshi bo'lsa, farqni qo'shish
         if earned_points > previous_best_points:
@@ -1040,6 +1073,14 @@ def translate_mock_question_ajax(request, question_id):
 def take_mock_exam_view(request, pk):
     exam = get_object_or_404(MockExam, pk=pk, is_active=True)
     
+    # Lives tekshirish - test boshlashdan oldin
+    from accounts.models import LivesSettings
+    lives_settings = LivesSettings.get_settings()
+    
+    if lives_settings.is_active and not request.user.has_lives():
+        messages.error(request, "Yurakchalaringiz tugagan! Keyingi yurakcha tiklanishini kuting yoki ertaga qaytib keling.")
+        return redirect('core:mock_exam_leaderboard', pk=exam.pk)
+    
     # Mock imtihonlar uchun barcha imtihonlar ochiq
     
     questions = exam.mock_questions.all().prefetch_related('mock_answers')
@@ -1126,6 +1167,14 @@ def take_mock_exam_view(request, pk):
             user_answers=user_answers,
             earned_points=earned_points
         )
+        
+        # Lives tekshirish - muvaffaqiyatsiz bo'lsa yurakcha yo'qotish
+        from accounts.models import LivesSettings
+        lives_settings = LivesSettings.get_settings()
+        
+        if lives_settings.is_active and not passed:
+            request.user.lose_life()
+            messages.warning(request, f"Test muvaffaqiyatsiz! Yurakcha yo'qotdingiz. Qolgan: {request.user.current_lives} ❤️")
         
         # Faqat yangi natija oldingi eng yaxshi natijadan yaxshi bo'lsa, farqni qo'shish
         if earned_points > previous_best_points:
@@ -2180,3 +2229,19 @@ def search_users_api(request):
         })
     
     return JsonResponse({'users': results})
+
+
+# Lives System API
+@require_http_methods(["GET"])
+def lives_info_api(request):
+    """API endpoint to get user's lives information"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required'}, status=401)
+    
+    lives_info = request.user.get_lives_info()
+    
+    # Convert timedelta to seconds for frontend
+    if lives_info['next_life_in']:
+        lives_info['next_life_in'] = int(lives_info['next_life_in'].total_seconds())
+    
+    return JsonResponse(lives_info)

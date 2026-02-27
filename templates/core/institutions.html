@@ -6,9 +6,16 @@
 
 {% block title %}{% t title request.LANGUAGE_CODE %} - EduSelf{% endblock %}
 
-{% block show_back_button %}{% endblock %}
-
 {% block page_title %}{% t "Ta'lim Muassasalari" request.LANGUAGE_CODE %}{% endblock %}
+
+{% block header_actions %}
+{% if user.is_authenticated %}
+<div class="lives-header-compact" id="livesHeaderCompact">
+    <span class="lives-count" id="headerLivesCount">5</span>
+    <span class="battery-icon">🔋</span>
+</div>
+{% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="page-header institutions-header">

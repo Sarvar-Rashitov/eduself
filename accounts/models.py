@@ -1,8 +1,39 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 import uuid
+
+
+class LivesSettings(models.Model):
+    """Lives/Hearts tizimi sozlamalari - Singleton model"""
+    daily_lives = models.PositiveIntegerField(default=5, verbose_name="Kunlik yurakchalar soni")
+    max_lives = models.PositiveIntegerField(default=5, verbose_name="Maksimal yurakchalar")
+    refill_time_minutes = models.PositiveIntegerField(default=30, verbose_name="Tiklanish vaqti (daqiqa)")
+    lives_cost_on_fail = models.PositiveIntegerField(default=1, verbose_name="Muvaffaqiyatsizlikda yo'qotish")
+    passing_score = models.PositiveIntegerField(default=70, verbose_name="O'tish foizi (%)")
+    is_active = models.BooleanField(default=True, verbose_name="Lives tizimi faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Lives sozlamalari"
+        verbose_name_plural = "Lives sozlamalari"
+    
+    def save(self, *args, **kwargs):
+        # Singleton pattern - faqat bitta yozuv bo'lishi kerak
+        if not self.pk and LivesSettings.objects.exists():
+            raise ValueError("Faqat bitta Lives sozlamalari bo'lishi mumkin")
+        return super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_settings(cls):
+        """Sozlamalarni olish yoki yaratish"""
+        settings, created = cls.objects.get_or_create(pk=1)
+        return settings
+    
+    def __str__(self):
+        return f"Lives Settings - {self.daily_lives} kunlik, {self.refill_time_minutes}min tiklanish"
 
 
 class Level(models.Model):
@@ -117,6 +148,11 @@ class User(AbstractUser):
     streak_days = models.PositiveIntegerField(default=0, verbose_name="Kunlik streak")
     last_active_date = models.DateField(null=True, blank=True, verbose_name="Oxirgi faol kun")
     level = models.PositiveIntegerField(default=1, verbose_name="Level")
+    
+    # Lives/Hearts system
+    current_lives = models.PositiveIntegerField(default=5, verbose_name="Hozirgi yurakchalar")
+    last_life_lost_at = models.DateTimeField(null=True, blank=True, verbose_name="Oxirgi yurakcha yo'qotilgan vaqt")
+    last_daily_reset = models.DateField(null=True, blank=True, verbose_name="Oxirgi kunlik reset")
     
     # Email verification
     email_verified = models.BooleanField(default=False)
@@ -301,6 +337,112 @@ class User(AbstractUser):
         newly_unlocked = self.check_and_unlock_badges()
         
         return newly_unlocked
+    
+    # Lives/Hearts system methods
+    def get_lives_info(self):
+        """Yurakchalar haqida to'liq ma'lumot"""
+        settings = LivesSettings.get_settings()
+        
+        if not settings.is_active:
+            return {
+                'current_lives': settings.max_lives,
+                'max_lives': settings.max_lives,
+                'next_life_in': None,
+                'is_full': True,
+                'system_active': False
+            }
+        
+        # Kunlik reset tekshirish
+        self.check_daily_lives_reset()
+        
+        # Yurakchalar to'liqmi?
+        is_full = self.current_lives >= settings.max_lives
+        
+        # Keyingi yurakcha qachon tiklanadi?
+        next_life_in = None
+        if not is_full and self.last_life_lost_at:
+            elapsed = timezone.now() - self.last_life_lost_at
+            refill_time = timedelta(minutes=settings.refill_time_minutes)
+            
+            if elapsed < refill_time:
+                next_life_in = refill_time - elapsed
+            else:
+                # Tiklanish vaqti o'tgan, yurakchani qo'shish
+                self.refill_lives()
+        
+        return {
+            'current_lives': self.current_lives,
+            'max_lives': settings.max_lives,
+            'next_life_in': next_life_in,
+            'is_full': is_full,
+            'system_active': True,
+            'refill_time_minutes': settings.refill_time_minutes
+        }
+    
+    def check_daily_lives_reset(self):
+        """Kunlik yurakchalarni reset qilish"""
+        settings = LivesSettings.get_settings()
+        today = timezone.now().date()
+        
+        if self.last_daily_reset != today:
+            self.current_lives = settings.daily_lives
+            self.last_daily_reset = today
+            self.save(update_fields=['current_lives', 'last_daily_reset'])
+    
+    def refill_lives(self):
+        """Yurakchalarni avtomatik tiklanish"""
+        settings = LivesSettings.get_settings()
+        
+        if self.current_lives >= settings.max_lives:
+            return
+        
+        if not self.last_life_lost_at:
+            return
+        
+        elapsed = timezone.now() - self.last_life_lost_at
+        refill_time = timedelta(minutes=settings.refill_time_minutes)
+        
+        # Nechta yurakcha tiklanishi kerak?
+        lives_to_add = int(elapsed.total_seconds() / refill_time.total_seconds())
+        
+        if lives_to_add > 0:
+            self.current_lives = min(self.current_lives + lives_to_add, settings.max_lives)
+            
+            # Agar to'liq bo'lsa, last_life_lost_at ni tozalash
+            if self.current_lives >= settings.max_lives:
+                self.last_life_lost_at = None
+            else:
+                # Qolgan vaqtni hisoblash
+                self.last_life_lost_at = self.last_life_lost_at + (refill_time * lives_to_add)
+            
+            self.save(update_fields=['current_lives', 'last_life_lost_at'])
+    
+    def lose_life(self):
+        """Yurakcha yo'qotish"""
+        settings = LivesSettings.get_settings()
+        
+        if not settings.is_active:
+            return True  # Lives tizimi o'chirilgan
+        
+        if self.current_lives > 0:
+            self.current_lives -= settings.lives_cost_on_fail
+            self.last_life_lost_at = timezone.now()
+            self.save(update_fields=['current_lives', 'last_life_lost_at'])
+            return True
+        
+        return False  # Yurakchalar tugagan
+    
+    def has_lives(self):
+        """Yurakchalar bormi?"""
+        settings = LivesSettings.get_settings()
+        
+        if not settings.is_active:
+            return True
+        
+        self.check_daily_lives_reset()
+        self.refill_lives()
+        
+        return self.current_lives > 0
 
 
 class PasswordResetToken(models.Model):

@@ -7,9 +7,16 @@
 
 {% block title %}{% t "Global Leaderboard - EduSelf" request.LANGUAGE_CODE %}{% endblock %}
 
-{% block show_back_button %}{% endblock %}
-
 {% block page_title %}{% t "Reyting" request.LANGUAGE_CODE %}{% endblock %}
+
+{% block header_actions %}
+{% if user.is_authenticated %}
+<div class="lives-header-compact" id="livesHeaderCompact">
+    <span class="lives-count" id="headerLivesCount">5</span>
+    <span class="battery-icon">🔋</span>
+</div>
+{% endif %}
+{% endblock %}
 
 {% block content %}
 <!-- Sticky Search Bar (hidden by default, shows on scroll) -->

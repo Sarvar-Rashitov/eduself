@@ -83,6 +83,92 @@
     .btn-close {
         font-size: 0.8rem;
     }
+    
+    /* Lives Header - Compact */
+    .lives-header-compact {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 2px solid rgba(16, 185, 129, 0.2);
+        border-radius: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        animation: livesEntrance 0.5s ease;
+        margin-right: 8px;
+    }
+    
+    @keyframes livesEntrance {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    [data-theme="dark"] .lives-header-compact {
+        background: rgba(30, 30, 30, 0.95);
+        border: 2px solid rgba(16, 185, 129, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Lives Out Modal */
+    .lives-modal-content {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(255, 107, 157, 0.3);
+    }
+    
+    .lives-modal-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        animation: heartBreak 0.6s ease;
+    }
+    
+    @keyframes heartBreak {
+        0%, 100% { transform: scale(1); }
+        25% { transform: scale(1.2) rotate(-10deg); }
+        50% { transform: scale(0.9) rotate(10deg); }
+        75% { transform: scale(1.1) rotate(-5deg); }
+    }
+    
+    .lives-modal-title {
+        color: #FF6B9D;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+    
+    .lives-modal-text {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+    
+    .lives-modal-timer {
+        background: linear-gradient(135deg, #FF6B9D 0%, #C06C84 100%);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        margin-bottom: 24px;
+    }
+    
+    .lives-modal-timer i {
+        font-size: 1.1rem;
+    }
+    
+    .lives-modal-actions .btn {
+        padding: 12px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+    }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -102,7 +188,13 @@
             <h1 class="page-title">{% block page_title %}EduSelf{% endblock %}</h1>
             <div class="page-header-actions">
                 {% block header_actions %}
-                <div class="header-spacer"></div>
+                {% if user.is_authenticated %}
+                <!-- Lives Display - Compact -->
+                <div class="lives-header-compact" id="livesHeaderCompact">
+                    <span class="lives-count" id="headerLivesCount">5</span>
+                    <span class="battery-icon">🔋</span>
+                </div>
+                {% endif %}
                 {% endblock %}
             </div>
         </header>
@@ -167,6 +259,34 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% t "Yopish" request.LANGUAGE_CODE %}</button>
                         <button type="button" class="btn btn-primary" id="modalNotificationLink" style="display: none;">{% t "Sahifaga o'tish" request.LANGUAGE_CODE %}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Lives Out Modal -->
+        {% if user.is_authenticated %}
+        <div class="modal fade" id="livesOutModal" tabindex="-1" aria-labelledby="livesOutModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content lives-modal-content">
+                    <div class="modal-body text-center p-4">
+                        <div class="lives-modal-icon">
+                            💔
+                        </div>
+                        <h4 class="lives-modal-title">{% t "Yurakchalar tugadi!" request.LANGUAGE_CODE %}</h4>
+                        <p class="lives-modal-text">
+                            {% t "Test ishlash uchun yurakchalaringiz tugagan. Keyingi yurakcha tiklanishini kuting yoki ertaga qaytib keling." request.LANGUAGE_CODE %}
+                        </p>
+                        <div class="lives-modal-timer">
+                            <i class="bi bi-clock-history"></i>
+                            <span>{% t "Keyingi yurakcha:" request.LANGUAGE_CODE %} <strong id="modalLivesTimer">--:--</strong></span>
+                        </div>
+                        <div class="lives-modal-actions">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                                <i class="bi bi-check-circle"></i> {% t "Tushundim" request.LANGUAGE_CODE %}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -395,6 +515,11 @@
             // Initialize theme
             initTheme();
             
+            // Initialize Lives System
+            {% if user.is_authenticated %}
+            initLivesSystem();
+            {% endif %}
+            
             // Page Header Scroll Detection
             const pageHeader = document.querySelector('.page-header-simple');
             const searchBar = document.getElementById('searchBar');
@@ -618,6 +743,92 @@
         .catch(error => {
             console.error('Xatolik:', error);
         });
+    }
+    
+    // Lives System Functions
+    function initLivesSystem() {
+        updateLivesDisplay();
+        // Update every 30 seconds
+        setInterval(updateLivesDisplay, 30000);
+    }
+    
+    function updateLivesDisplay() {
+        fetch('/api/lives-info/')
+            .then(response => response.json())
+            .then(data => {
+                renderHeaderLives(data);
+                renderHomeLives(data);
+            })
+            .catch(error => {
+                console.error('Lives update error:', error);
+            });
+    }
+    
+    function renderHeaderLives(livesData) {
+        const livesCount = document.getElementById('headerLivesCount');
+        if (livesCount) {
+            livesCount.textContent = livesData.current_lives;
+        }
+    }
+    
+    function renderHomeLives(livesData) {
+        const batteriesContainer = document.getElementById('homeLivesBatteries');
+        const currentCount = document.getElementById('homeCurrentLives');
+        const timerContainer = document.getElementById('homeLivesTimer');
+        const timerText = document.getElementById('homeTimerText');
+        
+        if (!batteriesContainer) return;
+        
+        // Update count
+        if (currentCount) currentCount.textContent = livesData.current_lives;
+        
+        // Render batteries
+        batteriesContainer.innerHTML = '';
+        for (let i = 0; i < livesData.max_lives; i++) {
+            const battery = document.createElement('span');
+            battery.className = 'battery-item';
+            
+            if (i < livesData.current_lives) {
+                battery.className += ' full';
+                battery.innerHTML = '🔋';
+            } else {
+                battery.className += ' empty';
+                battery.innerHTML = '🪫';
+            }
+            
+            batteriesContainer.appendChild(battery);
+        }
+        
+        // Show/hide timer
+        if (livesData.next_life_in && !livesData.is_full) {
+            timerContainer.style.display = 'flex';
+            updateHomeTimer(livesData.next_life_in);
+        } else {
+            timerContainer.style.display = 'none';
+        }
+    }
+    
+    function updateHomeTimer(seconds) {
+        const timerText = document.getElementById('homeTimerText');
+        if (!timerText) return;
+        
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        timerText.textContent = `${minutes}:${secs.toString().padStart(2, '0')}`;
+        
+        // Countdown
+        if (seconds > 0) {
+            setTimeout(() => updateHomeTimer(seconds - 1), 1000);
+        } else {
+            updateLivesDisplay();
+        }
+    }
+    
+    function loseLife() {
+        // Animate battery loss
+        setTimeout(() => {
+            updateLivesDisplay();
+        }, 500);
     }
     </script>
     

@@ -143,6 +143,36 @@
 
 <!-- Last Tests Section - Login qilingan foydalanuvchilar uchun -->
 {% if user.is_authenticated %}
+<!-- Lives Section -->
+<div class="lives-home-section">
+    <div class="lives-home-card">
+        <div class="lives-home-header">
+            <div class="lives-home-icon">🔋</div>
+            <div class="lives-home-title">
+                <h3>{% t "Energiya" request.LANGUAGE_CODE %}</h3>
+                <p>{% t "Test ishlash uchun energiya" request.LANGUAGE_CODE %}</p>
+            </div>
+        </div>
+        <div class="lives-home-body">
+            <div class="lives-home-batteries" id="homeLivesBatteries">
+                <!-- Batteries will be rendered here -->
+            </div>
+            <div class="lives-home-count">
+                <span class="current-count" id="homeCurrentLives">5</span>
+                <span class="max-count">/ 5</span>
+            </div>
+        </div>
+        <div class="lives-home-timer" id="homeLivesTimer" style="display: none;">
+            <i class="bi bi-clock-history"></i>
+            <span>{% t "Keyingi energiya:" request.LANGUAGE_CODE %} <strong id="homeTimerText">--:--</strong></span>
+        </div>
+        <div class="lives-home-info">
+            <i class="bi bi-info-circle"></i>
+            <span>{% t "Har kuni yangi energiya beriladi" request.LANGUAGE_CODE %}</span>
+        </div>
+    </div>
+</div>
+
 <div class="test-progress-section">
         <!-- Last Topic Test -->
         {% if last_test_result %}

@@ -1,7 +1,35 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, PasswordResetToken, LoginHistory, Level, Badge, UserBadge
+from .models import User, PasswordResetToken, LoginHistory, Level, Badge, UserBadge, LivesSettings
 from django.utils.html import format_html
+
+
+@admin.register(LivesSettings)
+class LivesSettingsAdmin(admin.ModelAdmin):
+    list_display = ['daily_lives', 'max_lives', 'refill_time_minutes', 'lives_cost_on_fail', 'passing_score', 'is_active']
+    list_editable = ['is_active']
+    
+    fieldsets = (
+        ('Asosiy sozlamalar', {
+            'fields': ('daily_lives', 'max_lives', 'is_active'),
+            'description': 'Kunlik va maksimal yurakchalar soni'
+        }),
+        ('Tiklanish sozlamalari', {
+            'fields': ('refill_time_minutes',),
+            'description': 'Yurakcha tiklanish vaqti (daqiqalarda)'
+        }),
+        ('Test sozlamalari', {
+            'fields': ('lives_cost_on_fail', 'passing_score'),
+            'description': 'Muvaffaqiyatsizlikda yo\'qotish va o\'tish foizi'
+        }),
+    )
+    
+    def has_add_permission(self, request):
+        # Faqat bitta yozuv bo'lishi mumkin
+        return not LivesSettings.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        return False  # O'chirib bo'lmaydi
 
 
 @admin.register(Level)
@@ -97,7 +125,7 @@ class UserBadgeAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ['username', 'email', 'phone', 'total_points', 'streak_days', 'is_active', 'is_staff', 'created_at']
+    list_display = ['username', 'email', 'phone', 'total_points', 'current_lives', 'streak_days', 'is_active', 'is_staff', 'created_at']
     list_filter = ['is_active', 'is_staff', 'auth_provider', 'email_verified', 'created_at']
     search_fields = ['username', 'email', 'phone', 'first_name', 'last_name']
     ordering = ['-created_at']
@@ -105,6 +133,7 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
         ('Shaxsiy ma\'lumotlar', {'fields': ('phone', 'bio', 'profile_image', 'avatar_number')}),
         ('Gamification', {'fields': ('total_points', 'streak_days', 'last_active_date', 'level')}),
+        ('Lives/Hearts', {'fields': ('current_lives', 'last_life_lost_at', 'last_daily_reset')}),
         ('Ijtimoiy tarmoqlar', {'fields': ('auth_provider', 'google_id', 'telegram_id', 'telegram_username', 'telegram_chat_id')}),
         ('Email tasdiqlash', {'fields': ('email_verified',)}),
         ('Til', {'fields': ('language',)}),

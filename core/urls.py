@@ -63,4 +63,7 @@ urlpatterns = [
     
     path('notification/<int:notification_id>/read/', views.mark_notification_read, name='mark_notification_read'),
     path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
+    
+    # Lives API
+    path('api/lives-info/', views.lives_info_api, name='lives_info_api'),
 ]

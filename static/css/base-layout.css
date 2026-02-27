@@ -204,7 +204,63 @@ body[data-page="ai-assistant"] .page-title {
 .page-header-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+}
+
+/* Lives Header Display - Battery Style */
+.lives-header-compact {
+    display: flex;
+    align-items: center;
+    gap: 0px;
+    padding: 6px 12px;
+    position: relative;
+}
+
+[data-theme="dark"] .lives-header-compact {
+    background: transparent;
+}
+
+.lives-header-compact .lives-count {
+    color: #1E293B;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1;
+    order: 1;
+    position: relative;
+    z-index: 2;
+}
+
+[data-theme="dark"] .lives-header-compact .lives-count {
+    color: #F1F5F9;
+}
+
+.lives-header-compact .battery-icon {
+    font-size: 20px;
+    line-height: 1;
+    order: 2;
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.4));
+    /* animation: batteryGlow 2s ease-in-out infinite; */
+}
+
+/* @keyframes batteryGlow {
+    0%, 100% {
+        filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.4));
+        transform: scale(1);
+    }
+    50% {
+        filter: drop-shadow(0 3px 8px rgba(16, 185, 129, 0.7));
+        transform: scale(1.05);
+    }
+} */
+
+.lives-header-compact:hover {
+    transform: scale(1.08);
+}
+
+.lives-header-compact:active {
+    transform: scale(0.95);
 }
 
 .header-icon-btn {

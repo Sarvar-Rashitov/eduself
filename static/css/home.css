@@ -2962,3 +2962,163 @@ body.dark-mode .user-position-content:hover {
     }
 }
 
+
+
+/* ========================================
+   LIVES HOME SECTION
+   ======================================== */
+.lives-home-section {
+    padding: 0 8px;
+    margin-top: 40px; /* Header uchun joy */
+    /* margin-bottom: 16px; */
+}
+
+.lives-home-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lives-home-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.lives-home-icon {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.lives-home-title h3 {
+    color: #1E293B;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.lives-home-title p {
+    color: #64748B;
+    font-size: 0.75rem;
+    margin: 2px;
+    line-height: 1.2;
+}
+
+.lives-home-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.lives-home-batteries {
+    display: flex;
+    gap: 6px;
+}
+
+.battery-item {
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+
+.battery-item.full {
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+}
+
+.battery-item.empty {
+    opacity: 0.3;
+}
+
+.lives-home-count {
+    color: #1E293B;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.lives-home-count .current-count {
+    font-size: 1.5rem;
+}
+
+.lives-home-count .max-count {
+    opacity: 0.7;
+    font-size: 1rem;
+}
+
+.lives-home-timer {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #10B981;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.lives-home-timer i {
+    font-size: 1rem;
+}
+
+.lives-home-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748B;
+    font-size: 0.75rem;
+}
+
+.lives-home-info i {
+    font-size: 0.85rem;
+    color: #10B981;
+}
+
+/* Dark mode styles for lives home section */
+[data-theme="dark"] .lives-home-card {
+    background: rgba(30, 30, 30, 0.95);
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .lives-home-title h3 {
+    color: #F1F5F9;
+}
+
+[data-theme="dark"] .lives-home-title p {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .lives-home-count {
+    color: #F1F5F9;
+}
+
+[data-theme="dark"] .lives-home-timer {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34D399;
+}
+
+[data-theme="dark"] .lives-home-info {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .lives-home-info i {
+    color: #34D399;
+}
