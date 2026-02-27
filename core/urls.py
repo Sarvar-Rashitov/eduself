@@ -39,6 +39,8 @@ urlpatterns = [
     path('translate-mock-question/<int:question_id>/', views.translate_mock_question_ajax, name='translate_mock_question'),
     
     path('leaderboard/', views.global_leaderboard_view, name='global_leaderboard'),
+    path('api/user-profile/<int:user_id>/', views.user_profile_api, name='user_profile_api'),
+    path('api/search-users/', views.search_users_api, name='search_users_api'),
     
     path('institutions/', views.institutions_view, name='institutions'),
     path('institutions/<int:pk>/', views.institution_detail_view, name='institution_detail'),

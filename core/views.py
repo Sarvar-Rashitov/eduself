@@ -2056,3 +2056,127 @@ def change_language(request):
                 request.user.save(update_fields=['language'])
     
     return redirect(next_url)
+
+
+# API endpoint for user profile modal
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+
+@require_http_methods(["GET"])
+def user_profile_api(request, user_id):
+    """API endpoint to get user profile data for modal"""
+    from accounts.models import User, Badge
+    from datetime import datetime, timedelta
+    from django.utils import timezone
+    
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    
+    # Calculate user rank
+    higher_users_count = User.objects.filter(total_points__gt=user.total_points).count()
+    user_rank = higher_users_count + 1
+    
+    # Get current level from database
+    current_level = user.get_current_level()
+    user_level = current_level.level_number if current_level else 0
+    
+    # Get badges from database
+    badges = []
+    all_badges = Badge.objects.filter(is_active=True).select_related('required_level').order_by('order')
+    
+    for badge in all_badges:
+        is_unlocked = badge.is_unlocked_for_user(user)
+        badge_data = {
+            'name': badge.name,
+            'image': badge.image.url if badge.image else '',
+            'unlocked': is_unlocked
+        }
+        badges.append(badge_data)
+    
+    # Weekly activity
+    today = timezone.now().date()
+    day_names = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya']
+    days_since_monday = today.weekday()
+    week_start = today - timedelta(days=days_since_monday)
+    
+    weekly_activity = []
+    for i in range(7):
+        day_date = week_start + timedelta(days=i)
+        day_start = timezone.make_aware(timezone.datetime.combine(day_date, timezone.datetime.min.time()))
+        day_end = timezone.make_aware(timezone.datetime.combine(day_date, timezone.datetime.max.time()))
+        
+        # Count activities for this day
+        day_activity = TopicResult.objects.filter(
+            user=user,
+            completed_at__gte=day_start,
+            completed_at__lte=day_end
+        ).count()
+        day_activity += CertificateResult.objects.filter(
+            user=user,
+            completed_at__gte=day_start,
+            completed_at__lte=day_end
+        ).count()
+        day_activity += MockExamResult.objects.filter(
+            user=user,
+            completed_at__gte=day_start,
+            completed_at__lte=day_end
+        ).count()
+        
+        weekly_activity.append({
+            'day_short': day_names[day_date.weekday()],
+            'activity': day_activity
+        })
+    
+    # Response data
+    data = {
+        'username': user.username,
+        'full_name': user.get_full_name() or user.username,
+        'avatar_url': user.get_avatar_url(),
+        'rank': user_rank,
+        'total_points': user.total_points,
+        'level': user_level,
+        'tests_completed': user.get_total_tests_taken(),
+        'badges': badges,
+        'weekly_activity': weekly_activity
+    }
+    
+    return JsonResponse(data)
+
+
+# API endpoint for searching users
+@require_http_methods(["GET"])
+def search_users_api(request):
+    """API endpoint to search users by username or name"""
+    from accounts.models import User
+    from django.db.models import Q
+    
+    query = request.GET.get('q', '').strip()
+    
+    if not query or len(query) < 2:
+        return JsonResponse({'users': []})
+    
+    # Search users by username or first_name
+    users = User.objects.filter(
+        Q(username__icontains=query) | Q(first_name__icontains=query),
+        total_points__gt=0
+    ).order_by('-total_points')[:20]  # Limit to 20 results
+    
+    # Calculate ranks and format results
+    results = []
+    for user in users:
+        higher_users_count = User.objects.filter(total_points__gt=user.total_points).count()
+        user_rank = higher_users_count + 1
+        
+        results.append({
+            'id': user.id,
+            'username': user.username,
+            'full_name': user.get_full_name() or user.username,
+            'avatar_url': user.get_avatar_url(),
+            'rank': user_rank,
+            'total_points': user.total_points,
+            'tests_completed': user.get_total_tests_taken()
+        })
+    
+    return JsonResponse({'users': results})
