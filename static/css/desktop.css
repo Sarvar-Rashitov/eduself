@@ -789,6 +789,7 @@ body {
     background: var(--gradient);
     color: var(--white);
     padding: 100px 0;
+    margin-top: 60px;
     position: relative;
     overflow: hidden;
 }
