@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SESSION_SECRET', 'django-insecure-dev-key-change-in-production')
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['eduself-bqc5.onrender.com', 'eduself.uz', 'www.eduself.uz', '127.0.0.1', 'localhost']
 
@@ -241,6 +241,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -264,7 +265,7 @@ if USE_S3:
     # Media files only (not static files)
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/' if AWS_S3_CUSTOM_DOMAIN else f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/media/'
     
-    # Django 4.2+ STORAGES setting - only for media files
+    # Django 4.2+ STORAGES setting
     STORAGES = {
         "default": {
             "BACKEND": "core.storage_backends.MediaStorage",
@@ -288,7 +289,9 @@ else:
         },
     }
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# WhiteNoise configuration
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True if os.environ.get('DEBUG', 'False') == 'True' else False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
