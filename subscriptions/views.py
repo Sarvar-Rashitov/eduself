@@ -365,6 +365,43 @@ def process_donation(request):
         )
         
         # To'lov tizimiga yo'naltirish
+        if payment_method == 'click':
+            # DEBUG rejimida (local) - faqat donat yaratish
+            if settings.DEBUG:
+                messages.success(request, f"✅ Donat yaratildi! Donation ID: {donation.id}")
+                messages.info(request, "ℹ️ Local test rejimi: Click to'lov production'da ishlaydi.")
+                return redirect('subscriptions:donate')
+            
+            # Production rejimida - Click to'lov sahifasiga yo'naltirish
+            click_url = (
+                f"https://my.click.uz/services/pay?"
+                f"service_id={settings.CLICK_SERVICE_ID}&"
+                f"merchant_id={settings.CLICK_MERCHANT_ID}&"
+                f"amount={donation.amount}&"
+                f"transaction_param=DONATE_{donation.id}&"
+                f"return_url={request.build_absolute_uri('/subscriptions/donate/')}"
+            )
+            return redirect(click_url)
+            
+        elif payment_method == 'payme':
+            # DEBUG rejimida (local) - faqat donat yaratish
+            if settings.DEBUG:
+                messages.success(request, f"✅ Donat yaratildi! Donation ID: {donation.id}")
+                messages.info(request, "ℹ️ Local test rejimi: Payme to'lov production'da ishlaydi.")
+                return redirect('subscriptions:donate')
+            
+            # Production rejimida - Payme to'lov sahifasiga yo'naltirish
+            import base64
+            account = base64.b64encode(f'{{"donation_id":"{donation.id}"}}'.encode()).decode()
+            payme_url = (
+                f"{settings.PAYME_ENDPOINT}?"
+                f"m={settings.PAYME_MERCHANT_ID}&"
+                f"ac={account}&"
+                f"a={int(donation.amount * 100)}&"
+                f"c={request.build_absolute_uri('/subscriptions/donate/')}"
+            )
+            return redirect(payme_url)
+        
         messages.success(request, "Rahmat! To'lov sahifasiga yo'naltirilmoqda...")
         return redirect('subscriptions:donate')
     except Exception as e:
