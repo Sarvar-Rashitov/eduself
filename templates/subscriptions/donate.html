@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Donat - EduSelf{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center bg-gradient-danger rounded-circle mb-3" 
+             style="width: 80px; height: 80px;">
+            <i class="bi bi-heart-fill text-white" style="font-size: 2.5rem;"></i>
+        </div>
+        <h1 class="fw-bold mb-2">Loyihani qo'llab-quvvatlang</h1>
+        <p class="text-muted">Sizning yordamingiz bilan biz yanada yaxshiroq bo'lamiz</p>
+    </div>
+
+    <!-- Donat form -->
+    <form method="post" action="{% url 'subscriptions:process_donation' %}">
+        {% csrf_token %}
+        
+        <div class="card border-0 shadow-sm rounded-4 mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Donat summasi</h5>
+                
+                <!-- Tez tanlov -->
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-primary w-100 rounded-pill quick-amount" 
+                                data-amount="5000">5,000</button>
+                    </div>
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-primary w-100 rounded-pill quick-amount" 
+                                data-amount="10000">10,000</button>
+                    </div>
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-primary w-100 rounded-pill quick-amount" 
+                                data-amount="25000">25,000</button>
+                    </div>
+                </div>
+
+                <!-- Custom summa -->
+                <div class="mb-3">
+                    <label class="form-label small">Yoki o'z summasini kiriting</label>
+                    <input type="number" class="form-control rounded-pill" name="amount" 
+                           id="amount" placeholder="Summa (so'm)" min="1000" required>
+                </div>
+
+                <!-- Xabar -->
+                <div class="mb-3">
+                    <label class="form-label small">Xabar (ixtiyoriy)</label>
+                    <textarea class="form-control rounded-3" name="message" rows="3" 
+                              placeholder="Sizning xabaringiz..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- To'lov usuli -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">To'lov usuli</h5>
+                
+                <div class="form-check mb-3 p-3 border rounded-3">
+                    <input class="form-check-input" type="radio" name="payment_method" 
+                           id="click" value="click" checked>
+                    <label class="form-check-label d-flex align-items-center" for="click">
+                        <span class="fw-bold">Click</span>
+                    </label>
+                </div>
+
+                <div class="form-check p-3 border rounded-3">
+                    <input class="form-check-input" type="radio" name="payment_method" 
+                           id="payme" value="payme">
+                    <label class="form-check-label d-flex align-items-center" for="payme">
+                        <span class="fw-bold">Payme</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tugma -->
+        <button type="submit" class="btn btn-danger w-100 rounded-pill py-3 fw-bold">
+            <i class="bi bi-heart-fill me-2"></i>
+            Donat qilish
+        </button>
+    </form>
+</div>
+
+<script>
+document.querySelectorAll('.quick-amount').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.getElementById('amount').value = this.dataset.amount;
+    });
+});
+</script>
+
+<style>
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+</style>
+{% endblock %}

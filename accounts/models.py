@@ -443,6 +443,45 @@ class User(AbstractUser):
         self.refill_lives()
         
         return self.current_lives > 0
+    
+    # Subscription methods
+    def get_active_subscription(self):
+        """Faol obunani olish"""
+        from subscriptions.models import UserSubscription
+        return UserSubscription.objects.filter(
+            user=self,
+            status='active',
+            end_date__gt=timezone.now()
+        ).first()
+    
+    def has_active_subscription(self):
+        """Faol obuna bormi?"""
+        return self.get_active_subscription() is not None
+    
+    def is_pro_user(self):
+        """Pro foydalanuvchimi?"""
+        return self.has_active_subscription()
+    
+    def can_use_feature(self, feature_name):
+        """Xususiyatdan foydalanish mumkinmi?"""
+        subscription = self.get_active_subscription()
+        if not subscription:
+            return False
+        return subscription.can_use_feature(feature_name)
+    
+    def use_feature(self, feature_name):
+        """Xususiyatdan foydalanish"""
+        subscription = self.get_active_subscription()
+        if not subscription:
+            return False
+        return subscription.use_feature(feature_name)
+    
+    def has_unlimited_lives(self):
+        """Cheksiz yurakchalar bormi?"""
+        subscription = self.get_active_subscription()
+        if not subscription:
+            return False
+        return subscription.plan.unlimited_lives
 
 
 class PasswordResetToken(models.Model):

@@ -38,6 +38,11 @@ def register_view(request):
     # Ro'yxatdan o'tish turini aniqlash
     register_type = request.GET.get('type', 'email')  # email yoki phone
     
+    # Referal parametrini sessionga saqlash
+    referrer_id = request.GET.get('ref')
+    if referrer_id:
+        request.session['referrer_id'] = referrer_id
+    
     if request.method == 'POST':
         register_type = request.POST.get('register_type', 'email')
         
@@ -173,6 +178,57 @@ EduSelf jamoasi'''
                     )
                 except Exception as e:
                     print(f"Telegram notification yuborishda xatolik: {e}")
+            
+            # Referal tizimini qayta ishlash
+            referrer_id = request.session.get('referrer_id')
+            if referrer_id:
+                try:
+                    from subscriptions.models import ReferralProgram, UserReferral, ReferralProgress
+                    from datetime import timedelta
+                    
+                    referrer = User.objects.get(id=referrer_id)
+                    active_programs = ReferralProgram.objects.filter(is_active=True)
+                    
+                    for program in active_programs:
+                        # UserReferral yaratish
+                        referral, created = UserReferral.objects.get_or_create(
+                            referrer=referrer,
+                            referred=user,
+                            program=program
+                        )
+                        
+                        if created:
+                            # ReferralProgress yangilash yoki yaratish
+                            progress, _ = ReferralProgress.objects.get_or_create(
+                                user=referrer,
+                                program=program,
+                                defaults={
+                                    'deadline': timezone.now() + timedelta(days=program.referral_deadline_days)
+                                }
+                            )
+                            progress.referral_count += 1
+                            progress.save()
+                            
+                            # Bajarilganligini tekshirish
+                            if progress.check_completion() and not progress.reward_given:
+                                from subscriptions.models import UserSubscription
+                                # Mukofot berish
+                                subscription = UserSubscription.objects.create(
+                                    user=referrer,
+                                    plan=program.plan,
+                                    start_date=timezone.now(),
+                                    end_date=timezone.now() + timedelta(days=program.reward_duration_days),
+                                    status='active',
+                                    acquired_via='referral'
+                                )
+                                progress.reward_given = True
+                                progress.save()
+                    
+                    # Sessiondan o'chirish
+                    del request.session['referrer_id']
+                    
+                except Exception as e:
+                    logger.error(f"Referal qayta ishlashda xatolik: {e}")
             
             login(request, user, backend='accounts.backends.EmailPhoneBackend')
             next_url = request.POST.get('next') or request.GET.get('next')

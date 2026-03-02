@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Referal dasturi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center bg-gradient-primary rounded-circle mb-3" 
+             style="width: 80px; height: 80px;">
+            <i class="bi bi-people-fill text-white" style="font-size: 2.5rem;"></i>
+        </div>
+        <h1 class="fw-bold mb-2">Referal dasturi</h1>
+        <p class="text-muted">Do'stlaringizni taklif qiling va bepul Pro obunasini qo'lga kiriting</p>
+    </div>
+
+    <!-- Referal linki -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h6 class="fw-bold mb-3">Sizning taklif linkingiz</h6>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="referralLink" value="{{ referral_link }}" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyLink()">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+            </div>
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary rounded-pill" onclick="shareLink()">
+                    <i class="bi bi-share-fill me-2"></i>
+                    Ulashish
+                </button>
+            </div>
+            {% if total_referrals > 0 %}
+            <div class="text-center mt-3">
+                <span class="badge bg-success rounded-pill px-3 py-2">
+                    <i class="bi bi-people-fill me-1"></i>
+                    {{ total_referrals }} ta do'st taklif qilindi
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Faol dasturlar -->
+    {% if active_programs %}
+    <h5 class="fw-bold mb-3">Faol dasturlar</h5>
+    {% for program in active_programs %}
+    <div class="card border-0 shadow-sm rounded-4 mb-3">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-3" 
+                     style="width: 50px; height: 50px;">
+                    <i class="bi bi-gift-fill text-primary" style="font-size: 1.5rem;"></i>
+                </div>
+                <div>
+                    <h5 class="mb-0 fw-bold">{{ program.name }}</h5>
+                    <small class="text-muted">{{ program.plan.name }}</small>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small">Shart:</span>
+                    <span class="small fw-bold">{{ program.required_referrals }} ta do'st taklif qiling</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small">Muddat:</span>
+                    <span class="small fw-bold">{{ program.referral_deadline_days }} kun</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="small">Mukofot:</span>
+                    <span class="small fw-bold">{{ program.reward_duration_days }} kunlik obuna</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Jarayon -->
+    {% if user_progress %}
+    <h5 class="fw-bold mb-3 mt-4">Sizning jarayoningiz</h5>
+    {% for progress in user_progress %}
+    <div class="card border-0 shadow-sm rounded-4 mb-3">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 fw-bold">{{ progress.program.name }}</h6>
+                <span class="badge bg-primary rounded-pill">
+                    {{ progress.referral_count }} / {{ progress.program.required_referrals }}
+                </span>
+            </div>
+
+            <div class="progress mb-2" style="height: 10px;">
+                <div class="progress-bar bg-gradient-primary" role="progressbar" 
+                     style="width: {% widthratio progress.referral_count progress.program.required_referrals 100 %}%">
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <small class="text-muted">Muddat: {{ progress.deadline|date:"d.m.Y" }}</small>
+                {% if progress.is_completed %}
+                <small class="text-success fw-bold">
+                    <i class="bi bi-check-circle-fill me-1"></i>Bajarildi
+                </small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Taklif qilingan do'stlar -->
+    {% if referrals %}
+    <h5 class="fw-bold mb-3 mt-4">Taklif qilingan do'stlar ({{ total_referrals }})</h5>
+    {% for referral in referrals %}
+    <div class="card border-0 shadow-sm rounded-4 mb-2">
+        <div class="card-body p-3">
+            <div class="d-flex align-items-center">
+                <img src="{{ referral.referred.get_avatar_url }}" alt="Avatar" 
+                     class="rounded-circle me-3" width="40" height="40">
+                <div>
+                    <div class="fw-bold">{{ referral.referred.get_display_name }}</div>
+                    <small class="text-muted">{{ referral.created_at|date:"d.m.Y H:i" }}</small>
+                </div>
+                {% if referral.is_completed %}
+                <i class="bi bi-check-circle-fill text-success ms-auto"></i>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+        <p class="text-muted mt-3">Hali hech kim taklif qilinmagan</p>
+        <p class="small text-muted">Yuqoridagi linkni ulashing va do'stlaringizni taklif qiling!</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function copyLink() {
+    const linkInput = document.getElementById('referralLink');
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999); // Mobile uchun
+    
+    navigator.clipboard.writeText(linkInput.value).then(() => {
+        // Success feedback
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check"></i>';
+        btn.classList.remove('btn-outline-primary');
+        btn.classList.add('btn-success');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-primary');
+        }, 2000);
+    }).catch(err => {
+        alert('Nusxalashda xatolik yuz berdi');
+    });
+}
+
+function shareLink() {
+    const url = document.getElementById('referralLink').value;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'EduSelf Pro',
+            text: 'EduSelf platformasiga qo\'shiling va bepul Pro obunasini oling!',
+            url: url
+        }).catch(err => {
+            console.log('Ulashish bekor qilindi');
+        });
+    } else {
+        // Fallback - copy to clipboard
+        copyLink();
+    }
+}
+</script>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>
+{% endblock %}

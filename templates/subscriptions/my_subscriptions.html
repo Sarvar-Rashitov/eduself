@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mening obunalarim{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-star-fill text-warning me-2"></i>
+        Mening obunalarim
+    </h2>
+
+    {% if subscriptions %}
+        {% for subscription in subscriptions %}
+        <div class="card border-0 shadow-sm rounded-4 mb-3">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="mb-0 fw-bold">{{ subscription.plan.name }}</h5>
+                        <small class="text-muted">{{ subscription.acquired_via }}</small>
+                    </div>
+                    <span class="badge {% if subscription.status == 'active' %}bg-success{% elif subscription.status == 'expired' %}bg-danger{% else %}bg-secondary{% endif %} rounded-pill">
+                        {{ subscription.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Boshlanish</small>
+                        <strong>{{ subscription.start_date|date:"d.m.Y" }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Tugash</small>
+                        <strong>{{ subscription.end_date|date:"d.m.Y" }}</strong>
+                    </div>
+                </div>
+
+                {% if subscription.status == 'active' %}
+                <div class="progress mb-2" style="height: 8px;">
+                    {% widthratio subscription.ai_analysis_used subscription.plan.ai_analysis_limit 100 as progress %}
+                    <div class="progress-bar bg-primary" style="width: {{ progress }}%"></div>
+                </div>
+                <small class="text-muted">
+                    AI tahlil: {{ subscription.ai_analysis_used }} / 
+                    {% if subscription.plan.ai_analysis_limit == -1 %}Cheksiz{% else %}{{ subscription.plan.ai_analysis_limit }}{% endif %}
+                </small>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+            <p class="text-muted mt-3">Hozircha obunalaringiz yo'q</p>
+            <a href="{% url 'subscriptions:pro_page' %}" class="btn btn-primary rounded-pill px-4">
+                EduSelf Pro'ga o'tish
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

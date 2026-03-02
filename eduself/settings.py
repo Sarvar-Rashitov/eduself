@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'accounts',
     'ai_assistant',
     'telegram_bot',
+    'subscriptions',
 ]
 
 # Jazzmin Admin Theme Configuration
@@ -333,6 +334,18 @@ TELEGRAM_BOT_USERNAME = os.environ.get('TELEGRAM_BOT_USERNAME', '')
 
 # Site URL
 SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
+
+# Payment Integration Settings
+# Click Payment
+CLICK_MERCHANT_ID = os.environ.get('CLICK_MERCHANT_ID', '')
+CLICK_SERVICE_ID = os.environ.get('CLICK_SERVICE_ID', '')
+CLICK_SECRET_KEY = os.environ.get('CLICK_SECRET_KEY', '')
+CLICK_MERCHANT_USER_ID = os.environ.get('CLICK_MERCHANT_USER_ID', '')
+
+# Payme Payment
+PAYME_MERCHANT_ID = os.environ.get('PAYME_MERCHANT_ID', '')
+PAYME_SECRET_KEY = os.environ.get('PAYME_SECRET_KEY', '')
+PAYME_ENDPOINT = os.environ.get('PAYME_ENDPOINT', 'https://checkout.paycom.uz')
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.replit.dev',
