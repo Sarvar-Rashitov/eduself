@@ -13,7 +13,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SESSION_SECRET', 'django-insecure-dev-key-change-in-production')
 
+# DEBUG mode
 DEBUG = False
+
+# Security settings for production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = False  # Render.com handles SSL
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
 
 ALLOWED_HOSTS = ['eduself-bqc5.onrender.com', 'eduself.uz', 'www.eduself.uz', '127.0.0.1', 'localhost']
 
@@ -271,7 +281,7 @@ if USE_S3:
             "BACKEND": "core.storage_backends.MediaStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
         },
     }
 else:
@@ -285,9 +295,14 @@ else:
             "BACKEND": "django.core.files.storage.FileSystemStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
         },
     }
+
+# WhiteNoise configuration
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = DEBUG
+WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0
 
 # WhiteNoise configuration
 WHITENOISE_USE_FINDERS = True
