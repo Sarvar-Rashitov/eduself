@@ -43,6 +43,13 @@ def home_view(request):
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
     partners = Partner.objects.filter(is_active=True).order_by('order')  # Hamkorlar
     
+    # Donat qilganlarni olish (completed va message bor bo'lganlar)
+    from subscriptions.models import Donation
+    recent_donations = Donation.objects.filter(
+        status='completed',
+        message__isnull=False
+    ).exclude(message='').select_related('user').order_by('-completed_at')[:20]  # 20 ta donat
+    
     # CRITICAL: View'da oldindan tarjima qilish (template'da emas!)
     # Bu worker timeout'ni oldini oladi
     if lang != 'uz':
@@ -210,6 +217,7 @@ def home_view(request):
         'next_test': next_test,
         'last_cert_result': last_cert_result,
         'next_cert_test': next_cert_test,
+        'recent_donations': recent_donations,
     }
     
     # Mobil yoki Desktop shablonni tanlash

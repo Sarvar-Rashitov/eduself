@@ -5,11 +5,6 @@
 
 {% block content %}
 <div class="container py-4">
-    <!-- Back button -->
-    <a href="{% url 'subscriptions:pro_page' %}" class="btn btn-light rounded-pill mb-3">
-        <i class="bi bi-arrow-left me-2"></i> Orqaga
-    </a>
-
     <!-- Plan info -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body p-4">
@@ -60,25 +55,60 @@
             <div class="card-body p-4">
                 <h5 class="fw-bold mb-3">To'lov usuli</h5>
                 
-                <div class="form-check mb-3 p-3 border rounded-3">
-                    <input class="form-check-input" type="radio" name="payment_method" 
-                           id="click" value="click" checked>
-                    <label class="form-check-label d-flex align-items-center" for="click">
-                        <img src="{% static 'images/click-logo.png' %}" alt="Click" height="30" class="me-2">
-                        <span class="fw-bold">Click</span>
-                    </label>
-                </div>
+                <div class="d-flex gap-3 justify-content-center">
+                    <div class="payment-option-img">
+                        <input type="radio" name="payment_method" id="click" value="click" checked>
+                        <label for="click">
+                            <img src="{% static 'images/payment/click.jpg' %}" alt="Click">
+                        </label>
+                    </div>
 
-                <div class="form-check p-3 border rounded-3">
-                    <input class="form-check-input" type="radio" name="payment_method" 
-                           id="payme" value="payme">
-                    <label class="form-check-label d-flex align-items-center" for="payme">
-                        <img src="{% static 'images/payme-logo.png' %}" alt="Payme" height="30" class="me-2">
-                        <span class="fw-bold">Payme</span>
-                    </label>
+                    <div class="payment-option-img">
+                        <input type="radio" name="payment_method" id="payme" value="payme">
+                        <label for="payme">
+                            <img src="{% static 'images/payment/Payme.png' %}" alt="Payme">
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <style>
+        .payment-option-img {
+            position: relative;
+        }
+        
+        .payment-option-img input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .payment-option-img label {
+            display: block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-option-img img {
+            height: 50px;
+            border-radius: 12px;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .payment-option-img input[type="radio"]:checked + label img {
+            border-color: #667eea;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+            transform: scale(1.05);
+        }
+        
+        .payment-option-img:hover img {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        </style>
 
         <!-- To'lov tugmasi -->
         <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold">

@@ -56,52 +56,82 @@ class ClickPaymentHandler:
         amount = float(data.get('amount', 0))
         
         try:
-            payment = Payment.objects.get(id=merchant_trans_id)
-            
-            # Allaqachon to'langan bo'lsa
-            if payment.status == 'completed':
+            # Donat yoki Payment ekanligini tekshirish
+            if str(merchant_trans_id).startswith('DONATE_'):
+                # Bu donat
+                from .models import Donation
+                donation_id = str(merchant_trans_id).replace('DONATE_', '')
+                donation = Donation.objects.get(id=donation_id)
+                
+                # Allaqachon to'langan bo'lsa
+                if donation.status == 'completed':
+                    return {
+                        'error': -4,
+                        'error_note': 'Already paid'
+                    }
+                
+                # Summa tekshirish
+                if float(donation.amount) != amount:
+                    return {
+                        'error': -2,
+                        'error_note': 'Incorrect parameter amount'
+                    }
+                
+                # Muvaffaqiyatli
+                donation.transaction_id = data.get('click_trans_id')
+                donation.payment_data = data
+                donation.save()
+                
                 return {
-                    'error': -4,
-                    'error_note': 'Already paid'
+                    'error': 0,
+                    'error_note': 'Success',
+                    'click_trans_id': data.get('click_trans_id'),
+                    'merchant_trans_id': merchant_trans_id,
+                    'merchant_prepare_id': donation.id
+                }
+            else:
+                # Bu payment (subscription)
+                payment = Payment.objects.get(id=merchant_trans_id)
+                
+                # Allaqachon to'langan bo'lsa
+                if payment.status == 'completed':
+                    return {
+                        'error': -4,
+                        'error_note': 'Already paid'
+                    }
+                
+                # Summa tekshirish
+                if float(payment.final_amount) != amount:
+                    return {
+                        'error': -2,
+                        'error_note': 'Incorrect parameter amount'
+                    }
+                
+                # Muvaffaqiyatli
+                payment.status = 'processing'
+                payment.transaction_id = data.get('click_trans_id')
+                payment.payment_data = data
+                payment.save()
+                
+                return {
+                    'error': 0,
+                    'error_note': 'Success',
+                    'click_trans_id': data.get('click_trans_id'),
+                    'merchant_trans_id': merchant_trans_id,
+                    'merchant_prepare_id': payment.id
                 }
             
-            # Summa tekshirish
-            if float(payment.final_amount) != amount:
-                return {
-                    'error': -2,
-                    'error_note': 'Incorrect parameter amount'
-                }
-            
-            # Muvaffaqiyatli
-            payment.status = 'processing'
-            payment.transaction_id = data.get('click_trans_id')
-            payment.payment_data = data
-            payment.save()
-            
-            return {
-                'error': 0,
-                'error_note': 'Success',
-                'click_trans_id': data.get('click_trans_id'),
-                'merchant_trans_id': merchant_trans_id,
-                'merchant_prepare_id': payment.id
-            }
-            
-        except Payment.DoesNotExist:
+        except (Payment.DoesNotExist, Exception) as e:
             return {
                 'error': -5,
-                'error_note': 'Transaction not found'
-            }
-        except Exception as e:
-            return {
-                'error': -8,
-                'error_note': f'Error: {str(e)}'
+                'error_note': f'Transaction not found: {str(e)}'
             }
     
     @staticmethod
     def complete(data):
         """
         Click Complete API
-        To'lovni tasdiqlash va obuna yaratish
+        To'lovni tasdiqlash va obuna/donat yaratish
         """
         # Signature tekshirish
         if not ClickPaymentHandler.verify_signature(data):
@@ -113,10 +143,75 @@ class ClickPaymentHandler:
         merchant_trans_id = data.get('merchant_trans_id')
         
         try:
-            payment = Payment.objects.get(id=merchant_trans_id)
-            
-            # Agar allaqachon bajarilgan bo'lsa
-            if payment.status == 'completed':
+            # Donat yoki Payment ekanligini tekshirish
+            if str(merchant_trans_id).startswith('DONATE_'):
+                # Bu donat
+                from .models import Donation
+                donation_id = str(merchant_trans_id).replace('DONATE_', '')
+                donation = Donation.objects.get(id=donation_id)
+                
+                # Agar allaqachon bajarilgan bo'lsa
+                if donation.status == 'completed':
+                    return {
+                        'error': 0,
+                        'error_note': 'Success',
+                        'click_trans_id': data.get('click_trans_id'),
+                        'merchant_trans_id': merchant_trans_id,
+                        'merchant_confirm_id': donation.id
+                    }
+                
+                # Donatni tasdiqlash
+                donation.status = 'completed'
+                donation.completed_at = timezone.now()
+                donation.transaction_id = data.get('click_trans_id')
+                donation.payment_data = data
+                donation.save()
+                
+                return {
+                    'error': 0,
+                    'error_note': 'Success',
+                    'click_trans_id': data.get('click_trans_id'),
+                    'merchant_trans_id': merchant_trans_id,
+                    'merchant_confirm_id': donation.id
+                }
+            else:
+                # Bu payment (subscription)
+                payment = Payment.objects.get(id=merchant_trans_id)
+                
+                # Agar allaqachon bajarilgan bo'lsa
+                if payment.status == 'completed':
+                    return {
+                        'error': 0,
+                        'error_note': 'Success',
+                        'click_trans_id': data.get('click_trans_id'),
+                        'merchant_trans_id': merchant_trans_id,
+                        'merchant_confirm_id': payment.id
+                    }
+                
+                # To'lovni tasdiqlash
+                payment.status = 'completed'
+                payment.completed_at = timezone.now()
+                payment.transaction_id = data.get('click_trans_id')
+                payment.payment_data = data
+                payment.save()
+                
+                # Obuna yaratish
+                subscription = UserSubscription.objects.create(
+                    user=payment.user,
+                    plan=payment.plan,
+                    start_date=timezone.now(),
+                    end_date=timezone.now() + timedelta(days=payment.plan.duration_days),
+                    status='active',
+                    acquired_via='payment'
+                )
+                
+                payment.subscription = subscription
+                payment.save()
+                
+                # Promokodni ishlatish
+                if payment.promo_code:
+                    payment.promo_code.use()
+                
                 return {
                     'error': 0,
                     'error_note': 'Success',
@@ -125,47 +220,10 @@ class ClickPaymentHandler:
                     'merchant_confirm_id': payment.id
                 }
             
-            # To'lovni tasdiqlash
-            payment.status = 'completed'
-            payment.completed_at = timezone.now()
-            payment.transaction_id = data.get('click_trans_id')
-            payment.payment_data = data
-            payment.save()
-            
-            # Obuna yaratish
-            subscription = UserSubscription.objects.create(
-                user=payment.user,
-                plan=payment.plan,
-                start_date=timezone.now(),
-                end_date=timezone.now() + timedelta(days=payment.plan.duration_days),
-                status='active',
-                acquired_via='payment'
-            )
-            
-            payment.subscription = subscription
-            payment.save()
-            
-            # Promokodni ishlatish
-            if payment.promo_code:
-                payment.promo_code.use()
-            
-            return {
-                'error': 0,
-                'error_note': 'Success',
-                'click_trans_id': data.get('click_trans_id'),
-                'merchant_trans_id': merchant_trans_id,
-                'merchant_confirm_id': payment.id
-            }
-            
-        except Payment.DoesNotExist:
+        except (Payment.DoesNotExist, Exception) as e:
             return {
                 'error': -5,
-                'error_note': 'Transaction not found'
-            }
-        except Exception as e:
-            return {
-                'error': -8,
-                'error_note': f'Error: {str(e)}'
+                'error_note': f'Transaction not found: {str(e)}'
             }
 
 

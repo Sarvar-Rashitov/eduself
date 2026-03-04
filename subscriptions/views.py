@@ -245,19 +245,19 @@ def send_referral_invite(request):
 
 # Click to'lov tizimi
 @csrf_exempt
-@require_POST
 def click_prepare(request):
-    """Click Prepare API"""
+    """Click Prepare API - GET yoki POST"""
     try:
-        # GET parametrlardan ma'lumotlarni olish
+        # GET yoki POST parametrlardan ma'lumotlarni olish
+        params = request.GET if request.method == 'GET' else request.POST
         data = {
-            'click_trans_id': request.GET.get('click_trans_id'),
-            'service_id': request.GET.get('service_id'),
-            'merchant_trans_id': request.GET.get('merchant_trans_id'),
-            'amount': request.GET.get('amount'),
-            'action': request.GET.get('action'),
-            'sign_time': request.GET.get('sign_time'),
-            'sign_string': request.GET.get('sign_string'),
+            'click_trans_id': params.get('click_trans_id'),
+            'service_id': params.get('service_id'),
+            'merchant_trans_id': params.get('merchant_trans_id'),
+            'amount': params.get('amount'),
+            'action': params.get('action'),
+            'sign_time': params.get('sign_time'),
+            'sign_string': params.get('sign_string'),
         }
         
         result = ClickPaymentHandler.prepare(data)
@@ -270,21 +270,21 @@ def click_prepare(request):
 
 
 @csrf_exempt
-@require_POST
 def click_complete(request):
-    """Click Complete API"""
+    """Click Complete API - GET yoki POST"""
     try:
-        # GET parametrlardan ma'lumotlarni olish
+        # GET yoki POST parametrlardan ma'lumotlarni olish
+        params = request.GET if request.method == 'GET' else request.POST
         data = {
-            'click_trans_id': request.GET.get('click_trans_id'),
-            'service_id': request.GET.get('service_id'),
-            'merchant_trans_id': request.GET.get('merchant_trans_id'),
-            'amount': request.GET.get('amount'),
-            'action': request.GET.get('action'),
-            'sign_time': request.GET.get('sign_time'),
-            'sign_string': request.GET.get('sign_string'),
-            'error': request.GET.get('error'),
-            'error_note': request.GET.get('error_note'),
+            'click_trans_id': params.get('click_trans_id'),
+            'service_id': params.get('service_id'),
+            'merchant_trans_id': params.get('merchant_trans_id'),
+            'amount': params.get('amount'),
+            'action': params.get('action'),
+            'sign_time': params.get('sign_time'),
+            'sign_string': params.get('sign_string'),
+            'error': params.get('error'),
+            'error_note': params.get('error_note'),
         }
         
         result = ClickPaymentHandler.complete(data)

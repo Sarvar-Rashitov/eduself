@@ -616,6 +616,65 @@
 </a>
 {% endif %}
 
+<!-- Donat qilganlar karuseli - Barcha foydalanuvchilar uchun -->
+{% if recent_donations %}
+<div class="content-section">
+    <div class="section-header">
+        <h2 class="section-title-main">
+            <i class="bi bi-heart-fill text-danger"></i>{% t "Qo'llab-quvvatlaganlar" request.LANGUAGE_CODE %}</h2>
+    </div>
+    
+    <div class="donations-carousel-container">
+        <div class="donations-carousel">
+            {% for donation in recent_donations %}
+            <div class="donation-card">
+                <div class="donation-header">
+                    <div class="donation-avatar">
+                        <img src="{{ donation.user.get_avatar_url }}" alt="{{ donation.user.username }}">
+                    </div>
+                    <div class="donation-user-info">
+                        <h4>{{ donation.user.first_name|default:donation.user.username }}</h4>
+                        <p class="donation-amount">{{ donation.amount|floatformat:0 }} so'm</p>
+                    </div>
+                </div>
+                <div class="donation-message">
+                    <i class="bi bi-quote"></i>
+                    <p>{{ donation.message|truncatewords:20 }}</p>
+                </div>
+                <div class="donation-date">
+                    <i class="bi bi-clock"></i>
+                    <span>{{ donation.completed_at|timesince }} oldin</span>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Duplicate for seamless loop -->
+            {% for donation in recent_donations %}
+            <div class="donation-card">
+                <div class="donation-header">
+                    <div class="donation-avatar">
+                        <img src="{{ donation.user.get_avatar_url }}" alt="{{ donation.user.username }}">
+                    </div>
+                    <div class="donation-user-info">
+                        <h4>{{ donation.user.first_name|default:donation.user.username }}</h4>
+                        <p class="donation-amount">{{ donation.amount|floatformat:0 }} so'm</p>
+                    </div>
+                </div>
+                <div class="donation-message">
+                    <i class="bi bi-quote"></i>
+                    <p>{{ donation.message|truncatewords:20 }}</p>
+                </div>
+                <div class="donation-date">
+                    <i class="bi bi-clock"></i>
+                    <span>{{ donation.completed_at|timesince }} oldin</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
@@ -665,6 +724,53 @@ document.addEventListener('DOMContentLoaded', function() {
         
         featuresContainer.addEventListener('mouseleave', () => {
             featuresCarousel.style.animationPlayState = 'running';
+        });
+    }
+    
+    // Pause animation on touch for donations carousel
+    const donationsCarousel = document.querySelector('.donations-carousel');
+    const donationsContainer = document.querySelector('.donations-carousel-container');
+    
+    if (donationsCarousel && donationsContainer) {
+        let touchTimeout;
+        let scrollTimeout;
+        let isUserScrolling = false;
+        
+        // Scroll detection
+        donationsContainer.addEventListener('scroll', () => {
+            isUserScrolling = true;
+            donationsContainer.classList.add('user-scrolling');
+            
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                isUserScrolling = false;
+                donationsContainer.classList.remove('user-scrolling');
+            }, 3000); // 3 soniya scroll qilmasa, animatsiya qayta boshlanadi
+        });
+        
+        // Touch events
+        donationsContainer.addEventListener('touchstart', () => {
+            donationsCarousel.style.animationPlayState = 'paused';
+            clearTimeout(touchTimeout);
+        });
+        
+        donationsContainer.addEventListener('touchend', () => {
+            if (!isUserScrolling) {
+                touchTimeout = setTimeout(() => {
+                    donationsCarousel.style.animationPlayState = 'running';
+                }, 2000);
+            }
+        });
+        
+        // Mouse events
+        donationsContainer.addEventListener('mouseenter', () => {
+            donationsCarousel.style.animationPlayState = 'paused';
+        });
+        
+        donationsContainer.addEventListener('mouseleave', () => {
+            if (!isUserScrolling) {
+                donationsCarousel.style.animationPlayState = 'running';
+            }
         });
     }
 });
@@ -798,6 +904,222 @@ document.addEventListener('DOMContentLoaded', function() {
 .donate-arrow {
     font-size: 1.5rem;
     color: white;
+}
+
+/* Donations Carousel */
+.donations-carousel-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    margin: 1rem 0;
+    padding: 0.5rem 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #fca5a5 #fef2f2;
+}
+
+.donations-carousel-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.donations-carousel-container::-webkit-scrollbar-track {
+    background: #fef2f2;
+    border-radius: 10px;
+}
+
+.donations-carousel-container::-webkit-scrollbar-thumb {
+    background: #fca5a5;
+    border-radius: 10px;
+}
+
+.donations-carousel-container::-webkit-scrollbar-thumb:hover {
+    background: #f87171;
+}
+
+.donations-carousel {
+    display: flex;
+    gap: 1rem;
+    animation: scrollDonations 20s linear infinite;
+    will-change: transform;
+}
+
+@keyframes scrollDonations {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.donations-carousel:hover {
+    animation-play-state: paused;
+}
+
+.donations-carousel-container.user-scrolling .donations-carousel {
+    animation-play-state: paused;
+}
+
+.donation-card {
+    min-width: 300px;
+    max-width: 300px;
+    background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1);
+    border: 2px solid #fee2e2;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.donation-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ef4444, #f97316, #ef4444);
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.donation-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(239, 68, 68, 0.2);
+    border-color: #fca5a5;
+}
+
+.donation-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.donation-avatar {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #ef4444;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+    position: relative;
+}
+
+.donation-avatar::after {
+    content: '❤️';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: 1rem;
+    background: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.donation-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.donation-user-info h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.donation-user-info h4::after {
+    content: '✓';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: #10b981;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.donation-amount {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.donation-amount::before {
+    content: '💰';
+    font-size: 0.9rem;
+}
+
+.donation-message {
+    background: linear-gradient(135deg, #fef2f2 0%, #fff 100%);
+    border-radius: 15px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+    border: 1px solid #fee2e2;
+}
+
+.donation-message i {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    font-size: 1.5rem;
+    color: #fca5a5;
+    opacity: 0.5;
+}
+
+.donation-message p {
+    margin: 0;
+    padding-left: 2rem;
+    font-size: 0.9rem;
+    color: #374151;
+    line-height: 1.6;
+    font-style: italic;
+}
+
+.donation-date {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #9ca3af;
+    background: #f9fafb;
+    padding: 0.5rem;
+    border-radius: 10px;
+}
+
+.donation-date i {
+    font-size: 0.9rem;
+    color: #ef4444;
 }
 </style>
 

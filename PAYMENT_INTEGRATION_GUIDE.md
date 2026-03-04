@@ -18,8 +18,8 @@ EduSelf platformasida Click va Payme to'lov tizimlari integratsiya qilingan.
 
 ```env
 CLICK_MERCHANT_ID=your_merchant_id
-CLICK_SERVICE_ID=your_service_id
-CLICK_SECRET_KEY=your_secret_key
+CLICK_SERVICE_ID=97245
+CLICK_SECRET_KEY= ············
 CLICK_MERCHANT_USER_ID=your_merchant_user_id
 ```
 

@@ -15,5 +15,8 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+# Serve static files in development (even when DEBUG=False for testing)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 # Custom 404 handler
 handler404 = 'core.views.custom_404_view'

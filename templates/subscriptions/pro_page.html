@@ -99,156 +99,244 @@
     {% endif %}
 
     <!-- Ta'riflar -->
-    <div class="row g-3">
-        {% for plan in plans %}
-        <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-4 {% if plan.is_popular %}border-primary border-2{% endif %} {% if active_subscription and active_subscription.plan.id == plan.id %}border-success border-2{% endif %}">
-                {% if active_subscription and active_subscription.plan.id == plan.id %}
-                <div class="position-absolute top-0 start-50 translate-middle">
-                    <span class="badge bg-success rounded-pill px-3 py-2">
-                        <i class="bi bi-check-circle-fill me-1"></i> Hozirgi ta'rif
-                    </span>
-                </div>
-                {% elif plan.is_popular %}
-                <div class="position-absolute top-0 start-50 translate-middle">
-                    <span class="badge bg-primary rounded-pill px-3 py-2">
-                        <i class="bi bi-star-fill me-1"></i> Mashhur
-                    </span>
-                </div>
-                {% endif %}
-                
-                <div class="card-body p-4">
-                    <!-- Plan header -->
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
-                             style="width: 50px; height: 50px; background: {{ plan.color }}20;">
-                            <i class="{{ plan.icon }} text-primary" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div>
-                            <h4 class="mb-0 fw-bold">{{ plan.name }}</h4>
-                            <p class="text-muted mb-0 small">{{ plan.description }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Narx -->
-                    <div class="mb-3">
-                        <h2 class="fw-bold mb-0" style="color: {{ plan.color }};">
-                            {{ plan.price|floatformat:0 }} <small class="text-muted fs-6">so'm</small>
-                        </h2>
-                        <small class="text-muted">{{ plan.duration_days }} kun</small>
-                    </div>
-
-                    <!-- Xususiyatlar -->
-                    <div class="mb-4">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <span class="small">
-                                {% if plan.unlimited_lives %}
-                                    Cheksiz yurakchalar
-                                {% else %}
-                                    Standart yurakchalar tizimi
-                                {% endif %}
-                            </span>
-                        </div>
-                        
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <span class="small">
-                                AI tahlil: 
-                                {% if plan.ai_analysis_limit == -1 %}
-                                    Cheksiz
-                                {% else %}
-                                    {{ plan.ai_analysis_limit }} marta
-                                {% endif %}
-                            </span>
-                        </div>
-                        
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <span class="small">
-                                AI hamroh: 
-                                {% if plan.ai_companion_limit == -1 %}
-                                    Cheksiz
-                                {% else %}
-                                    {{ plan.ai_companion_limit }} marta
-                                {% endif %}
-                            </span>
-                        </div>
-                        
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <span class="small">
-                                Universitet imtihonlari: 
-                                {% if plan.university_exam_limit == -1 %}
-                                    Cheksiz
-                                {% else %}
-                                    {{ plan.university_exam_limit }} marta
-                                {% endif %}
-                            </span>
-                        </div>
-                        
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <span class="small">
-                                Mock imtihonlar: 
-                                {% if plan.mock_exam_limit == -1 %}
-                                    Cheksiz
-                                {% else %}
-                                    {{ plan.mock_exam_limit }} marta
-                                {% endif %}
-                            </span>
-                        </div>
-                        
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <span class="small">
-                                Sertifikat testlari: 
-                                {% if plan.certificate_test_limit == -1 %}
-                                    Cheksiz
-                                {% else %}
-                                    {{ plan.certificate_test_limit }} marta
-                                {% endif %}
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Tugma -->
+    <div class="plans-scroll-container">
+        <div class="plans-scroll">
+            {% for plan in plans %}
+            <div class="plan-card-wrapper">
+                <div class="card border-0 shadow-sm rounded-4 {% if plan.is_popular %}border-primary border-2{% endif %} {% if active_subscription and active_subscription.plan.id == plan.id %}border-success border-2{% endif %}">
                     {% if active_subscription and active_subscription.plan.id == plan.id %}
-                    <a href="{% url 'subscriptions:my_subscriptions' %}" 
-                       class="btn btn-success w-100 rounded-pill py-3 fw-bold">
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                        Faol obuna
-                    </a>
-                    {% else %}
-                    <a href="{% url 'subscriptions:subscribe' plan.slug %}" 
-                       class="btn btn-primary w-100 rounded-pill py-3 fw-bold">
-                        Sotib olish
-                    </a>
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <span class="badge bg-success rounded-pill px-3 py-2">
+                            <i class="bi bi-check-circle-fill me-1"></i> Hozirgi ta'rif
+                        </span>
+                    </div>
+                    {% elif plan.is_popular %}
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <span class="badge bg-primary rounded-pill px-3 py-2">
+                            <i class="bi bi-star-fill me-1"></i> Mashhur
+                        </span>
+                    </div>
                     {% endif %}
+                    
+                    <div class="card-body p-4">
+                        <!-- Plan header -->
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 50px; height: 50px; background: {{ plan.color }}20;">
+                                <i class="{{ plan.icon }} text-primary" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0 fw-bold">{{ plan.name }}</h4>
+                                <p class="text-muted mb-0 small">{{ plan.description }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Narx -->
+                        <div class="mb-3">
+                            <h2 class="fw-bold mb-0" style="color: {{ plan.color }};">
+                                {{ plan.price|floatformat:0 }} <small class="text-muted fs-6">so'm</small>
+                            </h2>
+                            <small class="text-muted">{{ plan.duration_days }} kun</small>
+                        </div>
+
+                        <!-- Xususiyatlar -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span class="small">
+                                    {% if plan.unlimited_lives %}
+                                        Cheksiz yurakchalar
+                                    {% else %}
+                                        Standart yurakchalar tizimi
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span class="small">
+                                    AI tahlil: 
+                                    {% if plan.ai_analysis_limit == -1 %}
+                                        Cheksiz
+                                    {% else %}
+                                        {{ plan.ai_analysis_limit }} marta
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span class="small">
+                                    AI hamroh: 
+                                    {% if plan.ai_companion_limit == -1 %}
+                                        Cheksiz
+                                    {% else %}
+                                        {{ plan.ai_companion_limit }} marta
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span class="small">
+                                    Universitet imtihonlari: 
+                                    {% if plan.university_exam_limit == -1 %}
+                                        Cheksiz
+                                    {% else %}
+                                        {{ plan.university_exam_limit }} marta
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span class="small">
+                                    Mock imtihonlar: 
+                                    {% if plan.mock_exam_limit == -1 %}
+                                        Cheksiz
+                                    {% else %}
+                                        {{ plan.mock_exam_limit }} marta
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span class="small">
+                                    Sertifikat testlari: 
+                                    {% if plan.certificate_test_limit == -1 %}
+                                        Cheksiz
+                                    {% else %}
+                                        {{ plan.certificate_test_limit }} marta
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Tugma -->
+                        {% if active_subscription and active_subscription.plan.id == plan.id %}
+                        <a href="{% url 'subscriptions:my_subscriptions' %}" 
+                           class="btn w-100 py-2 fw-bold modern-button active-button">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            Faol obuna
+                        </a>
+                        {% else %}
+                        <button type="button" 
+                           class="btn w-100 py-2 fw-bold modern-button buy-button select-plan-btn" 
+                           style="background: {{ plan.color }};"
+                           data-plan-slug="{{ plan.slug }}"
+                           data-plan-name="{{ plan.name }}"
+                           data-plan-price="{{ plan.price|floatformat:0 }}"
+                           data-plan-duration="{{ plan.duration_days }}"
+                           data-plan-color="{{ plan.color }}"
+                           data-plan-icon="{{ plan.icon }}">
+                            <span>Tanlash</span>
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 
-    <!-- Referal va Promokod -->
-    <div class="row g-3 mt-4">
-        <div class="col-12">
-            <a href="{% url 'subscriptions:referral' %}" class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 bg-gradient-primary text-white">
-                    <div class="card-body p-4">
+    <!-- To'lov qismi (yashirin) -->
+    <div id="payment-section" class="payment-section mt-4" style="display: none;">
+        <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-body p-4">
+                <!-- Tanlangan ta'rif -->
+                <div class="selected-plan-info mb-4 p-3 rounded-3" style="background: #f8f9ff;">
+                    <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
-                            <i class="bi bi-people-fill me-3" style="font-size: 2rem;"></i>
-                            <div>
-                                <h5 class="mb-1 fw-bold">Do'stlaringizni taklif qiling</h5>
-                                <small>Bepul Pro obunasini qo'lga kiriting</small>
+                            <div id="selected-plan-icon" class="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 50px; height: 50px;">
                             </div>
-                            <i class="bi bi-chevron-right ms-auto" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h5 id="selected-plan-name" class="mb-0 fw-bold"></h5>
+                                <small class="text-muted">
+                                    <span id="selected-plan-price"></span> so'm • 
+                                    <span id="selected-plan-duration"></span> kun
+                                </small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" id="change-plan-btn">
+                            O'zgartirish
+                        </button>
+                    </div>
+                </div>
+
+                <form method="post" id="payment-form" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="plan_slug" id="plan-slug-input">
+                    
+                    <!-- Promokod -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-3">Promokod</h5>
+                        <div class="input-group">
+                            <input type="text" class="form-control rounded-start-pill" 
+                                   name="promo_code" id="promo-code" placeholder="Promokodni kiriting">
+                            <button type="button" class="btn btn-outline-primary rounded-end-pill" 
+                                    id="check-promo">
+                                Tekshirish
+                            </button>
+                        </div>
+                        <div id="promo-message" class="mt-2"></div>
+                    </div>
+
+                    <!-- To'lov usuli -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-3">To'lov usuli</h5>
+                        
+                        <div class="d-flex gap-3 justify-content-center">
+                            <div class="payment-option-img">
+                                <input type="radio" name="payment_method" id="click" value="click" checked>
+                                <label for="click">
+                                    <img src="{% static 'images/payment/click.jpg' %}" alt="Click">
+                                </label>
+                            </div>
+
+                            <div class="payment-option-img">
+                                <input type="radio" name="payment_method" id="payme" value="payme">
+                                <label for="payme">
+                                    <img src="{% static 'images/payment/Payme.png' %}" alt="Payme">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- To'lov tugmasi -->
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold">
+                        <i class="bi bi-credit-card me-2"></i>
+                        To'lovga o'tish
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referal - Sodda va zamonaviy dizayn -->
+    <div class="referral-section-new mt-4">
+        <a href="{% url 'subscriptions:referral' %}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-4 referral-card-new">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="referral-icon-new">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-1 fw-bold">Do'stlaringizni taklif qiling</h5>
+                            <p class="text-muted mb-0 small">Har bir do'stingiz uchun bepul Pro obuna oling</p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-arrow-right fs-4 text-primary"></i>
                         </div>
                     </div>
                 </div>
-            </a>
-        </div>
+            </div>
+        </a>
     </div>
 </div>
 
@@ -256,5 +344,417 @@
 .bg-gradient-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
+
+/* Plans Carousel Style */
+.plans-scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0 -1rem;
+    padding: 3rem 1rem 2rem 1rem; /* Top padding increased for badge */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+}
+
+.plans-scroll-container::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+}
+
+.plans-scroll {
+    display: flex;
+    gap: 1rem;
+    padding: 0;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.plan-card-wrapper {
+    min-width: 75%;
+    max-width: 75%;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Center card effect */
+.plan-card-wrapper .card {
+    height: 100%;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(0.9);
+    opacity: 0.7;
+    position: relative;
+    overflow: visible; /* Allow badge to show outside */
+}
+
+/* Badge positioning fix */
+.plan-card-wrapper .card .position-absolute {
+    top: -12px !important; /* Move badge up but not cut off */
+}
+
+.plan-card-wrapper:hover .card,
+.plan-card-wrapper.active .card {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* Scroll indicator */
+.plans-scroll-container::after {
+    content: '';
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 2px;
+    opacity: 0.5;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+    .plan-card-wrapper {
+        min-width: 60%;
+        max-width: 60%;
+    }
+}
+
+@media (min-width: 992px) {
+    .plan-card-wrapper {
+        min-width: 45%;
+        max-width: 45%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .plan-card-wrapper {
+        min-width: 35%;
+        max-width: 35%;
+    }
+}
+
+/* Modern Button Styles */
+.modern-button {
+    border-radius: 14px;
+    border: none;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    font-size: 0.95rem;
+}
+
+.modern-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.modern-button:hover::before {
+    left: 100%;
+}
+
+.modern-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+    color: white;
+}
+
+.modern-button:active {
+    transform: translateY(-1px);
+}
+
+.buy-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.buy-button i {
+    transition: transform 0.3s ease;
+}
+
+.buy-button:hover i {
+    transform: translateX(4px);
+}
+
+.active-button {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.active-button:hover {
+    box-shadow: 0 12px 28px rgba(16, 185, 129, 0.4);
+}
+
+.active-button:hover i {
+    transform: scale(1.1);
+}
+
+/* Referral Section - Yangi sodda dizayn */
+.referral-section-new {
+    margin-top: 2rem;
+}
+
+.referral-card-new {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.referral-card-new:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2) !important;
+    border-color: #667eea;
+}
+
+.referral-icon-new {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.referral-card-new:hover .referral-icon-new {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.referral-icon-new i {
+    font-size: 1.75rem;
+    color: white;
+}
+
+.referral-card-new:hover .bi-arrow-right {
+    transform: translateX(5px);
+    transition: transform 0.3s ease;
+}
+
+/* Payment Section Styles */
+.payment-section {
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.selected-plan-info {
+    border: 2px solid #e5e7eb;
+}
+
+.payment-option-img {
+    position: relative;
+}
+
+.payment-option-img input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.payment-option-img label {
+    display: block;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-option-img img {
+    height: 60px;
+    width: auto;
+    max-width: 120px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.payment-option-img input[type="radio"]:checked + label img {
+    border-color: #667eea;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    transform: scale(1.05);
+}
+
+.payment-option-img:hover img {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .referral-icon-new {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .referral-icon-new i {
+        font-size: 1.5rem;
+    }
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.querySelector('.plans-scroll-container');
+    const cards = document.querySelectorAll('.plan-card-wrapper');
+    
+    if (!container || cards.length === 0) return;
+    
+    // Update active card on scroll
+    function updateActiveCard() {
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        
+        let closestCard = null;
+        let closestDistance = Infinity;
+        
+        cards.forEach(card => {
+            const cardRect = card.getBoundingClientRect();
+            const cardCenter = cardRect.left + cardRect.width / 2;
+            const distance = Math.abs(containerCenter - cardCenter);
+            
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestCard = card;
+            }
+            
+            card.classList.remove('active');
+        });
+        
+        if (closestCard) {
+            closestCard.classList.add('active');
+        }
+    }
+    
+    // Initial update
+    updateActiveCard();
+    
+    // Update on scroll
+    container.addEventListener('scroll', updateActiveCard);
+    
+    // Scroll to popular plan or first card initially
+    setTimeout(() => {
+        // Find popular plan (has "Mashhur" badge)
+        let popularCard = null;
+        cards.forEach(card => {
+            const badge = card.querySelector('.badge.bg-primary');
+            if (badge && badge.textContent.includes('Mashhur')) {
+                popularCard = card;
+            }
+        });
+        
+        // If no popular plan, find active subscription
+        if (!popularCard) {
+            cards.forEach(card => {
+                const badge = card.querySelector('.badge.bg-success');
+                if (badge && badge.textContent.includes('Hozirgi ta\'rif')) {
+                    popularCard = card;
+                }
+            });
+        }
+        
+        // Scroll to popular card or first card
+        const targetCard = popularCard || cards[0];
+        if (targetCard) {
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    }, 100);
+
+    // Plan selection
+    const selectPlanBtns = document.querySelectorAll('.select-plan-btn');
+    const paymentSection = document.getElementById('payment-section');
+    const planSlugInput = document.getElementById('plan-slug-input');
+    const changePlanBtn = document.getElementById('change-plan-btn');
+    
+    selectPlanBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const planSlug = this.dataset.planSlug;
+            const planName = this.dataset.planName;
+            const planPrice = this.dataset.planPrice;
+            const planDuration = this.dataset.planDuration;
+            const planColor = this.dataset.planColor;
+            const planIcon = this.dataset.planIcon;
+            
+            // Update selected plan info
+            document.getElementById('selected-plan-name').textContent = planName;
+            document.getElementById('selected-plan-price').textContent = planPrice;
+            document.getElementById('selected-plan-duration').textContent = planDuration;
+            document.getElementById('plan-slug-input').value = planSlug;
+            
+            // Update form action URL
+            const paymentForm = document.getElementById('payment-form');
+            paymentForm.action = `/subscriptions/subscribe/${planSlug}/`;
+            
+            const iconDiv = document.getElementById('selected-plan-icon');
+            iconDiv.style.background = planColor + '20';
+            iconDiv.innerHTML = `<i class="${planIcon} text-primary" style="font-size: 1.5rem;"></i>`;
+            
+            // Show payment section
+            paymentSection.style.display = 'block';
+            
+            // Scroll to payment section
+            setTimeout(() => {
+                paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        });
+    });
+    
+    // Change plan button
+    if (changePlanBtn) {
+        changePlanBtn.addEventListener('click', function() {
+            paymentSection.style.display = 'none';
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+    
+    // Promo code check
+    const checkPromoBtn = document.getElementById('check-promo');
+    if (checkPromoBtn) {
+        checkPromoBtn.addEventListener('click', function() {
+            const code = document.getElementById('promo-code').value;
+            const planSlug = document.getElementById('plan-slug-input').value;
+            
+            if (!code) {
+                return;
+            }
+            
+            fetch('{% url "subscriptions:check_promo" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `code=${code}&plan_slug=${planSlug}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById('promo-message');
+                if (data.valid) {
+                    messageDiv.innerHTML = `<div class="alert alert-success small mb-0">${data.message}</div>`;
+                    document.getElementById('selected-plan-price').textContent = data.final_price.toFixed(0);
+                } else {
+                    messageDiv.innerHTML = `<div class="alert alert-danger small mb-0">${data.message}</div>`;
+                }
+            });
+        });
+    }
+});
+</script>
 {% endblock %}
