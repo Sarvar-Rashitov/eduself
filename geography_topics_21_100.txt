@@ -1,0 +1,84 @@
+# Bu faylda 21-100 mavzular ro'yxati
+# Har bir mavzu uchun 5-10 ta test
+# To'g'ri javoblar turli pozitsiyalarda
+
+21. O'rmonlar
+22. Savannalar  
+23. Tundra
+24. Tayga
+25. Iqlim turlari
+26. Aholi va aholi punktlari
+27. Shaharlar
+28. Qishloqlar
+29. Transport
+30. Sanoat
+31. Qishloq xo'jaligi
+32. Tabiiy resurslar
+33. Suv resurslari
+34. O'rmon resurslari
+35. Mineral resurslar
+36. Energiya resurslari
+37. Ekologiya
+38. Atrof-muhitni muhofaza qilish
+39. Qizil kitob
+40. Tabiat hududlari
+41. Yevroosiyo materigi
+42. Afrika materigi
+43. Shimoliy Amerika materigi
+44. Janubiy Amerika materigi
+45. Avstraliya materigi
+46. Antarktida materigi
+47. Tinch okeani
+48. Atlantika okeani
+49. Hind okeani
+50. Shimoliy Muz okeani
+51. O'zbekiston
+52. Markaziy Osiyo
+53. Rossiya
+54. Xitoy
+55. Hindiston
+56. AQSH
+57. Yevropa
+58. Osiyo
+59. Afrika mintaqalari
+60. Amerika mintaqalari
+61. Dunyo iqtisodiyoti
+62. Xalqaro savdo
+63. Aholi o'sishi
+64. Urbanizatsiya
+65. Global iqlim o'zgarishi
+66. Suv tanqisligi
+67. Oziq-ovqat muammosi
+68. Energiya muammosi
+69. Tabiiy ofatlar
+70. Barqaror rivojlanish
+71. GPS va xarita texnologiyalari
+72. Sun'iy yo'ldoshlar
+73. Turizm geografiyasi
+74. Shahar rejalashtirish
+75. Transport geografiyasi
+76. Sanoat geografiyasi
+77. Qishloq xo'jaligi geografiyasi
+78. Aholi geografiyasi
+79. Madaniy geografiya
+80. Iqtisodiy geografiya
+81. Aqlli shaharlar
+82. Raqamli geografiya
+83. Kosmik geografiya
+84. Okean geografiyasi
+85. Qutb geografiyasi
+86. Tog' geografiyasi
+87. Cho'l geografiyasi
+88. O'rmon geografiyasi
+89. Daryo geografiyasi
+90. Geografiya va kelajak
+91. Geografik kashfiyotlar
+92. Mashhur geograflar
+93. Geografiya va san'at
+94. Geografiya va adabiyot
+95. Geografiya va musiqa
+96. Geografiya va sport
+97. Geografiya va oziq-ovqat
+98. Geografiya va til
+99. Geografiya va din
+100. Geografiya fani yakuniy takrorlash

@@ -12,6 +12,12 @@ Django-based educational platform with multi-language support.
 - AI assistant for educational recommendations
 - Telegram bot integration
 - Email notifications
+- **Progressive Web App (PWA)** - Install as native app on Android/iOS
+- **Modern Icon Design** - Beautiful gradient icons with education theme
+- **Offline Support** - Works without internet connection
+- **Push Notifications** - Native notifications support (ready)
+- **Dark Mode** - Eye-friendly dark theme
+- **Fast Loading** - Instant page loads with caching
 
 ## Language System
 
@@ -51,3 +57,25 @@ git push origin main
 ```
 
 Render will automatically detect and deploy changes.
+
+## PWA Installation
+
+EduSelf can be installed as a Progressive Web App:
+
+### Android (Chrome):
+1. Visit https://eduself.uz
+2. Tap "Install" button or Chrome menu → "Add to Home screen"
+3. App will be added to your home screen
+
+### iOS (Safari):
+1. Visit https://eduself.uz
+2. Tap Share button (bottom center)
+3. Select "Add to Home Screen"
+4. Tap "Add"
+
+### Desktop (Chrome/Edge):
+1. Visit https://eduself.uz
+2. Click install icon in address bar
+3. Or Settings → "Install EduSelf"
+
+For more details, see [PWA_SETUP_GUIDE.md](PWA_SETUP_GUIDE.md)

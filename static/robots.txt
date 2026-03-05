@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /nokia/
+Disallow: /accounts/
+Disallow: /api/
+
+# PWA Files
+Allow: /static/manifest.json
+Allow: /static/js/service-worker.js
+Allow: /static/icons/
+
+Sitemap: https://eduself.uz/sitemap.xml

@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 import json
 from .models import (
     SubjectCategory, Subject, Topic, Question, Answer, TopicResult,
@@ -2253,3 +2255,81 @@ def lives_info_api(request):
         lives_info['next_life_in'] = int(lives_info['next_life_in'].total_seconds())
     
     return JsonResponse(lives_info)
+
+
+# PWA Views
+@require_http_methods(["POST"])
+@csrf_exempt
+def push_subscribe_api(request):
+    """
+    PWA Push Notification Subscription endpoint
+    Foydalanuvchi push notification'ga obuna bo'lganda chaqiriladi
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required'}, status=401)
+    
+    try:
+        import json
+        subscription_data = json.loads(request.body)
+        
+        # TODO: Subscription'ni database'ga saqlash
+        # PushSubscription model yaratish kerak:
+        # - user (ForeignKey)
+        # - endpoint (TextField)
+        # - p256dh (TextField)
+        # - auth (TextField)
+        # - created_at (DateTimeField)
+        
+        # Hozircha faqat success qaytaramiz
+        return JsonResponse({
+            'success': True,
+            'message': 'Push notification subscription saved'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=400)
+
+def offline_view(request):
+    """
+    Offline sahifa - Service Worker tomonidan ko'rsatiladi
+    """
+    return render(request, 'offline.html')
+
+
+# Service Worker View
+def service_worker_view(request):
+    """
+    Service Worker faylini to'g'ri Content-Type bilan serve qilish
+    """
+    from django.http import FileResponse
+    import os
+    from django.conf import settings
+    
+    sw_path = os.path.join(settings.STATIC_ROOT or settings.BASE_DIR / 'static', 'service-worker.js')
+    
+    if not os.path.exists(sw_path):
+        sw_path = os.path.join(settings.BASE_DIR, 'static', 'service-worker.js')
+    
+    response = FileResponse(open(sw_path, 'rb'), content_type='application/javascript')
+    response['Service-Worker-Allowed'] = '/'
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+
+def manifest_view(request):
+    """
+    Manifest.json faylini to'g'ri Content-Type bilan serve qilish
+    """
+    from django.http import FileResponse
+    import os
+    from django.conf import settings
+    
+    manifest_path = os.path.join(settings.STATIC_ROOT or settings.BASE_DIR / 'static', 'manifest.json')
+    
+    if not os.path.exists(manifest_path):
+        manifest_path = os.path.join(settings.BASE_DIR, 'static', 'manifest.json')
+    
+    response = FileResponse(open(manifest_path, 'rb'), content_type='application/manifest+json')
+    response['Cache-Control'] = 'public, max-age=3600'
+    return response

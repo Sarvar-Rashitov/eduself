@@ -23,12 +23,39 @@
     </script>
     
     <!-- Basic Meta Tags -->
-    <meta name="description" content="O'zbekiston uchun zamonaviy ta'lim platformasi">
-    <meta name="theme-color" content="#4F46E5">
+    <meta name="description" content="O'zbekiston uchun zamonaviy ta'lim platformasi - 7 tilda ta'lim olish imkoniyati">
+    <meta name="keywords" content="ta'lim, eduself, o'zbekiston, test, sertifikat, online kurs">
+    <meta name="author" content="EduSelf">
     
-    <!-- Favicon -->
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EduSelf">
+    <meta name="application-name" content="EduSelf">
+    <meta name="msapplication-TileColor" content="#4F46E5">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Favicon & Icons -->
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'icons/icon-32x32.png' %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'icons/icon-16x16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'icons/icon-192x192.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'icons/icon-152x152.png' %}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'icons/icon-144x144.png' %}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{% static 'icons/icon-128x128.png' %}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static 'icons/icon-128x128.png' %}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'icons/icon-72x72.png' %}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static 'icons/icon-72x72.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'icons/icon-192x192.png' %}">
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileImage" content="{% static 'icons/icon-144x144.png' %}">
+    <meta name="msapplication-config" content="{% static 'browserconfig.xml' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,6 +63,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/base-layout.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pwa-styles.css' %}">
     
     <!-- Notification Modal Styles -->
     <style>
@@ -450,6 +478,16 @@
         </a>
         {% endblock ai_fab %}
         {% endif %}
+        
+        <!-- PWA Install Button -->
+        <button id="pwaInstallBtn" title="Ilovani o'rnatish">
+            <i class="bi bi-download"></i>
+        </button>
+        
+        <!-- Offline Indicator -->
+        <div class="pwa-offline-indicator" id="offlineIndicator">
+            <i class="bi bi-wifi-off"></i> Internet aloqasi yo'q
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -460,6 +498,9 @@
         // CSRF token'ni global o'zgaruvchiga saqlash
         window.csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     </script>
+    
+    <!-- PWA Scripts -->
+    <script src="{% static 'js/pwa.js' %}" defer></script>
     
     <!-- Telegram Mini App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>

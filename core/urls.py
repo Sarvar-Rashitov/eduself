@@ -66,4 +66,12 @@ urlpatterns = [
     
     # Lives API
     path('api/lives-info/', views.lives_info_api, name='lives_info_api'),
+    
+    # PWA API
+    path('api/push-subscribe/', views.push_subscribe_api, name='push_subscribe_api'),
+    path('offline/', views.offline_view, name='offline'),
+    
+    # PWA Files
+    path('service-worker.js', views.service_worker_view, name='service_worker'),
+    path('manifest.json', views.manifest_view, name='manifest'),
 ]
