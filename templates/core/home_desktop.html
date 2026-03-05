@@ -387,7 +387,7 @@
 
     <div class="container" style="position: relative; z-index: 2;">
         <h2 class="section-title">Bizga Ishonadigan Hamkorlar</h2>
-        <p class="section-subtitle">Ishonchli hamkorlar bilan birga</p>
+        <!-- <p class="section-subtitle">Ishonchli hamkorlar bilan birga</p> -->
         <div class="partners-carousel-container">
             <div class="partners-carousel">
                 {% for partner in partners %}
@@ -462,7 +462,9 @@
 
 <!-- Donate Section -->
 {% if user.is_authenticated %}
-<section id="donate" class="section donate-section-desktop">
+<section id="donate" class="section donate-section-desktop" style="background-image: url('{% static 'images/univer.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; position: relative;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 79, 153, 0.85); z-index: 0;"></div>
+
     <div class="container">
         <div class="donate-banner-desktop" id="openDonateModal">
             <div class="donate-banner-content">
@@ -572,11 +574,13 @@
 
 <!-- Recent Donations Carousel -->
 {% if recent_donations %}
-<section class="section donations-carousel-section-desktop">
+<section class="section donations-carousel-section-desktop" style="background-image: url('{% static 'images/univer.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; position: relative;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 79, 153, 0.85); z-index: 0;"></div>
+
     <div class="container">
-        <h2 class="section-title">Qo'llab-quvvatlaganlar</h2>
-        <p class="section-subtitle">Loyihani rivojlantirishga hissa qo'shganlar</p>
-        
+        <!-- <h2 class="section-title" style="color: white;">Qo'llab-quvvatlaganlar</h2>
+        <p class="section-subtitle" style="color: white;">Loyihani rivojlantirishga hissa qo'shganlar</p>
+         -->
         <div class="donations-carousel-container-desktop">
             <div class="donations-carousel-desktop">
                 {% for donation in recent_donations %}
@@ -2552,7 +2556,7 @@
 }
 
 .donations-carousel-container-desktop {
-    margin-top: 3rem;
+    margin-top: 1rem;
     overflow: hidden;
     position: relative;
     width: 100%;
@@ -2580,7 +2584,7 @@
     width: 350px;
     background: white;
     border-radius: 20px;
-    padding: 2rem;
+    padding: 10px !important;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid rgba(239, 68, 68, 0.1);
@@ -2759,7 +2763,7 @@
 .partners-carousel {
     display: flex;
     align-items: center;
-    animation: partnersScroll 40s linear infinite;
+    animation: partnersScroll 50s linear infinite;
     width: fit-content;
 }
 
@@ -2808,6 +2812,7 @@
 .partner-card-content::before {
     content: '';
     position: absolute;
+    padding: 10px !important;
     top: 0;
     left: -100%;
     width: 100%;
