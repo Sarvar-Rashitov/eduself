@@ -22,13 +22,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Desktop Styles -->
-    <link rel="stylesheet" href="{% static 'css/desktop.css' %}">
+    <link rel="stylesheet" href="{% static 'css/desktop.css' %}?v=3.3">
     
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
     <!-- Header -->
-    <header class="header">
+    <header class="header {% block header_class %}{% endblock %}">
         <div class="container">
             <div class="nav-wrapper">
                 <a href="{% url 'core:home' %}" class="logo">
@@ -105,7 +105,7 @@
 
     <!-- Footer -->
     {% block footer %}
-    <footer class="footer">
+    <footer class="footer" style="background-color: black;">
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
@@ -437,6 +437,15 @@
             let ticking = false;
             
             function updateHeader(scrollTop) {
+                // Shaffof header uchun scroll effekti
+                if (header.classList.contains('transparent-header')) {
+                    if (scrollTop > 50) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+                }
+                
                 if (scrollTop > lastScrollTop && scrollTop > 100) {
                     // Scrolling down & past threshold
                     header.classList.add('header-hidden');
