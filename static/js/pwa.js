@@ -25,7 +25,17 @@ class PWAManager {
       }
     }
 
-    // Install prompt'ni ushlab qolish
+    // iOS uchun maxsus install prompt
+    if (this.isIOS() && !this.isInStandaloneMode()) {
+      // 3 soniya kutib, iOS install prompt'ni ko'rsatish
+      setTimeout(() => {
+        if (!localStorage.getItem('pwa-install-dismissed')) {
+          this.showInstallButton();
+        }
+      }, 3000);
+    }
+
+    // Install prompt'ni ushlab qolish (Android/Desktop)
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       this.deferredPrompt = e;
@@ -109,8 +119,18 @@ class PWAManager {
       installBtn.addEventListener('click', () => this.promptInstall());
     }
     
-    // Yoki banner ko'rsatish
-    this.showInstallBanner();
+    // iOS uchun darhol banner ko'rsatish
+    if (this.isIOS() && !this.isInStandaloneMode()) {
+      // 2 soniya kutib, keyin ko'rsatish
+      setTimeout(() => {
+        if (!localStorage.getItem('pwa-install-dismissed')) {
+          this.showInstallBanner();
+        }
+      }, 2000);
+    } else {
+      // Boshqa platformalar uchun banner
+      this.showInstallBanner();
+    }
   }
 
   hideInstallButton() {
@@ -128,6 +148,12 @@ class PWAManager {
   showInstallBanner() {
     // Agar avval yopilgan bo'lsa, ko'rsatmaslik
     if (localStorage.getItem('pwa-install-dismissed')) {
+      return;
+    }
+    
+    // iOS uchun maxsus banner
+    if (this.isIOS() && !this.isInStandaloneMode()) {
+      this.showIOSInstallPrompt();
       return;
     }
     
@@ -153,6 +179,61 @@ class PWAManager {
     document.body.appendChild(banner);
     
     setTimeout(() => banner.classList.add('show'), 500);
+  }
+
+  isIOS() {
+    return /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  isInStandaloneMode() {
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true;
+  }
+
+  showIOSInstallPrompt() {
+    const prompt = document.createElement('div');
+    prompt.className = 'ios-install-prompt';
+    prompt.innerHTML = `
+      <div class="ios-install-content">
+        <button class="ios-install-close" onclick="pwaManager.dismissIOSPrompt()">✕</button>
+        <div class="ios-install-icon">
+          <img src="/static/icons/icon-192x192.png" alt="EduSelf">
+        </div>
+        <h3>EduSelf ilovasini o'rnating</h3>
+        <p>Bu ilovani bosh ekranga qo'shish uchun:</p>
+        <ol class="ios-install-steps">
+          <li>
+            <span class="step-icon">📤</span>
+            <span>Safari'ning pastki qismidagi <strong>Ulashish</strong> tugmasini bosing</span>
+          </li>
+          <li>
+            <span class="step-icon">➕</span>
+            <span><strong>"Bosh ekranga qo'shish"</strong> ni tanlang</span>
+          </li>
+          <li>
+            <span class="step-icon">✅</span>
+            <span>Yuqori o'ng burchakdagi <strong>"Qo'shish"</strong> ni bosing</span>
+          </li>
+        </ol>
+        <div class="ios-install-arrow">
+          <svg width="30" height="40" viewBox="0 0 30 40" fill="currentColor">
+            <path d="M15 0 L15 30 M15 30 L5 20 M15 30 L25 20" stroke="currentColor" stroke-width="3" fill="none"/>
+          </svg>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(prompt);
+    
+    setTimeout(() => prompt.classList.add('show'), 100);
+  }
+
+  dismissIOSPrompt() {
+    const prompt = document.querySelector('.ios-install-prompt');
+    if (prompt) {
+      prompt.classList.remove('show');
+      setTimeout(() => prompt.remove(), 300);
+    }
+    localStorage.setItem('pwa-install-dismissed', 'true');
   }
 
   dismissInstallBanner() {
@@ -189,28 +270,77 @@ class PWAManager {
       return;
     }
 
-    // Ruxsat so'rash
+    // Agar allaqachon ruxsat berilgan bo'lsa, subscribe qilish
+    if (Notification.permission === 'granted') {
+      await this.subscribeToPush();
+    }
+    
+    // Notification permission button'ni qo'shish
+    this.addNotificationPermissionButton();
+  }
+
+  addNotificationPermissionButton() {
+    // Agar ruxsat berilmagan bo'lsa, button ko'rsatish
     if (Notification.permission === 'default') {
-      // Foydalanuvchi birinchi marta kirganda so'ramaslik
-      // Faqat kerakli paytda so'rash
-      console.log('[PWA] Notification permission not requested yet');
+      const notifBtn = document.createElement('button');
+      notifBtn.className = 'notification-permission-btn';
+      notifBtn.innerHTML = `
+        <i class="bi bi-bell"></i>
+        <span>Bildirishnomalarni yoqish</span>
+      `;
+      notifBtn.onclick = () => this.requestNotificationPermission();
+      
+      // Header'ga qo'shish
+      const headerActions = document.querySelector('.page-header-actions');
+      if (headerActions && Notification.permission !== 'granted') {
+        headerActions.insertBefore(notifBtn, headerActions.firstChild);
+      }
     }
   }
 
   async requestNotificationPermission() {
     if (!('Notification' in window)) {
+      this.showToast('⚠️ Bildirishnomalar qo\'llab-quvvatlanmaydi', 'warning');
       return false;
     }
 
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
-      console.log('[PWA] Notification permission granted');
-      await this.subscribeToPush();
-      return true;
-    } else {
-      console.log('[PWA] Notification permission denied');
+    try {
+      const permission = await Notification.requestPermission();
+      
+      if (permission === 'granted') {
+        console.log('[PWA] Notification permission granted');
+        this.showToast('✅ Bildirishnomalar yoqildi!', 'success');
+        await this.subscribeToPush();
+        
+        // Test notification
+        this.showTestNotification();
+        
+        // Button'ni olib tashlash
+        const btn = document.querySelector('.notification-permission-btn');
+        if (btn) btn.remove();
+        
+        return true;
+      } else {
+        console.log('[PWA] Notification permission denied');
+        this.showToast('❌ Bildirishnomalar rad etildi', 'warning');
+        return false;
+      }
+    } catch (error) {
+      console.error('[PWA] Notification permission error:', error);
       return false;
+    }
+  }
+
+  showTestNotification() {
+    if (Notification.permission === 'granted') {
+      new Notification('EduSelf', {
+        body: 'Bildirishnomalar muvaffaqiyatli yoqildi! 🎉',
+        icon: '/static/icons/icon-192x192.png',
+        badge: '/static/icons/icon-72x72.png',
+        vibrate: [200, 100, 200],
+        tag: 'test-notification',
+        requireInteraction: false
+      });
     }
   }
 
