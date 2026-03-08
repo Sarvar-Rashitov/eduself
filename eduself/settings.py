@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SESSION_SECRET', 'django-insecure-dev-key-change-in-production')
 
 # DEBUG mode
-DEBUG = False
+DEBUG = True
 
 # Security settings for production
 if not DEBUG:
@@ -166,6 +166,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.UserLanguageMiddleware',  # User tilini avtomatik o'rnatish
+    'accounts.onboarding_middleware.OnboardingMiddleware',  # Onboarding redirect
 ]
 
 ROOT_URLCONF = 'eduself.urls'
@@ -185,6 +186,7 @@ TEMPLATES = [
                 'core.context_processors.notifications',
                 'core.context_processors.auth_settings',
                 'core.context_processors.language_context',  # Til context
+                'accounts.onboarding_context.user_preferences',  # Onboarding preferences
             ],
         },
     },

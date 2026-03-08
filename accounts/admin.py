@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import User, PasswordResetToken, LoginHistory, Level, Badge, UserBadge, LivesSettings
+from .onboarding_models import UserInterestPreference
 from django.utils.html import format_html
 
 
@@ -165,3 +166,46 @@ class LoginHistoryAdmin(admin.ModelAdmin):
     
     def has_change_permission(self, request, obj=None):
         return False  # O'zgartirib bo'lmaydi
+
+
+
+@admin.register(UserInterestPreference)
+class UserInterestPreferenceAdmin(admin.ModelAdmin):
+    list_display = ['user', 'role', 'onboarding_completed', 'has_subjects', 'has_certificates', 'has_courses', 'has_mock_exams', 'created_at']
+    list_filter = ['role', 'onboarding_completed', 'created_at']
+    search_fields = ['user__username', 'user__email', 'user__first_name', 'user__last_name']
+    readonly_fields = ['created_at', 'updated_at']
+    ordering = ['-created_at']
+    
+    fieldsets = (
+        ('Foydalanuvchi', {
+            'fields': ('user',)
+        }),
+        ('Onboarding', {
+            'fields': ('role', 'onboarding_completed')
+        }),
+        ('Tanlangan kategoriyalar', {
+            'fields': ('selected_categories',),
+            'description': 'JSON formatda saqlangan kategoriyalar'
+        }),
+        ('Vaqt', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def has_subjects(self, obj):
+        return '✅' if obj.has_interest_in_subjects() else '❌'
+    has_subjects.short_description = 'Fanlar'
+    
+    def has_certificates(self, obj):
+        return '✅' if obj.has_interest_in_certificates() else '❌'
+    has_certificates.short_description = 'Sertifikatlar'
+    
+    def has_courses(self, obj):
+        return '✅' if obj.has_interest_in_courses() else '❌'
+    has_courses.short_description = 'Kurslar'
+    
+    def has_mock_exams(self, obj):
+        return '✅' if obj.has_interest_in_mock_exams() else '❌'
+    has_mock_exams.short_description = 'Mock imtihonlar'

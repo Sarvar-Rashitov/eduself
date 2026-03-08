@@ -2891,3 +2891,48 @@ body:not(.home-page) .main-content {
         justify-content: space-between;
     }
 }
+
+
+/* Desktop Force - PWA uchun */
+@media screen and (min-width: 769px) {
+    body {
+        min-width: 1024px !important;
+        overflow-x: auto !important;
+    }
+    
+    .container {
+        max-width: 1200px !important;
+        width: 100% !important;
+    }
+}
+
+/* Tablet va Desktop uchun */
+@media screen and (min-width: 768px) {
+    /* Mobile menu yashirish */
+    .mobile-menu-btn {
+        display: none !important;
+    }
+    
+    /* Desktop navigation ko'rsatish */
+    .nav-menu {
+        display: flex !important;
+    }
+}
+
+/* Kichik ekranlar uchun warning */
+@media screen and (max-width: 768px) {
+    body::before {
+        content: "Desktop versiyani ko'rish uchun ekranni kengaytiring yoki kompyuterdan kiring";
+        display: block;
+        background: #f59e0b;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-size: 14px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10000;
+    }
+}

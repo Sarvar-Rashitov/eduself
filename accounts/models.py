@@ -4,6 +4,9 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 import uuid
 
+# Import onboarding models
+from .onboarding_models import UserInterestPreference
+
 
 class LivesSettings(models.Model):
     """Lives/Hearts tizimi sozlamalari - Singleton model"""

@@ -1,6 +1,7 @@
 ﻿{% extends 'base.html' %}
 {% load translation_tags %}
 {% load static %}
+{% load onboarding_tags %}
 
 {% block body_attrs %}data-page="profile"{% endblock %}
 
@@ -845,6 +846,53 @@
     {% endif %}
 {% endwith %}
 
+<!-- Personalization Banner - Eski foydalanuvchilar uchun -->
+{% has_any_interests user as user_has_interests %}
+{% if not user_has_interests %}
+<div class="mb-3" style="cursor: pointer;" onclick="goToOnboardingProfile(event)">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); color: white; position: relative; overflow: hidden; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+        <!-- Animated background -->
+        <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: pulse 3s ease-in-out infinite; pointer-events: none;"></div>
+        
+        <div style="display: flex; align-items: center; gap: 14px; position: relative; z-index: 1;">
+            <div style="font-size: 36px; animation: bounce 2s ease-in-out infinite;">🎯</div>
+            <div style="flex: 1;">
+                <h4 style="margin: 0; font-size: 17px; font-weight: 700; margin-bottom: 5px; color: white;">{% t "Qiziqishingizga moslang" request.LANGUAGE_CODE %}</h4>
+                <p style="margin: 0; font-size: 13px; opacity: 0.95; line-height: 1.4; color: white;">{% t "Platformani o'zingizga moslashtiring va faqat kerakli bo'limlarni ko'ring" request.LANGUAGE_CODE %}</p>
+            </div>
+            <div style="font-size: 22px; color: white;">
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function goToOnboardingProfile(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    window.location.href = "{% url 'accounts:onboarding' %}";
+}
+</script>
+
+<style>
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+div[onclick*="onboardingProfile"]:hover > div {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+}
+</style>
+{% endif %}
+
 <!-- 🎮 GAMIFICATION SECTION - MINIMAL VERSION -->
 {% include 'components/gamification/gamification_section_minimal.html' %}
 
@@ -1102,6 +1150,66 @@
 
     <!-- Settings Tab -->
     <div class="tab-pane fade" id="settings" role="tabpanel">
+        <!-- Personalization Settings -->
+        {% has_any_interests user as user_has_interests %}
+        
+        {% if user_has_interests %}
+        <!-- Onboarding o'tganlar - qiziqishlari bor -->
+        <div class="card mb-3">
+            <div class="card-body py-3">
+                <h6 class="mb-3" style="font-size: 0.9rem;"><i class="bi bi-sliders"></i> {% t "Shaxsiylashtirish" request.LANGUAGE_CODE %}</h6>
+                
+                <div class="alert alert-success mb-3" style="font-size: 0.75rem; padding: 0.5rem;">
+                    <i class="bi bi-check-circle-fill"></i> {% t "Siz qiziqishingizga mos holatda foydalanyapsiz. Istasangiz to'liq platformani ko'rish tugmasini bosib foydalanishingiz mumkin" request.LANGUAGE_CODE %}
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="{% url 'accounts:show_all_platform' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-grid-3x3"></i> {% t "To'liq platformani ko'rish" request.LANGUAGE_CODE %}
+                    </a>
+                    <a href="{% url 'accounts:reset_onboarding' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-clockwise"></i> {% t "Qiziqishlarimni qayta tanlash" request.LANGUAGE_CODE %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <!-- Check if onboarding completed -->
+            {% if user.interest_preference.onboarding_completed %}
+            <!-- Onboarding o'tgan lekin to'liq platformani ko'rayotganlar -->
+            <div class="card mb-3">
+                <div class="card-body py-3">
+                    <h6 class="mb-3" style="font-size: 0.9rem;"><i class="bi bi-grid-3x3"></i> {% t "To'liq platforma" request.LANGUAGE_CODE %}</h6>
+                    
+                    <div class="alert alert-warning mb-3" style="font-size: 0.75rem; padding: 0.5rem;">
+                        <i class="bi bi-info-circle-fill"></i> {% t "To'liq platformadan foydalanyapsiz. Qiziqishlaringizga qaytib, faqat kerakli bo'limlarni ko'ring" request.LANGUAGE_CODE %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'accounts:return_to_interests' %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-arrow-return-left"></i> {% t "Qiziqishimga qaytish" request.LANGUAGE_CODE %}
+                        </a>
+                        <a href="{% url 'accounts:onboarding' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-clockwise"></i> {% t "Qiziqishlarimni qayta aniqlash" request.LANGUAGE_CODE %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Onboarding o'tmaganlar -->
+            <div class="card mb-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                <div class="card-body py-3 text-white">
+                    <h6 class="mb-2" style="font-size: 0.9rem;"><i class="bi bi-stars"></i> {% t "Qiziqishingizga moslang" request.LANGUAGE_CODE %}</h6>
+                    <p class="small mb-3" style="opacity: 0.95;">{% t "Platformani o'zingizga moslashtiring va faqat kerakli bo'limlarni ko'ring" request.LANGUAGE_CODE %}</p>
+                    
+                    <a href="{% url 'accounts:onboarding' %}" class="btn btn-light btn-sm w-100">
+                        <i class="bi bi-sliders"></i> {% t "Moslashtirish" request.LANGUAGE_CODE %}
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+        
         <div class="card mb-3">
             <div class="card-body py-3">
                 <h6 class="mb-3" style="font-size: 0.9rem;"><i class="bi bi-key"></i> {% t "Parolni o'zgartirish" request.LANGUAGE_CODE %}</h6>

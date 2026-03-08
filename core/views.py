@@ -19,9 +19,25 @@ from .models import (
 from core.translation import translator
 
 def is_mobile(request):
-    """User-Agent orqali mobil qurilmani aniqlash"""
+    """User-Agent orqali mobil qurilmani aniqlash - yaxshilangan versiya"""
     user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
-    mobile_keywords = ['mobile', 'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'opera mobi']
+    
+    # Desktop keywords - agar bular bo'lsa, desktop hisoblanadi
+    desktop_keywords = ['windows nt', 'macintosh', 'linux x86_64', 'x11']
+    is_desktop = any(keyword in user_agent for keyword in desktop_keywords)
+    
+    # Agar desktop keyword bo'lsa va mobile keyword bo'lmasa, desktop
+    if is_desktop and 'mobile' not in user_agent:
+        return False
+    
+    # Mobile keywords
+    mobile_keywords = ['mobile', 'android', 'iphone', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'opera mobi']
+    
+    # iPad alohida tekshirish (tablet)
+    if 'ipad' in user_agent:
+        # iPad'ni desktop sifatida ko'rsatish (katta ekran)
+        return False
+    
     return any(keyword in user_agent for keyword in mobile_keywords)
 
 
@@ -232,6 +248,17 @@ def home_view(request):
 def subjects_view(request):
     category_slug = request.GET.get('category')
     
+    # Foydalanuvchi preferences'ini olish
+    user_selected_categories = None
+    if request.user.is_authenticated:
+        try:
+            from accounts.onboarding_models import UserInterestPreference
+            preference = request.user.interest_preference
+            if preference.onboarding_completed:
+                user_selected_categories = preference.selected_categories.get('subjects', [])
+        except:
+            pass
+    
     # Kategoriya bo'yicha filterlash
     if category_slug:
         category = get_object_or_404(SubjectCategory, slug=category_slug, is_active=True)
@@ -240,17 +267,27 @@ def subjects_view(request):
         current_category = category
     else:
         current_category = None
-        subjects = Subject.objects.filter(is_active=True)
+        # MUHIM: "Barchasi" tabida ham personalizatsiya qilish
+        if user_selected_categories:
+            # Faqat tanlangan kategoriyalardagi fanlarni ko'rsatish
+            subjects = Subject.objects.filter(category_id__in=user_selected_categories, is_active=True)
+        else:
+            # Agar personalizatsiya bo'lmasa, barcha fanlarni ko'rsatish
+            subjects = Subject.objects.filter(is_active=True)
         title = "Barcha fanlar"
     
-    # Kategoriyalar ro'yxati
-    categories = SubjectCategory.objects.filter(is_active=True)
+    # Kategoriyalar ro'yxati - faqat tanlangan kategoriyalar
+    if user_selected_categories:
+        categories = SubjectCategory.objects.filter(id__in=user_selected_categories, is_active=True)
+    else:
+        categories = SubjectCategory.objects.filter(is_active=True)
     
     context = {
         'subjects': subjects,
         'categories': categories,
         'current_category': current_category,
         'title': title,
+        'has_personalization': bool(user_selected_categories),
     }
     
     if is_mobile(request):
@@ -580,8 +617,27 @@ def translate_question_ajax(request, question_id):
 
 
 def certificates_view(request):
-    certificates = Certificate.objects.filter(is_active=True)
-    context = {'certificates': certificates}
+    # Foydalanuvchi preferences'ini olish
+    user_selected_certificates = None
+    if request.user.is_authenticated:
+        try:
+            from accounts.onboarding_models import UserInterestPreference
+            preference = request.user.interest_preference
+            if preference.onboarding_completed:
+                user_selected_certificates = preference.selected_categories.get('certificates', [])
+        except:
+            pass
+    
+    # Faqat tanlangan sertifikatlar
+    if user_selected_certificates:
+        certificates = Certificate.objects.filter(id__in=user_selected_certificates, is_active=True)
+    else:
+        certificates = Certificate.objects.filter(is_active=True)
+    
+    context = {
+        'certificates': certificates,
+        'has_personalization': bool(user_selected_certificates),
+    }
     
     if is_mobile(request):
         return render(request, 'core/certificates.html', context)
@@ -942,16 +998,37 @@ def cert_test_analysis_view(request, pk):
 def mock_exams_view(request):
     category_slug = request.GET.get('category')
     
+    # Foydalanuvchi preferences'ini olish
+    user_selected_categories = None
+    if request.user.is_authenticated:
+        try:
+            from accounts.onboarding_models import UserInterestPreference
+            preference = request.user.interest_preference
+            if preference.onboarding_completed:
+                user_selected_categories = preference.selected_categories.get('mock_exams', [])
+        except:
+            pass
+    
     if category_slug:
         category = get_object_or_404(MockExamCategory, slug=category_slug, is_active=True)
         exams = MockExam.objects.filter(category=category, is_active=True).order_by('order', 'created_at')
         title = category.name
     else:
-        exams = MockExam.objects.filter(is_active=True).order_by('order', 'created_at')
+        # MUHIM: "Barchasi" tabida ham personalizatsiya qilish
+        if user_selected_categories:
+            # Faqat tanlangan kategoriyalardagi imtihonlarni ko'rsatish
+            exams = MockExam.objects.filter(category_id__in=user_selected_categories, is_active=True).order_by('order', 'created_at')
+        else:
+            # Agar personalizatsiya bo'lmasa, barcha imtihonlarni ko'rsatish
+            exams = MockExam.objects.filter(is_active=True).order_by('order', 'created_at')
         title = "Barcha Mock Imtihonlar"
         category = None
     
-    categories = MockExamCategory.objects.filter(is_active=True)
+    # Faqat tanlangan kategoriyalar
+    if user_selected_categories:
+        categories = MockExamCategory.objects.filter(id__in=user_selected_categories, is_active=True)
+    else:
+        categories = MockExamCategory.objects.filter(is_active=True)
     
     user_results = {}
     if request.user.is_authenticated:
@@ -973,6 +1050,7 @@ def mock_exams_view(request):
         'current_category': category,
         'title': title,
         'user_results': user_results,
+        'has_personalization': bool(user_selected_categories),
     }
     
     if is_mobile(request):
@@ -1494,16 +1572,38 @@ def news_detail_view(request, slug):
 def courses_view(request):
     category_slug = request.GET.get('category')
     
+    # Foydalanuvchi preferences'ini olish
+    user_selected_categories = None
+    if request.user.is_authenticated:
+        try:
+            from accounts.onboarding_models import UserInterestPreference
+            preference = request.user.interest_preference
+            if preference.onboarding_completed:
+                user_selected_categories = preference.selected_categories.get('courses', [])
+        except:
+            pass
+    
     if category_slug:
         category = get_object_or_404(CourseCategory, slug=category_slug, is_active=True)
         courses = Course.objects.filter(category=category, is_active=True)
         title = category.name
     else:
-        courses = Course.objects.filter(is_active=True)
+        # MUHIM: "Barchasi" tabida ham personalizatsiya qilish
+        if user_selected_categories:
+            # Faqat tanlangan kategoriyalardagi kurslarni ko'rsatish
+            courses = Course.objects.filter(category_id__in=user_selected_categories, is_active=True)
+        else:
+            # Agar personalizatsiya bo'lmasa, barcha kurslarni ko'rsatish
+            courses = Course.objects.filter(is_active=True)
         title = "Barcha kurslar"
         category = None
     
-    categories = CourseCategory.objects.filter(is_active=True)
+    # Faqat tanlangan kategoriyalar
+    if user_selected_categories:
+        categories = CourseCategory.objects.filter(id__in=user_selected_categories, is_active=True)
+    else:
+        categories = CourseCategory.objects.filter(is_active=True)
+    
     featured_courses = Course.objects.filter(is_featured=True, is_active=True)[:3]
     
     context = {
@@ -1512,6 +1612,7 @@ def courses_view(request):
         'featured_courses': featured_courses,
         'current_category': category,
         'title': title,
+        'has_personalization': bool(user_selected_categories),
     }
     
     if is_mobile(request):

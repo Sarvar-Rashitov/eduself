@@ -1,5 +1,6 @@
 {% load static %}
 {% load translation_tags %}
+{% load onboarding_tags %}
 <!DOCTYPE html>
 <html lang="uz" 
       data-light-mode-text="{% t 'Oq rejim' request.LANGUAGE_CODE %}" 
@@ -452,18 +453,31 @@
                 <i class="bi bi-house"></i>
                 <span>{% t "Bosh sahifa" request.LANGUAGE_CODE %}</span>
             </a>
+            
+            {% should_show_section user 'subjects' as show_subjects %}
+            {% if show_subjects %}
             <a href="{% url 'core:subjects' %}" class="nav-btn {% if 'subjects' in request.path or 'topics' in request.path or 'tests' in request.path %}active{% endif %}">
                 <i class="bi bi-book"></i>
                 <span>{% t "Fanlar" request.LANGUAGE_CODE %}</span>
             </a>
+            {% endif %}
+            
+            {% should_show_section user 'certificates' as show_certificates %}
+            {% if show_certificates %}
             <a href="{% url 'core:certificates' %}" class="nav-btn {% if 'certificates' in request.path or 'cert' in request.path %}active{% endif %}">
                 <i class="bi bi-award"></i>
                 <span>{% t "Sertifikatlar" request.LANGUAGE_CODE %}</span>
             </a>
+            {% endif %}
+            
+            {% should_show_section user 'mock_exams' as show_mock_exams %}
+            {% if show_mock_exams %}
             <a href="{% url 'core:mock_exams' %}" class="nav-btn {% if 'mock' in request.path %}active{% endif %}">
                 <i class="bi bi-clipboard-check"></i>
                 <span>{% t "Mock Exam" request.LANGUAGE_CODE %}</span>
             </a>
+            {% endif %}
+            
             <a href="{% url 'core:institutions' %}" class="nav-btn {% if 'institutions' in request.path %}active{% endif %}">
                 <i class="bi bi-building"></i>
                 <span>{% t "Muassasalar" request.LANGUAGE_CODE %}</span>

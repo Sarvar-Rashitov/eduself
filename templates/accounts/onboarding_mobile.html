@@ -1,0 +1,792 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Platformani moslash - EduSelf{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Mobile Onboarding Styles */
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+    
+    .onboarding-mobile-container {
+        min-height: 100vh;
+        padding: 20px 15px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .onboarding-mobile-header {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        animation: fadeInDown 0.5s ease-out;
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .onboarding-mobile-icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+    
+    .onboarding-mobile-title {
+        color: #1a202c !important;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .onboarding-mobile-subtitle {
+        font-size: 14px;
+        color: #1a202c !important;
+        opacity: 0.95;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .progress-mobile {
+        background: rgba(255, 255, 255, 0.2);
+        height: 4px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+    
+    .progress-mobile-fill {
+        height: 100%;
+        background: rgb(215, 38, 38);
+        transition: width 0.3s ease;
+        border-radius: 10px;
+    }
+    
+    .onboarding-mobile-card {
+        background: white;
+        border-radius: 20px;
+        padding: 20px 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        animation: slideUp 0.5s ease-out;
+        max-height: calc(100vh - 200px);
+        overflow: hidden;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .intro-mobile {
+        background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+        border-left: 4px solid #667eea;
+        padding: 14px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #2d3748;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    }
+    
+    .question-mobile {
+        display: none;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+    
+    .question-mobile.active {
+        display: flex;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .question-mobile-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 15px;
+        line-height: 1.3;
+    }
+    
+    .question-mobile-number {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 28px;
+        font-size: 14px;
+        font-weight: 700;
+        margin-right: 8px;
+    }
+    
+    .options-mobile {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 12px;
+        padding-right: 4px;
+        min-height: 0;
+    }
+    
+    /* Scrollbar styling */
+    .options-mobile::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .options-mobile::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .options-mobile::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 10px;
+    }
+    
+    .options-mobile::-webkit-scrollbar-thumb:hover {
+        background: #a0aec0;
+    }
+    
+    .option-mobile {
+        background: #f7fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        min-height: 50px;
+    }
+    
+    .option-mobile:active {
+        transform: scale(0.98);
+    }
+    
+    .option-mobile.selected {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .option-mobile-icon {
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+    
+    .option-mobile.selected .option-mobile-icon {
+        filter: none;
+    }
+    
+    .option-mobile-text {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 600;
+        color: #2d3748;
+    }
+    
+    .option-mobile.selected .option-mobile-text {
+        color: white;
+    }
+    
+    .option-mobile-check {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #cbd5e0;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    
+    .option-mobile.selected .option-mobile-check {
+        background: white;
+        border-color: white;
+    }
+    
+    .option-mobile.selected .option-mobile-check::after {
+        content: '✓';
+        color: #667eea;
+        font-weight: 700;
+        font-size: 12px;
+    }
+    
+    /* 3-column grid for compact options */
+    .options-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    /* 2-column grid for source question */
+    .options-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .options-grid-3 .option-mobile,
+    .options-grid-2 .option-mobile {
+        flex-direction: column;
+        text-align: center;
+        padding: 14px 8px;
+        gap: 6px;
+        min-height: 90px;
+        max-height: 90px;
+        justify-content: center;
+    }
+    
+    .options-grid-3 .option-mobile-icon,
+    .options-grid-2 .option-mobile-icon {
+        font-size: 28px;
+    }
+    
+    .options-grid-3 .option-mobile-text,
+    .options-grid-2 .option-mobile-text {
+        font-size: 11px;
+        line-height: 1.2;
+        word-break: break-word;
+    }
+    
+    .options-grid-3 .option-mobile-check,
+    .options-grid-2 .option-mobile-check {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 16px;
+        height: 16px;
+    }
+    
+    .options-grid-3 .option-mobile,
+    .options-grid-2 .option-mobile {
+        position: relative;
+    }
+    
+    .buttons-mobile {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+        flex-shrink: 0;
+    }
+    
+    .btn-mobile {
+        flex: 1;
+        padding: 14px;
+        border-radius: 12px;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-mobile:active {
+        transform: scale(0.98);
+    }
+    
+    .btn-mobile-back {
+        background: #e2e8f0;
+        color: #2d3748;
+        font-weight: 600;
+    }
+    
+    .btn-mobile-next {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        font-weight: 600;
+    }
+    
+    .btn-mobile-skip {
+        background: rgb(215, 68, 68);
+        color: white;
+        text-align: center;
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 14px;
+        margin-top: 15px;
+        text-decoration: none;
+    }
+    
+    /* Success Modal Mobile */
+    .success-modal-mobile {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .success-modal-mobile.show {
+        display: flex;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .success-modal-content-mobile {
+        background: white;
+        border-radius: 20px;
+        padding: 30px 20px;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        animation: scaleIn 0.3s ease-out;
+    }
+    
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .success-icon-mobile {
+        font-size: 64px;
+        margin-bottom: 15px;
+    }
+    
+    .success-title-mobile {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 10px;
+    }
+    
+    .success-message-mobile {
+        font-size: 14px;
+        color: #4a5568;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+    
+    .success-list-mobile {
+        text-align: left;
+        margin-bottom: 20px;
+    }
+    
+    .success-item-mobile {
+        padding: 8px 12px;
+        background: #f7fafc;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .success-item-mobile i {
+        color: #667eea;
+    }
+    
+    .btn-success-mobile {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="onboarding-mobile-container">
+    <!-- Header -->
+    <div class="onboarding-mobile-header">
+        <div class="onboarding-mobile-icon">🎯</div>
+        <h1 class="onboarding-mobile-title">Platformani moslash</h1>
+        <p class="onboarding-mobile-subtitle">Qiziqishlaringizga mos tajriba</p>
+    </div>
+    
+    <!-- Progress -->
+    <div class="progress-mobile">
+        <div class="progress-mobile-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+    
+    <!-- Card -->
+    <div class="onboarding-mobile-card">
+        <!-- Intro -->
+        <div class="intro-mobile" id="introMessage">
+            EduSelf platformasida ko'plab fanlar, kurslar va testlar mavjud. Quyidagi savollarga javob berish orqali biz sizga eng qiziqarli bo'limlarni tavsiya qilamiz.
+        </div>
+        
+        <!-- Question 1: Source -->
+        <div class="question-mobile active" data-question="1">
+            <div class="question-mobile-title">
+                <span class="question-mobile-number">1</span>
+                Bizni qayerdan topdingiz?
+            </div>
+            <div class="options-mobile options-grid-2">
+                <div class="option-mobile" data-value="instagram">
+                    <span class="option-mobile-icon">📷</span>
+                    <span class="option-mobile-text">Instagram</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+                <div class="option-mobile" data-value="telegram">
+                    <span class="option-mobile-icon">✈️</span>
+                    <span class="option-mobile-text">Telegram</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+                <div class="option-mobile" data-value="tanishimdan">
+                    <span class="option-mobile-icon">👥</span>
+                    <span class="option-mobile-text">Tanishimdan</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+                <div class="option-mobile" data-value="boshqa">
+                    <span class="option-mobile-icon">🌐</span>
+                    <span class="option-mobile-text">Boshqa</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 2: Role -->
+        <div class="question-mobile" data-question="2">
+            <div class="question-mobile-title">
+                <span class="question-mobile-number">2</span>
+                O'zingizni qaysi toifaga yaqin deb hisoblaysiz?
+            </div>
+            <div class="options-mobile">
+                <div class="option-mobile" data-value="abiturient">
+                    <span class="option-mobile-icon">🎓</span>
+                    <span class="option-mobile-text">Abiturient</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+                <div class="option-mobile" data-value="talaba">
+                    <span class="option-mobile-icon">📚</span>
+                    <span class="option-mobile-text">Talaba</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+                <div class="option-mobile" data-value="oqituvchi">
+                    <span class="option-mobile-icon">👨‍🏫</span>
+                    <span class="option-mobile-text">O'qituvchi</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+                <div class="option-mobile" data-value="boshqa">
+                    <span class="option-mobile-icon">👤</span>
+                    <span class="option-mobile-text">Boshqa</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 3: Subjects -->
+        <div class="question-mobile" data-question="3">
+            <div class="question-mobile-title">
+                <span class="question-mobile-number">3</span>
+                Fanlar bo'yicha bilimlaringizni sinab ko'rishni xohlaysizmi?
+            </div>
+            <div class="options-mobile options-grid-3">
+                {% for category in subject_categories %}
+                <div class="option-mobile" data-value="{{ category.id }}" data-multiple="true">
+                    <span class="option-mobile-icon">📖</span>
+                    <span class="option-mobile-text">{{ category.name }}</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+                {% endfor %}
+                <div class="option-mobile" data-value="none" data-multiple="true">
+                    <span class="option-mobile-icon">❌</span>
+                    <span class="option-mobile-text">Qiziqmaydi</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 4: Certificates -->
+        <div class="question-mobile" data-question="4">
+            <div class="question-mobile-title">
+                <span class="question-mobile-number">4</span>
+                Sertifikat imtihonlariga tayyorlanish qiziqmi?
+            </div>
+            <div class="options-mobile">
+                {% for cert in certificates %}
+                <div class="option-mobile" data-value="{{ cert.id }}" data-multiple="true">
+                    <span class="option-mobile-icon">🏆</span>
+                    <span class="option-mobile-text">{{ cert.name }}</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+                {% endfor %}
+                <div class="option-mobile" data-value="none" data-multiple="true">
+                    <span class="option-mobile-icon">❌</span>
+                    <span class="option-mobile-text">Qiziqmaydi</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 5: Courses -->
+        <div class="question-mobile" data-question="5">
+            <div class="question-mobile-title">
+                <span class="question-mobile-number">5</span>
+                Online video kurslar orqali yangi bilimlar olish qiziqmi?
+            </div>
+            <div class="options-mobile options-grid-3">
+                {% for category in course_categories %}
+                <div class="option-mobile" data-value="{{ category.id }}" data-multiple="true">
+                    <span class="option-mobile-icon">🎓</span>
+                    <span class="option-mobile-text">{{ category.name }}</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+                {% endfor %}
+                <div class="option-mobile" data-value="none" data-multiple="true">
+                    <span class="option-mobile-icon">❌</span>
+                    <span class="option-mobile-text">Qiziqmaydi</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 6: Mock Exams -->
+        <div class="question-mobile" data-question="6">
+            <div class="question-mobile-title">
+                <span class="question-mobile-number">6</span>
+                Mock testlar orqali o'zingizni sinab ko'rmoqchimisiz?
+            </div>
+            <div class="options-mobile options-grid-3">
+                {% for category in mock_exam_categories %}
+                <div class="option-mobile" data-value="{{ category.id }}" data-multiple="true">
+                    <span class="option-mobile-icon">📝</span>
+                    <span class="option-mobile-text">{{ category.name }}</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+                {% endfor %}
+                <div class="option-mobile" data-value="none" data-multiple="true">
+                    <span class="option-mobile-icon">❌</span>
+                    <span class="option-mobile-text">Qiziqmaydi</span>
+                    <div class="option-mobile-check"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Buttons -->
+        <div class="buttons-mobile">
+            <button class="btn-mobile btn-mobile-back" id="btnBack" style="display: none;">
+                ← Orqaga
+            </button>
+            <button class="btn-mobile btn-mobile-next" id="btnNext">
+                Keyingi →
+            </button>
+        </div>
+    </div>
+    
+    <!-- Skip Button -->
+    <button class="btn-mobile-skip" id="btnSkip">O'tkazib yuborish</button>
+</div>
+
+<!-- Success Modal -->
+<div class="success-modal-mobile" id="successModal">
+    <div class="success-modal-content-mobile">
+        <div class="success-icon-mobile">🎉</div>
+        <h2 class="success-title-mobile">Ajoyib!</h2>
+        <p class="success-message-mobile">Platforma qiziqishlaringizga moslandi</p>
+        <div class="success-list-mobile" id="successList"></div>
+        <button class="btn-success-mobile" onclick="window.location.href='/'">
+            Platformaga o'tish
+        </button>
+    </div>
+</div>
+
+<script>
+let currentQuestion = 1;
+const totalQuestions = 6;
+const answers = {
+    source: '',
+    role: '',
+    subjects: [],
+    certificates: [],
+    courses: [],
+    mock_exams: []
+};
+
+// Progress yangilash
+function updateProgress() {
+    const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+}
+
+// Savolni ko'rsatish
+function showQuestion(questionNum) {
+    document.querySelectorAll('.question-mobile').forEach(q => {
+        q.classList.remove('active');
+    });
+    document.querySelector(`[data-question="${questionNum}"]`).classList.add('active');
+    
+    // Intro yashirish
+    if (questionNum > 1) {
+        document.getElementById('introMessage').style.display = 'none';
+    }
+    
+    // Tugmalarni boshqarish
+    document.getElementById('btnBack').style.display = questionNum > 1 ? 'block' : 'none';
+    document.getElementById('btnNext').textContent = questionNum === totalQuestions ? 'Tugatish' : 'Keyingi →';
+    
+    updateProgress();
+}
+
+// Option tanlash
+document.querySelectorAll('.option-mobile').forEach(option => {
+    option.addEventListener('click', function() {
+        const isMultiple = this.dataset.multiple === 'true';
+        const question = this.closest('.question-mobile');
+        
+        if (isMultiple) {
+            // Multiple choice
+            this.classList.toggle('selected');
+        } else {
+            // Single choice
+            question.querySelectorAll('.option-mobile').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            this.classList.add('selected');
+        }
+    });
+});
+
+// Keyingi
+document.getElementById('btnNext').addEventListener('click', function() {
+    const currentQ = document.querySelector(`[data-question="${currentQuestion}"]`);
+    const selectedOptions = currentQ.querySelectorAll('.option-mobile.selected');
+    
+    if (selectedOptions.length === 0) {
+        alert('Iltimos, kamida bitta variant tanlang');
+        return;
+    }
+    
+    // Javoblarni saqlash
+    if (currentQuestion === 1) {
+        answers.source = selectedOptions[0].dataset.value;
+    } else if (currentQuestion === 2) {
+        answers.role = selectedOptions[0].dataset.value;
+    } else if (currentQuestion === 3) {
+        answers.subjects = Array.from(selectedOptions).map(opt => opt.dataset.value).filter(v => v !== 'none');
+    } else if (currentQuestion === 4) {
+        answers.certificates = Array.from(selectedOptions).map(opt => opt.dataset.value).filter(v => v !== 'none');
+    } else if (currentQuestion === 5) {
+        answers.courses = Array.from(selectedOptions).map(opt => opt.dataset.value).filter(v => v !== 'none');
+    } else if (currentQuestion === 6) {
+        answers.mock_exams = Array.from(selectedOptions).map(opt => opt.dataset.value).filter(v => v !== 'none');
+    }
+    
+    if (currentQuestion < totalQuestions) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+    } else {
+        // Tugatish
+        saveOnboarding();
+    }
+});
+
+// Orqaga
+document.getElementById('btnBack').addEventListener('click', function() {
+    if (currentQuestion > 1) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+    }
+});
+
+// O'tkazib yuborish
+document.getElementById('btnSkip').addEventListener('click', function() {
+    if (confirm('Onboarding\'ni o\'tkazib yubormoqchimisiz? Keyinchalik profildan qayta sozlashingiz mumkin.')) {
+        fetch('/accounts/onboarding/skip/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        }).then(() => {
+            window.location.href = '/';
+        });
+    }
+});
+
+// Saqlash
+function saveOnboarding() {
+    fetch('/accounts/onboarding/save/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(answers)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Toast trigger: qiziqishlar saqlandi
+            document.cookie = 'show_interests_toast=true; max-age=5; path=/';
+            showSuccessModal(data);
+        }
+    });
+}
+
+// Success modal
+function showSuccessModal(data) {
+    const successList = document.getElementById('successList');
+    successList.innerHTML = '';
+    
+    if (data.has_subjects) {
+        successList.innerHTML += '<div class="success-item-mobile"><i class="bi bi-check-circle-fill"></i> Fanlar bo\'limi</div>';
+    }
+    if (data.has_certificates) {
+        successList.innerHTML += '<div class="success-item-mobile"><i class="bi bi-check-circle-fill"></i> Sertifikatlar</div>';
+    }
+    if (data.has_courses) {
+        successList.innerHTML += '<div class="success-item-mobile"><i class="bi bi-check-circle-fill"></i> Kurslar</div>';
+    }
+    if (data.has_mock_exams) {
+        successList.innerHTML += '<div class="success-item-mobile"><i class="bi bi-check-circle-fill"></i> Mock imtihonlar</div>';
+    }
+    
+    document.getElementById('successModal').classList.add('show');
+}
+
+// Boshlang'ich holat
+updateProgress();
+</script>
+{% endblock %}

@@ -1,9 +1,10 @@
 {% load static %}
+{% load onboarding_tags %}
 <!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1200, initial-scale=0.8, maximum-scale=1.0, user-scalable=yes">
     <title>{% block title %}EduSelf - Ta'lim Platformasi{% endblock %}</title>
     
     <!-- PWA Meta Tags -->
@@ -22,7 +23,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Desktop Styles -->
-    <link rel="stylesheet" href="{% static 'css/desktop.css' %}?v=3.3">
+    <link rel="stylesheet" href="{% static 'css/desktop.css' %}?v=3.4">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -41,11 +42,28 @@
                 </button>
 
                 <nav class="nav-menu" id="navMenu">
+                    {% should_show_section user 'subjects' as show_subjects %}
+                    {% if show_subjects %}
                     <a href="{% url 'core:subjects' %}" class="nav-link {% if 'subjects' in request.path %}active{% endif %}">Fanlar</a>
+                    {% endif %}
+                    
+                    {% should_show_section user 'certificates' as show_certificates %}
+                    {% if show_certificates %}
                     <a href="{% url 'core:certificates' %}" class="nav-link {% if 'certificates' in request.path %}active{% endif %}">Sertifikatlar</a>
+                    {% endif %}
+                    
+                    {% should_show_section user 'mock_exams' as show_mock_exams %}
+                    {% if show_mock_exams %}
                     <a href="{% url 'core:mock_exams' %}" class="nav-link {% if 'mock' in request.path %}active{% endif %}">Imtihonlar</a>
+                    {% endif %}
+                    
                     <a href="{% url 'core:institutions' %}" class="nav-link {% if 'institutions' in request.path %}active{% endif %}">Muassasalar</a>
+                    
+                    {% should_show_section user 'courses' as show_courses %}
+                    {% if show_courses %}
                     <a href="{% url 'core:courses' %}" class="nav-link {% if 'courses' in request.path %}active{% endif %}">Kurslar</a>
+                    {% endif %}
+                    
                     <a href="{% url 'core:global_leaderboard' %}" class="nav-link {% if 'leaderboard' in request.path %}active{% endif %}">Reyting</a>
                     <a href="{% url 'core:news_list' %}" class="nav-link {% if 'news' in request.path %}active{% endif %}">Yangiliklar</a>
                     
@@ -124,10 +142,25 @@
                 <div class="footer-col">
                     <h4>Xizmatlar</h4>
                     <ul>
+                        {% should_show_section user 'subjects' as show_subjects %}
+                        {% if show_subjects %}
                         <li><a href="{% url 'core:subjects' %}">Fanlar</a></li>
+                        {% endif %}
+                        
+                        {% should_show_section user 'certificates' as show_certificates %}
+                        {% if show_certificates %}
                         <li><a href="{% url 'core:certificates' %}">Sertifikatlar</a></li>
+                        {% endif %}
+                        
+                        {% should_show_section user 'mock_exams' as show_mock_exams %}
+                        {% if show_mock_exams %}
                         <li><a href="{% url 'core:mock_exams' %}">Imtihonlar</a></li>
+                        {% endif %}
+                        
+                        {% should_show_section user 'courses' as show_courses %}
+                        {% if show_courses %}
                         <li><a href="{% url 'core:courses' %}">Kurslar</a></li>
+                        {% endif %}
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -426,6 +459,30 @@
 
     <!-- Telegram Mini App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Desktop Viewport Detection -->
+    <script>
+        (function() {
+            // Desktop versiyani majburlash
+            function forceDesktopView() {
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport && window.innerWidth >= 768) {
+                    viewport.setAttribute('content', 'width=1200, initial-scale=0.8, maximum-scale=1.0, user-scalable=yes');
+                }
+            }
+            
+            // Sahifa yuklanganda
+            forceDesktopView();
+            
+            // Ekran o'lchami o'zgarganda
+            window.addEventListener('resize', forceDesktopView);
+            
+            // Orientatsiya o'zgarganda
+            window.addEventListener('orientationchange', function() {
+                setTimeout(forceDesktopView, 100);
+            });
+        })();
+    </script>
     
     <!-- Header Scroll Hide/Show -->
     <script>

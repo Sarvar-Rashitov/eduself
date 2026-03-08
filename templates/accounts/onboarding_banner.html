@@ -1,0 +1,90 @@
+{% load onboarding_tags %}
+
+<!-- Personalization Banner - Show when user has completed onboarding -->
+{% if user.is_authenticated and user|has_any_interests %}
+<div class="personalization-banner">
+    <div class="container">
+        <div class="banner-content">
+            <div class="banner-icon">
+                <i class="fas fa-filter"></i>
+            </div>
+            <div class="banner-text">
+                <p>✨ Platforma sizning qiziqishlaringizga moslandi</p>
+            </div>
+            <a href="{% url 'accounts:show_all_platform' %}" class="btn-show-all">
+                <i class="fas fa-th"></i>
+                Barcha bo'limlarni ko'rish
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .personalization-banner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 12px 0;
+        margin-bottom: 0;
+    }
+    
+    .personalization-banner .banner-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+    
+    .personalization-banner .banner-icon {
+        font-size: 20px;
+        color: white;
+    }
+    
+    .personalization-banner .banner-text {
+        flex: 1;
+        color: white;
+        margin: 0;
+    }
+    
+    .personalization-banner .banner-text p {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .personalization-banner .btn-show-all {
+        background: white;
+        color: #667eea;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+    
+    .personalization-banner .btn-show-all:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+        .personalization-banner .banner-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+        
+        .personalization-banner .banner-text p {
+            font-size: 13px;
+        }
+        
+        .personalization-banner .btn-show-all {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+    }
+</style>
+{% endif %}

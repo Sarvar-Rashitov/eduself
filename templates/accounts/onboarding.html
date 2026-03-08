@@ -1,0 +1,685 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}Platformani moslash - EduSelf{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Desktop va Mobile uchun umumiy stillar */
+    .onboarding-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .onboarding-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 800px;
+        width: 100%;
+        padding: 40px;
+        animation: slideUp 0.5s ease-out;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .onboarding-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    
+    .onboarding-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+    }
+    
+    .onboarding-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 10px;
+    }
+    
+    .onboarding-intro {
+        background: #f7fafc;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #4a5568;
+    }
+    
+    .progress-bar {
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.3s ease;
+        border-radius: 10px;
+    }
+    
+    .question-container {
+        display: none;
+    }
+    
+    .question-container.active {
+        display: block;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    .question-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 20px;
+    }
+    
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+    
+    .option-card {
+        background: #f7fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .option-card:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+    
+    .option-card.selected {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+        color: white;
+    }
+    
+    .option-card.selected .option-icon {
+        color: white;
+    }
+    
+    .option-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+        color: #667eea;
+    }
+    
+    .option-name {
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .option-not-interested {
+        background: #fed7d7;
+        border-color: #fc8181;
+    }
+    
+    .option-not-interested:hover {
+        border-color: #f56565;
+    }
+    
+    .option-not-interested.selected {
+        background: #f56565;
+        border-color: #f56565;
+        color: white;
+    }
+    
+    .navigation-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: space-between;
+        margin-top: 25px;
+    }
+    
+    .btn-onboarding {
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-prev {
+        background: #e2e8f0;
+        color: #4a5568;
+    }
+    
+    .btn-prev:hover {
+        background: #cbd5e0;
+    }
+    
+    .btn-next {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        flex: 1;
+    }
+    
+    .btn-next:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-next:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .btn-skip {
+        background: transparent;
+        color: #718096;
+        text-decoration: underline;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .btn-skip:hover {
+        color: #4a5568;
+    }
+    
+    /* Success Modal */
+    .success-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .success-modal.active {
+        display: flex;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .success-modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        animation: slideUp 0.5s ease-out;
+    }
+    
+    .success-icon {
+        font-size: 64px;
+        color: #48bb78;
+        margin-bottom: 20px;
+    }
+    
+    .success-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 15px;
+    }
+    
+    .success-text {
+        font-size: 16px;
+        color: #718096;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+    
+    .success-features {
+        background: #f7fafc;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        text-align: left;
+    }
+    
+    .success-feature {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #4a5568;
+    }
+    
+    .success-feature:last-child {
+        margin-bottom: 0;
+    }
+    
+    .success-feature i {
+        color: #48bb78;
+        font-size: 18px;
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Mobile uchun fullscreen */
+    @media (max-width: 768px) {
+        .onboarding-container {
+            padding: 0;
+            align-items: stretch;
+        }
+        
+        .onboarding-card {
+            border-radius: 0;
+            max-width: 100%;
+            min-height: 100vh;
+            padding: 20px;
+            max-height: none;
+        }
+        
+        .options-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .onboarding-title {
+            font-size: 22px;
+        }
+        
+        .question-title {
+            font-size: 18px;
+        }
+        
+        .option-card {
+            padding: 12px;
+        }
+        
+        .option-icon {
+            font-size: 24px;
+        }
+        
+        .option-name {
+            font-size: 13px;
+        }
+        
+        .success-modal-content {
+            padding: 30px 20px;
+        }
+        
+        .success-title {
+            font-size: 20px;
+        }
+        
+        .success-text {
+            font-size: 14px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="onboarding-container">
+    <div class="onboarding-card">
+        <div class="onboarding-header">
+            <div class="onboarding-icon">🎯</div>
+            <h1 class="onboarding-title">Platformani moslash</h1>
+        </div>
+        
+        <div class="onboarding-intro">
+            <p>EduSelf platformasida ko'plab fanlar, kurslar va testlar mavjud. Quyidagi savollarga javob berish orqali biz sizga eng qiziqarli bo'limlarni tavsiya qilamiz. Istasangiz keyinchalik barcha imkoniyatlarni ham ko'rishingiz mumkin.</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        
+        <!-- Question 1: Role -->
+        <div class="question-container active" data-question="1">
+            <h2 class="question-title">O'zingizni qaysi toifaga yaqin deb hisoblaysiz?</h2>
+            <div class="options-grid">
+                <div class="option-card" data-value="abiturient">
+                    <div class="option-icon">🎓</div>
+                    <div class="option-name">Abiturient</div>
+                </div>
+                <div class="option-card" data-value="student">
+                    <div class="option-icon">📚</div>
+                    <div class="option-name">Talaba</div>
+                </div>
+                <div class="option-card" data-value="teacher">
+                    <div class="option-icon">👨‍🏫</div>
+                    <div class="option-name">O'qituvchi</div>
+                </div>
+                <div class="option-card" data-value="other">
+                    <div class="option-icon">👤</div>
+                    <div class="option-name">Boshqa</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 2: Subjects -->
+        <div class="question-container" data-question="2">
+            <h2 class="question-title">Fanlar bo'yicha o'zingizni sinab ko'rish qiziqmi?</h2>
+            <div class="options-grid">
+                {% for category in subject_categories %}
+                <div class="option-card" data-value="{{ category.id }}" data-multiple="true">
+                    <div class="option-icon"><i class="{{ category.icon }}"></i></div>
+                    <div class="option-name">{{ category.name }}</div>
+                </div>
+                {% endfor %}
+                <div class="option-card option-not-interested" data-value="none" data-multiple="false">
+                    <div class="option-icon">❌</div>
+                    <div class="option-name">Qiziqmaydi</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 3: Certificates -->
+        <div class="question-container" data-question="3">
+            <h2 class="question-title">Sertifikat imtihonlariga tayyorlanish qiziqmi?</h2>
+            <div class="options-grid">
+                {% for cert in certificates %}
+                <div class="option-card" data-value="{{ cert.id }}" data-multiple="true">
+                    <div class="option-icon">🏆</div>
+                    <div class="option-name">{{ cert.name }}</div>
+                </div>
+                {% endfor %}
+                <div class="option-card option-not-interested" data-value="none" data-multiple="false">
+                    <div class="option-icon">❌</div>
+                    <div class="option-name">Qiziqmaydi</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 4: Courses -->
+        <div class="question-container" data-question="4">
+            <h2 class="question-title">Online video kurslar orqali yangi bilimlar olish qiziqmi?</h2>
+            <div class="options-grid">
+                {% for category in course_categories %}
+                <div class="option-card" data-value="{{ category.id }}" data-multiple="true">
+                    <div class="option-icon"><i class="{{ category.icon }}"></i></div>
+                    <div class="option-name">{{ category.name }}</div>
+                </div>
+                {% endfor %}
+                <div class="option-card option-not-interested" data-value="none" data-multiple="false">
+                    <div class="option-icon">❌</div>
+                    <div class="option-name">Qiziqmaydi</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question 5: Mock Exams -->
+        <div class="question-container" data-question="5">
+            <h2 class="question-title">Mock testlar orqali o'zingizni sinab ko'rmoqchimisiz?</h2>
+            <div class="options-grid">
+                {% for category in mock_exam_categories %}
+                <div class="option-card" data-value="{{ category.id }}" data-multiple="true">
+                    <div class="option-icon"><i class="{{ category.icon }}"></i></div>
+                    <div class="option-name">{{ category.name }}</div>
+                </div>
+                {% endfor %}
+                <div class="option-card option-not-interested" data-value="none" data-multiple="false">
+                    <div class="option-icon">❌</div>
+                    <div class="option-name">Qiziqmaydi</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation-buttons" id="navigationButtons">
+            <button class="btn-onboarding btn-prev" id="btnPrev" style="display: none;">
+                ← Orqaga
+            </button>
+            <button class="btn-onboarding btn-next" id="btnNext">
+                Keyingisi →
+            </button>
+        </div>
+        
+        <div style="text-align: center; margin-top: 15px;">
+            <button class="btn-skip" id="btnSkip">Hozir emas, keyinroq</button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="success-modal" id="successModal">
+    <div class="success-modal-content">
+        <div class="success-icon">✅</div>
+        <h2 class="success-title">Ajoyib!</h2>
+        <p class="success-text">Platforma imkoniyatlari qiziqishingizga moslandi.</p>
+        
+        <div class="success-features" id="successFeatures">
+            <!-- JavaScript orqali to'ldiriladi -->
+        </div>
+        
+        <p class="success-text" style="font-size: 14px; margin-bottom: 20px;">
+            Platformaning barcha imkoniyatlarini ham ko'rishingiz mumkin.
+        </p>
+        
+        <button class="btn-success" onclick="window.location.href='{% url 'core:home' %}'">
+            Platformaga o'tish
+        </button>
+    </div>
+</div>
+
+<script>
+    const totalQuestions = 5;
+    let currentQuestion = 1;
+    let answers = {
+        role: null,
+        subjects: [],
+        certificates: [],
+        courses: [],
+        mock_exams: []
+    };
+    
+    // Progress bar yangilash
+    function updateProgress() {
+        const progress = (currentQuestion / totalQuestions) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+    }
+    
+    // Savolni ko'rsatish
+    function showQuestion(questionNum) {
+        document.querySelectorAll('.question-container').forEach(q => {
+            q.classList.remove('active');
+        });
+        
+        const question = document.querySelector(`[data-question="${questionNum}"]`);
+        if (question) {
+            question.classList.add('active');
+        }
+        
+        // Tugmalarni boshqarish
+        document.getElementById('btnPrev').style.display = questionNum > 1 ? 'block' : 'none';
+        document.getElementById('btnNext').textContent = questionNum === totalQuestions ? 'Tugatish ✓' : 'Keyingisi →';
+        
+        updateProgress();
+    }
+    
+    // Option tanlash
+    document.querySelectorAll('.option-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const container = this.closest('.question-container');
+            const questionNum = parseInt(container.dataset.question);
+            const value = this.dataset.value;
+            const isMultiple = this.dataset.multiple === 'true';
+            
+            if (questionNum === 1) {
+                // Question 1: Single choice
+                container.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                answers.role = value;
+            } else {
+                // Questions 2-5: Multiple choice
+                if (value === 'none') {
+                    // "Qiziqmaydi" tanlansa, boshqalarini olib tashlash
+                    container.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const key = ['subjects', 'certificates', 'courses', 'mock_exams'][questionNum - 2];
+                    answers[key] = [];
+                } else {
+                    // Boshqa variant tanlansa
+                    const noneCard = container.querySelector('[data-value="none"]');
+                    if (noneCard) noneCard.classList.remove('selected');
+                    
+                    this.classList.toggle('selected');
+                    
+                    const key = ['subjects', 'certificates', 'courses', 'mock_exams'][questionNum - 2];
+                    const selectedValues = Array.from(container.querySelectorAll('.option-card.selected:not([data-value="none"])'))
+                        .map(c => parseInt(c.dataset.value));
+                    answers[key] = selectedValues;
+                }
+            }
+        });
+    });
+    
+    // Keyingi savol
+    document.getElementById('btnNext').addEventListener('click', function() {
+        if (currentQuestion < totalQuestions) {
+            currentQuestion++;
+            showQuestion(currentQuestion);
+        } else {
+            // Tugatish
+            saveOnboarding();
+        }
+    });
+    
+    // Oldingi savol
+    document.getElementById('btnPrev').addEventListener('click', function() {
+        if (currentQuestion > 1) {
+            currentQuestion--;
+            showQuestion(currentQuestion);
+        }
+    });
+    
+    // O'tkazib yuborish
+    document.getElementById('btnSkip').addEventListener('click', function() {
+        if (confirm('Shaxsiylashtirish jarayonini o\'tkazib yubormoqchimisiz? Keyinchalik sozlamalardan o\'zgartirishingiz mumkin.')) {
+            skipOnboarding();
+        }
+    });
+    
+    // Onboarding saqlash
+    function saveOnboarding() {
+        fetch('{% url "accounts:save_onboarding" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(answers)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessModal(data);
+            } else {
+                alert('Xatolik yuz berdi: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Xatolik yuz berdi. Iltimos, qaytadan urinib ko\'ring.');
+        });
+    }
+    
+    // Success modal ko'rsatish
+    function showSuccessModal(data) {
+        const features = [];
+        
+        if (data.has_subjects) {
+            features.push('<div class="success-feature"><i class="fas fa-check-circle"></i><span>Fanlar bo\'limi sizga moslandi</span></div>');
+        }
+        if (data.has_certificates) {
+            features.push('<div class="success-feature"><i class="fas fa-check-circle"></i><span>Sertifikatlar bo\'limi qo\'shildi</span></div>');
+        }
+        if (data.has_courses) {
+            features.push('<div class="success-feature"><i class="fas fa-check-circle"></i><span>Kurslar bo\'limi tayyor</span></div>');
+        }
+        if (data.has_mock_exams) {
+            features.push('<div class="success-feature"><i class="fas fa-check-circle"></i><span>Mock testlar qo\'shildi</span></div>');
+        }
+        
+        if (features.length === 0) {
+            features.push('<div class="success-feature"><i class="fas fa-info-circle"></i><span>Barcha bo\'limlar sizga ochiq</span></div>');
+        }
+        
+        document.getElementById('successFeatures').innerHTML = features.join('');
+        document.getElementById('successModal').classList.add('active');
+    }
+    
+    // O'tkazib yuborish
+    function skipOnboarding() {
+        fetch('{% url "accounts:skip_onboarding" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '{% url "core:home" %}';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+    // Boshlang'ich holatni o'rnatish
+    updateProgress();
+</script>
+{% endblock %}

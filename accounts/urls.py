@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import onboarding_views
 
 app_name = 'accounts'
 
@@ -16,4 +17,12 @@ urlpatterns = [
     path('auth/telegram/', views.telegram_auth_view, name='telegram_auth'),
     path('telegram-callback/', views.telegram_callback_view, name='telegram_callback'),
     path('auth/telegram-miniapp/', views.telegram_miniapp_auth_view, name='telegram_miniapp_auth'),
+    
+    # Onboarding URLs
+    path('onboarding/', onboarding_views.onboarding_view, name='onboarding'),
+    path('onboarding/save/', onboarding_views.save_onboarding, name='save_onboarding'),
+    path('onboarding/skip/', onboarding_views.skip_onboarding, name='skip_onboarding'),
+    path('onboarding/show-all/', onboarding_views.show_all_platform, name='show_all_platform'),
+    path('onboarding/return-to-interests/', onboarding_views.return_to_interests, name='return_to_interests'),
+    path('onboarding/reset/', onboarding_views.reset_onboarding, name='reset_onboarding'),
 ]

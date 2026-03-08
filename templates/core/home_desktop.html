@@ -1,7 +1,7 @@
 ﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
-
 {% load static %}
+{% load onboarding_tags %}
 
 {% block title %}EduSelf - O'zbekiston Ta'lim Platformasi{% endblock %}
 
@@ -9,6 +9,150 @@
 {% block header_class %}transparent-header{% endblock %}
 
 {% block content %}
+<!-- Toast Notifications for Desktop -->
+{% if user.is_authenticated %}
+{% load onboarding_tags %}
+{% has_any_interests user as user_has_interests %}
+
+<!-- Toast for interests saved - Qiziqishlar saqlanganda -->
+<div id="interestsToast" style="position: fixed; top: 80px; right: 30px; z-index: 1000; display: none; max-width: 400px;">
+    <div style="background: rgba(40, 167, 69, 0.95); backdrop-filter: blur(10px); border-radius: 12px; padding: 16px 20px; box-shadow: 0 8px 32px rgba(40, 167, 69, 0.4); color: white; animation: slideInRight 0.3s ease-out;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 32px;">✅</div>
+            <div style="flex: 1;">
+                <h4 style="margin: 0; font-size: 16px; font-weight: 700; margin-bottom: 4px; color: white;">Qiziqishingizga moslandi</h4>
+                <p style="margin: 0; font-size: 13px; opacity: 0.95; color: white;">Sozlamalardan to'liq platformaga o'tishingiz mumkin</p>
+            </div>
+            <button onclick="closeInterestsToast(event)" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: background 0.2s;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast for full platform - To'liq platforma rejimida -->
+<div id="fullPlatformToast" style="position: fixed; top: 80px; right: 30px; z-index: 1000; display: none; max-width: 400px;">
+    <div style="background: rgba(255, 193, 7, 0.95); backdrop-filter: blur(10px); border-radius: 12px; padding: 16px 20px; box-shadow: 0 8px 32px rgba(255, 193, 7, 0.4); color: white; animation: slideInRight 0.3s ease-out;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 32px;">🌐</div>
+            <div style="flex: 1;">
+                <h4 style="margin: 0; font-size: 16px; font-weight: 700; margin-bottom: 4px; color: white;">To'liq platforma rejimida</h4>
+                <p style="margin: 0; font-size: 13px; opacity: 0.95; color: white;">Barcha bo'limlarni ko'rishingiz mumkin</p>
+            </div>
+            <button onclick="closeFullPlatformToast(event)" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: background 0.2s;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show toast on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for interests toast (after onboarding save or return to interests)
+    if (getCookie('show_interests_toast') === 'true') {
+        showInterestsToast();
+        deleteCookie('show_interests_toast');
+    }
+    
+    // Check for full platform toast
+    if (getCookie('show_full_platform_toast') === 'true') {
+        showFullPlatformToast();
+        deleteCookie('show_full_platform_toast');
+    }
+});
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+function deleteCookie(name) {
+    document.cookie = name + '=; Max-Age=0; path=/';
+}
+
+function showInterestsToast() {
+    const toast = document.getElementById('interestsToast');
+    if (toast) {
+        toast.style.display = 'block';
+        setTimeout(() => {
+            closeInterestsToast();
+        }, 5000); // Auto close after 5 seconds
+    }
+}
+
+function showFullPlatformToast() {
+    const toast = document.getElementById('fullPlatformToast');
+    if (toast) {
+        toast.style.display = 'block';
+        setTimeout(() => {
+            closeFullPlatformToast();
+        }, 5000); // Auto close after 5 seconds
+    }
+}
+
+function closeInterestsToast(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    const toast = document.getElementById('interestsToast');
+    toast.style.animation = 'slideOutRight 0.3s ease-out';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 300);
+}
+
+function closeFullPlatformToast(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    const toast = document.getElementById('fullPlatformToast');
+    toast.style.animation = 'slideOutRight 0.3s ease-out';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 300);
+}
+</script>
+
+<style>
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+#interestsToast button:hover,
+#fullPlatformToast button:hover {
+    background: rgba(255,255,255,0.3) !important;
+}
+
+#interestsToast button:active,
+#fullPlatformToast button:active {
+    background: rgba(255,255,255,0.4) !important;
+}
+</style>
+{% endif %}
+
 <!-- Hero Section -->
 <section class="hero">
     <div class="container" style="text-align: left;">
@@ -28,6 +172,9 @@
     </div>
     <div class="hero-animation"></div>
 </section>
+
+<!-- Personalization Banner -->
+{% include 'accounts/onboarding_banner.html' %}
 
 <!-- Stats Section -->
 <section class="stats">
@@ -77,7 +224,54 @@
     </div>
 </section>
 
+<!-- Personalization Banner for Desktop - Eski foydalanuvchilar uchun -->
+{% if user.is_authenticated %}
+{% has_any_interests user as user_has_interests %}
+{% if not user_has_interests %}
+<section style="padding: 2rem 0;">
+    <div class="container">
+        <a href="{% url 'accounts:onboarding' %}" style="text-decoration: none; display: block;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 2rem 2.5rem; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                <!-- Animated background -->
+                <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: pulse 3s ease-in-out infinite;"></div>
+                
+                <div style="display: flex; align-items: center; gap: 2rem; position: relative; z-index: 1;">
+                    <div style="font-size: 64px; animation: bounce 2s ease-in-out infinite;">🎯</div>
+                    <div style="flex: 1;">
+                        <h3 style="margin: 0; font-size: 28px; font-weight: 700; margin-bottom: 8px; color: white;">Qiziqishingizga moslang</h3>
+                        <p style="margin: 0; font-size: 16px; opacity: 0.95; line-height: 1.5; color: white;">Platformani o'zingizga moslashtiring va faqat kerakli bo'limlarni ko'ring. Shaxsiy tajriba uchun bir necha savolga javob bering.</p>
+                    </div>
+                    <div style="font-size: 32px; color: white;">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<style>
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+section a > div:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 50px rgba(102, 126, 234, 0.4);
+}
+</style>
+{% endif %}
+{% endif %}
+
 <!-- Subjects Section -->
+{% should_show_section user 'subjects' as show_subjects %}
+{% if show_subjects %}
 <section id="subjects" class="section subjects-section" style="background-image: url('{% static 'images/fanlar.jpg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; position: relative;">
     <div class="container" style="position: relative; z-index: 2;">
         <h2 class="section-title">Fanlar</h2>
@@ -104,8 +298,11 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- Certificates Section -->
+{% should_show_section user 'certificates' as show_certificates %}
+{% if show_certificates %}
 <section id="certificates" class="section certificate-section" style="background-image: url('{% static 'images/univer.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; position: relative;">
     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 79, 153, 0.85); z-index: 0;"></div>
 
@@ -157,8 +354,11 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- Mock Exams Section -->
+{% should_show_section user 'mock_exams' as show_mock_exams %}
+{% if show_mock_exams %}
 <section id="exams" class="section exams-section" style="background-image: url('{% static 'images/univer.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; position: relative;">
     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 79, 153, 0.85); z-index: 0;"></div>
 
@@ -193,6 +393,7 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- Institutions Section -->
 <section id="institutions" class="section institutions-section" style="background-image: url('{% static 'images/univer.png' %}'); ">

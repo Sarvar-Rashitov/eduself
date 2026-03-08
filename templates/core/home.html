@@ -143,6 +143,195 @@
 
 <!-- Last Tests Section - Login qilingan foydalanuvchilar uchun -->
 {% if user.is_authenticated %}
+
+<!-- Personalization Banner - Eski foydalanuvchilar uchun -->
+{% load onboarding_tags %}
+{% has_any_interests user as user_has_interests %}
+{% if not user_has_interests %}
+<!-- Toast-style banner with close button - Eski foydalanuvchilar uchun -->
+<div id="personalizationToast" style="position: fixed; top: 70px; left: 16px; right: 16px; z-index: 1000; display: none;">
+    <div style="background: rgba(102, 126, 234, 0.95); backdrop-filter: blur(10px); border-radius: 12px; padding: 12px 16px; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4); color: white; animation: slideDown 0.3s ease-out;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="font-size: 24px;">🎯</div>
+            <div style="flex: 1; cursor: pointer;" onclick="goToOnboarding(event)">
+                <h4 style="margin: 0; font-size: 14px; font-weight: 700; margin-bottom: 2px; color: white;">{% t "Qiziqishingizga moslang" request.LANGUAGE_CODE %}</h4>
+                <p style="margin: 0; font-size: 11px; opacity: 0.95; color: white;">{% t "Sozlamalardan to'liq platformaga o'tishingiz mumkin" request.LANGUAGE_CODE %}</p>
+            </div>
+            <button onclick="closeToast(event)" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background 0.2s;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Toast for interests saved - Qiziqishlar saqlanganda -->
+<div id="interestsToast" style="position: fixed; top: 70px; left: 16px; right: 16px; z-index: 1000; display: none;">
+    <div style="background: rgba(40, 167, 69, 0.95); backdrop-filter: blur(10px); border-radius: 12px; padding: 12px 16px; box-shadow: 0 4px 20px rgba(40, 167, 69, 0.4); color: white; animation: slideDown 0.3s ease-out;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="font-size: 24px;">✅</div>
+            <div style="flex: 1;">
+                <h4 style="margin: 0; font-size: 14px; font-weight: 700; margin-bottom: 2px; color: white;">{% t "Qiziqishingizga moslandi" request.LANGUAGE_CODE %}</h4>
+                <p style="margin: 0; font-size: 11px; opacity: 0.95; color: white;">{% t "Sozlamalardan to'liq platformaga o'tishingiz mumkin" request.LANGUAGE_CODE %}</p>
+            </div>
+            <button onclick="closeInterestsToast(event)" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background 0.2s;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast for full platform - To'liq platforma rejimida -->
+<div id="fullPlatformToast" style="position: fixed; top: 70px; left: 16px; right: 16px; z-index: 1000; display: none;">
+    <div style="background: rgba(255, 193, 7, 0.95); backdrop-filter: blur(10px); border-radius: 12px; padding: 12px 16px; box-shadow: 0 4px 20px rgba(255, 193, 7, 0.4); color: white; animation: slideDown 0.3s ease-out;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="font-size: 24px;">🌐</div>
+            <div style="flex: 1;">
+                <h4 style="margin: 0; font-size: 14px; font-weight: 700; margin-bottom: 2px; color: white;">{% t "To'liq platforma rejimida" request.LANGUAGE_CODE %}</h4>
+                <p style="margin: 0; font-size: 11px; opacity: 0.95; color: white;">{% t "Barcha bo'limlarni ko'rishingiz mumkin" request.LANGUAGE_CODE %}</p>
+            </div>
+            <button onclick="closeFullPlatformToast(event)" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background 0.2s;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show toast on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for interests toast (after onboarding save or return to interests)
+    if (getCookie('show_interests_toast') === 'true') {
+        showInterestsToast();
+        deleteCookie('show_interests_toast');
+    }
+    
+    // Check for full platform toast
+    if (getCookie('show_full_platform_toast') === 'true') {
+        showFullPlatformToast();
+        deleteCookie('show_full_platform_toast');
+    }
+    
+    // Show personalization toast for old users (if not dismissed)
+    const toast = document.getElementById('personalizationToast');
+    const dismissed = localStorage.getItem('personalizationToastDismissed');
+    
+    if (!dismissed && toast) {
+        setTimeout(() => {
+            toast.style.display = 'block';
+        }, 500);
+    }
+});
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+function deleteCookie(name) {
+    document.cookie = name + '=; Max-Age=0; path=/';
+}
+
+function showInterestsToast() {
+    const toast = document.getElementById('interestsToast');
+    if (toast) {
+        toast.style.display = 'block';
+        setTimeout(() => {
+            closeInterestsToast();
+        }, 5000); // Auto close after 5 seconds
+    }
+}
+
+function showFullPlatformToast() {
+    const toast = document.getElementById('fullPlatformToast');
+    if (toast) {
+        toast.style.display = 'block';
+        setTimeout(() => {
+            closeFullPlatformToast();
+        }, 5000); // Auto close after 5 seconds
+    }
+}
+
+function goToOnboarding(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    window.location.href = "{% url 'accounts:onboarding' %}";
+}
+
+function closeToast(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const toast = document.getElementById('personalizationToast');
+    toast.style.animation = 'slideUp 0.3s ease-out';
+    setTimeout(() => {
+        toast.style.display = 'none';
+        localStorage.setItem('personalizationToastDismissed', 'true');
+    }, 300);
+}
+
+function closeInterestsToast(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    const toast = document.getElementById('interestsToast');
+    toast.style.animation = 'slideUp 0.3s ease-out';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 300);
+}
+
+function closeFullPlatformToast(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    const toast = document.getElementById('fullPlatformToast');
+    toast.style.animation = 'slideUp 0.3s ease-out';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 300);
+}
+</script>
+
+<style>
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+#personalizationToast button:hover,
+#interestsToast button:hover,
+#fullPlatformToast button:hover {
+    background: rgba(255,255,255,0.3) !important;
+}
+
+#personalizationToast button:active,
+#interestsToast button:active,
+#fullPlatformToast button:active {
+    background: rgba(255,255,255,0.4) !important;
+}
+</style>
+
 <!-- Lives Section -->
 <div class="lives-home-section">
     <div class="lives-home-card">
@@ -324,9 +513,12 @@
             <i class="bi bi-grid-3x3-gap"></i>{% t "Platformaning Imkoniyatlari" request.LANGUAGE_CODE %}</h2>
     </div>
     
+    {% load onboarding_tags %}
     <div class="features-carousel-container">
         <div class="features-carousel">
             <!-- Online Kurslar -->
+            {% should_show_section user 'courses' as show_courses %}
+            {% if show_courses %}
             <div class="feature-carousel-item">
                 <a href="{% url 'core:courses' %}" class="feature-card courses">
                     <div class="feature-card-icon">
@@ -338,8 +530,11 @@
                     </div>
                 </a>
             </div>
+            {% endif %}
             
             <!-- Fanlar va Testlar -->
+            {% should_show_section user 'subjects' as show_subjects %}
+            {% if show_subjects %}
             <div class="feature-carousel-item">
                 <a href="{% url 'core:subjects' %}" class="feature-card subjects">
                     <div class="feature-card-icon">
@@ -351,8 +546,11 @@
                     </div>
                 </a>
             </div>
+            {% endif %}
             
             <!-- Sertifikatlar -->
+            {% should_show_section user 'certificates' as show_certificates %}
+            {% if show_certificates %}
             <div class="feature-carousel-item">
                 <a href="{% url 'core:certificates' %}" class="feature-card certificates">
                     <div class="feature-card-icon">
@@ -364,8 +562,11 @@
                     </div>
                 </a>
             </div>
+            {% endif %}
             
             <!-- Mock Imtihonlar -->
+            {% should_show_section user 'mock_exams' as show_mock_exams %}
+            {% if show_mock_exams %}
             <div class="feature-carousel-item">
                 <a href="{% url 'core:mock_exams' %}" class="feature-card mock-exams">
                     <div class="feature-card-icon">
@@ -377,8 +578,9 @@
                     </div>
                 </a>
             </div>
+            {% endif %}
             
-            <!-- Ta'lim Muassasalari -->
+            <!-- Ta'lim Muassasalari - Always visible -->
             <div class="feature-carousel-item">
                 <a href="{% url 'core:institutions' %}" class="feature-card institutions">
                     <div class="feature-card-icon">
@@ -391,7 +593,7 @@
                 </a>
             </div>
             
-            <!-- Reyting -->
+            <!-- Reyting - Always visible -->
             <div class="feature-carousel-item">
                 <a href="{% url 'core:global_leaderboard' %}" class="feature-card leaderboard">
                     <div class="feature-card-icon">
@@ -405,6 +607,7 @@
             </div>
             
             <!-- Duplicate for seamless loop -->
+            {% if show_courses %}
             <div class="feature-carousel-item">
                 <a href="{% url 'core:courses' %}" class="feature-card courses">
                     <div class="feature-card-icon">
@@ -416,7 +619,9 @@
                     </div>
                 </a>
             </div>
+            {% endif %}
             
+            {% if show_subjects %}
             <div class="feature-carousel-item">
                 <a href="{% url 'core:subjects' %}" class="feature-card subjects">
                     <div class="feature-card-icon">
@@ -428,7 +633,9 @@
                     </div>
                 </a>
             </div>
+            {% endif %}
             
+            {% if show_certificates %}
             <div class="feature-carousel-item">
                 <a href="{% url 'core:certificates' %}" class="feature-card certificates">
                     <div class="feature-card-icon">
@@ -440,7 +647,9 @@
                     </div>
                 </a>
             </div>
+            {% endif %}
             
+            {% if show_mock_exams %}
             <div class="feature-carousel-item">
                 <a href="{% url 'core:mock_exams' %}" class="feature-card mock-exams">
                     <div class="feature-card-icon">
@@ -452,6 +661,7 @@
                     </div>
                 </a>
             </div>
+            {% endif %}
             
             <div class="feature-carousel-item">
                 <a href="{% url 'core:institutions' %}" class="feature-card institutions">
