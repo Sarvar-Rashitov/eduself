@@ -495,10 +495,6 @@
                     <div class="option-name">{{ category.name }}</div>
                 </div>
                 {% endfor %}
-                <div class="option-card option-not-interested" data-value="none" data-multiple="false">
-                    <div class="option-icon">❌</div>
-                    <div class="option-name">Qiziqmaydi</div>
-                </div>
             </div>
         </div>
         
@@ -512,10 +508,6 @@
                     <div class="option-name">{{ cert.name }}</div>
                 </div>
                 {% endfor %}
-                <div class="option-card option-not-interested" data-value="none" data-multiple="false">
-                    <div class="option-icon">❌</div>
-                    <div class="option-name">Qiziqmaydi</div>
-                </div>
             </div>
         </div>
         
@@ -529,10 +521,6 @@
                     <div class="option-name">{{ category.name }}</div>
                 </div>
                 {% endfor %}
-                <div class="option-card option-not-interested" data-value="none" data-multiple="false">
-                    <div class="option-icon">❌</div>
-                    <div class="option-name">Qiziqmaydi</div>
-                </div>
             </div>
         </div>
         
@@ -546,10 +534,6 @@
                     <div class="option-name">{{ category.name }}</div>
                 </div>
                 {% endfor %}
-                <div class="option-card option-not-interested" data-value="none" data-multiple="false">
-                    <div class="option-icon">❌</div>
-                    <div class="option-name">Qiziqmaydi</div>
-                </div>
             </div>
         </div>
         
@@ -561,8 +545,8 @@
                 Keyingisi →
             </button>
         </div>
-        
-        <div style="text-align: center; margin-top: 15px;">
+    </div>
+</div>
             <button class="btn-skip" id="btnSkip">Hozir emas, keyinroq</button>
         </div>
     </div>
@@ -645,25 +629,12 @@
                 answers.role = value;
             } else {
                 // Questions 3-6: Multiple choice
-                if (value === 'none') {
-                    // "Qiziqmaydi" tanlansa, boshqalarni olib tashlash
-                    container.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
-                    this.classList.add('selected');
-                    
-                    const key = ['subjects', 'certificates', 'courses', 'mock_exams'][questionNum - 3];
-                    answers[key] = [];
-                } else {
-                    // Boshqa variant tanlansa
-                    const noneCard = container.querySelector('[data-value="none"]');
-                    if (noneCard) noneCard.classList.remove('selected');
-                    
-                    this.classList.toggle('selected');
-                    
-                    const key = ['subjects', 'certificates', 'courses', 'mock_exams'][questionNum - 3];
-                    const selectedValues = Array.from(container.querySelectorAll('.option-card.selected:not([data-value="none"])'))
-                        .map(c => parseInt(c.dataset.value));
-                    answers[key] = selectedValues;
-                }
+                this.classList.toggle('selected');
+                
+                const key = ['subjects', 'certificates', 'courses', 'mock_exams'][questionNum - 3];
+                const selectedValues = Array.from(container.querySelectorAll('.option-card.selected'))
+                    .map(c => parseInt(c.dataset.value));
+                answers[key] = selectedValues;
             }
         });
     });
@@ -684,13 +655,6 @@
         if (currentQuestion > 1) {
             currentQuestion--;
             showQuestion(currentQuestion);
-        }
-    });
-    
-    // O'tkazib yuborish
-    document.getElementById('btnSkip').addEventListener('click', function() {
-        if (confirm('Shaxsiylashtirish jarayonini o\'tkazib yubormoqchimisiz? Keyinchalik sozlamalardan o\'zgartirishingiz mumkin.')) {
-            skipOnboarding();
         }
     });
     
@@ -745,25 +709,6 @@
         document.getElementById('successModal').classList.add('active');
     }
     
-    // O'tkazib yuborish
-    function skipOnboarding() {
-        fetch('{% url "accounts:skip_onboarding" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = '{% url "core:home" %}';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
     
     // Boshlang'ich holatni o'rnatish
     updateProgress();

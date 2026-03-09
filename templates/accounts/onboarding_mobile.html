@@ -530,11 +530,6 @@
                     <div class="option-mobile-check"></div>
                 </div>
                 {% endfor %}
-                <div class="option-mobile" data-value="none" data-multiple="true">
-                    <span class="option-mobile-icon">❌</span>
-                    <span class="option-mobile-text">Qiziqmaydi</span>
-                    <div class="option-mobile-check"></div>
-                </div>
             </div>
         </div>
         
@@ -552,11 +547,6 @@
                     <div class="option-mobile-check"></div>
                 </div>
                 {% endfor %}
-                <div class="option-mobile" data-value="none" data-multiple="true">
-                    <span class="option-mobile-icon">❌</span>
-                    <span class="option-mobile-text">Qiziqmaydi</span>
-                    <div class="option-mobile-check"></div>
-                </div>
             </div>
         </div>
         
@@ -574,11 +564,6 @@
                     <div class="option-mobile-check"></div>
                 </div>
                 {% endfor %}
-                <div class="option-mobile" data-value="none" data-multiple="true">
-                    <span class="option-mobile-icon">❌</span>
-                    <span class="option-mobile-text">Qiziqmaydi</span>
-                    <div class="option-mobile-check"></div>
-                </div>
             </div>
         </div>
         
@@ -596,11 +581,6 @@
                     <div class="option-mobile-check"></div>
                 </div>
                 {% endfor %}
-                <div class="option-mobile" data-value="none" data-multiple="true">
-                    <span class="option-mobile-icon">❌</span>
-                    <span class="option-mobile-text">Qiziqmaydi</span>
-                    <div class="option-mobile-check"></div>
-                </div>
             </div>
         </div>
         
@@ -614,9 +594,6 @@
             </button>
         </div>
     </div>
-    
-    <!-- Skip Button -->
-    <button class="btn-mobile-skip" id="btnSkip">O'tkazib yuborish</button>
 </div>
 
 <!-- Success Modal -->
@@ -727,21 +704,6 @@ document.getElementById('btnBack').addEventListener('click', function() {
     if (currentQuestion > 1) {
         currentQuestion--;
         showQuestion(currentQuestion);
-    }
-});
-
-// O'tkazib yuborish
-document.getElementById('btnSkip').addEventListener('click', function() {
-    if (confirm('Onboarding\'ni o\'tkazib yubormoqchimisiz? Keyinchalik profildan qayta sozlashingiz mumkin.')) {
-        fetch('/accounts/onboarding/skip/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
-            }
-        }).then(() => {
-            window.location.href = '/';
-        });
     }
 });
 
