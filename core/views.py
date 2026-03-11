@@ -246,6 +246,8 @@ def home_view(request):
 
 
 def subjects_view(request):
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    
     category_slug = request.GET.get('category')
     
     # Foydalanuvchi preferences'ini olish
@@ -276,6 +278,17 @@ def subjects_view(request):
             subjects = Subject.objects.filter(is_active=True)
         title = "Barcha fanlar"
     
+    # Pagination - 8 ta fan har sahifada
+    paginator = Paginator(subjects, 8)
+    page = request.GET.get('page', 1)
+    
+    try:
+        subjects_page = paginator.page(page)
+    except PageNotAnInteger:
+        subjects_page = paginator.page(1)
+    except EmptyPage:
+        subjects_page = paginator.page(paginator.num_pages)
+    
     # Kategoriyalar ro'yxati - faqat tanlangan kategoriyalar
     if user_selected_categories:
         categories = SubjectCategory.objects.filter(id__in=user_selected_categories, is_active=True)
@@ -283,11 +296,13 @@ def subjects_view(request):
         categories = SubjectCategory.objects.filter(is_active=True)
     
     context = {
-        'subjects': subjects,
+        'subjects': subjects_page,
         'categories': categories,
         'current_category': current_category,
         'title': title,
         'has_personalization': bool(user_selected_categories),
+        'paginator': paginator,
+        'page_obj': subjects_page,
     }
     
     if is_mobile(request):
