@@ -227,46 +227,6 @@ function closeFullPlatformToast(event) {
 <!-- Personalization Banner for Desktop - Eski foydalanuvchilar uchun -->
 {% if user.is_authenticated %}
 {% has_any_interests user as user_has_interests %}
-{% if not user_has_interests %}
-<section style="padding: 2rem 0;">
-    <div class="container">
-        <a href="{% url 'accounts:onboarding' %}" style="text-decoration: none; display: block;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 2rem 2.5rem; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;">
-                <!-- Animated background -->
-                <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: pulse 3s ease-in-out infinite;"></div>
-                
-                <div style="display: flex; align-items: center; gap: 2rem; position: relative; z-index: 1;">
-                    <div style="font-size: 64px; animation: bounce 2s ease-in-out infinite;">🎯</div>
-                    <div style="flex: 1;">
-                        <h3 style="margin: 0; font-size: 28px; font-weight: 700; margin-bottom: 8px; color: white;">Qiziqishingizga moslang</h3>
-                        <p style="margin: 0; font-size: 16px; opacity: 0.95; line-height: 1.5; color: white;">Platformani o'zingizga moslashtiring va faqat kerakli bo'limlarni ko'ring. Shaxsiy tajriba uchun bir necha savolga javob bering.</p>
-                    </div>
-                    <div style="font-size: 32px; color: white;">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </div>
-            </div>
-        </a>
-    </div>
-</section>
-
-<style>
-@keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.1); opacity: 0.8; }
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-section a > div:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 50px rgba(102, 126, 234, 0.4);
-}
-</style>
-{% endif %}
 {% endif %}
 
 <!-- Subjects Section -->
