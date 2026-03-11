@@ -1339,6 +1339,8 @@ def mock_exam_analysis_view(request, pk):
 
 
 def institutions_view(request):
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    
     category_slug = request.GET.get('category')
     
     # Kategoriya bo'yicha filterlash
@@ -1352,14 +1354,27 @@ def institutions_view(request):
         institutions = Institution.objects.filter(is_active=True)
         title = "Barcha ta'lim muassasalari"
     
+    # Pagination - 8 ta muassasa har sahifada
+    paginator = Paginator(institutions, 8)
+    page = request.GET.get('page', 1)
+    
+    try:
+        institutions_page = paginator.page(page)
+    except PageNotAnInteger:
+        institutions_page = paginator.page(1)
+    except EmptyPage:
+        institutions_page = paginator.page(paginator.num_pages)
+    
     # Kategoriyalar ro'yxati
     categories = InstitutionCategory.objects.filter(is_active=True)
     
     context = {
-        'institutions': institutions,
+        'institutions': institutions_page,
         'categories': categories,
         'current_category': current_category,
         'title': title,
+        'paginator': paginator,
+        'page_obj': institutions_page,
     }
     
     if is_mobile(request):
