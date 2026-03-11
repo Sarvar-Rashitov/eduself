@@ -1,73 +1,149 @@
-﻿{% extends 'base_desktop.html' %}
+{% extends 'base_desktop.html' %}
 {% load i18n %}
-
 {% load static %}
 
 {% block title %}Ta'lim Muassasalari - EduSelf{% endblock %}
 
-{% block content %}
-<section class="page-header inst-header">
-    <div class="floating-icons">
-        <i class="fas fa-university icon-1"></i>
-        <i class="fas fa-graduation-cap icon-2"></i>
-        <i class="fas fa-book-open icon-3"></i>
-        <i class="fas fa-school icon-4"></i>
-        <i class="fas fa-chalkboard-teacher icon-5"></i>
-    </div>
-    <div class="container">
-        <h1 class="page-title">{% if current_category %}{{ current_category.name }}{% else %}Ta'lim Muassasalari{% endif %}</h1>
-        <p class="page-subtitle">{% if current_category and current_category.description %}{{ current_category.description|safe }}{% else %}Universitetlar, maktablar va o'quv markazlari{% endif %}</p>
-    </div>
-</section>
+{% block header_class %}transparent-header{% endblock %}
 
-<section class="filter-section">
+{% block content %}
+<!-- Modern Hero Section -->
+<section class="institutions-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-pattern"></div>
     <div class="container">
-        <div class="filter-tabs">
-            <a href="{% url 'core:institutions' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-                <i class="fas fa-th-large"></i>Barchasi</a>
-            {% for cat in categories %}
-            <a href="{% url 'core:institutions' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.slug == cat.slug %}active{% endif %}">
-                <i class="{{ cat.icon|default:'fas fa-building' }}"></i> {{ cat.name }}
-            </a>
-            {% endfor %}
+        <div class="hero-content">
+            <h1 class="hero-title">Ta'lim Muassasalari</h1>
+            <p class="hero-subtitle">Eng yaxshi universitetlar, maktablar va o'quv markazlari</p>
+            
+            <!-- Modern Filter & Search Bar -->
+            <div class="search-filter-bar">
+                <div class="search-wrapper">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input type="text" id="institutionSearch" placeholder="Muassasa nomini qidiring..." class="search-input">
+                </div>
+                
+                <div class="filter-wrapper">
+                    <button class="filter-button" id="categoryFilter" type="button">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M2 4h16M5 10h10M8 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>{% if current_category %}{{ current_category.name }}{% else %}Barcha kategoriyalar{% endif %}</span>
+                        <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="filter-dropdown" id="filterDropdown">
+                        <a href="{% url 'core:institutions' %}" class="filter-option {% if not current_category %}active{% endif %}">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <rect x="2" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="10" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="2" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="10" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            <span>Barcha kategoriyalar</span>
+                            {% if not current_category %}
+                            <svg class="check-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            {% endif %}
+                        </a>
+                        {% for cat in categories %}
+                        <a href="{% url 'core:institutions' %}?category={{ cat.slug }}" class="filter-option {% if current_category.slug == cat.slug %}active{% endif %}">
+                            <i class="{{ cat.icon|default:'fas fa-building' }}"></i>
+                            <span>{{ cat.name }}</span>
+                            {% if current_category.slug == cat.slug %}
+                            <svg class="check-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="section institutions-grid-section">
+<!-- Modern Institutions Grid -->
+<section class="institutions-grid-section">
     <div class="container">
-        <div class="universities-grid">
+        <div class="institutions-grid">
             {% for inst in institutions %}
-            <a href="{% url 'core:institution_detail' inst.pk %}" class="university-card">
-                {% if inst.image %}
-                <div class="university-image">
-                    <img src="{{ inst.image.url }}" alt="{{ inst.name }}">
-                    <div class="university-image-overlay"></div>
-                </div>
-                {% else %}
-                <div class="university-image university-placeholder">
-                    <i class="fas fa-university"></i>
-                    <div class="university-image-overlay"></div>
-                </div>
-                {% endif %}
-                <div class="university-content">
-                    <h3>{{ inst.name }}</h3>
-                    <p>{{ inst.short_description|default:inst.description|truncatewords:10|safe }}</p>
-                    {% if inst.location %}
-                    <div class="inst-location">
-                        <i class="fas fa-map-marker-alt"></i> {{ inst.location }}
+            <article class="institution-card">
+                <a href="{% url 'core:institution_detail' inst.pk %}" class="card-link">
+                    <!-- Image Section -->
+                    <div class="card-image-wrapper">
+                        {% if inst.image %}
+                        <img src="{{ inst.image.url }}" alt="{{ inst.name }}" class="card-image">
+                        {% else %}
+                        <div class="card-image-placeholder">
+                            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                                <path d="M32 8L8 20v16c0 15 6 24 24 32 18-8 24-17 24-32V20L32 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+                        <div class="card-overlay"></div>
                     </div>
-                    {% endif %}
-                    <div class="inst-meta">
-                        <span class="inst-category"><i class="fas fa-tag"></i> {{ inst.category.name|default:'Ta\'lim' }}</span>
-                        <span class="inst-directions"><i class="fas fa-graduation-cap"></i> {{ inst.directions.count }} yo'nalish</span>
+                    
+                    <!-- Content Section - Flex Container -->
+                    <div class="card-content">
+                        <!-- Top Content - Grows to fill space -->
+                        <div class="card-content-top">
+                            <div class="card-header">
+                                <h3 class="card-title">{{ inst.name }}</h3>
+                                {% if inst.category %}
+                                <span class="category-badge">
+                                    <i class="{{ inst.category.icon|default:'fas fa-tag' }}"></i>
+                                    {{ inst.category.name }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="card-description">{{ inst.short_description|default:inst.description|truncatewords:12|safe }}</p>
+                            
+                            <div class="card-meta">
+                                {% if inst.location %}
+                                <div class="meta-item">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M8 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" fill="currentColor"/>
+                                        <path d="M8 1a5 5 0 0 0-5 5c0 3 5 9 5 9s5-6 5-9a5 5 0 0 0-5-5z" stroke="currentColor" stroke-width="1.5"/>
+                                    </svg>
+                                    <span>{{ inst.location }}</span>
+                                </div>
+                                {% endif %}
+                                <div class="meta-item">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M8 1v6l4 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+                                    </svg>
+                                    <span>{{ inst.directions.count }} yo'nalish</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Button - Always at bottom -->
+                        <div class="card-content-bottom">
+                            <button class="card-cta" type="button">
+                                <span>Batafsil</span>
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                    <span class="btn btn-outline">Batafsil</span>
-                </div>
-            </a>
+                </a>
+            </article>
             {% empty %}
-            <div class="empty-state full-width">
-                <i class="fas fa-university"></i>
+            <div class="empty-state">
+                <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                    <circle cx="60" cy="60" r="58" stroke="#E5E7EB" stroke-width="4"/>
+                    <path d="M60 30v40M60 80v5" stroke="#9CA3AF" stroke-width="4" stroke-linecap="round"/>
+                </svg>
                 <h3>Muassasalar topilmadi</h3>
                 <p>Hozircha bu kategoriyada muassasalar mavjud emas</p>
             </div>
@@ -75,330 +151,554 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterBtn = document.getElementById('categoryFilter');
+    const filterDropdown = document.getElementById('filterDropdown');
+    
+    if (filterBtn && filterDropdown) {
+        filterBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterDropdown.classList.toggle('show');
+            filterBtn.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!filterBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
+                filterDropdown.classList.remove('show');
+                filterBtn.classList.remove('active');
+            }
+        });
+    }
+    
+    const searchInput = document.getElementById('institutionSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.institution-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const description = card.querySelector('.card-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-/* Animated Institutions Header */
-.inst-header {
-    background: linear-gradient(-45deg, #f59e0b, #fbbf24, #f97316, #fb923c);
-    background-size: 400% 400%;
-    animation: instGradient 12s ease infinite;
+/* ===== HERO SECTION ===== */
+.institutions-hero {
     position: relative;
-    overflow: hidden;
+    background: linear-gradient(135deg, #0b4f99 0%, #115eb2 50%, #176cc8 100%);
+    padding: 120px 0 80px;
+    margin-top: -60px;
+    overflow: visible; /* CRITICAL: Allow dropdown to overflow */
 }
 
-.inst-header::before {
-    content: '';
+.hero-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.08' fill-rule='evenodd'/%3E%3C/svg%3E");
-    animation: patternFloat 30s linear infinite;
+    inset: 0;
+    background: url('/static/images/student.jpeg') center/cover no-repeat;
+    opacity: 0.15;
+    z-index: 0;
 }
 
-.inst-header::after {
-    content: '';
+.hero-pattern {
     position: absolute;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-    border-radius: 50%;
-    top: -200px;
-    right: -100px;
-    animation: glowPulse 8s ease-in-out infinite;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255,255,255,0.06) 0%, transparent 50%);
+    z-index: 1;
 }
 
-.inst-header .container {
+.hero-content {
     position: relative;
     z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
 }
 
-.inst-header .page-title {
-    animation: titleFadeIn 0.8s ease both;
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
-.inst-header .page-subtitle {
-    animation: titleFadeIn 0.8s ease 0.2s both;
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 3rem;
+    font-weight: 400;
 }
 
-@keyframes instGradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+/* ===== SEARCH & FILTER BAR ===== */
+.search-filter-bar {
+    display: flex;
+    gap: 1rem;
+    max-width: 700px;
+    margin: 0 auto;
 }
 
-@keyframes patternFloat {
-    0% { transform: translateX(0) translateY(0); }
-    100% { transform: translateX(100px) translateY(100px); }
+.search-wrapper {
+    position: relative;
+    flex: 1;
 }
 
-@keyframes glowPulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.2); opacity: 0.8; }
-}
-
-@keyframes titleFadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Floating Icons */
-.floating-icons {
+.search-icon {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
     pointer-events: none;
     z-index: 1;
 }
 
-.floating-icons i {
-    position: absolute;
-    color: rgba(255, 255, 255, 0.15);
-    font-size: 2rem;
-    animation: iconFloat 10s ease-in-out infinite;
+.search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3.5rem;
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 1rem;
+    color: #1e293b;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
 }
 
-.floating-icons .icon-1 { left: 5%; top: 20%; animation-delay: 0s; font-size: 2.5rem; }
-.floating-icons .icon-2 { left: 15%; top: 70%; animation-delay: 1s; font-size: 1.8rem; }
-.floating-icons .icon-3 { right: 20%; top: 15%; animation-delay: 2s; font-size: 2.2rem; }
-.floating-icons .icon-4 { right: 10%; top: 60%; animation-delay: 3s; font-size: 1.5rem; }
-.floating-icons .icon-5 { left: 40%; top: 80%; animation-delay: 4s; font-size: 2rem; }
-
-@keyframes iconFloat {
-    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.15; }
-    25% { transform: translateY(-15px) rotate(5deg); opacity: 0.25; }
-    50% { transform: translateY(-25px) rotate(-5deg); opacity: 0.2; }
-    75% { transform: translateY(-10px) rotate(3deg); opacity: 0.25; }
+.search-input:focus {
+    outline: none;
+    border-color: #0b4f99;
+    box-shadow: 0 10px 15px -3px rgba(11,79,153,0.2), 0 4px 6px -2px rgba(11,79,153,0.1);
 }
 
-/* Filter Section Animation */
-.filter-section .filter-tab {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.search-input::placeholder {
+    color: #94a3b8;
+}
+
+/* ===== DROPDOWN FIX ===== */
+.filter-wrapper {
     position: relative;
+    /* CRITICAL: No overflow hidden */
+}
+
+.filter-button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+
+.filter-button:hover {
+    border-color: #0b4f99;
+    box-shadow: 0 10px 15px -3px rgba(11,79,153,0.2), 0 4px 6px -2px rgba(11,79,153,0.1);
+}
+
+.filter-button.active {
+    border-color: #0b4f99;
+    background: #f8fafc;
+}
+
+.filter-button svg:first-child {
+    color: #64748b;
+}
+
+.filter-button .chevron {
+    color: #94a3b8;
+    transition: transform 0.3s ease;
+}
+
+.filter-button.active .chevron {
+    transform: rotate(180deg);
+}
+
+/* DROPDOWN - PROPERLY POSITIONED */
+.filter-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem); /* Below button */
+    left: 0; /* Align with button left edge */
+    min-width: 280px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 9999; /* CRITICAL: High z-index */
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+}
+
+.filter-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.filter-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filter-dropdown::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.filter-dropdown::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    color: #475569;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.9375rem;
+}
+
+.filter-option svg,
+.filter-option i {
+    width: 18px;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.filter-option span {
+    flex: 1;
+}
+
+.filter-option .check-icon {
+    color: #0b4f99;
+    margin-left: auto;
+}
+
+.filter-option:hover {
+    background: #f8fafc;
+    color: #1e293b;
+}
+
+.filter-option:hover svg,
+.filter-option:hover i {
+    color: #0b4f99;
+}
+
+.filter-option.active {
+    background: linear-gradient(135deg, rgba(11,79,153,0.08) 0%, rgba(17,94,178,0.06) 100%);
+    color: #0b4f99;
+    font-weight: 600;
+}
+
+.filter-option.active svg,
+.filter-option.active i {
+    color: #0b4f99;
+}
+
+/* ===== INSTITUTIONS GRID ===== */
+.institutions-grid-section {
+    padding: 80px 0;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 50%);
+}
+
+/* GRID: 4 columns on desktop */
+.institutions-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 cards per row */
+    gap: 1.5rem;
+}
+
+/* ===== INSTITUTION CARD - EQUAL HEIGHT ===== */
+.institution-card {
+    background: white;
+    border-radius: 16px;
     overflow: hidden;
-}
-
-.filter-section .filter-tab::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #f59e0b, #fbbf24);
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
-}
-
-.filter-section .filter-tab:hover::before,
-.filter-section .filter-tab.active::before {
-    width: 80%;
-}
-
-.filter-section .filter-tab:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
-}
-
-.institutions-grid-section { padding: 60px 0; }
-
-/* University Card Animations */
-.universities-grid .university-card {
-    animation: cardSlideUp 0.6s ease both;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+    border: 1px solid #f1f5f9;
+    display: flex; /* CRITICAL: Flex for equal height */
+    flex-direction: column;
 }
 
-.universities-grid .university-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
+.institution-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(11,79,153,0.15), 0 10px 10px -5px rgba(11,79,153,0.08);
+    border-color: #e2e8f0;
+}
+
+.card-link {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* CRITICAL: Full height */
+}
+
+/* ===== CARD IMAGE ===== */
+.card-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 200px; /* Fixed height */
+    overflow: hidden;
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    flex-shrink: 0; /* Don't shrink */
+}
+
+.card-image {
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.6s;
-    z-index: 10;
-    pointer-events: none;
-}
-
-.universities-grid .university-card:hover::before {
-    left: 100%;
-}
-
-.universities-grid .university-card:hover {
-    transform: translateY(-15px) scale(1.02);
-    box-shadow: 0 30px 60px rgba(245, 158, 11, 0.2);
-}
-
-.universities-grid .university-card:nth-child(1) { animation-delay: 0.05s; }
-.universities-grid .university-card:nth-child(2) { animation-delay: 0.1s; }
-.universities-grid .university-card:nth-child(3) { animation-delay: 0.15s; }
-.universities-grid .university-card:nth-child(4) { animation-delay: 0.2s; }
-.universities-grid .university-card:nth-child(5) { animation-delay: 0.25s; }
-.universities-grid .university-card:nth-child(6) { animation-delay: 0.3s; }
-.universities-grid .university-card:nth-child(7) { animation-delay: 0.35s; }
-.universities-grid .university-card:nth-child(8) { animation-delay: 0.4s; }
-
-@keyframes cardSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(40px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* University Image Animation */
-.university-card .university-image {
-    overflow: hidden;
-}
-
-.university-card .university-image img {
+    object-fit: cover;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.university-card:hover .university-image img {
-    transform: scale(1.15);
+.institution-card:hover .card-image {
+    transform: scale(1.08);
 }
 
-.university-card .university-placeholder i {
-    transition: all 0.4s ease;
+.card-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #0b4f99;
+    opacity: 0.3;
 }
 
-.university-card:hover .university-placeholder i {
-    transform: scale(1.2) rotate(10deg);
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.4) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* University Content Animation */
-.university-card .university-content h3 {
+.institution-card:hover .card-overlay {
+    opacity: 1;
+}
+
+/* ===== CARD CONTENT - FLEX LAYOUT ===== */
+.card-content {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* CRITICAL: Grow to fill space */
+}
+
+/* Top content grows to push button down */
+.card-content-top {
+    flex: 1; /* CRITICAL: Grows to fill available space */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Button stays at bottom */
+.card-content-bottom {
+    flex-shrink: 0; /* CRITICAL: Don't shrink */
+    margin-top: auto; /* CRITICAL: Push to bottom */
+}
+
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.4;
+    margin: 0;
     transition: color 0.3s ease;
 }
 
-.university-card:hover .university-content h3 {
-    color: #f59e0b;
+.institution-card:hover .card-title {
+    color: #0b4f99;
 }
 
-.university-card .btn-outline {
-    transition: all 0.3s ease;
-    position: relative;
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #0b4f99;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.category-badge i {
+    font-size: 0.75rem;
+}
+
+.card-description {
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
     overflow: hidden;
+    min-height: 4rem; /* Fixed height for 3 lines - ensures alignment */
 }
 
-.university-card .btn-outline::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, #f59e0b, #fbbf24);
-    transition: left 0.3s ease;
-    z-index: -1;
+.card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0;
 }
 
-.university-card:hover .btn-outline::before {
-    left: 0;
-}
-
-.university-card:hover .btn-outline {
-    color: white;
-    border-color: #f59e0b;
-}
-
-.inst-location {
-    font-size: 0.85rem;
-    color: #f59e0b;
+.meta-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.75rem;
-    transition: all 0.3s ease;
+    font-size: 0.8125rem;
+    color: #64748b;
 }
 
-.university-card:hover .inst-location {
-    transform: translateX(5px);
+.meta-item svg {
+    color: #94a3b8;
+    flex-shrink: 0;
 }
 
-.inst-location i {
-    animation: locationPulse 2s ease-in-out infinite;
-}
-
-@keyframes locationPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-}
-
-.inst-meta {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-}
-
-.inst-meta span {
-    font-size: 0.8rem;
+/* ===== BUTTON - ALIGNED ===== */
+.card-cta {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    transition: all 0.3s ease;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #0b4f99 0%, #115eb2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    margin-top: 1rem; /* Space from content */
 }
 
-.university-card:hover .inst-meta span {
-    transform: translateX(3px);
+.card-cta:hover {
+    background: linear-gradient(135deg, #0a4585 0%, #0f529e 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(11,79,153,0.3), 0 4px 6px -2px rgba(11,79,153,0.2);
 }
 
-.inst-category {
-    color: #f59e0b;
+.card-cta svg {
+    transition: transform 0.3s ease;
 }
 
-.inst-directions {
-    color: var(--primary-color);
+.card-cta:hover svg {
+    transform: translateX(4px);
 }
 
-/* Empty State */
-.empty-state.full-width { 
-    grid-column: 1 / -1; 
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    grid-column: 1 / -1;
     text-align: center;
-    padding: 60px 20px;
-    background: var(--white);
-    border-radius: 20px;
-    animation: fadeIn 0.8s ease;
+    padding: 5rem 2rem;
 }
 
-.empty-state.full-width i {
-    font-size: 4rem;
-    color: #f59e0b;
-    opacity: 0.3;
-    margin-bottom: 1rem;
-    animation: emptyIconFloat 3s ease-in-out infinite;
+.empty-state svg {
+    margin-bottom: 1.5rem;
 }
 
-@keyframes emptyIconFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.empty-state.full-width h3 {
-    font-size: 1.25rem;
-    color: var(--dark-color);
+.empty-state h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
     margin-bottom: 0.5rem;
 }
 
-.empty-state.full-width p {
-    color: var(--text-color);
+.empty-state p {
+    font-size: 1rem;
+    color: #64748b;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1280px) {
+    .institutions-grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 cards on smaller desktop */
+    }
+}
+
+@media (max-width: 1024px) {
+    .institutions-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 cards on tablet */
+    }
+}
+
+@media (max-width: 768px) {
+    .institutions-hero {
+        padding: 100px 0 60px;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .search-filter-bar {
+        flex-direction: column;
+    }
+    
+    .filter-button {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .filter-dropdown {
+        right: 0;
+        left: 0;
+    }
+    
+    .institutions-grid {
+        grid-template-columns: 1fr; /* 1 card on mobile */
+        gap: 1.25rem;
+    }
+    
+    .institutions-grid-section {
+        padding: 40px 0;
+    }
 }
 </style>
 {% endblock %}
