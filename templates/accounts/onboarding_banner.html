@@ -1,7 +1,27 @@
 {% load onboarding_tags %}
 
-<!-- Personalization Banner - Show when user has completed onboarding -->
-{% if user.is_authenticated and user|has_any_interests %}
+<!-- Personalization Banner - Show when user has NO interests (full platform mode) -->
+{% if user.is_authenticated %}
+{% has_any_interests user as user_has_interests %}
+{% if not user_has_interests %}
+<div class="personalization-banner full-platform-mode">
+    <div class="container">
+        <div class="banner-content">
+            <div class="banner-icon">
+                <i class="fas fa-th"></i>
+            </div>
+            <div class="banner-text">
+                <p>🌐 To'liq platforma rejimida - Barcha bo'limlar ko'rsatilmoqda</p>
+            </div>
+            <a href="{% url 'accounts:return_to_interests' %}" class="btn-show-all">
+                <i class="fas fa-filter"></i>
+                Qiziqishlarimga qaytish
+            </a>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Show when user has interests (personalized mode) -->
 <div class="personalization-banner">
     <div class="container">
         <div class="banner-content">
@@ -18,12 +38,18 @@
         </div>
     </div>
 </div>
+{% endif %}
+{% endif %}
 
 <style>
     .personalization-banner {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 12px 0;
         margin-bottom: 0;
+    }
+    
+    .personalization-banner.full-platform-mode {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
     
     .personalization-banner .banner-content {
@@ -65,6 +91,10 @@
         white-space: nowrap;
     }
     
+    .personalization-banner.full-platform-mode .btn-show-all {
+        color: #f59e0b;
+    }
+    
     .personalization-banner .btn-show-all:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -87,4 +117,3 @@
         }
     }
 </style>
-{% endif %}

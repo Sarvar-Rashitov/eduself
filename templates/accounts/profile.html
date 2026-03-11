@@ -849,7 +849,7 @@
 <!-- Personalization Banner - Eski foydalanuvchilar uchun -->
 {% has_any_interests user as user_has_interests %}
 {% if not user_has_interests %}
-<div class="mb-3" style="cursor: pointer;" onclick="goToOnboardingProfile(event)">
+<div class="mb-3" style="cursor: pointer;" onclick="showOnboardingWarningModal(event)">
     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); color: white; position: relative; overflow: hidden; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;">
         <!-- Animated background -->
         <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: pulse 3s ease-in-out infinite; pointer-events: none;"></div>
@@ -867,11 +867,46 @@
     </div>
 </div>
 
+<!-- Warning Modal for Re-onboarding -->
+<div id="onboardingWarningModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; border-radius: 20px; padding: 25px; max-width: 400px; width: 100%; animation: slideUp 0.3s ease-out; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 48px; margin-bottom: 12px;">⚠️</div>
+            <h3 style="margin: 0; font-size: 20px; font-weight: 700; color: #1a202c; margin-bottom: 10px;">Diqqat!</h3>
+            <p style="margin: 0; font-size: 14px; color: #4a5568; line-height: 1.6;">
+                Siz avval qiziqishingizni aniqlagansiz va to'liq platforma rejimiga o'tgansiz. 
+                Qayta qiziqishingizni aniqlashni xohlaysizmi?
+            </p>
+            <p style="margin: 10px 0 0 0; font-size: 13px; color: #718096; line-height: 1.5;">
+                <i class="bi bi-info-circle"></i> Sozlamalardan "Qiziqishlarimga qaytish" tugmasi orqali avvalgi tanlovlaringizga qaytishingiz mumkin.
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="closeOnboardingWarningModal()" style="flex: 1; padding: 12px; background: #e2e8f0; color: #4a5568; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+                Bekor qilish
+            </button>
+            <button onclick="proceedToOnboarding()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                Davom etish
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
-function goToOnboardingProfile(event) {
+function showOnboardingWarningModal(event) {
     event.preventDefault();
     event.stopPropagation();
-    window.location.href = "{% url 'accounts:onboarding' %}";
+    const modal = document.getElementById('onboardingWarningModal');
+    modal.style.display = 'flex';
+}
+
+function closeOnboardingWarningModal() {
+    const modal = document.getElementById('onboardingWarningModal');
+    modal.style.display = 'none';
+}
+
+function proceedToOnboarding() {
+    window.location.href = "{% url 'accounts:reset_onboarding' %}";
 }
 </script>
 
@@ -886,7 +921,18 @@ function goToOnboardingProfile(event) {
     50% { transform: translateY(-5px); }
 }
 
-div[onclick*="onboardingProfile"]:hover > div {
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+div[onclick*="OnboardingWarning"]:hover > div {
     transform: translateY(-2px) !important;
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
 }

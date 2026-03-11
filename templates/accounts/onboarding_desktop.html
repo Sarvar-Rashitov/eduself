@@ -495,6 +495,10 @@
                     <div class="option-name">{{ category.name }}</div>
                 </div>
                 {% endfor %}
+                <div class="option-card option-not-interested" data-value="not_interested" data-single="true">
+                    <div class="option-icon">❌</div>
+                    <div class="option-name">Qiziq emas</div>
+                </div>
             </div>
         </div>
         
@@ -508,6 +512,10 @@
                     <div class="option-name">{{ cert.name }}</div>
                 </div>
                 {% endfor %}
+                <div class="option-card option-not-interested" data-value="not_interested" data-single="true">
+                    <div class="option-icon">❌</div>
+                    <div class="option-name">Qiziq emas</div>
+                </div>
             </div>
         </div>
         
@@ -521,6 +529,10 @@
                     <div class="option-name">{{ category.name }}</div>
                 </div>
                 {% endfor %}
+                <div class="option-card option-not-interested" data-value="not_interested" data-single="true">
+                    <div class="option-icon">❌</div>
+                    <div class="option-name">Qiziq emas</div>
+                </div>
             </div>
         </div>
         
@@ -534,6 +546,10 @@
                     <div class="option-name">{{ category.name }}</div>
                 </div>
                 {% endfor %}
+                <div class="option-card option-not-interested" data-value="not_interested" data-single="true">
+                    <div class="option-icon">❌</div>
+                    <div class="option-name">Qiziq emas</div>
+                </div>
             </div>
         </div>
         
@@ -616,6 +632,8 @@
             const questionNum = parseInt(container.dataset.question);
             const value = this.dataset.value;
             const isMultiple = this.dataset.multiple === 'true';
+            const isSingle = this.dataset.single === 'true';
+            const isNotInterested = value === 'not_interested';
             
             if (questionNum === 1) {
                 // Question 1: Source (Bizni qayerdan topdingiz?)
@@ -628,12 +646,25 @@
                 this.classList.add('selected');
                 answers.role = value;
             } else {
-                // Questions 3-6: Multiple choice
-                this.classList.toggle('selected');
+                // Questions 3-6: Multiple choice with "Qiziqmaydi" logic
+                if (isSingle || isNotInterested) {
+                    // Agar "Qiziqmaydi" tanlansa, boshqa barcha tanlovlarni olib tashlash
+                    container.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                } else {
+                    // Agar boshqa variant tanlansa, "Qiziqmaydi"ni olib tashlash
+                    const notInterestedCard = container.querySelector('[data-value="not_interested"]');
+                    if (notInterestedCard) {
+                        notInterestedCard.classList.remove('selected');
+                    }
+                    this.classList.toggle('selected');
+                }
                 
                 const key = ['subjects', 'certificates', 'courses', 'mock_exams'][questionNum - 3];
                 const selectedValues = Array.from(container.querySelectorAll('.option-card.selected'))
-                    .map(c => parseInt(c.dataset.value));
+                    .map(c => c.dataset.value)
+                    .filter(v => v !== 'not_interested')
+                    .map(v => parseInt(v));
                 answers[key] = selectedValues;
             }
         });
