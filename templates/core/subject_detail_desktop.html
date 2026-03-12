@@ -1,274 +1,301 @@
 {% extends 'base_desktop.html' %}
 {% load i18n %}
-
 {% load static %}
 
 {% block title %}{{ subject.name }} - EduSelf{% endblock %}
 
+{% block header_class %}transparent-header{% endblock %}
+
 {% block content %}
-<!-- Page Header -->
-<section class="page-header subject-header">
+<!-- Modern Hero Section -->
+<section class="subject-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-pattern"></div>
     <div class="container">
-        <div class="breadcrumb">
-            <a href="{% url 'core:home' %}">Bosh sahifa</a>
-            <i class="fas fa-chevron-right"></i>
-            <a href="{% url 'core:subjects' %}">Fanlar</a>
-            <i class="fas fa-chevron-right"></i>
-            <span>{{ subject.name }}</span>
-        </div>
-        <div class="subject-header-content">
-            <div class="subject-icon-large">
+        <!-- Breadcrumb Navigation -->
+        <nav class="breadcrumb-nav">
+            <ol class="breadcrumb-list">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:home' %}" class="breadcrumb-link">
+                        <svg class="breadcrumb-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M2 6L8 2L14 6V13C14 13.5304 13.7893 14.0391 13.4142 14.4142C13.0391 14.7893 12.5304 15 12 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6 15V8H10V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Bosh sahifa</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-separator">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:subjects' %}" class="breadcrumb-link">
+                        <span>Fanlar</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-separator">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </li>
+                <li class="breadcrumb-item breadcrumb-current">
+                    <span class="breadcrumb-text">{{ subject.name }}</span>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Hero Content -->
+        <div class="hero-content">
+            <div class="subject-icon-hero">
                 <i class="{{ subject.icon|default:'fas fa-book' }}"></i>
             </div>
-            <div class="subject-info-large">
-                <h1>{{ subject.name }}</h1>
-                <p>{{ subject.description|safe }}</p>
-                <div class="subject-stats">
-                    <span><i class="fas fa-folder"></i> {{ subject.get_topics_count }} mavzu</span>
-                    <span><i class="fas fa-clipboard-list"></i> {{ subject.get_questions_count }} savol</span>
+            <h1 class="hero-title">{{ subject.name }}</h1>
+            <p class="hero-subtitle">{{ subject.description|safe }}</p>
+            
+            <!-- Stats -->
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ topics.count }}</span>
+                        <span class="stat-label">Mavzular</span>
+                    </div>
+                </div>
+                <div class="hero-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ subject.get_questions_count }}</span>
+                        <span class="stat-label">Savollar</span>
+                    </div>
+                </div>
+                <div class="hero-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ user_progress|default:"0" }}%</span>
+                        <span class="stat-label">Progress</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Topics Section -->
-<section class="section topics-section">
+<!-- Roadmap Section -->
+<section class="roadmap-section">
     <div class="container">
-        <h2 class="section-title-left">Mavzular</h2>
-        <div class="topics-grid">
+        <!-- Search Bar -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input type="text" id="topicSearch" placeholder="Mavzu qidiring..." class="search-input">
+            </div>
+        </div>
+
+        <!-- Roadmap Title -->
+        <div class="roadmap-header">
+            <h2 class="roadmap-title">
+                <i class="fas fa-map-marked-alt"></i>
+                O'quv yo'lxaritasi
+            </h2>
+            <p class="roadmap-subtitle">Har bir mavzuni ketma-ket o'rganib, bilimingizni oshiring</p>
+        </div>
+
+        <!-- Roadmap Path -->
+        <div class="roadmap-path">
             {% for topic in topics %}
-            <div class="topic-card-large {% if not topic.questions.count %}disabled{% endif %}">
-                <div class="topic-number">{{ forloop.counter }}</div>
-                <div class="topic-content">
-                    <h3>{{ topic.name }}</h3>
-                    <p>{{ topic.description|truncatewords:12|safe }}</p>
-                    <div class="topic-meta">
-                        <span><i class="fas fa-clipboard-list"></i> {{ topic.get_questions_count }} savol</span>
+            {% with is_completed=topic.is_completed is_locked=topic.is_locked progress=topic.user_progress|default:0 %}
+            <div class="roadmap-item {% if is_completed %}completed{% elif is_locked %}locked{% else %}active{% endif %}" data-topic-id="{{ topic.id }}">
+                <!-- Connection Line -->
+                {% if not forloop.first %}
+                <div class="roadmap-connector {% if is_completed %}completed{% endif %}">
+                    <div class="connector-line"></div>
+                    <div class="connector-dot"></div>
+                </div>
+                {% endif %}
+
+                <!-- Topic Card -->
+                <div class="roadmap-card">
+                    <!-- Level Badge -->
+                    <div class="level-badge {% if is_completed %}completed{% elif is_locked %}locked{% endif %}">
+                        <span class="level-number">{{ forloop.counter }}</span>
+                        {% if is_completed %}
+                        <i class="fas fa-check level-icon"></i>
+                        {% elif is_locked %}
+                        <i class="fas fa-lock level-icon"></i>
+                        {% else %}
+                        <i class="fas fa-play level-icon"></i>
+                        {% endif %}
+                    </div>
+
+                    <!-- Card Content -->
+                    <div class="card-body">
+                        <div class="card-header-section">
+                            <h3 class="card-title">{{ topic.name }}</h3>
+                            {% if is_completed %}
+                            <span class="status-badge completed">
+                                <i class="fas fa-check-circle"></i>
+                                Tugatilgan
+                            </span>
+                            {% elif is_locked %}
+                            <span class="status-badge locked">
+                                <i class="fas fa-lock"></i>
+                                Qulflangan
+                            </span>
+                            {% else %}
+                            <span class="status-badge active">
+                                <i class="fas fa-circle"></i>
+                                Mavjud
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <p class="card-description">{{ topic.description|truncatewords:15|safe }}</p>
+
+                        <!-- Progress Bar -->
+                        {% if not is_locked %}
+                        <div class="progress-container">
+                            <div class="progress-bar-wrapper">
+                                <div class="progress-bar-fill" style="width: {{ progress }}%"></div>
+                            </div>
+                            <span class="progress-text">{{ progress }}%</span>
+                        </div>
+                        {% endif %}
+
+                        <!-- Card Footer -->
+                        <div class="card-footer-section">
+                            <div class="card-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    {{ topic.get_questions_count }} savol
+                                </span>
+                                <span class="meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    {{ topic.time_limit|default:"15" }} daqiqa
+                                </span>
+                            </div>
+
+                            <!-- Action Button -->
+                            <div class="card-actions">
+                                {% if is_locked %}
+                                <button class="btn-roadmap locked" disabled>
+                                    <i class="fas fa-lock"></i>
+                                    Qulflangan
+                                </button>
+                                {% elif is_completed %}
+                                <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn-roadmap completed">
+                                    <i class="fas fa-redo"></i>
+                                    Qayta topshirish
+                                </a>
+                                {% else %}
+                                {% if user.is_authenticated %}
+                                <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn-roadmap active">
+                                    <i class="fas fa-play"></i>
+                                    Boshlash
+                                </a>
+                                {% else %}
+                                <a href="{% url 'accounts:login' %}?next={% url 'core:topic_leaderboard' topic.pk %}" class="btn-roadmap active">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    Kirish
+                                </a>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Decorative Elements -->
+                    <div class="card-decoration">
+                        <div class="decoration-circle"></div>
+                        <div class="decoration-circle"></div>
                     </div>
                 </div>
-                <div class="topic-actions">
-                    {% if topic.questions.count %}
-                        {% if user.is_authenticated %}
-                        <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-primary">
-                            <i class="fas fa-play"></i>Boshlash</a>
-                        {% else %}
-                        <a href="{% url 'accounts:login' %}?next={% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-primary">
-                            <i class="fas fa-play"></i>Boshlash</a>
-                        {% endif %}
-                    {% else %}
-                        <button class="btn btn-secondary" disabled>
-                            <i class="fas fa-lock"></i>Yopiq</button>
-                    {% endif %}
-                </div>
             </div>
+            {% endwith %}
             {% empty %}
-            <div class="empty-state full-width">
-                <i class="fas fa-folder-open"></i>
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-folder-open"></i>
+                </div>
                 <h3>Mavzular topilmadi</h3>
                 <p>Bu fanda hozircha mavzular mavjud emas</p>
             </div>
             {% endfor %}
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="empty-state" style="display: none;">
+            <div class="empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3>Qidiruv bo'yicha natija topilmadi</h3>
+            <p>Boshqa kalit so'zlar bilan qidirib ko'ring</p>
         </div>
     </div>
 </section>
 {% endblock %}
 
 {% block extra_css %}
-<style>
-.subject-header {
-    padding: 40px 0 60px;
-}
+<link rel="stylesheet" href="{% static 'css/subject_roadmap_premium.css' %}">
+{% endblock %}
 
-.breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-    font-size: 0.9rem;
-}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('topicSearch');
+    const roadmapItems = document.querySelectorAll('.roadmap-item');
+    const noResults = document.getElementById('noResults');
 
-.breadcrumb a {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-}
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            let visibleCount = 0;
 
-.breadcrumb a:hover {
-    color: var(--white);
-}
+            roadmapItems.forEach(item => {
+                const title = item.querySelector('.card-title').textContent.toLowerCase();
+                const description = item.querySelector('.card-description').textContent.toLowerCase();
 
-.breadcrumb i {
-    font-size: 0.7rem;
-    opacity: 0.6;
-}
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
 
-.breadcrumb span {
-    color: var(--white);
-}
-
-.subject-header-content {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-.subject-icon-large {
-    width: 120px;
-    height: 120px;
-    border-radius: 30px;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.subject-icon-large i {
-    font-size: 3.5rem;
-    color: var(--white);
-}
-
-.subject-info-large h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.subject-info-large p {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    margin-bottom: 1rem;
-}
-
-.subject-stats {
-    display: flex;
-    gap: 2rem;
-}
-
-.subject-stats span {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1rem;
-    opacity: 0.9;
-}
-
-.topics-section {
-    padding: 60px 0;
-}
-
-.section-title-left {
-    font-size: 1.75rem;
-    color: var(--dark-color);
-    margin-bottom: 2rem;
-}
-
-.topics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 1.5rem;
-}
-
-.topic-card-large {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1.5rem 2rem;
-    background: var(--white);
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.3s ease;
-    border-left: 4px solid var(--primary-color);
-}
-
-.topic-card-large:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
-}
-
-.topic-number {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--gradient);
-    color: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-
-.topic-content {
-    flex: 1;
-}
-
-.topic-content h3 {
-    font-size: 1.1rem;
-    color: var(--dark-color);
-    margin-bottom: 0.25rem;
-}
-
-.topic-content p {
-    font-size: 0.9rem;
-    color: var(--text-color);
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-}
-
-.topic-meta span {
-    font-size: 0.85rem;
-    color: var(--primary-color);
-}
-
-.topic-actions {
-    margin-left: auto;
-    flex-shrink: 0;
-}
-
-.topic-actions .btn {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.topic-card-large.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    border-left-color: #6c757d;
-}
-
-.topic-card-large.disabled:hover {
-    transform: none;
-    box-shadow: var(--shadow);
-}
-
-.topic-card-large.disabled .topic-number {
-    background: #6c757d;
-}
-
-.empty-state.full-width {
-    grid-column: 1 / -1;
-}
-
-@media (max-width: 768px) {
-    .subject-header-content {
-        flex-direction: column;
-        text-align: center;
+            if (searchTerm && visibleCount === 0) {
+                noResults.style.display = 'flex';
+            } else {
+                noResults.style.display = 'none';
+            }
+        });
     }
-    
-    .subject-stats {
-        justify-content: center;
-    }
-    
-    .topics-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
+
+    // Animate roadmap items on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, observerOptions);
+
+    roadmapItems.forEach(item => {
+        observer.observe(item);
+    });
+});
+</script>
 {% endblock %}

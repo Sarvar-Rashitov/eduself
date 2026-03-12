@@ -313,17 +313,49 @@ def subjects_view(request):
 
 def subject_detail_view(request, pk):
     subject = get_object_or_404(Subject, pk=pk, is_active=True)
-    topics = subject.topics.filter(is_active=True).prefetch_related('questions')
+    topics = subject.topics.filter(is_active=True).prefetch_related('questions').order_by('order', 'id')
     
-    # Har bir mavzu uchun foydalanuvchi natijasini olish
+    # Har bir mavzu uchun foydalanuvchi natijasini olish va locking logikasi
     user_results = {}
+    previous_completed = True  # Birinchi mavzu har doim ochiq
+    
     if request.user.is_authenticated:
-        for topic in topics:
-            result = TopicResult.objects.filter(user=request.user, topic=topic).order_by('-completed_at').first()
+        for index, topic in enumerate(topics):
+            # Foydalanuvchi natijasini olish
+            result = TopicResult.objects.filter(
+                user=request.user, 
+                topic=topic
+            ).order_by('-completed_at').first()
+            
             if result:
                 user_results[topic.id] = result
+                # Agar test muvaffaqiyatli topshirilgan bo'lsa (60% dan yuqori)
+                topic.is_completed = result.earned_points >= (topic.get_max_points() * 0.6)
+                topic.user_progress = int((result.earned_points / topic.get_max_points()) * 100) if topic.get_max_points() > 0 else 0
+            else:
+                topic.is_completed = False
+                topic.user_progress = 0
+            
+            # Locking logikasi: Oldingi mavzu tugatilmagan bo'lsa, keyingisi qulflangan
+            if index == 0:
+                topic.is_locked = False  # Birinchi mavzu har doim ochiq
+            else:
+                topic.is_locked = not previous_completed
+            
+            # Keyingi iteratsiya uchun
+            previous_completed = topic.is_completed
+    else:
+        # Foydalanuvchi tizimga kirmagan bo'lsa, faqat birinchi mavzu ochiq
+        for index, topic in enumerate(topics):
+            topic.is_completed = False
+            topic.user_progress = 0
+            topic.is_locked = index > 0
     
-    context = {'subject': subject, 'topics': topics, 'user_results': user_results}
+    context = {
+        'subject': subject, 
+        'topics': topics, 
+        'user_results': user_results
+    }
     
     if is_mobile(request):
         return render(request, 'core/subject_detail.html', context)
