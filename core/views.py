@@ -1398,6 +1398,86 @@ def institutions_view(request):
         return render(request, 'core/institutions_desktop.html', context)
 
 
+def search_institutions_api(request):
+    """Muassasalarni qidirish API - barcha sahifalardagi ma'lumotlardan"""
+    from django.http import JsonResponse
+    
+    query = request.GET.get('q', '').strip()
+    category_slug = request.GET.get('category', '')
+    
+    if not query:
+        return JsonResponse({'results': [], 'count': 0})
+    
+    # Kategoriya bo'yicha filterlash
+    if category_slug:
+        institutions = Institution.objects.filter(
+            category__slug=category_slug,
+            is_active=True
+        )
+    else:
+        institutions = Institution.objects.filter(is_active=True)
+    
+    # Qidiruv - BARCHA ma'lumotlardan (pagination'siz)
+    institutions = institutions.filter(
+        Q(name__icontains=query) | 
+        Q(description__icontains=query) |
+        Q(short_description__icontains=query)
+    )[:20]  # Maksimal 20 ta natija
+    
+    results = []
+    for inst in institutions:
+        results.append({
+            'id': inst.id,
+            'name': inst.name,
+            'description': (inst.short_description or inst.description or '')[:150],
+            'url': f'/institutions/{inst.id}/',
+            'category': inst.category.name if inst.category else '',
+            'location': inst.location or '',
+            'directions_count': inst.directions.count(),
+        })
+    
+    return JsonResponse({'results': results, 'count': len(results)})
+
+
+def search_subjects_api(request):
+    """Fanlarni qidirish API - barcha sahifalardagi ma'lumotlardan"""
+    from django.http import JsonResponse
+    
+    query = request.GET.get('q', '').strip()
+    category_slug = request.GET.get('category', '')
+    
+    if not query:
+        return JsonResponse({'results': [], 'count': 0})
+    
+    # Kategoriya bo'yicha filterlash
+    if category_slug:
+        subjects = Subject.objects.filter(
+            category__slug=category_slug,
+            is_active=True
+        )
+    else:
+        subjects = Subject.objects.filter(is_active=True)
+    
+    # Qidiruv - BARCHA ma'lumotlardan (pagination'siz)
+    subjects = subjects.filter(
+        Q(name__icontains=query) | Q(description__icontains=query)
+    )[:20]  # Maksimal 20 ta natija
+    
+    results = []
+    for subj in subjects:
+        results.append({
+            'id': subj.id,
+            'name': subj.name,
+            'description': (subj.description or '')[:100],
+            'url': f'/subjects/{subj.id}/',
+            'icon': subj.icon,
+            'topics_count': subj.get_topics_count(),
+            'tests_count': subj.get_tests_count(),
+        })
+    
+    return JsonResponse({'results': results, 'count': len(results)})
+
+
 def institution_detail_view(request, pk):
     institution = get_object_or_404(Institution, pk=pk, is_active=True)
     directions = institution.directions.filter(is_active=True)
