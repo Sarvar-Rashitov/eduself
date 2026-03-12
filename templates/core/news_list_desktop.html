@@ -1,685 +1,546 @@
 {% extends 'base_desktop.html' %}
 {% load i18n %}
-
 {% load static %}
+{% load translation_tags %}
 
-{% block title %}{{ title }} - EduSelf{% endblock %}
+{% block title %}Yangiliklar - EduSelf{% endblock %}
+
+{% block header_class %}transparent-header{% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<section class="page-header news-header">
-    <div class="header-decorations">
-        <div class="news-shape shape-1"></div>
-        <div class="news-shape shape-2"></div>
-        <div class="news-shape shape-3"></div>
-        <div class="floating-icon icon-1"><i class="fas fa-newspaper"></i></div>
-        <div class="floating-icon icon-2"><i class="fas fa-rss"></i></div>
-        <div class="floating-icon icon-3"><i class="fas fa-bullhorn"></i></div>
-        <div class="floating-icon icon-4"><i class="fas fa-bell"></i></div>
-    </div>
+<!-- Modern Hero Section -->
+<section class="news-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-pattern"></div>
     <div class="container">
-        <h1 class="page-title">{% if current_category %}{{ current_category.name }}{% else %}{{ title }}{% endif %}</h1>
-        <p class="page-subtitle">{% if current_category and current_category.description %}{{ current_category.description|safe }}{% else %}Eng so'nggi yangiliklar va ta'lim sohasidagi o'zgarishlar{% endif %}</p>
-    </div>
-</section>
-
-<!-- Filter Section -->
-<section class="filter-section">
-    <div class="container">
-        <div class="filter-tabs">
-            <a href="{% url 'core:news_list' %}" class="filter-tab {% if not current_category %}active{% endif %}">
-                <i class="fas fa-th-large"></i>Barchasi</a>
-            {% for cat in categories %}
-            <a href="{% url 'core:news_list' %}?category={{ cat.slug }}" class="filter-tab {% if current_category.id == cat.id %}active{% endif %}">
-                <i class="{{ cat.icon }}"></i> {{ cat.name }}
-            </a>
-            {% endfor %}
+        <div class="hero-content">
+            <h1 class="hero-title">Yangiliklar</h1>
+            <p class="hero-subtitle">Ta'lim sohasidagi eng so'nggi yangiliklar va tadbirlar</p>
+            
+            <!-- Modern Filter & Search Bar -->
+            <div class="search-filter-bar">
+                <div class="search-wrapper">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input type="text" id="newsSearch" placeholder="Yangilik qidiring..." class="search-input">
+                </div>
+                
+                <div class="filter-wrapper">
+                    <button class="filter-button" id="categoryFilter" type="button">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M2 4h16M5 10h10M8 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>{% if current_category %}{{ current_category.name }}{% else %}Barcha kategoriyalar{% endif %}</span>
+                        <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="filter-dropdown" id="filterDropdown">
+                        <a href="{% url 'core:news_list' %}" class="filter-option {% if not current_category %}active{% endif %}">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <rect x="2" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="10" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="2" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="10" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            <span>Barcha kategoriyalar</span>
+                        </a>
+                        {% for cat in categories %}
+                        <a href="{% url 'core:news_list' %}?category={{ cat.slug }}" class="filter-option {% if current_category.slug == cat.slug %}active{% endif %}">
+                            <i class="{{ cat.icon|default:'fas fa-newspaper' }}"></i>
+                            <span>{{ cat.name|translate:request.LANGUAGE_CODE }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="section news-content-section">
+<!-- Modern News Grid -->
+<section class="news-grid-section">
     <div class="container">
         {% if featured_news %}
-        <!-- Asosiy yangiliklar -->
-        <div class="featured-news-section">
-            <h3 class="subsection-title"><i class="fas fa-star"></i>Asosiy yangiliklar</h3>
+        <div style="margin-bottom: 3rem;">
+            <h2>⭐ Asosiy Yangiliklar</h2>
             <div class="featured-news-grid">
                 {% for news in featured_news %}
-                <a href="{% url 'core:news_detail' news.slug %}" class="featured-news-card {% if forloop.first %}large{% endif %}">
-                    {% if news.image %}
-                    <div class="featured-news-image">
+                <article class="news-card-featured">
+                    <a href="{% url 'core:news_detail' news.slug %}">
+                        <div class="news-image">
+                            {% if news.image %}
+                            <img src="{{ news.image.url }}" alt="{{ news.title }}">
+                            {% else %}
+                            <div class="news-placeholder">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            {% endif %}
+                            <span class="category-badge">{{ news.category.name|translate:request.LANGUAGE_CODE }}</span>
+                        </div>
+                        <div class="card-content">
+                            <h3>{{ news.translated_title }}</h3>
+                            <p>{{ news.translated_summary|truncatewords:20 }}</p>
+                            <div class="news-meta">
+                                <span><i class="fas fa-calendar"></i> {{ news.published_at|date:"d.m.Y" }}</span>
+                                <span><i class="fas fa-eye"></i> {{ news.views_count }}</span>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <h2>📚 Barcha Yangiliklar</h2>
+        
+        {% if news_list %}
+        <div class="news-grid">
+            {% for news in news_list %}
+            <article class="news-card">
+                <a href="{% url 'core:news_detail' news.slug %}">
+                    <div class="news-image">
+                        {% if news.image %}
                         <img src="{{ news.image.url }}" alt="{{ news.title }}">
+                        {% else %}
+                        <div class="news-placeholder">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        {% endif %}
+                        <span class="category-badge">{{ news.category.name|translate:request.LANGUAGE_CODE }}</span>
                     </div>
-                    {% endif %}
-                    <div class="featured-news-content">
-                        <span class="news-badge">{{ news.category.name }}</span>
-                        <h3>{{ news.title }}</h3>
-                        <p>{{ news.summary|truncatewords:25 }}</p>
+                    <div class="card-content">
+                        <h3>{{ news.translated_title }}</h3>
+                        <p>{{ news.translated_summary|truncatewords:15 }}</p>
                         <div class="news-meta">
                             <span><i class="fas fa-calendar"></i> {{ news.published_at|date:"d.m.Y" }}</span>
                             <span><i class="fas fa-eye"></i> {{ news.views_count }}</span>
                         </div>
                     </div>
                 </a>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Barcha yangiliklar -->
-        {% if news_list %}
-        <div class="news-grid">
-            {% for news in news_list %}
-            <a href="{% url 'core:news_detail' news.slug %}" class="news-card">
-                {% if news.image %}
-                <div class="news-card-image">
-                    <img src="{{ news.image.url }}" alt="{{ news.title }}">
-                </div>
-                {% else %}
-                <div class="news-card-image no-image">
-                    <i class="fas fa-newspaper"></i>
-                </div>
-                {% endif %}
-                <div class="news-card-content">
-                    <span class="news-badge small">{{ news.category.name }}</span>
-                    <h4>{{ news.title }}</h4>
-                    <p>{{ news.summary|truncatewords:15 }}</p>
-                    <div class="news-meta">
-                        <span><i class="fas fa-calendar"></i> {{ news.published_at|date:"d.m.Y" }}</span>
-                        <span><i class="fas fa-eye"></i> {{ news.views_count }}</span>
-                    </div>
-                </div>
-            </a>
+            </article>
             {% endfor %}
         </div>
         {% else %}
-        <div class="empty-state-desktop">
+        <div class="empty-state">
             <i class="fas fa-newspaper"></i>
-            <h3>Yangiliklar topilmadi</h3>
-            <p>Hozircha bu kategoriyada yangiliklar mavjud emas</p>
+            <p>Hozircha yangiliklar mavjud emas</p>
         </div>
         {% endif %}
     </div>
 </section>
+
 {% endblock %}
 
 {% block extra_css %}
 <style>
-/* Animated News Header */
-.news-header {
-    background: linear-gradient(-45deg, #3b82f6, #6366f1, #8b5cf6, #2563eb);
-    background-size: 400% 400%;
-    animation: newsGradient 12s ease infinite;
-    color: var(--white);
-    padding: 60px 0;
-    text-align: center;
+/* ===== HERO SECTION ===== */
+.news-hero {
     position: relative;
-    overflow: hidden;
+    background: linear-gradient(135deg, #0b4f99 0%, #115eb2 50%, #176cc8 100%);
+    padding: 120px 0 80px;
+    margin-top: -60px;
+    overflow: visible;
 }
 
-.news-header::before {
-    content: '';
+.hero-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    animation: patternSlide 20s linear infinite;
+    inset: 0;
+    background: url('{% static "images/new.jpg" %}') center top/cover no-repeat;
+    opacity: 0.15;
+    z-index: 0;
 }
 
-.news-header::after {
-    content: '';
+.hero-pattern {
     position: absolute;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    top: -100px;
-    right: -50px;
-    animation: glowPulse 8s ease-in-out infinite;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255,255,255,0.06) 0%, transparent 50%);
+    z-index: 1;
 }
 
-.news-header .container {
+.hero-content {
     position: relative;
     z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
 }
 
-.news-header .page-title {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    animation: titleBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
-.news-header .page-subtitle {
-    font-size: 1.2rem;
-    opacity: 0.9;
-    animation: subtitleFade 0.8s ease 0.3s both;
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 3rem;
+    font-weight: 400;
 }
 
-@keyframes newsGradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+/* ===== SEARCH & FILTER BAR ===== */
+.search-filter-bar {
+    display: flex;
+    gap: 1rem;
+    max-width: 700px;
+    margin: 0 auto;
 }
 
-@keyframes patternSlide {
-    0% { transform: translateX(0) translateY(0); }
-    100% { transform: translateX(60px) translateY(60px); }
+.search-wrapper {
+    position: relative;
+    flex: 1;
 }
 
-@keyframes glowPulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.2); opacity: 0.8; }
-}
-
-@keyframes titleBounce {
-    0% { opacity: 0; transform: translateY(-40px) scale(0.9); }
-    60% { transform: translateY(5px) scale(1.02); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes subtitleFade {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 0.9; transform: translateY(0); }
-}
-
-/* Header Decorations */
-.header-decorations {
+.search-icon {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
     pointer-events: none;
     z-index: 1;
 }
 
-.news-shape {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    animation: shapeFloat 12s ease-in-out infinite;
+.search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3.5rem;
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 1rem;
+    color: #1e293b;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
 }
 
-.news-shape.shape-1 {
-    width: 120px;
-    height: 120px;
-    top: -40px;
-    left: 10%;
-    animation-delay: 0s;
+.search-input:focus {
+    outline: none;
+    border-color: #0b4f99;
+    box-shadow: 0 10px 15px -3px rgba(11,79,153,0.2), 0 4px 6px -2px rgba(11,79,153,0.1);
 }
 
-.news-shape.shape-2 {
-    width: 80px;
-    height: 80px;
-    bottom: -20px;
-    right: 15%;
-    animation-delay: 3s;
+.search-input::placeholder {
+    color: #94a3b8;
 }
 
-.news-shape.shape-3 {
-    width: 60px;
-    height: 60px;
-    top: 50%;
-    right: 5%;
-    animation-delay: 6s;
-}
-
-@keyframes shapeFloat {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-20px) scale(1.1); }
-}
-
-/* Floating Icons */
-.floating-icon {
-    position: absolute;
-    color: rgba(255, 255, 255, 0.12);
-    animation: iconFloat 10s ease-in-out infinite;
-}
-
-.floating-icon i {
-    font-size: 2rem;
-}
-
-.floating-icon.icon-1 { left: 8%; top: 25%; animation-delay: 0s; }
-.floating-icon.icon-2 { right: 12%; top: 20%; animation-delay: 2s; }
-.floating-icon.icon-3 { left: 20%; bottom: 25%; animation-delay: 4s; }
-.floating-icon.icon-4 { right: 25%; bottom: 20%; animation-delay: 6s; }
-
-@keyframes iconFloat {
-    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.12; }
-    25% { transform: translateY(-12px) rotate(8deg); opacity: 0.2; }
-    50% { transform: translateY(-20px) rotate(-5deg); opacity: 0.15; }
-    75% { transform: translateY(-8px) rotate(5deg); opacity: 0.2; }
-}
-
-/* Filter Section Animation */
-.filter-section .filter-tab {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.filter-wrapper {
     position: relative;
-    overflow: hidden;
 }
 
-.filter-section .filter-tab::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #3b82f6, #6366f1);
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
-}
-
-.filter-section .filter-tab:hover::after,
-.filter-section .filter-tab.active::after {
-    width: 70%;
-}
-
-.filter-section .filter-tab:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
-}
-
-/* News Content Section */
-.news-content-section {
-    padding: 60px 0;
-}
-
-.subsection-title {
-    font-size: 1.5rem;
-    color: var(--dark-color);
-    margin-bottom: 24px;
+.filter-button {
     display: flex;
     align-items: center;
-    gap: 10px;
-    animation: titleSlideIn 0.6s ease both;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
 }
 
-.subsection-title i {
-    color: #f59e0b;
-    animation: starPulse 2s ease-in-out infinite;
+.filter-button:hover {
+    border-color: #0b4f99;
+    box-shadow: 0 10px 15px -3px rgba(11,79,153,0.2), 0 4px 6px -2px rgba(11,79,153,0.1);
 }
 
-@keyframes titleSlideIn {
-    from { opacity: 0; transform: translateX(-30px); }
-    to { opacity: 1; transform: translateX(0); }
+.filter-button svg:first-child {
+    color: #64748b;
 }
 
-@keyframes starPulse {
-    0%, 100% { transform: scale(1) rotate(0deg); }
-    50% { transform: scale(1.2) rotate(15deg); }
+.filter-button .chevron {
+    color: #94a3b8;
+    transition: transform 0.3s ease;
 }
 
-.featured-news-section {
-    margin-bottom: 50px;
-}
-
-.featured-news-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 24px;
-}
-
-/* Featured News Card Animations */
-.featured-news-card {
-    position: relative;
-    border-radius: 24px;
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 280px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
     overflow: hidden;
+    z-index: 1000;
+}
+
+.filter-dropdown.show {
+    display: block;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    color: #334155;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.filter-option:hover {
+    background: #f8fafc;
+    color: #0b4f99;
+}
+
+.filter-option.active {
+    background: #eff6ff;
+    color: #0b4f99;
+    font-weight: 600;
+}
+
+.filter-option i,
+.filter-option svg {
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.filter-option.active i,
+.filter-option.active svg {
+    color: #0b4f99;
+}
+
+/* ===== NEWS GRID SECTION ===== */
+.news-grid-section {
+    padding: 4rem 0;
+    background: #f8fafc;
+}
+
+.news-grid-section h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+}
+
+.featured-news-grid,
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.news-card-featured,
+.news-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.news-card-featured {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.news-card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.news-card-featured:hover,
+.news-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+}
+
+.news-card-featured a,
+.news-card a {
     text-decoration: none;
     color: inherit;
     display: block;
-    box-shadow: var(--shadow);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: featuredCardIn 0.7s ease both;
 }
 
-.featured-news-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.6s;
-    z-index: 10;
-}
-
-.featured-news-card:hover::before {
-    left: 100%;
-}
-
-.featured-news-grid .featured-news-card:nth-child(1) { animation-delay: 0.1s; }
-.featured-news-grid .featured-news-card:nth-child(2) { animation-delay: 0.2s; }
-.featured-news-grid .featured-news-card:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes featuredCardIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.featured-news-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 30px 60px rgba(59, 130, 246, 0.2);
-}
-
-.featured-news-card.large {
-    grid-row: span 2;
-}
-
-.featured-news-image {
-    width: 100%;
-    height: 100%;
-    min-height: 200px;
-}
-
-.featured-news-card.large .featured-news-image {
-    min-height: 400px;
-}
-
-.featured-news-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.featured-news-content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 24px;
-    background: linear-gradient(transparent, rgba(0,0,0,0.8));
-    color: var(--white);
-}
-
-.featured-news-card.large .featured-news-content h3 {
-    font-size: 1.75rem;
-}
-
-.featured-news-content h3 {
-    font-size: 1.25rem;
-    margin-bottom: 8px;
-}
-
-.featured-news-content p {
-    opacity: 0.9;
-    margin-bottom: 12px;
-    font-size: 0.95rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+.news-image {
+    position: relative;
     overflow: hidden;
 }
 
-.news-badge {
-    display: inline-block;
-    padding: 6px 14px;
-    background: var(--primary-color);
-    color: var(--white);
-    border-radius: 20px;
+.news-card-featured .news-image {
+    height: 220px;
+}
+
+.news-card .news-image {
+    height: 200px;
+}
+
+.news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.news-card-featured:hover .news-image img,
+.news-card:hover .news-image img {
+    transform: scale(1.05);
+}
+
+.news-image .category-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 8px;
     font-size: 0.8rem;
     font-weight: 600;
-    margin-bottom: 10px;
+    color: white;
 }
 
-.news-badge.small {
-    padding: 4px 10px;
-    font-size: 0.75rem;
+.news-card-featured .category-badge {
+    background: #fbbf24;
 }
 
-.news-meta {
-    display: flex;
-    gap: 16px;
-    font-size: 0.85rem;
-    opacity: 0.8;
+.news-card .category-badge {
+    background: #6366f1;
 }
 
-.news-meta span {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.news-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 24px;
-}
-
-/* News Card Animations */
-.news-card {
-    background: var(--white);
-    border-radius: 20px;
-    overflow: hidden;
-    text-decoration: none;
-    color: inherit;
-    box-shadow: var(--shadow);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: newsCardIn 0.6s ease both;
-    position: relative;
-}
-
-.news-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, #3b82f6, #6366f1);
-    transform: scaleX(0);
-    transition: transform 0.4s ease;
-    z-index: 10;
-}
-
-.news-card:hover::before {
-    transform: scaleX(1);
-}
-
-.news-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
+.news-placeholder {
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.08), transparent);
-    transition: left 0.6s;
-}
-
-.news-card:hover::after {
-    left: 100%;
-}
-
-.news-grid .news-card:nth-child(1) { animation-delay: 0.05s; }
-.news-grid .news-card:nth-child(2) { animation-delay: 0.1s; }
-.news-grid .news-card:nth-child(3) { animation-delay: 0.15s; }
-.news-grid .news-card:nth-child(4) { animation-delay: 0.2s; }
-.news-grid .news-card:nth-child(5) { animation-delay: 0.25s; }
-.news-grid .news-card:nth-child(6) { animation-delay: 0.3s; }
-
-@keyframes newsCardIn {
-    from {
-        opacity: 0;
-        transform: translateY(40px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.news-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 25px 50px rgba(59, 130, 246, 0.15);
-}
-
-.news-card-image {
-    height: 180px;
-    overflow: hidden;
-}
-
-.news-card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.news-card:hover .news-card-image img {
-    transform: scale(1.1);
-}
-
-.news-card-image.no-image {
-    background: var(--light-color);
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.news-card-image.no-image i {
+.news-placeholder i {
+    color: rgba(255,255,255,0.5);
+}
+
+.news-card-featured .news-placeholder i {
     font-size: 3rem;
-    color: var(--text-color);
-    opacity: 0.3;
 }
 
-.news-card-content {
-    padding: 20px;
-    position: relative;
-    z-index: 1;
+.news-card .news-placeholder i {
+    font-size: 2.5rem;
 }
 
-.news-card-content h4 {
+.card-content {
+    padding: 1.5rem;
+}
+
+.news-card .card-content {
+    padding: 1.25rem;
+}
+
+.news-card-featured h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.news-card h3 {
     font-size: 1.1rem;
-    color: var(--dark-color);
-    margin-bottom: 8px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    transition: color 0.3s ease;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
 }
 
-.news-card:hover .news-card-content h4 {
-    color: #3b82f6;
+.news-card-featured p {
+    font-size: 0.95rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+    line-height: 1.6;
 }
 
-.news-card-content p {
-    color: var(--text-color);
+.news-card p {
     font-size: 0.9rem;
-    margin-bottom: 12px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    color: #64748b;
+    margin-bottom: 0.875rem;
+    line-height: 1.5;
 }
 
-.news-card-content .news-meta {
-    color: var(--text-color);
+.news-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #94a3b8;
 }
 
-.news-card-content .news-meta span {
-    transition: all 0.3s ease;
-}
-
-.news-card:hover .news-card-content .news-meta span {
-    color: #3b82f6;
-}
-
-/* News Badge Animation */
-.news-badge {
-    display: inline-block;
-    padding: 6px 14px;
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    color: var(--white);
-    border-radius: 20px;
+.news-card .news-meta {
     font-size: 0.8rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-    transition: all 0.3s ease;
 }
 
-.news-card:hover .news-badge,
-.featured-news-card:hover .news-badge {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+.news-meta i {
+    margin-right: 0.25rem;
 }
 
-/* Featured News Image Animation */
-.featured-news-image img {
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.featured-news-card:hover .featured-news-image img {
-    transform: scale(1.1);
-}
-
-/* Empty State */
-.empty-state-desktop {
+.empty-state {
     text-align: center;
-    padding: 80px 20px;
-    background: var(--white);
-    border-radius: 24px;
-    animation: emptyFadeIn 0.8s ease;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
 }
 
-.empty-state-desktop i {
-    font-size: 5rem;
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 20px;
-    animation: emptyIconFloat 3s ease-in-out infinite;
+.empty-state i {
+    font-size: 4rem;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
 }
 
-@keyframes emptyIconFloat {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-15px) rotate(5deg); }
-}
-
-@keyframes emptyFadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.empty-state-desktop h3 {
-    font-size: 1.5rem;
-    color: var(--dark-color);
-    margin-bottom: 10px;
-}
-
-.empty-state-desktop p {
-    color: var(--text-color);
-}
-
-@media (max-width: 768px) {
-    .featured-news-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .featured-news-card.large {
-        grid-row: span 1;
-    }
-    
-    .featured-news-card.large .featured-news-image {
-        min-height: 200px;
-    }
-    
-    .news-grid {
-        grid-template-columns: 1fr;
-    }
+.empty-state p {
+    font-size: 1.1rem;
+    color: #64748b;
 }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButton = document.getElementById('categoryFilter');
+    const filterDropdown = document.getElementById('filterDropdown');
+    
+    if (filterButton && filterDropdown) {
+        filterButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isVisible = filterDropdown.style.display === 'block';
+            filterDropdown.style.display = isVisible ? 'none' : 'block';
+        });
+        
+        document.addEventListener('click', function() {
+            filterDropdown.style.display = 'none';
+        });
+    }
+    
+    const searchInput = document.getElementById('newsSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const newsCards = document.querySelectorAll('.news-card, .news-card-featured');
+            
+            newsCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const summary = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || summary.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
 {% endblock %}
