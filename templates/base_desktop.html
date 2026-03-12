@@ -23,7 +23,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Desktop Styles -->
-    <link rel="stylesheet" href="{% static 'css/desktop.css' %}?v=3.4">
+    <link rel="stylesheet" href="{% static 'css/desktop.css' %}?v=3.5">
+    <link rel="stylesheet" href="{% static 'css/pro-modal-compact.css' %}?v=3.0">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -68,12 +69,25 @@
                     <a href="{% url 'core:news_list' %}" class="nav-link {% if 'news' in request.path %}active{% endif %}">Yangiliklar</a>
                     
                     {% if user.is_authenticated %}
+                    <!-- Pro Button -->
+                    {% if not user.is_pro_user %}
+                    <button class="pro-btn-desktop" id="proButtonDesktop">
+                        <i class="fas fa-crown"></i>
+                        <span>Pro</span>
+                    </button>
+                    {% else %}
+                    <div class="pro-badge-desktop">
+                        <i class="fas fa-crown"></i>
+                        <span>Pro</span>
+                    </div>
+                    {% endif %}
+                    
                     <div class="user-dropdown">
                         <button class="user-btn" id="userDropdownBtn">
                             <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="user-avatar-img">
                             <span>{{ user.get_full_name|default:user.first_name|default:user.username }}</span>
                             {% if unread_notifications_count > 0 %}
-                            <span class="user-notification-badge" style="background: #ef4444; color: white; font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center;">{{ unread_notifications_count }}</span>
+                            <span class="user-notification-badge">{{ unread_notifications_count }}</span>
                             {% endif %}
                             <i class="fas fa-chevron-down"></i>
                         </button>
@@ -81,6 +95,7 @@
                             <a href="{% url 'accounts:profile' %}" class="dropdown-item">
                                 <i class="fas fa-user"></i> Profilim
                             </a>
+                            <div class="dropdown-divider"></div>
                             {% if user.is_staff %}
                             <a href="/nokia/" class="dropdown-item">
                                 <i class="fas fa-cog"></i> Admin Panel
@@ -120,6 +135,34 @@
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Pro Subscription Modal - Professional Glassmorphism -->
+    {% if user.is_authenticated %}
+    <div class="pro-modal-desktop" id="proModalDesktop">
+        <div class="pro-modal-overlay-desktop" id="proModalOverlayDesktop"></div>
+        <div class="pro-modal-content-desktop">
+            <button class="pro-modal-close-desktop" id="proModalCloseDesktop">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="pro-modal-header-desktop">
+                <div class="pro-icon-animated-desktop">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <h2>EduSelf Pro</h2>
+                <p>Cheksiz imkoniyatlar bilan o'rganing</p>
+            </div>
+            
+            <div class="pro-plans-container-desktop" id="proPlansDesktop">
+                <!-- Plans will be loaded here -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Yuklanmoqda...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Footer -->
     {% block footer %}
@@ -805,6 +848,213 @@
                 }
             }
         });
+    });
+    
+    // Pro Modal & Energy System
+    document.addEventListener('DOMContentLoaded', function() {
+        const proButtonDesktop = document.getElementById('proButtonDesktop');
+        const proModalDesktop = document.getElementById('proModalDesktop');
+        const proModalCloseDesktop = document.getElementById('proModalCloseDesktop');
+        const proModalOverlayDesktop = document.getElementById('proModalOverlayDesktop');
+        
+        console.log('Pro Button:', proButtonDesktop);
+        console.log('Pro Modal:', proModalDesktop);
+        
+        // Open Pro modal from navbar button
+        if (proButtonDesktop && proModalDesktop) {
+            proButtonDesktop.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Pro button clicked!');
+                proModalDesktop.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                loadSubscriptionPlans();
+            });
+        } else {
+            console.error('Pro button or modal not found!');
+        }
+        
+        // Close Pro modal
+        if (proModalCloseDesktop) {
+            proModalCloseDesktop.addEventListener('click', function() {
+                proModalDesktop.classList.remove('show');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        if (proModalOverlayDesktop) {
+            proModalOverlayDesktop.addEventListener('click', function() {
+                proModalDesktop.classList.remove('show');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        // Load subscription plans from admin
+        function loadSubscriptionPlans() {
+            const plansContainer = document.getElementById('proPlansDesktop');
+            if (!plansContainer) return;
+            
+            fetch('/subscriptions/api/plans/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.plans && data.plans.length > 0) {
+                        renderPlans(data.plans);
+                    } else {
+                        plansContainer.innerHTML = '<p class="text-center text-muted">Hozircha obuna rejalari mavjud emas</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading plans:', error);
+                    plansContainer.innerHTML = '<p class="text-center text-danger">Xatolik yuz berdi</p>';
+                });
+        }
+        
+        // Render plans
+        function renderPlans(plans) {
+            const plansContainer = document.getElementById('proPlansDesktop');
+            plansContainer.innerHTML = `
+                <div class="pro-plans-grid-desktop">
+                    ${plans.map(plan => `
+                        <div class="pro-plan-card-desktop ${plan.is_popular ? 'popular' : ''}">
+                            ${plan.is_popular ? '<div class="plan-badge-desktop">Mashhur</div>' : ''}
+                            
+                            <h3>${plan.name}</h3>
+                            <p class="plan-description-desktop">${plan.description}</p>
+                            <div class="plan-price-desktop">
+                                <span class="price">${parseFloat(plan.price).toLocaleString('uz-UZ')}</span>
+                                <span class="currency">so'm</span>
+                            </div>
+                            <div class="plan-duration-desktop">${plan.duration_days} kun</div>
+                            <div class="plan-features-desktop">
+                                <div class="feature-item-desktop">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>${plan.unlimited_lives ? 'Cheksiz yurakchalar' : 'Standart yurakchalar'}</span>
+                                </div>
+                                <div class="feature-item-desktop">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>AI tahlil: ${plan.ai_analysis_limit === -1 ? 'Cheksiz' : plan.ai_analysis_limit + ' marta'}</span>
+                                </div>
+                                <div class="feature-item-desktop">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>AI hamroh: ${plan.ai_companion_limit === -1 ? 'Cheksiz' : plan.ai_companion_limit + ' marta'}</span>
+                                </div>
+                                <div class="feature-item-desktop">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Universitet: ${plan.university_exam_limit === -1 ? 'Cheksiz' : plan.university_exam_limit + ' marta'}</span>
+                                </div>
+                            </div>
+                            <button class="plan-select-btn-desktop" data-plan-slug="${plan.slug}" data-plan-name="${plan.name}" data-plan-price="${plan.price}" data-plan-color="${plan.color}">
+                                <span>Tanlash</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            // Add click handlers
+            document.querySelectorAll('.plan-select-btn-desktop').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const planSlug = this.dataset.planSlug;
+                    const planName = this.dataset.planName;
+                    const planPrice = this.dataset.planPrice;
+                    const planColor = this.dataset.planColor;
+                    showPaymentForm(planSlug, planName, planPrice, planColor);
+                });
+            });
+        }
+        
+        // Show payment form
+        function showPaymentForm(planSlug, planName, planPrice, planColor) {
+            const plansContainer = document.getElementById('proPlansDesktop');
+            plansContainer.innerHTML = `
+                <div class="payment-form-desktop">
+                    <button class="back-to-plans-btn" id="backToPlansBtn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Orqaga</span>
+                    </button>
+                    
+                    <div class="selected-plan-info-desktop">
+                        <div class="plan-icon-small-desktop" style="background: ${planColor}20;">
+                            <i class="fas fa-crown" style="color: ${planColor};"></i>
+                        </div>
+                        <div>
+                            <h4>${planName}</h4>
+                            <p>${parseFloat(planPrice).toLocaleString('uz-UZ')} so'm</p>
+                        </div>
+                    </div>
+                    
+                    <form method="post" action="/subscriptions/subscribe/${planSlug}/" id="paymentFormDesktop">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]').value}">
+                        
+                        <div class="form-group-desktop">
+                            <label>Promokod (ixtiyoriy)</label>
+                            <div class="promo-input-group-desktop">
+                                <input type="text" name="promo_code" id="promoCodeDesktop" placeholder="Promokodni kiriting">
+                                <button type="button" id="checkPromoDesktop" class="check-promo-btn-desktop">
+                                    Tekshirish
+                                </button>
+                            </div>
+                            <div id="promoMessageDesktop" class="promo-message-desktop"></div>
+                        </div>
+                        
+                        <div class="form-group-desktop">
+                            <label>To'lov usuli</label>
+                            <div class="payment-methods-desktop">
+                                <label class="payment-method-desktop">
+                                    <input type="radio" name="payment_method" value="click" checked>
+                                    <div class="payment-method-card-desktop">
+                                        <img src="/static/images/payment/click.jpg" alt="Click">
+                                    </div>
+                                </label>
+                                <label class="payment-method-desktop">
+                                    <input type="radio" name="payment_method" value="payme">
+                                    <div class="payment-method-card-desktop">
+                                        <img src="/static/images/payment/Payme.png" alt="Payme">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="submit-payment-btn-desktop">
+                            <i class="fas fa-credit-card"></i>
+                            <span>To'lovga o'tish</span>
+                        </button>
+                    </form>
+                </div>
+            `;
+            
+            // Back button
+            document.getElementById('backToPlansBtn').addEventListener('click', function() {
+                loadSubscriptionPlans();
+            });
+            
+            // Promo code check
+            document.getElementById('checkPromoDesktop').addEventListener('click', function() {
+                const code = document.getElementById('promoCodeDesktop').value;
+                if (!code) return;
+                
+                fetch('/subscriptions/check-promo/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: `code=${code}&plan_slug=${planSlug}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const messageDiv = document.getElementById('promoMessageDesktop');
+                    if (data.valid) {
+                        messageDiv.innerHTML = `<div class="success-message">${data.message}</div>`;
+                    } else {
+                        messageDiv.innerHTML = `<div class="error-message">${data.message}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking promo:', error);
+                });
+            });
+        }
     });
     </script>
     

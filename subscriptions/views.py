@@ -19,6 +19,34 @@ from .models import (
 from .payment_handlers import ClickPaymentHandler, PaymePaymentHandler
 
 
+def api_subscription_plans(request):
+    """API endpoint - Obuna modellarini olish"""
+    plans = SubscriptionPlan.objects.filter(is_active=True).order_by('order', 'price')
+    
+    plans_data = []
+    for plan in plans:
+        plans_data.append({
+            'id': plan.id,
+            'name': plan.name,
+            'slug': plan.slug,
+            'description': plan.description,
+            'price': str(plan.price),
+            'duration_days': plan.duration_days,
+            'unlimited_lives': plan.unlimited_lives,
+            'ai_analysis_limit': plan.ai_analysis_limit,
+            'ai_companion_limit': plan.ai_companion_limit,
+            'university_exam_limit': plan.university_exam_limit,
+            'mock_exam_limit': plan.mock_exam_limit,
+            'certificate_test_limit': plan.certificate_test_limit,
+            'icon': plan.icon,
+            'color': plan.color,
+            'badge_text': plan.badge_text,
+            'is_popular': plan.is_popular,
+        })
+    
+    return JsonResponse({'plans': plans_data})
+
+
 def pro_page(request):
     """EduSelf Pro sahifasi"""
     plans = SubscriptionPlan.objects.filter(is_active=True).order_by('order', 'price')

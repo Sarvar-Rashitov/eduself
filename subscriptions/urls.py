@@ -28,4 +28,7 @@ urlpatterns = [
     
     # Foydalanuvchi obunalari
     path('my-subscriptions/', views.my_subscriptions, name='my_subscriptions'),
+    
+    # API endpoints
+    path('api/plans/', views.api_subscription_plans, name='api_subscription_plans'),
 ]
