@@ -1,114 +1,104 @@
 ﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
-
 {% load static %}
 
 {% block title %}Reyting - EduSelf{% endblock %}
 
+{% block header_class %}transparent-header{% endblock %}
+
 {% block content %}
-<!-- Page Header -->
-<section class="page-header leaderboard-header" style="margin-bottom: 20px;">
-    <div class="header-decorations">
-        <div class="trophy-shape shape-1"></div>
-        <div class="trophy-shape shape-2"></div>
-        <div class="trophy-shape shape-3"></div>
-        <div class="floating-trophy t1">🏆</div>
-        <div class="floating-trophy t2">⭐</div>
-        <div class="floating-trophy t3">🎯</div>
-        <div class="floating-trophy t4">🔥</div>
-    </div>
+<!-- Modern Hero Section -->
+<section class="leaderboard-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-pattern"></div>
     <div class="container">
-        <h1 class="page-title">🏆 Global Reyting</h1>
-        <p class="page-subtitle">Eng faol foydalanuvchilar reytingi</p>
+        <div class="hero-content">
+            <h1 class="hero-title">🏆 Global Reyting</h1>
+            <p class="hero-subtitle">Eng faol foydalanuvchilar reytingi</p>
+        </div>
     </div>
 </section>
 
-<!-- Top 3 Section -->
-<section class="section top-three-section">
+<!-- Podium Top 3 -->
+<section class="podium-section">
     <div class="container">
-        <div class="top-three-grid">
+        <div class="podium-container">
             {% if top_users|length >= 2 %}
             <!-- 2nd Place -->
-            <div class="top-user-card silver">
-                <div class="rank-medal">🥈</div>
-                <div class="user-avatar-large">
+            <div class="podium-card podium-second">
+                <div class="podium-rank">#2</div>
+                <div class="podium-avatar silver-ring">
                     <img src="{{ top_users.1.get_avatar_url }}" alt="{{ top_users.1.username }}">
                 </div>
-                <h3>{{ top_users.1.get_full_name|default:top_users.1.username }}</h3>
-                <p>@{{ top_users.1.username }}</p>
-                <div class="user-points">{{ top_users.1.total_points }} XP</div>
+                <h3 class="podium-name">{{ top_users.1.get_full_name|default:top_users.1.username }}</h3>
+                <p class="podium-username">@{{ top_users.1.username }}</p>
+                <div class="xp-pill silver-pill">{{ top_users.1.total_points }} XP</div>
             </div>
             {% endif %}
             
             {% if top_users|length >= 1 %}
             <!-- 1st Place -->
-            <div class="top-user-card gold">
-                <div class="crown">👑</div>
-                <div class="rank-medal">🥇</div>
-                <div class="user-avatar-large">
+            <div class="podium-card podium-first">
+                <div class="crown-icon">👑</div>
+                <div class="podium-rank gold-rank">#1</div>
+                <div class="podium-avatar gold-ring">
                     <img src="{{ top_users.0.get_avatar_url }}" alt="{{ top_users.0.username }}">
                 </div>
-                <h3>{{ top_users.0.get_full_name|default:top_users.0.username }}</h3>
-                <p>@{{ top_users.0.username }}</p>
-                <div class="user-points">{{ top_users.0.total_points }} XP</div>
+                <h3 class="podium-name">{{ top_users.0.get_full_name|default:top_users.0.username }}</h3>
+                <p class="podium-username">@{{ top_users.0.username }}</p>
+                <div class="xp-pill gold-pill">{{ top_users.0.total_points }} XP</div>
             </div>
             {% endif %}
             
             {% if top_users|length >= 3 %}
             <!-- 3rd Place -->
-            <div class="top-user-card bronze">
-                <div class="rank-medal">🥉</div>
-                <div class="user-avatar-large">
+            <div class="podium-card podium-third">
+                <div class="podium-rank">#3</div>
+                <div class="podium-avatar bronze-ring">
                     <img src="{{ top_users.2.get_avatar_url }}" alt="{{ top_users.2.username }}">
                 </div>
-                <h3>{{ top_users.2.get_full_name|default:top_users.2.username }}</h3>
-                <p>@{{ top_users.2.username }}</p>
-                <div class="user-points">{{ top_users.2.total_points }} XP</div>
+                <h3 class="podium-name">{{ top_users.2.get_full_name|default:top_users.2.username }}</h3>
+                <p class="podium-username">@{{ top_users.2.username }}</p>
+                <div class="xp-pill bronze-pill">{{ top_users.2.total_points }} XP</div>
             </div>
             {% endif %}
         </div>
     </div>
 </section>
 
-<!-- Full Leaderboard -->
-<section class="section full-leaderboard-section">
+<!-- Compact Leaderboard Table -->
+<section class="table-section">
     <div class="container">
-        <div class="leaderboard-card">
-            <div class="leaderboard-header-row">
-                <span class="col-rank">#</span>
-                <span class="col-user">Foydalanuvchi</span>
-                <span class="col-tests">Testlar</span>
-                <span class="col-points">XP</span>
+        <div class="leaderboard-table">
+            <div class="table-header">
+                <div class="th th-rank">Rank</div>
+                <div class="th th-user">Foydalanuvchi</div>
+                <div class="th th-xp">XP</div>
+                <div class="th th-tests">Testlar</div>
             </div>
-            <div class="leaderboard-body">
+            <div class="table-body">
                 {% for user_item in users %}
-                <div class="leaderboard-row {% if user_item == request.user %}current-user{% endif %}">
-                    <span class="col-rank">
-                        {% if forloop.counter == 1 %}
-                        <span class="rank-emoji">🥇</span>
-                        {% elif forloop.counter == 2 %}
-                        <span class="rank-emoji">🥈</span>
-                        {% elif forloop.counter == 3 %}
-                        <span class="rank-emoji">🥉</span>
-                        {% else %}
-                        {{ forloop.counter }}
-                        {% endif %}
-                    </span>
-                    <span class="col-user">
-                        <div class="user-info">
-                            <div class="user-avatar-small">
+                <div class="table-row {% if user_item == request.user %}current-user-row{% endif %}">
+                    <div class="td td-rank">
+                        <span class="rank-badge">{{ forloop.counter }}</span>
+                    </div>
+                    <div class="td td-user">
+                        <div class="user-cell">
+                            <div class="avatar-sm">
                                 <img src="{{ user_item.get_avatar_url }}" alt="{{ user_item.username }}">
                             </div>
-                            <div class="user-details">
-                                <strong>{{ user_item.get_full_name|default:user_item.username }}</strong>
-                                <small>@{{ user_item.username }}</small>
+                            <div class="user-text">
+                                <div class="user-name">{{ user_item.get_full_name|default:user_item.username }}</div>
+                                <div class="user-handle">@{{ user_item.username }}</div>
                             </div>
                         </div>
-                    </span>
-                    <span class="col-tests">{{ user_item.tests_completed }}</span>
-                    <span class="col-points">
-                        <span class="points-badge">{{ user_item.total_points }}</span>
-                    </span>
+                    </div>
+                    <div class="td td-xp">
+                        <span class="xp-pill table-pill">{{ user_item.total_points }} XP</span>
+                    </div>
+                    <div class="td td-tests">
+                        <span class="tests-count">{{ user_item.tests_completed }}</span>
+                    </div>
                 </div>
                 {% empty %}
                 <div class="empty-state">
@@ -120,11 +110,11 @@
         </div>
         
         {% if user.is_authenticated and user_position %}
-        <div class="your-position-card">
-            <div class="your-position-content">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>Sizning pozitsiyangiz: <strong>#{{ user_position }}</strong></span>
-                <span class="your-points">{{ user.total_points }} XP</span>
+        <div class="your-position-banner">
+            <div class="position-content">
+                <span class="position-label">Sizning pozitsiyangiz:</span>
+                <span class="position-rank">#{{ user_position }}</span>
+                <span class="xp-pill your-xp-pill">{{ user.total_points }} XP</span>
             </div>
         </div>
         {% endif %}
@@ -132,316 +122,65 @@
 </section>
 {% endblock %}
 
+
 {% block extra_css %}
 <style>
-/* Animated Leaderboard Header */
-.leaderboard-header {
-    background: linear-gradient(-45deg, #f59e0b, #fbbf24, #f97316, #eab308);
-    background-size: 400% 400%;
-    animation: leaderboardGradient 12s ease infinite;
+/* ===== HERO SECTION ===== */
+.leaderboard-hero {
     position: relative;
-    overflow: hidden;
+    background: linear-gradient(135deg, #0b4f99 0%, #115eb2 50%, #176cc8 100%);
+    padding: 120px 0 70px;
+    margin-top: -60px;
+    overflow: visible;
 }
 
-.leaderboard-header::before {
-    content: '';
+.hero-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    animation: patternMove 20s linear infinite;
+    inset: 0;
+    background: url('/static/images/rey.png') center/cover no-repeat;
+    opacity: 0.12;
+    z-index: 0;
 }
 
-.leaderboard-header::after {
-    content: '';
+.hero-pattern {
     position: absolute;
-    width: 350px;
-    height: 350px;
-    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-    border-radius: 50%;
-    top: -150px;
-    right: -100px;
-    animation: glowPulse 8s ease-in-out infinite;
-}
-
-.leaderboard-header .container {
-    position: relative;
-    z-index: 2;
-}
-
-.leaderboard-header .page-title {
-    animation: titleBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
-}
-
-.leaderboard-header .page-subtitle {
-    animation: subtitleFade 0.8s ease 0.3s both;
-}
-
-@keyframes leaderboardGradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-@keyframes patternMove {
-    0% { transform: translateX(0) translateY(0); }
-    100% { transform: translateX(60px) translateY(60px); }
-}
-
-@keyframes glowPulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.2); opacity: 0.8; }
-}
-
-@keyframes titleBounce {
-    0% { opacity: 0; transform: translateY(-40px) scale(0.9); }
-    60% { transform: translateY(5px) scale(1.02); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes subtitleFade {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 0.9; transform: translateY(0); }
-}
-
-/* Header Decorations */
-.header-decorations {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    pointer-events: none;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255,255,255,0.06) 0%, transparent 50%);
     z-index: 1;
 }
 
-.trophy-shape {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    animation: shapeFloat 12s ease-in-out infinite;
-}
-
-.trophy-shape.shape-1 {
-    width: 100px;
-    height: 100px;
-    top: -30px;
-    left: 10%;
-    animation-delay: 0s;
-}
-
-.trophy-shape.shape-2 {
-    width: 70px;
-    height: 70px;
-    bottom: -20px;
-    right: 20%;
-    animation-delay: 3s;
-}
-
-.trophy-shape.shape-3 {
-    width: 50px;
-    height: 50px;
-    top: 40%;
-    right: 8%;
-    animation-delay: 6s;
-}
-
-@keyframes shapeFloat {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-20px) scale(1.1); }
-}
-
-/* Floating Trophies */
-.floating-trophy {
-    position: absolute;
-    font-size: 1.8rem;
-    animation: trophyFloat 10s ease-in-out infinite;
-    opacity: 0.3;
-}
-
-.floating-trophy.t1 { left: 5%; top: 30%; animation-delay: 0s; }
-.floating-trophy.t2 { right: 10%; top: 25%; animation-delay: 2s; }
-.floating-trophy.t3 { left: 25%; bottom: 20%; animation-delay: 4s; }
-.floating-trophy.t4 { right: 25%; bottom: 25%; animation-delay: 6s; }
-
-@keyframes trophyFloat {
-    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
-    25% { transform: translateY(-15px) rotate(10deg); opacity: 0.5; }
-    50% { transform: translateY(-25px) rotate(-5deg); opacity: 0.4; }
-    75% { transform: translateY(-10px) rotate(5deg); opacity: 0.5; }
-}
-
-.top-three-section {
-    padding: 60px 0;
-    background: var(--white);
-    margin-top: -40px;
+.hero-content {
     position: relative;
-    z-index: 10;
-}
-
-.top-three-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr 1fr;
-    gap: 2rem;
-    align-items: end;
+    z-index: 2;
     max-width: 800px;
     margin: 0 auto;
-}
-
-/* Top User Card Animations */
-.top-user-card {
-    background: var(--white);
-    border-radius: 24px;
-    padding: 2rem;
     text-align: center;
-    box-shadow: var(--shadow);
-    position: relative;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: cardRise 0.7s ease both;
 }
 
-.top-three-grid .top-user-card:nth-child(1) { animation-delay: 0.2s; }
-.top-three-grid .top-user-card:nth-child(2) { animation-delay: 0.1s; }
-.top-three-grid .top-user-card:nth-child(3) { animation-delay: 0.3s; }
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    animation: titleSlideIn 0.8s ease both;
+}
 
-@keyframes cardRise {
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.92);
+    margin-bottom: 0;
+    font-weight: 400;
+    animation: subtitleFadeIn 0.8s ease 0.2s both;
+}
+
+@keyframes titleSlideIn {
     from {
         opacity: 0;
-        transform: translateY(50px) scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.top-user-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: left 0.6s;
-}
-
-.top-user-card:hover::before {
-    left: 100%;
-}
-
-.top-user-card:hover {
-    transform: translateY(-15px) scale(1.03);
-    box-shadow: 0 30px 60px rgba(245, 158, 11, 0.25);
-}
-
-.top-user-card.gold {
-    padding-top: 3rem;
-    background: linear-gradient(135deg, #fef3c7, #fde68a);
-    animation: goldGlow 3s ease-in-out infinite;
-}
-
-@keyframes goldGlow {
-    0%, 100% { box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2); }
-    50% { box-shadow: 0 15px 50px rgba(245, 158, 11, 0.4); }
-}
-
-.top-user-card.silver {
-    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
-}
-
-.top-user-card.bronze {
-    background: linear-gradient(135deg, #fed7aa, #fdba74);
-}
-
-.crown {
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 2.5rem;
-    animation: crownBounce 2s ease-in-out infinite;
-}
-
-@keyframes crownBounce {
-    0%, 100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
-    25% { transform: translateX(-50%) translateY(-8px) rotate(-5deg); }
-    50% { transform: translateX(-50%) translateY(-12px) rotate(0deg); }
-    75% { transform: translateX(-50%) translateY(-8px) rotate(5deg); }
-}
-
-.rank-medal {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-.user-avatar-large {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: var(--gradient);
-    margin: 0 auto 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border: 4px solid var(--white);
-    box-shadow: var(--shadow);
-}
-
-.user-avatar-large img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.user-avatar-large span {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--white);
-}
-
-.top-user-card h3 {
-    font-size: 1.25rem;
-    color: var(--dark-color);
-    margin-bottom: 0.25rem;
-}
-
-.top-user-card p {
-    font-size: 0.9rem;
-    color: var(--text-color);
-    opacity: 0.7;
-    margin-bottom: 1rem;
-}
-
-.user-points {
-    display: inline-block;
-    padding: 8px 20px;
-    background: var(--gradient);
-    color: var(--white);
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-.full-leaderboard-section {
-    padding: 0 0 60px;
-}
-
-.leaderboard-card {
-    background: var(--white);
-    border-radius: 24px;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    animation: cardFadeIn 0.8s ease 0.4s both;
-}
-
-@keyframes cardFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(-30px);
     }
     to {
         opacity: 1;
@@ -449,201 +188,7 @@
     }
 }
 
-.leaderboard-header-row {
-    display: grid;
-    grid-template-columns: 80px 1fr 120px 120px;
-    padding: 1rem 2rem;
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
-    font-weight: 600;
-    color: var(--white);
-}
-
-.leaderboard-row {
-    display: grid;
-    grid-template-columns: 80px 1fr 120px 120px;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid var(--light-color);
-    align-items: center;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: rowSlideIn 0.5s ease both;
-}
-
-.leaderboard-body .leaderboard-row:nth-child(1) { animation-delay: 0.1s; }
-.leaderboard-body .leaderboard-row:nth-child(2) { animation-delay: 0.15s; }
-.leaderboard-body .leaderboard-row:nth-child(3) { animation-delay: 0.2s; }
-.leaderboard-body .leaderboard-row:nth-child(4) { animation-delay: 0.25s; }
-.leaderboard-body .leaderboard-row:nth-child(5) { animation-delay: 0.3s; }
-.leaderboard-body .leaderboard-row:nth-child(6) { animation-delay: 0.35s; }
-.leaderboard-body .leaderboard-row:nth-child(7) { animation-delay: 0.4s; }
-.leaderboard-body .leaderboard-row:nth-child(8) { animation-delay: 0.45s; }
-.leaderboard-body .leaderboard-row:nth-child(9) { animation-delay: 0.5s; }
-.leaderboard-body .leaderboard-row:nth-child(10) { animation-delay: 0.55s; }
-
-@keyframes rowSlideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.leaderboard-row:hover {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(251, 191, 36, 0.08));
-    transform: translateX(5px);
-}
-
-.leaderboard-row.current-user {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-    border-left: 4px solid var(--primary-color);
-    animation: currentUserPulse 2s ease-in-out infinite;
-}
-
-@keyframes currentUserPulse {
-    0%, 100% { box-shadow: inset 0 0 0 rgba(99, 102, 241, 0); }
-    50% { box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.1); }
-}
-
-.col-rank {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--text-color);
-}
-
-.rank-emoji {
-    font-size: 1.5rem;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.user-avatar-small {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: var(--gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.user-avatar-small img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.user-avatar-small span {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--white);
-}
-
-.user-details strong {
-    display: block;
-    color: var(--dark-color);
-    font-size: 1rem;
-}
-
-.user-details small {
-    color: var(--text-color);
-    opacity: 0.7;
-}
-
-.col-tests {
-    text-align: center;
-    color: var(--text-color);
-}
-
-.col-points {
-    text-align: center;
-}
-
-.points-badge {
-    display: inline-block;
-    padding: 6px 16px;
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
-    color: var(--white);
-    border-radius: 50px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.leaderboard-row:hover .points-badge {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-}
-
-/* User Avatar Animation */
-.user-avatar-small {
-    transition: all 0.3s ease;
-}
-
-.leaderboard-row:hover .user-avatar-small {
-    transform: scale(1.1);
-}
-
-.user-avatar-large {
-    transition: all 0.4s ease;
-}
-
-.top-user-card:hover .user-avatar-large {
-    transform: scale(1.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-/* User Points Animation */
-.user-points {
-    display: inline-block;
-    padding: 8px 20px;
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
-    color: var(--white);
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-}
-
-.top-user-card:hover .user-points {
-    transform: scale(1.1);
-    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
-}
-
-/* Your Position Card */
-.your-position-card {
-    margin-top: 2rem;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border-radius: 20px;
-    padding: 1.5rem 2rem;
-    color: var(--white);
-    animation: positionCardIn 0.8s ease 0.6s both;
-    position: relative;
-    overflow: hidden;
-}
-
-.your-position-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    animation: positionShine 3s ease-in-out infinite;
-}
-
-@keyframes positionShine {
-    0% { left: -100%; }
-    50%, 100% { left: 100%; }
-}
-
-@keyframes positionCardIn {
+@keyframes subtitleFadeIn {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -654,92 +199,461 @@
     }
 }
 
-.your-position-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
+/* ===== PODIUM SECTION ===== */
+.podium-section {
+    padding: 50px 0 40px;
+    background: #f8f9fa;
+}
+
+.podium-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 24px;
+    max-width: 950px;
+    margin: 0 auto;
+    align-items: flex-end;
+}
+
+/* Podium Cards */
+.podium-card {
+    background: white;
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
     position: relative;
-    z-index: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    animation: cardSlideUp 0.6s ease both;
 }
 
-.your-position-content i {
-    font-size: 1.5rem;
-    animation: locationPulse 2s ease-in-out infinite;
+.podium-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1);
 }
 
-@keyframes locationPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
+.podium-second { animation-delay: 0.1s; }
+.podium-first { animation-delay: 0.2s; }
+.podium-third { animation-delay: 0.3s; }
+
+@keyframes cardSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.your-position-content strong {
-    font-size: 1.25rem;
+/* First Place - Gold */
+.podium-first {
+    padding: 36px 28px 32px;
+    background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+    border: 3px solid #ffd700;
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.25);
 }
 
-.your-points {
-    margin-left: auto;
-    padding: 8px 20px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50px;
+.podium-first:hover {
+    box-shadow: 0 20px 50px rgba(255, 215, 0, 0.35);
+}
+
+/* Second Place - Silver */
+.podium-second {
+    background: linear-gradient(135deg, #f5f7fa 0%, #f9fafb 100%);
+    border: 3px solid #c0c0c0;
+}
+
+/* Third Place - Bronze */
+.podium-third {
+    background: linear-gradient(135deg, #fff5ed 0%, #fff8f3 100%);
+    border: 3px solid #cd7f32;
+}
+
+/* Crown Icon */
+.crown-icon {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 36px;
+    animation: crownFloat 2s ease-in-out infinite;
+    filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.3));
+}
+
+@keyframes crownFloat {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+/* Rank Badge */
+.podium-rank {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.gold-rank {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #92400e;
+    box-shadow: 0 3px 10px rgba(255, 215, 0, 0.35);
+}
+
+/* Avatar with Gradient Ring */
+.podium-avatar {
+    width: 95px;
+    height: 95px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    padding: 4px;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.podium-card:hover .podium-avatar {
+    transform: scale(1.1);
+}
+
+.podium-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+}
+
+/* Gradient Rings */
+.gold-ring {
+    background: linear-gradient(135deg, #ffd700, #ffed4e, #ffd700);
+    box-shadow: 0 6px 18px rgba(255, 215, 0, 0.5);
+    animation: goldPulse 2s ease-in-out infinite;
+}
+
+@keyframes goldPulse {
+    0%, 100% {
+        box-shadow: 0 6px 18px rgba(255, 215, 0, 0.5);
+    }
+    50% {
+        box-shadow: 0 8px 26px rgba(255, 215, 0, 0.7);
+    }
+}
+
+.silver-ring {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8, #c0c0c0);
+    box-shadow: 0 4px 14px rgba(192, 192, 192, 0.4);
+}
+
+.bronze-ring {
+    background: linear-gradient(135deg, #cd7f32, #e8a87c, #cd7f32);
+    box-shadow: 0 4px 14px rgba(205, 127, 50, 0.4);
+}
+
+/* Podium Text */
+.podium-name {
+    font-size: 1.05rem;
     font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 6px;
+    line-height: 1.3;
+}
+
+.podium-username {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin: 0 0 14px;
+}
+
+/* ===== XP PILL BADGES ===== */
+.xp-pill {
+    display: inline-block;
+    padding: 7px 16px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
     transition: all 0.3s ease;
 }
 
-.your-position-card:hover .your-points {
-    background: rgba(255, 255, 255, 0.3);
+.gold-pill {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35);
+}
+
+.podium-first:hover .gold-pill {
+    transform: scale(1.06);
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45);
+}
+
+.silver-pill {
+    background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
+    box-shadow: 0 2px 8px rgba(100, 116, 139, 0.3);
+}
+
+.bronze-pill {
+    background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);
+    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.3);
+}
+
+/* ===== COMPACT TABLE SECTION ===== */
+.table-section {
+    padding: 0 0 60px;
+    background: #f8f9fa;
+}
+
+.leaderboard-table {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* Table Header */
+.table-header {
+    display: grid;
+    grid-template-columns: 80px 1fr 140px 110px;
+    gap: 16px;
+    padding: 18px 28px;
+    background: linear-gradient(135deg, #0b4f99 0%, #1565c0 100%);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.th {
+    display: flex;
+    align-items: center;
+}
+
+.th-rank { justify-content: center; }
+.th-xp { justify-content: center; }
+.th-tests { justify-content: center; }
+
+/* Table Body */
+.table-body {
+    background: white;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 140px 110px;
+    gap: 16px;
+    padding: 16px 28px;
+    align-items: center;
+    border-bottom: 1px solid #f3f4f6;
+    transition: all 0.2s ease;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.table-row:hover {
+    background: #f9fafb;
+    transform: translateX(4px);
+}
+
+/* Current User Highlight */
+.current-user-row {
+    background: linear-gradient(90deg, rgba(11, 79, 153, 0.06) 0%, rgba(21, 101, 192, 0.06) 100%);
+    border-left: 4px solid #0b4f99;
+}
+
+.current-user-row:hover {
+    background: linear-gradient(90deg, rgba(11, 79, 153, 0.1) 0%, rgba(21, 101, 192, 0.1) 100%);
+}
+
+/* Table Cells */
+.td {
+    display: flex;
+    align-items: center;
+}
+
+.td-rank {
+    justify-content: center;
+}
+
+.td-xp {
+    justify-content: center;
+}
+
+.td-tests {
+    justify-content: center;
+}
+
+/* Rank Badge */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* User Cell */
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.avatar-sm {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #0b4f99 0%, #1565c0 100%);
+    border: 2px solid #f3f4f6;
+}
+
+.avatar-sm img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-text {
+    min-width: 0;
+}
+
+.user-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1f2937;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-handle {
+    font-size: 0.8125rem;
+    color: #9ca3af;
+    line-height: 1.3;
+}
+
+/* Table XP Pill */
+.table-pill {
+    background: linear-gradient(135deg, #0b4f99 0%, #1565c0 100%);
+    box-shadow: 0 2px 8px rgba(11, 79, 153, 0.3);
+    font-size: 0.85rem;
+    padding: 6px 14px;
+}
+
+.table-row:hover .table-pill {
     transform: scale(1.05);
+    box-shadow: 0 3px 12px rgba(11, 79, 153, 0.4);
 }
 
-/* Rank Emoji Animation */
-.rank-emoji {
-    font-size: 1.5rem;
-    display: inline-block;
-    animation: emojiPop 0.5s ease;
+/* Tests Count */
+.tests-count {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #6b7280;
 }
 
-.leaderboard-row:hover .rank-emoji {
-    animation: emojiWiggle 0.5s ease;
+/* ===== YOUR POSITION BANNER ===== */
+.your-position-banner {
+    margin-top: 28px;
+    background: linear-gradient(135deg, #0b4f99 0%, #1565c0 100%);
+    border-radius: 16px;
+    padding: 18px 28px;
+    box-shadow: 0 4px 16px rgba(11, 79, 153, 0.25);
 }
 
-@keyframes emojiPop {
-    0% { transform: scale(0); }
-    50% { transform: scale(1.3); }
-    100% { transform: scale(1); }
+.position-content {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: white;
 }
 
-@keyframes emojiWiggle {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-10deg); }
-    75% { transform: rotate(10deg); }
+.position-label {
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
+.position-rank {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.your-xp-pill {
+    margin-left: auto;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+/* Empty State */
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-    .top-three-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+    .hero-title {
+        font-size: 2rem;
     }
     
-    .top-user-card.gold {
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .podium-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .podium-first {
         order: -1;
     }
     
-    .leaderboard-header-row,
-    .leaderboard-row {
-        grid-template-columns: 60px 1fr 80px;
+    .table-header,
+    .table-row {
+        grid-template-columns: 60px 1fr 100px;
+        gap: 12px;
+        padding: 14px 20px;
     }
     
-    .col-tests {
+    .th-tests,
+    .td-tests {
         display: none;
     }
     
-    .your-position-content {
+    .position-content {
         flex-wrap: wrap;
+        justify-content: center;
     }
     
-    .your-points {
+    .your-xp-pill {
         margin-left: 0;
-        margin-top: 0.5rem;
     }
 }
 </style>
