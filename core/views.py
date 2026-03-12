@@ -632,26 +632,59 @@ def translate_question_ajax(request, question_id):
 
 
 def certificates_view(request):
-    # Foydalanuvchi preferences'ini olish
-    user_selected_certificates = None
-    if request.user.is_authenticated:
-        try:
-            from accounts.onboarding_models import UserInterestPreference
-            preference = request.user.interest_preference
-            if preference.onboarding_completed:
-                user_selected_certificates = preference.selected_categories.get('certificates', [])
-        except:
-            pass
+    certificate_id = request.GET.get('certificate')
+    current_certificate = None
+    topics = []
     
-    # Faqat tanlangan sertifikatlar
-    if user_selected_certificates:
-        certificates = Certificate.objects.filter(id__in=user_selected_certificates, is_active=True)
+    # Get all certificates
+    all_certificates = Certificate.objects.filter(is_active=True)
+    
+    # If specific certificate selected, get its topics
+    if certificate_id:
+        try:
+            current_certificate = Certificate.objects.get(id=certificate_id, is_active=True)
+            topics = current_certificate.cert_topics.filter(is_active=True)
+        except Certificate.DoesNotExist:
+            pass
     else:
-        certificates = Certificate.objects.filter(is_active=True)
+        # Show all topics from all certificates
+        topics = CertificateTopic.objects.filter(is_active=True, certificate__is_active=True).select_related('certificate')
+    
+    # Get current language
+    lang = getattr(request, 'LANGUAGE_CODE', 'uz')
+    
+    # Translate certificates if not Uzbek
+    if lang != 'uz':
+        for cert in all_certificates:
+            cert.translated_name = translator.translate(cert.name, 'uz', lang, 'certificates')
+            cert.translated_description = translator.translate(cert.description, 'uz', lang, 'certificates') if cert.description else ''
+        
+        if current_certificate:
+            current_certificate.translated_name = translator.translate(current_certificate.name, 'uz', lang, 'certificates')
+            current_certificate.translated_description = translator.translate(current_certificate.description, 'uz', lang, 'certificates') if current_certificate.description else ''
+        
+        for topic in topics:
+            topic.translated_name = translator.translate(topic.name, 'uz', lang, 'certificates')
+            topic.translated_description = translator.translate(topic.description, 'uz', lang, 'certificates') if topic.description else ''
+            topic.certificate.translated_name = translator.translate(topic.certificate.name, 'uz', lang, 'certificates')
+    else:
+        for cert in all_certificates:
+            cert.translated_name = cert.name
+            cert.translated_description = cert.description
+        
+        if current_certificate:
+            current_certificate.translated_name = current_certificate.name
+            current_certificate.translated_description = current_certificate.description
+        
+        for topic in topics:
+            topic.translated_name = topic.name
+            topic.translated_description = topic.description
+            topic.certificate.translated_name = topic.certificate.name
     
     context = {
-        'certificates': certificates,
-        'has_personalization': bool(user_selected_certificates),
+        'all_certificates': all_certificates,
+        'current_certificate': current_certificate,
+        'topics': topics,
     }
     
     if is_mobile(request):

@@ -9,13 +9,39 @@
 <!-- Page Header -->
 <section class="page-header cert-detail-header">
     <div class="container">
-        <div class="breadcrumb">
-            <a href="{% url 'core:home' %}">Bosh sahifa</a>
-            <i class="fas fa-chevron-right"></i>
-            <a href="{% url 'core:certificates' %}">Sertifikatlar</a>
-            <i class="fas fa-chevron-right"></i>
-            <span>{{ certificate.name }}</span>
-        </div>
+        <nav class="breadcrumb-nav">
+            <ol class="breadcrumb-list">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:home' %}" class="breadcrumb-link">
+                        <svg class="breadcrumb-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M2 6L8 2L14 6V13C14 13.5304 13.7893 14.0391 13.4142 14.4142C13.0391 14.7893 12.5304 15 12 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6 15V8H10V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Bosh sahifa</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-separator">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:certificates' %}" class="breadcrumb-link">
+                        <span>Sertifikatlar</span>
+                        <span class="breadcrumb-badge">🏆</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-separator">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </li>
+                <li class="breadcrumb-item breadcrumb-current">
+                    <span class="breadcrumb-text">{{ certificate.name }}</span>
+                    <span class="breadcrumb-badge-active">✨</span>
+                </li>
+            </ol>
+        </nav>
         <div class="cert-header-content">
             <div class="cert-icon-large">
                 <i class="fas fa-award"></i>
@@ -99,31 +125,142 @@
     padding: 40px 0 60px;
 }
 
-.breadcrumb {
+/* ===== MODERN BREADCRUMB NAVIGATION ===== */
+.breadcrumb-nav {
+    margin-bottom: 2.5rem;
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.breadcrumb-list {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-    font-size: 0.9rem;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
     flex-wrap: wrap;
 }
 
-.breadcrumb a {
-    color: rgba(255, 255, 255, 0.8);
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.95);
     text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.breadcrumb a:hover {
-    color: var(--white);
+.breadcrumb-link:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.breadcrumb i {
-    font-size: 0.7rem;
-    opacity: 0.6;
+.breadcrumb-icon {
+    color: rgba(255, 255, 255, 0.9);
+    flex-shrink: 0;
 }
 
-.breadcrumb span {
-    color: var(--white);
+.breadcrumb-badge {
+    font-size: 1rem;
+    filter: grayscale(0.3);
+    transition: all 0.3s ease;
+}
+
+.breadcrumb-link:hover .breadcrumb-badge {
+    filter: grayscale(0);
+    transform: scale(1.15);
+}
+
+.breadcrumb-separator {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0 0.25rem;
+}
+
+.breadcrumb-current {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #10b981;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.breadcrumb-text {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.breadcrumb-badge-active {
+    font-size: 1rem;
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+        opacity: 0.8;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .breadcrumb-link span,
+    .breadcrumb-text {
+        max-width: 120px;
+    }
+    
+    .breadcrumb-link {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .breadcrumb-current {
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .breadcrumb-icon {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 .cert-header-content {

@@ -1,545 +1,571 @@
 {% extends 'base_desktop.html' %}
 {% load i18n %}
-
 {% load static %}
+{% load translation_tags %}
 
 {% block title %}Sertifikatlar - EduSelf{% endblock %}
 
-{% block content %}
-<!-- Page Header -->
-<section class="page-header cert-header">
-    <div class="cert-decorations">
-        <div class="cert-shape shape-1"></div>
-        <div class="cert-shape shape-2"></div>
-        <div class="cert-shape shape-3"></div>
-        <div class="floating-badge badge-1"><i class="fas fa-award"></i></div>
-        <div class="floating-badge badge-2"><i class="fas fa-certificate"></i></div>
-        <div class="floating-badge badge-3"><i class="fas fa-medal"></i></div>
-    </div>
-    <div class="container">
-        <h1 class="page-title">Milliy Sertifikatlar</h1>
-        <p class="page-subtitle">Bilimingizni tasdiqlang va sertifikat oling</p>
-    </div>
-</section>
+{% block header_class %}transparent-header{% endblock %}
 
-<!-- Certificates Grid -->
-<section class="section certificates-grid-section">
+{% block content %}
+<!-- Modern Hero Section -->
+<section class="certificates-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-pattern"></div>
     <div class="container">
-        <div class="certificates-grid">
-            {% for cert in certificates %}
-            <a href="{% url 'core:certificate_detail' cert.pk %}" class="certificate-card-large">
-                <div class="cert-card-icon">
-                    <i class="fas fa-award"></i>
+        <div class="hero-content">
+            <h1 class="hero-title">{% if current_certificate %}{{ current_certificate.name|translate:request.LANGUAGE_CODE }}{% else %}Sertifikatlar{% endif %}</h1>
+            <p class="hero-subtitle">{% if current_certificate and current_certificate.description %}{{ current_certificate.description|translate:request.LANGUAGE_CODE|safe }}{% else %}Professional sertifikatlar va malaka oshirish kurslari{% endif %}</p>
+            
+            <!-- Modern Filter & Search Bar -->
+            <div class="search-filter-bar">
+                <div class="search-wrapper">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input type="text" id="certificateSearch" placeholder="{% if current_certificate %}Fan nomini qidiring...{% else %}Sertifikat yoki fan nomini qidiring...{% endif %}" class="search-input">
                 </div>
-                <div class="cert-card-content">
-                    <h3>{{ cert.name }}</h3>
-                    <p>{{ cert.description|truncatewords:20|safe }}</p>
-                    <div class="cert-card-meta">
-                        <span><i class="fas fa-folder"></i> {{ cert.get_topics_count }} mavzu</span>
-                        <span><i class="fas fa-clipboard-list"></i> {{ cert.get_tests_count }} test</span>
+                
+                <div class="filter-wrapper">
+                    <button class="filter-button" id="categoryFilter" type="button">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M2 4h16M5 10h10M8 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>{% if current_certificate %}{{ current_certificate.name|translate:request.LANGUAGE_CODE }}{% else %}Barcha sertifikatlar{% endif %}</span>
+                        <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="filter-dropdown" id="filterDropdown">
+                        <a href="{% url 'core:certificates' %}" class="filter-option {% if not current_certificate %}active{% endif %}">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <rect x="2" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="10" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="2" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="10" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            <span>Barcha sertifikatlar</span>
+                            {% if not current_certificate %}
+                            <svg class="check-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            {% endif %}
+                        </a>
+                        {% for cert in all_certificates %}
+                        <a href="{% url 'core:certificates' %}?certificate={{ cert.id }}" class="filter-option {% if current_certificate.id == cert.id %}active{% endif %}">
+                            <i class="fas fa-award"></i>
+                            <span>{{ cert.name|translate:request.LANGUAGE_CODE }}</span>
+                            {% if current_certificate.id == cert.id %}
+                            <svg class="check-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
                     </div>
                 </div>
-                <div class="cert-card-badge">
-                    <i class="fas fa-certificate"></i>
-                </div>
-            </a>
-            {% empty %}
-            <div class="empty-state full-width">
-                <i class="fas fa-award"></i>
-                <h3>Sertifikatlar topilmadi</h3>
-                <p>Hozircha sertifikatlar mavjud emas</p>
             </div>
-            {% endfor %}
+            
+            <!-- Stats -->
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <i class="fas fa-book"></i>
+                    <span>{{ topics.count }} ta fan</span>
+                </div>
+                <div class="hero-stat">
+                    <i class="fas fa-award"></i>
+                    <span>{{ all_certificates.count }} ta sertifikat</span>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Info Section -->
-<section class="section cert-info-section">
+<!-- Certificates/Topics Grid -->
+<section class="certificates-grid-section">
     <div class="container">
-        <div class="cert-info-grid">
-            <div class="cert-info-card">
-                <i class="fas fa-check-circle"></i>
-                <h3>Davlat tomonidan tan olingan</h3>
-                <p>Barcha sertifikatlar rasmiy hujjat sifatida qabul qilinadi</p>
-            </div>
-            <div class="cert-info-card">
-                <i class="fas fa-globe"></i>
-                <h3>Online formatda</h3>
-                <p>Istalgan joydan imtihon topshiring</p>
-            </div>
-            <div class="cert-info-card">
-                <i class="fas fa-bolt"></i>
-                <h3>Tez natijalar</h3>
-                <p>Natijalarni darhol bilib oling</p>
-            </div>
+        {% if topics %}
+        <div class="topics-grid">
+            {% for topic in topics %}
+            <article class="topic-card">
+                <a href="{% url 'core:cert_topic_detail' topic.pk %}">
+                    <div class="topic-header">
+                        <div class="topic-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <span class="certificate-badge">
+                            {% comment %}Get first letters of certificate name{% endcomment %}
+                            {% with cert_name=topic.certificate.translated_name|default:topic.certificate.name %}
+                                {% if 'SAT' in cert_name or 'sat' in cert_name %}SAT
+                                {% elif 'Milliy' in cert_name or 'milliy' in cert_name %}MS
+                                {% else %}{{ cert_name|slice:":2"|upper }}
+                                {% endif %}
+                            {% endwith %}
+                        </span>
+                    </div>
+                    <div class="topic-content">
+                        <h3>{{ topic.translated_name }}</h3>
+                        {% if topic.description %}
+                        <p class="topic-description">{{ topic.translated_description|truncatewords:12|safe }}</p>
+                        {% endif %}
+                        <div class="topic-footer">
+                            <span class="topic-meta">
+                                <i class="fas fa-clipboard-list"></i>
+                                {{ topic.cert_tests.count }} test
+                            </span>
+                            <span class="topic-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-book"></i>
+            <p>{% if current_certificate %}Bu sertifikatda hozircha fanlar mavjud emas{% else %}Hozircha fanlar mavjud emas{% endif %}</p>
+        </div>
+        {% endif %}
+        
+        <div id="noResults" class="empty-state" style="display: none;">
+            <i class="fas fa-search"></i>
+            <p>Qidiruv bo'yicha natija topilmadi</p>
+            <small>Boshqa kalit so'zlar bilan qidirib ko'ring</small>
         </div>
     </div>
 </section>
+
 {% endblock %}
 
 {% block extra_css %}
 <style>
-/* Animated Certificate Header */
-.cert-header {
-    background: linear-gradient(-45deg, #10b981, #34d399, #059669, #047857);
-    background-size: 400% 400%;
-    animation: certGradient 15s ease infinite;
+/* ===== HERO SECTION ===== */
+.certificates-hero {
     position: relative;
-    overflow: hidden;
+    background: linear-gradient(135deg, #0b4f99 0%, #115eb2 50%, #176cc8 100%);
+    padding: 120px 0 80px;
+    margin-top: -60px;
+    overflow: visible;
 }
 
-.cert-header::before {
-    content: '';
+.hero-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.07'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    animation: patternDrift 20s linear infinite;
+    inset: 0;
+    background: url('{% static "images/seri.jpeg" %}') center top/cover no-repeat;
+    opacity: 0.15;
+    z-index: 0;
 }
 
-.cert-header .container {
+.hero-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255,255,255,0.06) 0%, transparent 50%);
+    z-index: 1;
+}
+
+.hero-content {
     position: relative;
     z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
 }
 
-.cert-header .page-title {
-    animation: certTitleIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
-.cert-header .page-subtitle {
-    animation: certSubtitleIn 0.8s ease 0.3s both;
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 3rem;
+    font-weight: 400;
 }
 
-@keyframes certGradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+/* ===== SEARCH & FILTER BAR ===== */
+.search-filter-bar {
+    display: flex;
+    gap: 1rem;
+    max-width: 700px;
+    margin: 0 auto 2rem;
 }
 
-@keyframes patternDrift {
-    0% { transform: translateX(0) translateY(0); }
-    100% { transform: translateX(60px) translateY(60px); }
+.search-wrapper {
+    position: relative;
+    flex: 1;
 }
 
-@keyframes certTitleIn {
-    0% { opacity: 0; transform: translateY(-40px) scale(0.9); }
-    60% { transform: translateY(5px) scale(1.02); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes certSubtitleIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Decorative Elements */
-.cert-decorations {
+.search-icon {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
     pointer-events: none;
     z-index: 1;
 }
 
-.cert-shape {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    animation: shapeFloat 12s ease-in-out infinite;
+.search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3.5rem;
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 1rem;
+    color: #1e293b;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
 }
 
-.cert-shape.shape-1 {
-    width: 150px;
-    height: 150px;
-    top: -50px;
-    right: 10%;
-    animation-delay: 0s;
+.search-input:focus {
+    outline: none;
+    border-color: #0b4f99;
+    box-shadow: 0 10px 15px -3px rgba(11,79,153,0.2), 0 4px 6px -2px rgba(11,79,153,0.1);
 }
 
-.cert-shape.shape-2 {
-    width: 100px;
-    height: 100px;
-    bottom: -30px;
-    left: 15%;
-    animation-delay: 3s;
+.search-input::placeholder {
+    color: #94a3b8;
 }
 
-.cert-shape.shape-3 {
-    width: 80px;
-    height: 80px;
-    top: 30%;
-    left: 5%;
-    animation-delay: 6s;
+.filter-wrapper {
+    position: relative;
 }
 
-@keyframes shapeFloat {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-20px) scale(1.1); }
-}
-
-/* Floating Badges */
-.floating-badge {
-    position: absolute;
-    color: rgba(255, 255, 255, 0.2);
-    animation: badgeFloat 8s ease-in-out infinite;
-}
-
-.floating-badge i {
-    font-size: 2.5rem;
-}
-
-.floating-badge.badge-1 {
-    top: 15%;
-    left: 8%;
-    animation-delay: 0s;
-}
-
-.floating-badge.badge-2 {
-    top: 60%;
-    right: 12%;
-    animation-delay: 2s;
-}
-
-.floating-badge.badge-3 {
-    bottom: 20%;
-    left: 25%;
-    animation-delay: 4s;
-}
-
-@keyframes badgeFloat {
-    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.2; }
-    25% { transform: translateY(-15px) rotate(10deg); opacity: 0.35; }
-    50% { transform: translateY(-25px) rotate(-5deg); opacity: 0.25; }
-    75% { transform: translateY(-10px) rotate(5deg); opacity: 0.3; }
-}
-
-.certificates-grid-section {
-    padding: 60px 0;
-}
-
-.certificates-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 2rem;
-}
-
-/* Certificate Card Animations */
-.certificate-card-large {
+.filter-button {
     display: flex;
-    flex-direction: column;
-    padding: 2rem;
-    background: var(--white);
-    border-radius: 24px;
-    box-shadow: var(--shadow);
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+
+.filter-button:hover {
+    border-color: #0b4f99;
+    box-shadow: 0 10px 15px -3px rgba(11,79,153,0.2), 0 4px 6px -2px rgba(11,79,153,0.1);
+}
+
+.filter-button svg:first-child {
+    color: #64748b;
+}
+
+.filter-button .chevron {
+    color: #94a3b8;
+    transition: transform 0.3s ease;
+}
+
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 280px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.filter-dropdown.show {
+    display: block;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    color: #334155;
     text-decoration: none;
-    color: inherit;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    animation: cardSlideIn 0.6s ease both;
-}
-
-.certificate-card-large::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 5px;
-    background: linear-gradient(90deg, #10b981, #34d399, #10b981);
-    background-size: 200% 100%;
-    animation: borderShimmer 3s linear infinite;
-}
-
-.certificate-card-large::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
-    transition: left 0.6s;
-}
-
-.certificate-card-large:hover::after {
-    left: 100%;
-}
-
-@keyframes borderShimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-.certificates-grid .certificate-card-large:nth-child(1) { animation-delay: 0.1s; }
-.certificates-grid .certificate-card-large:nth-child(2) { animation-delay: 0.2s; }
-.certificates-grid .certificate-card-large:nth-child(3) { animation-delay: 0.3s; }
-.certificates-grid .certificate-card-large:nth-child(4) { animation-delay: 0.4s; }
-.certificates-grid .certificate-card-large:nth-child(5) { animation-delay: 0.5s; }
-.certificates-grid .certificate-card-large:nth-child(6) { animation-delay: 0.6s; }
-
-@keyframes cardSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(40px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.certificate-card-large:hover {
-    transform: translateY(-12px) scale(1.02);
-    box-shadow: 0 30px 60px rgba(16, 185, 129, 0.2);
-}
-
-.cert-card-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, #10b981, #34d399);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-}
-
-.cert-card-icon::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: 24px;
-    background: linear-gradient(135deg, #10b981, #34d399);
-    z-index: -1;
-    opacity: 0;
-    transition: all 0.3s ease;
-}
-
-.certificate-card-large:hover .cert-card-icon {
-    transform: scale(1.1) rotate(5deg);
-}
-
-.certificate-card-large:hover .cert-card-icon::before {
-    opacity: 0.3;
-    inset: -8px;
-}
-
-.cert-card-icon i {
-    font-size: 2rem;
-    color: var(--white);
-    transition: all 0.3s ease;
-}
-
-.certificate-card-large:hover .cert-card-icon i {
-    transform: scale(1.1);
-    animation: iconShine 0.6s ease;
-}
-
-@keyframes iconShine {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(1.3); }
-}
-
-.cert-card-content h3 {
-    font-size: 1.25rem;
-    color: var(--dark-color);
-    margin-bottom: 0.5rem;
-    transition: color 0.3s ease;
-}
-
-.certificate-card-large:hover .cert-card-content h3 {
-    color: #10b981;
-}
-
-.cert-card-content p {
-    color: var(--text-color);
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-    opacity: 0.8;
-}
-
-.cert-card-meta {
-    display: flex;
-    gap: 1.5rem;
-}
-
-.cert-card-meta span {
-    font-size: 0.85rem;
-    color: #10b981;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-}
-
-.certificate-card-large:hover .cert-card-meta span {
-    transform: translateX(5px);
-}
-
-.cert-card-meta span i {
-    transition: all 0.3s ease;
-}
-
-.certificate-card-large:hover .cert-card-meta span i {
-    animation: metaIconPop 0.5s ease;
-}
-
-@keyframes metaIconPop {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.3); }
-}
-
-.cert-card-badge {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    color: #10b981;
-    font-size: 2.5rem;
-    opacity: 0.15;
-    transition: all 0.4s ease;
-}
-
-.certificate-card-large:hover .cert-card-badge {
-    opacity: 0.3;
-    transform: scale(1.2) rotate(15deg);
-}
-
-/* Info Section */
-.cert-info-section {
-    background: linear-gradient(180deg, var(--light-color) 0%, #ecfdf5 100%);
-    padding: 80px 0;
-    position: relative;
-}
-
-.cert-info-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
-}
-
-.cert-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-}
-
-.cert-info-card {
-    text-align: center;
-    padding: 2.5rem 2rem;
-    background: var(--white);
-    border-radius: 24px;
-    box-shadow: var(--shadow);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: infoCardIn 0.7s ease both;
-    position: relative;
-    overflow: hidden;
-}
-
-.cert-info-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #10b981, #34d399);
-    transform: scaleX(0);
-    transition: transform 0.4s ease;
-}
-
-.cert-info-card:hover::before {
-    transform: scaleX(1);
-}
-
-.cert-info-grid .cert-info-card:nth-child(1) { animation-delay: 0.1s; }
-.cert-info-grid .cert-info-card:nth-child(2) { animation-delay: 0.2s; }
-.cert-info-grid .cert-info-card:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes infoCardIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.cert-info-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 25px 50px rgba(16, 185, 129, 0.15);
-}
-
-.cert-info-card i {
-    font-size: 3.5rem;
-    background: linear-gradient(135deg, #10b981, #34d399);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 1.5rem;
-    display: inline-block;
-    transition: all 0.4s ease;
-}
-
-.cert-info-card:hover i {
-    transform: scale(1.15) rotate(5deg);
-}
-
-.cert-info-card h3 {
-    font-size: 1.15rem;
-    color: var(--dark-color);
-    margin-bottom: 0.75rem;
-    transition: color 0.3s ease;
-}
-
-.cert-info-card:hover h3 {
-    color: #10b981;
-}
-
-.cert-info-card p {
-    color: var(--text-color);
+    transition: all 0.2s ease;
     font-size: 0.95rem;
 }
 
-/* Empty State */
-.empty-state.full-width {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px 20px;
-    background: var(--white);
-    border-radius: 24px;
-    animation: fadeIn 0.8s ease;
+.filter-option:hover {
+    background: #f8fafc;
+    color: #0b4f99;
 }
 
-.empty-state.full-width i {
-    font-size: 4rem;
-    color: #10b981;
-    opacity: 0.3;
+.filter-option.active {
+    background: #eff6ff;
+    color: #0b4f99;
+    font-weight: 600;
+}
+
+.filter-option i,
+.filter-option svg {
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.filter-option.active i,
+.filter-option.active svg {
+    color: #0b4f99;
+}
+
+.check-icon {
+    margin-left: auto;
+}
+
+/* ===== HERO STATS ===== */
+.hero-stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255,255,255,0.9);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.hero-stat i {
+    font-size: 1.25rem;
+    color: #fbbf24;
+}
+
+/* ===== CERTIFICATES GRID SECTION ===== */
+.certificates-grid-section {
+    padding: 4rem 0;
+    background: #f8fafc;
+}
+
+.topics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+}
+
+.topic-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.topic-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+    border-color: #cbd5e1;
+}
+
+.topic-card a {
+    display: block;
+    padding: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.topic-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 1rem;
-    animation: emptyBounce 3s ease-in-out infinite;
 }
 
-@keyframes emptyBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
+.topic-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+.topic-icon i {
+    font-size: 1.5rem;
+    color: #0284c7;
+}
+
+.topic-card:hover .topic-icon {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+}
+
+.topic-card:hover .topic-icon i {
+    color: white;
+}
+
+.certificate-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.625rem;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border: 1px solid #fbbf24;
+}
+
+.topic-content h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.topic-description {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.topic-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.topic-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.topic-meta i {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.topic-arrow {
+    width: 28px;
+    height: 28px;
+    background: #f8fafc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.topic-arrow i {
+    font-size: 0.75rem;
+    color: #64748b;
+    transition: transform 0.3s ease;
+}
+
+.topic-card:hover .topic-arrow {
+    background: #0b4f99;
+}
+
+.topic-card:hover .topic-arrow i {
+    color: white;
+    transform: translateX(2px);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state small {
+    font-size: 0.9rem;
+    color: #94a3b8;
 }
 </style>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButton = document.getElementById('categoryFilter');
+    const filterDropdown = document.getElementById('filterDropdown');
+    const searchInput = document.getElementById('certificateSearch');
+    const noResults = document.getElementById('noResults');
+    const certificateCards = document.querySelectorAll('.certificate-card, .topic-card');
+    
+    // Filter dropdown toggle
+    if (filterButton && filterDropdown) {
+        filterButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isVisible = filterDropdown.style.display === 'block';
+            filterDropdown.style.display = isVisible ? 'none' : 'block';
+        });
+        
+        document.addEventListener('click', function() {
+            filterDropdown.style.display = 'none';
+        });
+    }
+    
+    // Search functionality
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            let visibleCount = 0;
+            
+            certificateCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('.certificate-description, .topic-description');
+                const descText = description ? description.textContent.toLowerCase() : '';
+                
+                if (title.includes(searchTerm) || descText.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            if (searchTerm && visibleCount === 0) {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+
