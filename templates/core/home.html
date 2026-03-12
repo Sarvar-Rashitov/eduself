@@ -806,7 +806,8 @@ function closeFullPlatformToast(event) {
 </div>
 {% endif %}
 
-<!-- Donat Section -->
+<!-- Donat Section - TEMPORARILY DISABLED -->
+{% comment %}
 {% if user.is_authenticated %}
 <a href="{% url 'subscriptions:donate' %}" class="text-decoration-none">
     <div class="donate-banner">
@@ -825,8 +826,10 @@ function closeFullPlatformToast(event) {
     </div>
 </a>
 {% endif %}
+{% endcomment %}
 
-<!-- Donat qilganlar karuseli - Barcha foydalanuvchilar uchun -->
+<!-- Donat qilganlar karuseli - TEMPORARILY DISABLED -->
+{% comment %}
 {% if recent_donations %}
 <div class="content-section">
     <div class="section-header">
@@ -884,6 +887,7 @@ function closeFullPlatformToast(event) {
     </div>
 </div>
 {% endif %}
+{% endcomment %}
 
 {% endblock %}
 

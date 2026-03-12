@@ -621,7 +621,8 @@ function closeFullPlatformToast(event) {
 </section>
 {% endif %}
 
-<!-- Donate Section -->
+<!-- Donate Section - TEMPORARILY DISABLED -->
+{% comment %}
 {% if user.is_authenticated %}
 <section id="donate" class="section donate-section-desktop" style="background-image: url('{% static 'images/univer.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; position: relative;">
     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 79, 153, 0.85); z-index: 0;"></div>
@@ -644,8 +645,10 @@ function closeFullPlatformToast(event) {
     </div>
 </section>
 {% endif %}
+{% endcomment %}
 
-<!-- Donate Modal -->
+<!-- Donate Modal - TEMPORARILY DISABLED -->
+{% comment %}
 {% if user.is_authenticated %}
 <div class="donate-modal" id="donateModal">
     <div class="donate-modal-overlay" id="donateModalOverlay"></div>
@@ -732,8 +735,10 @@ function closeFullPlatformToast(event) {
     </div>
 </div>
 {% endif %}
+{% endcomment %}
 
-<!-- Recent Donations Carousel -->
+<!-- Recent Donations Carousel - TEMPORARILY DISABLED -->
+{% comment %}
 {% if recent_donations %}
 <section class="section donations-carousel-section-desktop" style="background-image: url('{% static 'images/univer.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; position: relative;">
     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 79, 153, 0.85); z-index: 0;"></div>
@@ -793,6 +798,7 @@ function closeFullPlatformToast(event) {
     </div>
 </section>
 {% endif %}
+{% endcomment %}
 
 <!-- CTA Section -->
 <!-- <section class="cta-section" style="background-image: url('{% static 'images/univer.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; position: relative;">
