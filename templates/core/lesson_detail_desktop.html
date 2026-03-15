@@ -1,69 +1,125 @@
 ﻿{% extends 'base_desktop.html' %}
 {% load i18n %}
-
 {% load static %}
 
 {% block title %}{{ lesson.title }} - {{ course.title }} - EduSelf{% endblock %}
 
+{% block header_class %}transparent-header{% endblock %}
+
 {% block content %}
-<section class="lesson-detail-section">
+<!-- Lesson Hero -->
+<section class="lesson-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-pattern"></div>
+    <div class="container">
+        <div class="breadcrumb-modern">
+            <a href="{% url 'core:courses' %}"><i class="fas fa-arrow-left"></i> Kurslar</a>
+            <span>/</span>
+            <a href="{% url 'core:course_detail' course.slug %}">{{ course.title }}</a>
+            <span>/</span>
+            <span>{{ lesson.title }}</span>
+        </div>
+        
+        <div class="lesson-hero-content">
+            <h1>{{ lesson.title }}</h1>
+            <div class="lesson-meta-hero">
+                <span><i class="fas fa-book"></i> {{ course.title }}</span>
+                {% if lesson.duration %}
+                <span><i class="fas fa-clock"></i> {{ lesson.duration }} daqiqa</span>
+                {% endif %}
+                {% if lesson.is_free %}
+                <span class="free-badge-hero"><i class="fas fa-unlock"></i> Bepul dars</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Lesson Content -->
+<section class="lesson-content-section">
     <div class="container">
         <div class="lesson-layout">
+            <!-- Main Content -->
             <div class="lesson-main">
-                <a href="{% url 'core:course_detail' course.slug %}" class="back-link"><i class="fas fa-arrow-left"></i> {{ course.title }}</a>
-                <div class="lesson-content-card">
-                    <h1>{{ lesson.title }}</h1>
-                    {% if lesson.video_url or lesson.video_file %}
-                    <div class="video-container">
-                        {% if lesson.video_url %}
-                        <div class="video-wrapper">
-                            <iframe 
-                                src="{{ lesson.get_embed_url }}" 
-                                title="{{ lesson.title }}"
-                                frameborder="0" 
-                                allowfullscreen 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                referrerpolicy="strict-origin-when-cross-origin">
-                            </iframe>
-                        </div>
-                        {% elif lesson.video_file %}
-                        <video controls class="video-player"><source src="{{ lesson.video_file.url }}" type="video/mp4">Brauzeringiz video ni qo'llab-quvvatlamaydi.</video>
-                        {% endif %}
+                <!-- Video -->
+                {% if lesson.video_url or lesson.video_file %}
+                <div class="video-card">
+                    {% if lesson.video_url %}
+                    <div class="video-wrapper">
+                        <iframe 
+                            src="{{ lesson.get_embed_url }}" 
+                            title="{{ lesson.title }}"
+                            frameborder="0" 
+                            allowfullscreen 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin">
+                        </iframe>
                     </div>
-                    {% endif %}
-                    <div class="lesson-text"><h2>Dars matni</h2>{{ lesson.content|safe }}</div>
-                    
-                    {% if lesson.practice_topic %}
-                    <div class="practice-section">
-                        <h2><i class="fas fa-pencil-alt"></i> Amaliy mashq</h2>
-                        <div class="practice-card">
-                            <div class="practice-info">
-                                <h3>{{ lesson.practice_topic.name }}</h3>
-                                <p>{{ lesson.practice_topic.description }}</p>
-                                <div class="practice-meta">
-                                    <span><i class="fas fa-book"></i> {{ lesson.practice_topic.subject.name }}</span>
-                                    <span><i class="fas fa-question-circle"></i> {{ lesson.practice_topic.get_questions_count }} ta savol</span>
-                                    <span><i class="fas fa-clock"></i> {{ lesson.practice_topic.time_limit }} daqiqa</span>
-                                </div>
-                            </div>
-                            <a href="{% url 'core:take_topic_test' lesson.practice_topic.id %}" class="btn btn-primary">
-                                <i class="fas fa-play"></i>Testni boshlash</a>
-                        </div>
-                    </div>
+                    {% elif lesson.video_file %}
+                    <video controls class="video-player">
+                        <source src="{{ lesson.video_file.url }}" type="video/mp4">
+                        Brauzeringiz video ni qo'llab-quvvatlamaydi.
+                    </video>
                     {% endif %}
                 </div>
+                {% endif %}
+                
+                <!-- Lesson Text -->
+                <div class="content-card">
+                    <h2><i class="fas fa-file-alt"></i> Dars matni</h2>
+                    <div class="lesson-text">
+                        {{ lesson.content|safe }}
+                    </div>
+                </div>
+                
+                <!-- Practice Section -->
+                {% if lesson.practice_topic %}
+                <div class="content-card practice-card">
+                    <h2><i class="fas fa-pencil-alt"></i> Amaliy mashq</h2>
+                    <div class="practice-content">
+                        <div class="practice-info">
+                            <h3>{{ lesson.practice_topic.name }}</h3>
+                            <p>{{ lesson.practice_topic.description }}</p>
+                            <div class="practice-meta">
+                                <span><i class="fas fa-book"></i> {{ lesson.practice_topic.subject.name }}</span>
+                                <span><i class="fas fa-question-circle"></i> {{ lesson.practice_topic.get_questions_count }} ta savol</span>
+                                <span><i class="fas fa-clock"></i> {{ lesson.practice_topic.time_limit }} daqiqa</span>
+                            </div>
+                        </div>
+                        <a href="{% url 'core:take_topic_test' lesson.practice_topic.id %}" class="btn btn-primary btn-practice">
+                            <i class="fas fa-play"></i> Testni boshlash
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
+            
+            <!-- Sidebar -->
             <div class="lesson-sidebar">
                 <div class="sidebar-card">
                     <h3>Barcha darslar</h3>
-                    <div class="lessons-list">
-                        {% for l in all_lessons %}
-                        <a href="{% if is_enrolled or l.is_free or course.is_free %}{% url 'core:lesson_detail' course.slug l.id %}{% else %}#{% endif %}" class="lesson-item {% if l.id == lesson.id %}active{% endif %} {% if not is_enrolled and not l.is_free and not course.is_free %}locked{% endif %}">
-                            <span class="lesson-num">{{ forloop.counter }}</span>
-                            <div class="lesson-info"><span class="lesson-name">{{ l.title }}</span>{% if l.duration %}<small>{{ l.duration }}</small>{% endif %}</div>
-                            {% if l.id == lesson.id %}<i class="fas fa-play-circle"></i>{% elif not is_enrolled and not l.is_free and not course.is_free %}<i class="fas fa-lock"></i>{% else %}<i class="far fa-play-circle"></i>{% endif %}
-                        </a>
-                        {% endfor %}
+                    <div class="lessons-list-wrapper">
+                        <div class="lessons-list">
+                            {% for l in all_lessons %}
+                            <a href="{% if is_enrolled or l.is_free or course.is_free %}{% url 'core:lesson_detail' course.slug l.id %}{% else %}#{% endif %}" 
+                               class="lesson-item {% if l.id == lesson.id %}active{% endif %} {% if not is_enrolled and not l.is_free and not course.is_free %}locked{% endif %}">
+                                <span class="lesson-num">{{ forloop.counter }}</span>
+                                <div class="lesson-info">
+                                    <span class="lesson-name">{{ l.title }}</span>
+                                    {% if l.duration %}
+                                    <small><i class="fas fa-clock"></i> {{ l.duration }} daqiqa</small>
+                                    {% endif %}
+                                </div>
+                                {% if l.id == lesson.id %}
+                                <i class="fas fa-play-circle active-icon"></i>
+                                {% elif not is_enrolled and not l.is_free and not course.is_free %}
+                                <i class="fas fa-lock lock-icon"></i>
+                                {% else %}
+                                <i class="far fa-play-circle"></i>
+                                {% endif %}
+                            </a>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,74 +130,70 @@
 
 {% block extra_css %}
 <style>
-.lesson-detail-section { padding: 40px 0 80px; }
-.lesson-layout { display: grid; grid-template-columns: 1fr 350px; gap: 2rem; }
-.back-link { color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
-.lesson-content-card { background: var(--white); border-radius: 20px; padding: 2rem; box-shadow: var(--shadow); }
-.lesson-content-card h1 { font-size: 1.75rem; margin-bottom: 1.5rem; }
-.video-container { margin-bottom: 2rem; }
-.video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; }
-.video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-.video-player { width: 100%; border-radius: 12px; }
-.lesson-text h2 { font-size: 1.25rem; margin-bottom: 1rem; }
-.practice-section { margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--light-color); }
-.practice-section h2 { font-size: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: var(--dark-color); }
-.practice-section h2 i { color: #6366f1; }
-.practice-card { background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05)); border: 2px solid #e0e7ff; border-radius: 16px; padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
-.practice-info { flex: 1; }
-.practice-info h3 { font-size: 1.1rem; color: var(--dark-color); margin-bottom: 0.5rem; }
-.practice-info p { color: var(--text-color); margin-bottom: 1rem; font-size: 0.9rem; }
-.practice-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-.practice-meta span { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-color); }
-.practice-meta i { color: #6366f1; }
-.practice-card .btn { white-space: nowrap; }
-.sidebar-card { background: var(--white); border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow); position: sticky; top: 100px; }
-.sidebar-card h3 { font-size: 1.1rem; margin-bottom: 1rem; }
-.lessons-list { max-height: 500px; overflow-y: auto; }
-.lesson-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 10px; text-decoration: none; color: inherit; transition: all 0.3s ease; margin-bottom: 0.5rem; }
-.lesson-item:hover { background: var(--light-color); }
-.lesson-item.active { background: rgba(99, 102, 241, 0.1); color: var(--primary-color); }
-.lesson-item.locked { opacity: 0.6; }
-.lesson-num { width: 30px; height: 30px; border-radius: 50%; background: var(--light-color); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; }
-.lesson-item.active .lesson-num { background: var(--primary-color); color: white; }
-.lesson-info { flex: 1; }
-.lesson-name { display: block; font-size: 0.9rem; }
-.lesson-info small { color: var(--text-color); opacity: 0.7; }
-.lesson-item i { color: var(--primary-color); }
-.lesson-item.locked i { color: var(--text-color); }
-@media (max-width: 968px) { .lesson-layout { grid-template-columns: 1fr; } .sidebar-card { position: static; } }
+.lesson-hero{position:relative;background:linear-gradient(135deg,#0b4f99 0%,#115eb2 50%,#176cc8 100%);padding:100px 0 50px;margin-top:-60px;overflow:visible}
+.hero-overlay{position:absolute;inset:0;background:url('/static/images/cur.webp') center/cover no-repeat;opacity:.15;z-index:0}
+.hero-pattern{position:absolute;inset:0;background-image:radial-gradient(circle at 20% 30%,rgba(255,255,255,.08) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.06) 0%,transparent 50%);z-index:1}
+.breadcrumb-modern{position:relative;z-index:2;margin-bottom:1.5rem}
+.breadcrumb-modern a{color:rgba(255,255,255,.9);text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;font-size:.85rem;font-weight:500;transition:color .3s}
+.breadcrumb-modern a:hover{color:white}
+.breadcrumb-modern span{color:rgba(255,255,255,.7);margin:0 .5rem;font-size:.85rem}
+.lesson-hero-content{position:relative;z-index:2}
+.lesson-hero-content h1{font-size:2rem;font-weight:800;color:white;margin-bottom:1rem;line-height:1.3}
+.lesson-meta-hero{display:flex;gap:1.5rem;flex-wrap:wrap}
+.lesson-meta-hero span{display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.9);font-size:.9rem;font-weight:500}
+.lesson-meta-hero i{color:#fbbf24;font-size:.85rem}
+.free-badge-hero{background:rgba(16,185,129,.2);padding:.375rem .875rem;border-radius:6px;backdrop-filter:blur(10px)}
+.lesson-content-section{padding:3rem 0;background:#f8fafc}
+.lesson-layout{display:grid;grid-template-columns:1fr 340px;gap:1.5rem}
+.video-card{background:white;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;margin-bottom:1.25rem}
+.video-wrapper{position:relative;padding-bottom:56.25%;height:0;overflow:hidden}
+.video-wrapper iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.video-player{width:100%;display:block;max-height:500px}
+.content-card{background:white;border-radius:12px;padding:1.5rem;border:1px solid #e2e8f0;margin-bottom:1.25rem}
+.content-card h2{font-size:1.2rem;font-weight:700;color:#1e293b;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:.75rem}
+.content-card h2 i{color:#0b4f99;font-size:1.05rem}
+.lesson-text{font-size:.95rem;color:#475569;line-height:1.8}
+.lesson-text h1,.lesson-text h2,.lesson-text h3{color:#1e293b;margin-top:1.5rem;margin-bottom:.75rem}
+.lesson-text p{margin-bottom:1rem}
+.lesson-text ul,.lesson-text ol{margin-bottom:1rem;padding-left:1.5rem}
+.lesson-text code{background:#f1f5f9;padding:.25rem .5rem;border-radius:4px;font-size:.9em;color:#0b4f99}
+.practice-card{background:linear-gradient(135deg,#eff6ff,#f0f9ff);border:1px solid #bfdbfe}
+.practice-content{display:flex;align-items:center;justify-content:space-between;gap:1.5rem}
+.practice-info{flex:1}
+.practice-info h3{font-size:1.1rem;font-weight:700;color:#1e293b;margin-bottom:.5rem}
+.practice-info p{font-size:.9rem;color:#475569;margin-bottom:.75rem}
+.practice-meta{display:flex;gap:1rem;flex-wrap:wrap}
+.practice-meta span{display:flex;align-items:center;gap:.375rem;font-size:.8rem;color:#64748b;font-weight:500}
+.practice-meta i{color:#0b4f99;font-size:.75rem}
+.btn-practice{padding:.875rem 1.5rem;font-size:.95rem;font-weight:600;border-radius:8px;white-space:nowrap;display:flex;align-items:center;gap:.5rem}
+.sidebar-card{background:white;border-radius:12px;padding:1.25rem;border:1px solid #e2e8f0;position:sticky;top:80px}
+.sidebar-card h3{font-size:1.05rem;font-weight:700;color:#1e293b;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid #e2e8f0}
+.lessons-list-wrapper{max-height:500px;overflow-y:auto;padding-right:.5rem}
+.lessons-list-wrapper::-webkit-scrollbar{width:5px}
+.lessons-list-wrapper::-webkit-scrollbar-track{background:#f1f5f9;border-radius:10px}
+.lessons-list-wrapper::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+.lessons-list-wrapper::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+.lessons-list{display:flex;flex-direction:column;gap:.5rem}
+.lesson-item{display:flex;align-items:center;gap:.75rem;padding:.875rem;border-radius:8px;text-decoration:none;color:#475569;transition:all .3s;border:1px solid transparent}
+.lesson-item:hover{background:#f8fafc;border-color:#e2e8f0}
+.lesson-item.active{background:#eff6ff;border-color:#bfdbfe;color:#0b4f99}
+.lesson-item.locked{opacity:.6;cursor:not-allowed}
+.lesson-num{width:32px;height:32px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#64748b;flex-shrink:0}
+.lesson-item.active .lesson-num{background:#0b4f99;color:white}
+.lesson-info{flex:1;min-width:0}
+.lesson-name{display:block;font-size:.875rem;font-weight:600;color:#1e293b;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lesson-item.active .lesson-name{color:#0b4f99}
+.lesson-info small{font-size:.75rem;color:#64748b;display:flex;align-items:center;gap:.25rem}
+.lesson-info small i{font-size:.7rem}
+.lesson-item i{color:#94a3b8;font-size:1rem;flex-shrink:0}
+.lesson-item .active-icon{color:#0b4f99}
+.lesson-item .lock-icon{color:#cbd5e1}
+@media (max-width:968px){.lesson-hero{padding:80px 0 40px}.lesson-hero-content h1{font-size:1.5rem}.lesson-layout{grid-template-columns:1fr}.sidebar-card{position:static;order:-1}}
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // YouTube iframe'larni dinamik yuklash
-    const videoContainers = document.querySelectorAll('.video-container, .video-wrapper');
-    
-    videoContainers.forEach(container => {
-        const iframe = container.querySelector('iframe');
-        if (iframe && iframe.src.includes('youtube.com/embed/')) {
-            // Iframe'ni qayta yuklash
-            const originalSrc = iframe.src;
-            
-            // Iframe'ga load event listener qo'shish
-            iframe.addEventListener('load', function() {
-                console.log('Video yuklandi');
-            });
-            
-            iframe.addEventListener('error', function() {
-                console.log('Video yuklashda xatolik');
-                // Xatolik bo'lsa, iframe'ni qayta yuklash
-                setTimeout(() => {
-                    iframe.src = originalSrc;
-                }, 1000);
-            });
-            
-            // CSP va CORS muammolarini hal qilish uchun
-            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms');
-        }
-    });
-});
+document.addEventListener('DOMContentLoaded',function(){const a=document.querySelectorAll('.video-container, .video-wrapper');a.forEach(b=>{const c=b.querySelector('iframe');if(c&&c.src.includes('youtube.com/embed/')){const d=c.src;c.addEventListener('load',function(){console.log('Video yuklandi')}),c.addEventListener('error',function(){console.log('Video yuklashda xatolik'),setTimeout(()=>{c.src=d},1e3)}),c.setAttribute('sandbox','allow-scripts allow-same-origin allow-presentation allow-forms')}})});
 </script>
 {% endblock %}
