@@ -66,6 +66,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/base-layout.css' %}">
     <link rel="stylesheet" href="{% static 'css/pwa-styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/toast.css' %}">
     
     <!-- Notification Modal Styles -->
     <style>
@@ -431,11 +432,10 @@
         <main class="main-container" style="min-height: 100vh; display: flex; flex-direction: column; width: 100%;">
             {% block messages %}
             {% if messages %}
-            <div class="messages-container">
+            <div class="messages-container" style="display: none;">
                 {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ message.tags }}" data-message="{{ message }}" data-tags="{{ message.tags }}">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 {% endfor %}
             </div>
@@ -516,6 +516,9 @@
     
     <!-- PWA Scripts -->
     <script src="{% static 'js/pwa.js' %}" defer></script>
+    
+    <!-- Toast Notification System -->
+    <script src="{% static 'js/toast.js' %}"></script>
     
     <!-- Telegram Mini App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>

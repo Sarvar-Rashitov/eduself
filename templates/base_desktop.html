@@ -25,6 +25,7 @@
     <!-- Desktop Styles -->
     <link rel="stylesheet" href="{% static 'css/desktop.css' %}?v=3.5">
     <link rel="stylesheet" href="{% static 'css/pro-modal-compact.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/toast.css' %}">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -115,18 +116,15 @@
         </div>
     </header>
 
-    <!-- Messages -->
+    <!-- Messages - Hidden (Toast will show them) -->
     {% block messages %}
     {% if messages %}
-    <div class="messages-container">
-        <div class="container">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible">
-                {{ message }}
-                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
-            </div>
-            {% endfor %}
+    <div class="messages-container" style="display: none;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" data-message="{{ message }}" data-tags="{{ message.tags }}">
+            {{ message }}
         </div>
+        {% endfor %}
     </div>
     {% endif %}
     {% endblock %}
@@ -1057,6 +1055,9 @@
         }
     });
     </script>
+    
+    <!-- Toast Notification System -->
+    <script src="{% static 'js/toast.js' %}"></script>
     
     {% block extra_js %}{% endblock %}
 </body>

@@ -516,11 +516,20 @@ body {
     min-height: calc(100vh - 140px);
 }
 
+/* Messages - Hidden (Toast will show them) */
 .messages-container {
-    margin-bottom: 16px;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-
+.alert {
+    display: none !important;
+}
 
 .section-title {
     font-size: 1.25rem;

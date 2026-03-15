@@ -2218,50 +2218,19 @@ body:not(.home-page) .main-content {
     color: rgba(255, 255, 255, 0.4);
 }
 
-/* Messages */
+/* Messages - Hidden (Toast will show them) */
 .messages-container {
-    padding: 1rem 0;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .alert {
-    padding: 1rem 1.5rem;
-    border-radius: 10px;
-    margin-bottom: 0.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.alert-success {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.alert-error, .alert-danger {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.alert-warning {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.alert-info {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-.alert-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    opacity: 0.7;
-}
-
-.alert-close:hover {
-    opacity: 1;
+    display: none !important;
 }
 
 /* Empty State */
@@ -3402,3 +3371,66 @@ body:not(.home-page) .main-content {
     }
 }
 
+
+
+/* ============================================
+   TOAST NOTIFICATION SYSTEM - DESKTOP
+   ============================================ */
+
+/* Toast Container - Desktop optimized */
+@media (min-width: 769px) {
+    .toast-container {
+        top: 85px;
+        right: 25px;
+        max-width: 400px;
+    }
+    
+    .toast-notification {
+        min-width: 340px;
+    }
+}
+
+/* Toast animations for desktop */
+@media (min-width: 769px) {
+    .toast-notification {
+        animation: slideInRight 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    .toast-notification.hide {
+        animation: slideOutRight 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(500px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(500px);
+            opacity: 0;
+        }
+    }
+}
+
+/* Desktop hover effects */
+@media (min-width: 769px) {
+    .toast-notification:hover {
+        transform: translateX(-3px);
+        box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .toast-notification:hover .toast-progress {
+        animation-play-state: paused;
+    }
+}
