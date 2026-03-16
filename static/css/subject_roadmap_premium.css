@@ -238,8 +238,8 @@
 
 .search-input:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: #0b4f99;
+    box-shadow: 0 0 0 3px rgba(11, 79, 153, 0.1);
 }
 
 .search-input::placeholder {
@@ -264,7 +264,7 @@
 }
 
 .roadmap-title i {
-    color: #6366f1;
+    color: #0b4f99;
     font-size: 1.5rem;
 }
 
@@ -343,8 +343,8 @@
 }
 
 .roadmap-item.active::before {
-    background: #6366f1;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), 0 2px 8px rgba(99, 102, 241, 0.3);
+    background: #0b4f99;
+    box-shadow: 0 0 0 4px rgba(11, 79, 153, 0.15), 0 2px 8px rgba(11, 79, 153, 0.3);
 }
 
 .roadmap-item.completed::before {
@@ -370,9 +370,9 @@
 
 /* Active Card */
 .roadmap-item.active .roadmap-card {
-    border-color: #6366f1;
-    background: linear-gradient(135deg, #ffffff 0%, #f5f7ff 100%);
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.12);
+    border-color: #0b4f99;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f5fb 100%);
+    box-shadow: 0 4px 16px rgba(11, 79, 153, 0.12);
 }
 
 /* Completed Card */
@@ -400,12 +400,12 @@
     left: 1.25rem;
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #0b4f99 0%, #176cc8 100%);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    box-shadow: 0 4px 12px rgba(11, 79, 153, 0.25);
     border: 3px solid white;
     z-index: 3;
 }
@@ -450,7 +450,7 @@
 }
 
 .level-badge:not(.completed):not(.locked) .level-icon {
-    color: #6366f1;
+    color: #0b4f99;
 }
 
 /* ===== CARD BODY - CLEAN LAYOUT ===== */
@@ -531,7 +531,7 @@
 
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(90deg, #0b4f99 0%, #176cc8 100%);
     border-radius: 3px;
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -543,7 +543,7 @@
 .progress-text {
     font-size: 0.8rem;
     font-weight: 600;
-    color: #6366f1;
+    color: #0b4f99;
     min-width: 40px;
     text-align: right;
 }
@@ -599,14 +599,14 @@
 }
 
 .btn-roadmap.active {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #0b4f99 0%, #176cc8 100%);
     color: white;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+    box-shadow: 0 2px 8px rgba(11, 79, 153, 0.25);
 }
 
 .btn-roadmap.active:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    box-shadow: 0 4px 12px rgba(11, 79, 153, 0.35);
 }
 
 .btn-roadmap.completed {

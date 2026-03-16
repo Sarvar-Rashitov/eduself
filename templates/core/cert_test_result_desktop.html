@@ -37,22 +37,5 @@
 {% endblock %}
 
 {% block extra_css %}
-<style>
-.result-section { padding: 60px 0; min-height: calc(100vh - 200px); display: flex; align-items: center; }
-.result-wrapper { max-width: 600px; margin: 0 auto; }
-.result-card-desktop { background: var(--white); border-radius: 24px; padding: 3rem; text-align: center; box-shadow: var(--shadow-lg); }
-.result-icon-large { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; }
-.result-icon-large.success { background: linear-gradient(135deg, #10b981, #34d399); }
-.result-icon-large.fail { background: linear-gradient(135deg, #ef4444, #f87171); }
-.result-icon-large i { font-size: 3rem; color: var(--white); }
-.result-card-desktop h2 { font-size: 1.75rem; color: var(--dark-color); margin-bottom: 1rem; }
-.result-score-large { font-size: 4rem; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.result-details, .result-points { color: var(--text-color); margin: 0.5rem 0; }
-.result-progress { height: 12px; background: var(--light-color); border-radius: 6px; margin: 1.5rem 0; overflow: hidden; }
-.result-progress .progress-bar { height: 100%; border-radius: 6px; }
-.result-progress .progress-bar.success { background: linear-gradient(135deg, #10b981, #34d399); }
-.result-progress .progress-bar.fail { background: linear-gradient(135deg, #ef4444, #f87171); }
-.passing-score { font-size: 0.9rem; color: var(--text-color); opacity: 0.7; }
-.result-actions { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 2rem; }
-</style>
+<link rel="stylesheet" href="{% static 'css/result_analysis_modern.css' %}">
 {% endblock %}
