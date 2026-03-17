@@ -8,7 +8,7 @@ from django.conf import settings
 import os
 import base64
 
-# To'lov handlerlarini import qilish
+# To'lov handlerlarini import qilish - to'g'ridan-to'g'ri Click/Payme sahifasiga
 from .subscription_payment import payment_click, payment_payme
 
 SITE_URL = os.getenv('SITE_URL', 'https://eduself.uz')
@@ -35,34 +35,6 @@ def get_plan_by_id(plan_id):
 def get_user_subscription(user):
     """Foydalanuvchi obunasini olish"""
     return user.get_active_subscription()
-
-
-@sync_to_async
-def create_payment(user, plan, promo_code=None):
-    """To'lov yaratish"""
-    from subscriptions.models import Payment
-    import uuid
-    
-    final_amount = plan.price
-    discount_amount = 0
-    
-    if promo_code:
-        # Promokod tekshirish
-        if promo_code.is_valid():
-            final_amount = promo_code.get_discounted_price()
-            discount_amount = plan.price - final_amount
-    
-    payment = Payment.objects.create(
-        user=user,
-        plan=plan,
-        amount=plan.price,
-        promo_code=promo_code,
-        discount_amount=discount_amount,
-        final_amount=final_amount,
-        payment_method='click',  # Default
-        status='pending'
-    )
-    return payment
 
 
 @sync_to_async
@@ -362,8 +334,8 @@ async def show_payment_methods(update: Update, context: ContextTypes.DEFAULT_TYP
     text += "To'lov turini tanlang:"
     
     keyboard = [
-        [InlineKeyboardButton("💳 Click orqali to'lash", callback_data=f"pay_click_{plan.id}_{promo_code or 'none'}")],
-        [InlineKeyboardButton("💳 Payme orqali to'lash", callback_data=f"pay_payme_{plan.id}_{promo_code or 'none'}")],
+        [InlineKeyboardButton("💳 Click orqali to'lash", callback_data=f"pay_click_{plan.id}_{promo_code.code if promo_code else 'none'}")],
+        [InlineKeyboardButton("💳 Payme orqali to'lash", callback_data=f"pay_payme_{plan.id}_{promo_code.code if promo_code else 'none'}")],
         [InlineKeyboardButton("⬅️ Orqaga", callback_data="subscription_plans")]
     ]
     
@@ -379,142 +351,6 @@ async def show_payment_methods(update: Update, context: ContextTypes.DEFAULT_TYP
             parse_mode='Markdown',
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
-
-
-async def payment_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Click to'lov"""
-    query = update.callback_query
-    await query.answer()
-    
-    parts = query.data.split('_')
-    plan_id = int(parts[2])
-    promo_code_str = parts[3] if len(parts) > 3 else 'none'
-    
-    plan = await get_plan_by_id(plan_id)
-    
-    if not plan:
-        await query.answer("❌ Tarif topilmadi!", show_alert=True)
-        return
-    
-    user = await get_user_or_none(update.effective_user.id)
-    if not user:
-        return
-    
-    # Promokodni olish
-    promo_code = None
-    if promo_code_str != 'none':
-        promo_code = await get_promo_code(promo_code_str)
-    
-    # Click to'lov havolasi - Django view orqali
-    # Bu view to'lovni yaratadi va Click sahifasiga yo'naltiradi
-    click_url = f"{SITE_URL}/subscriptions/subscribe/{plan.slug}/?payment_method=click"
-    if promo_code:
-        click_url += f"&promo_code={promo_code.code}"
-    
-    price = plan.price
-    if promo_code:
-        discount_price = await get_discounted_price(promo_code, plan)
-        if discount_price:
-            price = discount_price
-    
-    price_text = f"{int(price):,}".replace(',', ' ')
-    
-    text = f"╔═══════════════════╗\n"
-    text += f"   💳 CLICK TO'LOV\n"
-    text += f"╚═══════════════════╝\n\n"
-    text += f"📦 Tarif: *{plan.name}*\n"
-    
-    if promo_code:
-        original_price = f"{int(plan.price):,}".replace(',', ' ')
-        discount_amount = plan.price - price
-        discount = f"{int(discount_amount):,}".replace(',', ' ')
-        text += f"💰 Asl narx: ~{original_price} so'm~\n"
-        text += f"🎉 Chegirma: -{discount} so'm\n"
-    
-    text += f"� To'liov summasi: *{price_text} so'm*\n"
-    text += f"📅 Muddat: *{plan.duration_days} kun*\n\n"
-    text += "━━━━━━━━━━━━━━━\n\n"
-    text += "✅ Quyidagi tugmani bosib to'lovni amalga oshiring\n\n"
-    text += "🔒 Xavfsiz to'lov tizimi\n"
-    text += "⚡ Obuna darhol faollashadi\n"
-    text += "📱 Karta yoki telefon raqam orqali"
-    
-    keyboard = [
-        [InlineKeyboardButton("💳 Click orqali to'lash →", url=click_url)],
-        [InlineKeyboardButton("⬅️ Orqaga", callback_data=f"plan_detail_{plan.id}")]
-    ]
-    
-    await query.edit_message_text(
-        text,
-        parse_mode='Markdown',
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
-
-
-async def payment_payme(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Payme to'lov"""
-    query = update.callback_query
-    await query.answer()
-    
-    parts = query.data.split('_')
-    plan_id = int(parts[2])
-    promo_code_str = parts[3] if len(parts) > 3 else 'none'
-    
-    plan = await get_plan_by_id(plan_id)
-    
-    if not plan:
-        await query.answer("❌ Tarif topilmadi!", show_alert=True)
-        return
-    
-    user = await get_user_or_none(update.effective_user.id)
-    if not user:
-        return
-    
-    # Promokodni olish
-    promo_code = None
-    if promo_code_str != 'none':
-        promo_code = await get_promo_code(promo_code_str)
-    
-    # Payme to'lov havolasi - Django view orqali
-    # Bu view to'lovni yaratadi va Payme sahifasiga yo'naltiradi
-    payme_url = f"{SITE_URL}/subscriptions/subscribe/{plan.slug}/?payment_method=payme"
-    if promo_code:
-        payme_url += f"&promo_code={promo_code.code}"
-    
-    price = plan.price
-    if promo_code:
-        discount_price = await get_discounted_price(promo_code, plan)
-        if discount_price:
-            price = discount_price
-    
-    price_text = f"{int(price):,}".replace(',', ' ')
-    
-    text = f"💳 *Payme orqali to'lov*\n\n"
-    text += f"📦 Tarif: {plan.name}\n"
-    
-    if promo_code:
-        original_price = f"{int(plan.price):,}".replace(',', ' ')
-        discount_amount = plan.price - price
-        discount = f"{int(discount_amount):,}".replace(',', ' ')
-        text += f"💰 Asl narx: ~{original_price} so'm~\n"
-        text += f"🎉 Chegirma: {discount} so'm\n"
-    
-    text += f"💰 To'lov summasi: *{price_text} so'm*\n"
-    text += f"📅 Muddat: {plan.duration_days} kun\n\n"
-    text += "━━━━━━━━━━━━━━━\n\n"
-    text += "Quyidagi tugmani bosib to'lovni amalga oshiring.\n"
-    text += "To'lov muvaffaqiyatli bo'lgandan so'ng obuna avtomatik faollashadi."
-    
-    keyboard = [
-        [InlineKeyboardButton("💳 Payme orqali to'lash", url=payme_url)],
-        [InlineKeyboardButton("⬅️ Orqaga", callback_data="subscription_plans")]
-    ]
-    
-    await query.edit_message_text(
-        text,
-        parse_mode='Markdown',
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
 
 
 async def handle_pro_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
