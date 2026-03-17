@@ -4,7 +4,12 @@ from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, fil
 from asgiref.sync import sync_to_async
 from telegram_bot.utils import get_user_or_none
 from telegram_bot.decorators import require_subscription
+from django.conf import settings
 import os
+import base64
+
+# To'lov handlerlarini import qilish
+from .subscription_payment import payment_click, payment_payme
 
 SITE_URL = os.getenv('SITE_URL', 'https://eduself.uz')
 
@@ -400,26 +405,33 @@ async def payment_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if promo_code_str != 'none':
         promo_code = await get_promo_code(promo_code_str)
     
-    # To'lov yaratish
-    payment = await create_payment(user, plan, promo_code)
+    # Click to'lov havolasi - Django view orqali
+    # Bu view to'lovni yaratadi va Click sahifasiga yo'naltiradi
+    click_url = f"{SITE_URL}/subscriptions/subscribe/{plan.slug}/?payment_method=click"
+    if promo_code:
+        click_url += f"&promo_code={promo_code.code}"
     
-    # Click to'lov havolasi
-    click_url = f"{SITE_URL}/subscriptions/payment/{payment.id}/click/"
+    price = plan.price
+    if promo_code:
+        discount_price = await get_discounted_price(promo_code, plan)
+        if discount_price:
+            price = discount_price
     
-    price_text = f"{int(payment.final_amount):,}".replace(',', ' ')
+    price_text = f"{int(price):,}".replace(',', ' ')
     
     text = f"╔═══════════════════╗\n"
     text += f"   💳 CLICK TO'LOV\n"
     text += f"╚═══════════════════╝\n\n"
     text += f"📦 Tarif: *{plan.name}*\n"
     
-    if promo_code and payment.discount_amount > 0:
+    if promo_code:
         original_price = f"{int(plan.price):,}".replace(',', ' ')
-        discount = f"{int(payment.discount_amount):,}".replace(',', ' ')
+        discount_amount = plan.price - price
+        discount = f"{int(discount_amount):,}".replace(',', ' ')
         text += f"💰 Asl narx: ~{original_price} so'm~\n"
         text += f"🎉 Chegirma: -{discount} so'm\n"
     
-    text += f"💰 To'lov summasi: *{price_text} so'm*\n"
+    text += f"� To'liov summasi: *{price_text} so'm*\n"
     text += f"📅 Muddat: *{plan.duration_days} kun*\n\n"
     text += "━━━━━━━━━━━━━━━\n\n"
     text += "✅ Quyidagi tugmani bosib to'lovni amalga oshiring\n\n"
@@ -463,20 +475,27 @@ async def payment_payme(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if promo_code_str != 'none':
         promo_code = await get_promo_code(promo_code_str)
     
-    # To'lov yaratish
-    payment = await create_payment(user, plan, promo_code)
+    # Payme to'lov havolasi - Django view orqali
+    # Bu view to'lovni yaratadi va Payme sahifasiga yo'naltiradi
+    payme_url = f"{SITE_URL}/subscriptions/subscribe/{plan.slug}/?payment_method=payme"
+    if promo_code:
+        payme_url += f"&promo_code={promo_code.code}"
     
-    # Payme to'lov havolasi
-    payme_url = f"{SITE_URL}/subscriptions/payment/{payment.id}/payme/"
+    price = plan.price
+    if promo_code:
+        discount_price = await get_discounted_price(promo_code, plan)
+        if discount_price:
+            price = discount_price
     
-    price_text = f"{int(payment.final_amount):,}".replace(',', ' ')
+    price_text = f"{int(price):,}".replace(',', ' ')
     
     text = f"💳 *Payme orqali to'lov*\n\n"
     text += f"📦 Tarif: {plan.name}\n"
     
-    if promo_code and payment.discount_amount > 0:
+    if promo_code:
         original_price = f"{int(plan.price):,}".replace(',', ' ')
-        discount = f"{int(payment.discount_amount):,}".replace(',', ' ')
+        discount_amount = plan.price - price
+        discount = f"{int(discount_amount):,}".replace(',', ' ')
         text += f"💰 Asl narx: ~{original_price} so'm~\n"
         text += f"🎉 Chegirma: {discount} so'm\n"
     
