@@ -7,7 +7,7 @@ CHANNEL_USERNAME = os.getenv('TELEGRAM_CHANNEL_USERNAME', '@eduself_channel')
 
 
 def main_menu_keyboard():
-    """Asosiy menyu klaviaturasi"""
+    """Asosiy menyu klaviaturasi - zamonaviy dizayn"""
     keyboard = [
         [KeyboardButton("📚 Fanlar"), KeyboardButton("🏆 Sertifikatlar")],
         [KeyboardButton("📝 Mock Imtihonlar"), KeyboardButton("🏫 Muassasalar")],
@@ -18,7 +18,7 @@ def main_menu_keyboard():
 
 def back_to_main_keyboard():
     """Asosiy menyuga qaytish"""
-    keyboard = [[KeyboardButton("🏠 Asosiy menyu")]]
+    keyboard = [[KeyboardButton("🏠 Bosh sahifa")]]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 
@@ -146,16 +146,18 @@ def institutions_keyboard(institutions, page=0, per_page=5):
 
 
 def profile_keyboard(has_subscription=False):
-    """Profil klaviaturasi"""
+    """Profil klaviaturasi - zamonaviy dizayn"""
     keyboard = [
         [InlineKeyboardButton("📜 Test tarixi", callback_data="profile_history")],
     ]
     
     if not has_subscription:
-        keyboard.append([InlineKeyboardButton("💎 Pro obuna", callback_data="subscription_plans")])
+        keyboard.append([InlineKeyboardButton("✨ Pro obuna olish", callback_data="subscription_plans")])
+    else:
+        keyboard.append([InlineKeyboardButton("💎 Obuna ma'lumotlari", callback_data="subscription_info")])
     
     keyboard.extend([
-        [InlineKeyboardButton("🔗 Saytga o'tish", url="https://eduself.uz/accounts/profile/")],
+        [InlineKeyboardButton("🌐 Saytga o'tish", url="https://eduself.uz/accounts/profile/")],
         [InlineKeyboardButton("🏠 Asosiy menyu", callback_data="main_menu")]
     ])
     return InlineKeyboardMarkup(keyboard)

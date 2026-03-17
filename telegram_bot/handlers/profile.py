@@ -87,7 +87,7 @@ def get_test_history(user):
 
 @require_subscription("profile")
 async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Profil menyusi"""
+    """Profil menyusi - zamonaviy dizayn"""
     if update.callback_query:
         query = update.callback_query
         await query.answer()
@@ -110,43 +110,74 @@ async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = (user.username or "").replace("_", "\\_")
     email = (user.email or "").replace("_", "\\_")
 
-    text = f"👤 *{first_name}*\n\n"
-    if email:
-        text += f"📧 Email: {email}\n"
+    # Profil header
+    text = f"╔═══════════════════╗\n"
+    text += f"    👤 *PROFIL*\n"
+    text += f"╚═══════════════════╝\n\n"
+    
+    text += f"🎯 *{first_name}*\n"
     if username:
-        text += f"📱 Username: @{username}\n"
+        text += f"📱 @{username}\n"
+    if email:
+        text += f"📧 {email}\n"
+    
+    text += f"\n╭─────────────────╮\n"
+    text += f"│  💎 OBUNA HOLATI  │\n"
+    text += f"╰─────────────────╯\n\n"
     
     # Obuna ma'lumotlari
-    text += f"\n━━━━━━━━━━━━━━━\n"
-    text += f"💎 *Obuna:*\n"
     if sub_info['has_subscription']:
         sub = sub_info['subscription']
         end_date = sub.end_date.strftime('%d.%m.%Y')
-        text += f"✅ {sub.plan.name}\n"
+        text += f"✅ *{sub.plan.name}*\n"
         text += f"📅 Tugash: {end_date}\n"
+        
+        # Lives ma'lumotlari
+        lives = sub_info['lives_info']
+        if lives['system_active']:
+            if sub.plan.unlimited_lives:
+                text += f"❤️ Yurakchalar: ♾️ *Cheksiz*\n"
+            else:
+                hearts = "❤️" * lives['current_lives'] + "🤍" * (lives['max_lives'] - lives['current_lives'])
+                text += f"❤️ {hearts}\n"
+                text += f"   {lives['current_lives']}/{lives['max_lives']}\n"
+                if lives['next_life_in'] and not lives['is_full']:
+                    minutes = int(lives['next_life_in'].total_seconds() / 60)
+                    text += f"⏱ Keyingi: {minutes} daq\n"
     else:
-        text += f"❌ Faol obuna yo'q\n"
-    
-    # Lives ma'lumotlari
-    lives = sub_info['lives_info']
-    if lives['system_active']:
-        if sub_info['has_subscription'] and sub_info['subscription'].plan.unlimited_lives:
-            text += f"❤️ Yurakchalar: ♾️ Cheksiz\n"
-        else:
+        text += f"❌ *Faol obuna yo'q*\n"
+        text += f"💡 Pro obuna bilan cheksiz imkoniyatlar!\n"
+        
+        # Lives ma'lumotlari
+        lives = sub_info['lives_info']
+        if lives['system_active']:
             hearts = "❤️" * lives['current_lives'] + "🤍" * (lives['max_lives'] - lives['current_lives'])
-            text += f"❤️ Yurakchalar: {hearts} ({lives['current_lives']}/{lives['max_lives']})\n"
+            text += f"\n❤️ {hearts}\n"
+            text += f"   {lives['current_lives']}/{lives['max_lives']}\n"
             if lives['next_life_in'] and not lives['is_full']:
                 minutes = int(lives['next_life_in'].total_seconds() / 60)
-                text += f"⏱ Keyingi yurakcha: {minutes} daqiqada\n"
+                text += f"⏱ Keyingi: {minutes} daq\n"
     
-    text += f"\n━━━━━━━━━━━━━━━\n"
-    text += f"📊 *Statistika:*\n\n"
-    text += f"🏆 Umumiy XP: *{user.total_points}*\n"
+    text += f"\n╭─────────────────╮\n"
+    text += f"│  📊 STATISTIKA   │\n"
+    text += f"╰─────────────────╯\n\n"
+    
+    # Statistika
+    text += f"🏆 XP: *{user.total_points:,}*\n"
     if position:
-        text += f"🥇 Reyting: *{position}-o'rin*\n"
-    text += f"📝 Yechilgan testlar: {stats['total_tests']}\n"
-    text += f"✅ O'tilgan testlar: {stats['passed_tests']}\n"
-    text += f"📈 Progress: {stats['progress']}%\n"
+        text += f"🥇 Reyting: *#{position}*\n"
+    
+    # Progress bar
+    progress_bar = "█" * (stats['progress'] // 10) + "░" * (10 - stats['progress'] // 10)
+    text += f"\n📈 Progress: {stats['progress']}%\n"
+    text += f"[{progress_bar}]\n\n"
+    
+    text += f"📝 Testlar: {stats['total_tests']}\n"
+    text += f"✅ O'tilgan: {stats['passed_tests']}\n"
+    
+    if stats['total_tests'] > 0:
+        success_rate = int((stats['passed_tests'] / stats['total_tests']) * 100)
+        text += f"🎯 Muvaffaqiyat: {success_rate}%\n"
 
     if edit:
         await message.edit_text(text, parse_mode='Markdown', reply_markup=profile_keyboard(sub_info['has_subscription']))
@@ -155,7 +186,7 @@ async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def profile_history(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Test tarixi"""
+    """Test tarixi - zamonaviy dizayn"""
     query = update.callback_query
     await query.answer()
 
@@ -165,18 +196,124 @@ async def profile_history(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     results = await get_test_history(user)
 
-    text = f"📜 *Test Tarixi*\n\n"
+    text = f"╔═══════════════════╗\n"
+    text += f"   📜 TEST TARIXI\n"
+    text += f"╚═══════════════════╝\n\n"
 
     if results:
-        for r in results:
+        for idx, r in enumerate(results, 1):
             status = "✅" if r['passed'] else "❌"
             date_str = r['date'].strftime('%d.%m.%Y')
-            text += f"{r['type']} {r['title']}\n"
-            text += f"   {status} {r['score']}% | {date_str}\n\n"
+            
+            # Score bar
+            score_bars = int(r['score'] / 10)
+            score_visual = "█" * score_bars + "░" * (10 - score_bars)
+            
+            text += f"{idx}. {r['type']} *{r['title']}*\n"
+            text += f"   {status} {r['score']}% [{score_visual}]\n"
+            text += f"   📅 {date_str}\n\n"
     else:
-        text += "Hali testlar yechilmagan."
+        text += "📭 Hali testlar yechilmagan.\n\n"
+        text += "💡 Fanlar bo'limidan test yechishni boshlang!"
 
-    keyboard = [[InlineKeyboardButton("⬅️ Orqaga", callback_data="profile")]]
+    keyboard = [[InlineKeyboardButton("⬅️ Profilga qaytish", callback_data="profile")]]
+
+    await query.edit_message_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
+
+
+async def subscription_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Obuna ma'lumotlari"""
+    query = update.callback_query
+    await query.answer()
+
+    user = await get_user_or_none(update.effective_user.id)
+    if not user:
+        return
+
+    sub_info = await get_user_subscription_info(user)
+
+    text = f"╔═══════════════════╗\n"
+    text += f"  💎 OBUNA MA'LUMOTLARI\n"
+    text += f"╚═══════════════════╝\n\n"
+
+    if sub_info['has_subscription']:
+        sub = sub_info['subscription']
+        start_date = sub.start_date.strftime('%d.%m.%Y')
+        end_date = sub.end_date.strftime('%d.%m.%Y')
+        
+        text += f"✅ *Faol obuna*\n\n"
+        text += f"📦 Tarif: *{sub.plan.name}*\n"
+        text += f"📅 Boshlanish: {start_date}\n"
+        text += f"📅 Tugash: {end_date}\n\n"
+        
+        # Qolgan kunlar
+        from django.utils import timezone
+        days_left = (sub.end_date - timezone.now()).days
+        if days_left > 0:
+            text += f"⏳ Qolgan: *{days_left} kun*\n\n"
+        
+        text += f"╭─────────────────╮\n"
+        text += f"│  🎁 IMKONIYATLAR  │\n"
+        text += f"╰─────────────────╯\n\n"
+        
+        if sub.plan.unlimited_lives:
+            text += f"♾️ Cheksiz yurakchalar\n"
+        
+        if sub.plan.ai_analysis_limit == -1:
+            text += f"🤖 Cheksiz AI tahlil\n"
+        else:
+            used = sub.ai_analysis_used
+            limit = sub.plan.ai_analysis_limit
+            text += f"🤖 AI tahlil: {used}/{limit}\n"
+        
+        if sub.plan.ai_companion_limit == -1:
+            text += f"💬 Cheksiz AI yordamchi\n"
+        else:
+            used = sub.ai_companion_used
+            limit = sub.plan.ai_companion_limit
+            text += f"💬 AI yordamchi: {used}/{limit}\n"
+        
+        if sub.plan.university_exam_limit == -1:
+            text += f"🏆 Cheksiz universitet imtihonlari\n"
+        else:
+            used = sub.university_exam_used
+            limit = sub.plan.university_exam_limit
+            text += f"🏆 Universitet: {used}/{limit}\n"
+        
+        if sub.plan.mock_exam_limit == -1:
+            text += f"📝 Cheksiz mock imtihonlar\n"
+        else:
+            used = sub.mock_exam_used
+            limit = sub.plan.mock_exam_limit
+            text += f"📝 Mock: {used}/{limit}\n"
+        
+        if sub.plan.certificate_test_limit == -1:
+            text += f"🎓 Cheksiz sertifikat testlari\n"
+        else:
+            used = sub.certificate_test_used
+            limit = sub.plan.certificate_test_limit
+            text += f"🎓 Sertifikat: {used}/{limit}\n"
+        
+        text += f"🔓 Barcha mavzular ochiq\n"
+        
+        keyboard = [
+            [InlineKeyboardButton("🔄 Obunani yangilash", callback_data="subscription_plans")],
+            [InlineKeyboardButton("⬅️ Profilga qaytish", callback_data="profile")]
+        ]
+    else:
+        text += f"❌ *Faol obuna yo'q*\n\n"
+        text += f"💡 Pro obuna bilan quyidagi imkoniyatlarga ega bo'ling:\n\n"
+        text += f"♾️ Cheksiz yurakchalar\n"
+        text += f"🔓 Barcha mavzular ochiq\n"
+        text += f"🤖 AI tahlil va yordamchi\n"
+        text += f"🏆 Universitet imtihonlari\n"
+        text += f"📝 Mock imtihonlar\n"
+        text += f"🎓 Sertifikat testlari\n"
+        
+        keyboard = [
+            [InlineKeyboardButton("✨ Pro obuna olish", callback_data="subscription_plans")],
+            [InlineKeyboardButton("⬅️ Profilga qaytish", callback_data="profile")]
+        ]
 
     await query.edit_message_text(text, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
 
@@ -191,4 +328,5 @@ def register_handlers(app):
     """Profile handlerlarini ro'yxatdan o'tkazish"""
     app.add_handler(CallbackQueryHandler(profile_menu, pattern="^profile$"))
     app.add_handler(CallbackQueryHandler(profile_history, pattern="^profile_history$"))
+    app.add_handler(CallbackQueryHandler(subscription_info, pattern="^subscription_info$"))
     app.add_handler(MessageHandler(filters.Regex("^👤 Profil$"), handle_profile_text))
