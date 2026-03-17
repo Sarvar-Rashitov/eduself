@@ -1,0 +1,128 @@
+/* ===== CRITICAL FIX: MAP AND SOCIAL CONTAINER ===== */
+/* Main sidebar container */
+.inst-sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* All sidebar cards */
+.sidebar-card,
+.sidebar-card-modern {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+/* Map social card */
+.map-social-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+}
+
+/* Map social container */
+.map-social-container {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Map section */
+.map-section {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Map card specific fix */
+.map-card-modern {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Map wrapper - prevent overflow */
+.map-wrapper-modern {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 280px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Map iframe - force fit */
+.map-wrapper-modern iframe {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    border: none !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Old map container fix */
+.sidebar-map-container-large {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 280px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+.sidebar-map-container-large iframe {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    border: none !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Social section */
+.social-section {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Social card fix */
+.social-card-modern {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Social links container fix */
+.social-links-modern,
+.social-buttons-vertical {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    box-sizing: border-box !important;
+}
+
+/* Social link buttons */
+.social-link-modern,
+.social-btn-large {
+    flex-shrink: 0 !important;
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+    .map-wrapper-modern,
+    .sidebar-map-container-large {
+        height: 220px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .map-wrapper-modern,
+    .sidebar-map-container-large {
+        height: 200px !important;
+    }
+}

@@ -28,6 +28,19 @@ def get_user_stats(user):
 
 
 @sync_to_async
+def get_user_subscription_info(user):
+    """Foydalanuvchi obuna ma'lumotlarini olish"""
+    subscription = user.get_active_subscription()
+    lives_info = user.get_lives_info()
+    
+    return {
+        'has_subscription': subscription is not None,
+        'subscription': subscription,
+        'lives_info': lives_info
+    }
+
+
+@sync_to_async
 def get_user_position(user):
     from accounts.models import User
     if user.total_points > 0:
@@ -90,6 +103,7 @@ async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     stats = await get_user_stats(user)
     position = await get_user_position(user)
+    sub_info = await get_user_subscription_info(user)
 
     # Escape special characters for Markdown
     first_name = (user.first_name or user.username or "Foydalanuvchi").replace("_", "\\_")
@@ -101,6 +115,30 @@ async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text += f"📧 Email: {email}\n"
     if username:
         text += f"📱 Username: @{username}\n"
+    
+    # Obuna ma'lumotlari
+    text += f"\n━━━━━━━━━━━━━━━\n"
+    text += f"💎 *Obuna:*\n"
+    if sub_info['has_subscription']:
+        sub = sub_info['subscription']
+        end_date = sub.end_date.strftime('%d.%m.%Y')
+        text += f"✅ {sub.plan.name}\n"
+        text += f"📅 Tugash: {end_date}\n"
+    else:
+        text += f"❌ Faol obuna yo'q\n"
+    
+    # Lives ma'lumotlari
+    lives = sub_info['lives_info']
+    if lives['system_active']:
+        if sub_info['has_subscription'] and sub_info['subscription'].plan.unlimited_lives:
+            text += f"❤️ Yurakchalar: ♾️ Cheksiz\n"
+        else:
+            hearts = "❤️" * lives['current_lives'] + "🤍" * (lives['max_lives'] - lives['current_lives'])
+            text += f"❤️ Yurakchalar: {hearts} ({lives['current_lives']}/{lives['max_lives']})\n"
+            if lives['next_life_in'] and not lives['is_full']:
+                minutes = int(lives['next_life_in'].total_seconds() / 60)
+                text += f"⏱ Keyingi yurakcha: {minutes} daqiqada\n"
+    
     text += f"\n━━━━━━━━━━━━━━━\n"
     text += f"📊 *Statistika:*\n\n"
     text += f"🏆 Umumiy XP: *{user.total_points}*\n"
@@ -111,9 +149,9 @@ async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text += f"📈 Progress: {stats['progress']}%\n"
 
     if edit:
-        await message.edit_text(text, parse_mode='Markdown', reply_markup=profile_keyboard())
+        await message.edit_text(text, parse_mode='Markdown', reply_markup=profile_keyboard(sub_info['has_subscription']))
     else:
-        await message.reply_text(text, parse_mode='Markdown', reply_markup=profile_keyboard())
+        await message.reply_text(text, parse_mode='Markdown', reply_markup=profile_keyboard(sub_info['has_subscription']))
 
 
 async def profile_history(update: Update, context: ContextTypes.DEFAULT_TYPE):

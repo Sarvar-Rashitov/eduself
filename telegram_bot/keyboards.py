@@ -61,13 +61,16 @@ def subjects_keyboard(subjects, page=0, per_page=8):
     return InlineKeyboardMarkup(keyboard)
 
 
-def topics_keyboard(topics_with_counts, subject_id):
+def topics_keyboard(topics_with_unlock, subject_id):
     """Mavzular ro'yxati klaviaturasi
-    topics_with_counts: list of tuples (topic, questions_count)
+    topics_with_unlock: list of tuples (topic, questions_count, is_unlocked)
     """
     keyboard = []
-    for topic, questions_count in topics_with_counts:
-        status = "📑" if questions_count > 0 else "🔒"
+    for topic, questions_count, is_unlocked in topics_with_unlock:
+        if is_unlocked:
+            status = "✅" if questions_count > 0 else "📑"
+        else:
+            status = "🔒"
         keyboard.append([InlineKeyboardButton(
             f"{status} {topic.name} ({questions_count} savol)",
             callback_data=f"topic_{topic.id}"
@@ -142,13 +145,19 @@ def institutions_keyboard(institutions, page=0, per_page=5):
     return InlineKeyboardMarkup(keyboard)
 
 
-def profile_keyboard():
+def profile_keyboard(has_subscription=False):
     """Profil klaviaturasi"""
     keyboard = [
         [InlineKeyboardButton("📜 Test tarixi", callback_data="profile_history")],
+    ]
+    
+    if not has_subscription:
+        keyboard.append([InlineKeyboardButton("💎 Pro obuna", callback_data="subscription_plans")])
+    
+    keyboard.extend([
         [InlineKeyboardButton("🔗 Saytga o'tish", url="https://eduself.uz/accounts/profile/")],
         [InlineKeyboardButton("🏠 Asosiy menyu", callback_data="main_menu")]
-    ]
+    ])
     return InlineKeyboardMarkup(keyboard)
 
 

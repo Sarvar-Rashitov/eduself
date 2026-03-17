@@ -23,10 +23,10 @@ def get_subject(subject_id):
 
 
 @sync_to_async
-def get_topics(subject):
-    """Mavzularni savollar soni bilan birga olish"""
+def get_topics(subject, user):
+    """Mavzularni savollar soni va unlock holati bilan birga olish"""
     topics = list(subject.topics.filter(is_active=True).order_by('order', 'name'))
-    return [(topic, topic.questions.count()) for topic in topics]
+    return [(topic, topic.questions.count(), topic.is_unlocked_for_user(user)) for topic in topics]
 
 
 @sync_to_async
@@ -97,27 +97,34 @@ async def subject_detail(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     subject_id = int(query.data.split('_')[-1])
+    user = await get_user_or_none(update.effective_user.id)
 
     subject = await get_subject(subject_id)
     if not subject:
         await query.edit_message_text("❌ Fan topilmadi.")
         return
 
-    topics_with_counts = await get_topics(subject)
+    topics_with_unlock = await get_topics(subject, user)
     questions_count = await get_questions_count(subject)
 
     text = f"📖 *{subject.name}*\n\n"
     if subject.description:
         text += f"{subject.description}\n\n"
-    text += f"📑 Mavzular soni: {len(topics_with_counts)}\n"
+    text += f"📑 Mavzular soni: {len(topics_with_unlock)}\n"
     text += f"❓ Savollar soni: {questions_count}\n\n"
     text += "Mavzuni tanlang:"
 
     await query.edit_message_text(
         text,
         parse_mode='Markdown',
-        reply_markup=topics_keyboard(topics_with_counts, subject_id)
+        reply_markup=topics_keyboard(topics_with_unlock, subject_id)
     )
+
+
+@sync_to_async
+def check_topic_unlocked(topic, user):
+    """Mavzu ochilganligini tekshirish"""
+    return topic.is_unlocked_for_user(user)
 
 
 async def topic_detail(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -126,10 +133,32 @@ async def topic_detail(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     topic_id = int(query.data.split('_')[-1])
+    user = await get_user_or_none(update.effective_user.id)
 
     topic = await get_topic(topic_id)
     if not topic:
         await query.edit_message_text("❌ Mavzu topilmadi.")
+        return
+    
+    # Mavzu ochilganligini tekshirish
+    is_unlocked = await check_topic_unlocked(topic, user)
+    
+    if not is_unlocked:
+        text = f"🔒 *{topic.name}*\n\n"
+        text += "❌ Bu mavzu hali ochilmagan!\n\n"
+        text += "Mavzuni ochish uchun oldingi mavzularni o'ting yoki Pro obunani faollashtiring.\n\n"
+        text += f"✅ O'tish balli: {topic.passing_score}%"
+        
+        keyboard = [
+            [InlineKeyboardButton("💎 Pro obuna", callback_data="subscription_plans")],
+            [InlineKeyboardButton("⬅️ Orqaga", callback_data=f"subject_{topic.subject.id}")]
+        ]
+        
+        await query.edit_message_text(
+            text,
+            parse_mode='Markdown',
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
         return
 
     questions_count = await get_topic_questions_count(topic)

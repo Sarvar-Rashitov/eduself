@@ -110,6 +110,42 @@ class Topic(models.Model):
         return self.questions.aggregate(
             total_points=models.Sum('points')
         )['total_points'] or 0
+    
+    def is_unlocked_for_user(self, user):
+        """Foydalanuvchi uchun mavzu ochilganligini tekshirish"""
+        if not user or not user.is_authenticated:
+            return False
+        
+        # Pro foydalanuvchilar uchun barcha mavzular ochiq
+        if user.is_pro_user():
+            return True
+        
+        # Birinchi mavzu har doim ochiq
+        first_topic = self.subject.topics.filter(is_active=True).order_by('order', 'created_at').first()
+        if self == first_topic:
+            return True
+        
+        # Oldingi mavzuni topish
+        previous_topics = self.subject.topics.filter(
+            is_active=True,
+            order__lt=self.order
+        ).order_by('order', 'created_at')
+        
+        if not previous_topics.exists():
+            # Agar order bir xil bo'lsa, created_at bo'yicha
+            previous_topics = self.subject.topics.filter(
+                is_active=True,
+                created_at__lt=self.created_at
+            ).order_by('order', 'created_at')
+        
+        # Barcha oldingi mavzular o'tilganligini tekshirish
+        for prev_topic in previous_topics:
+            best_result = prev_topic.results.filter(user=user).order_by('-score').first()
+            
+            if not best_result or best_result.score < prev_topic.passing_score:
+                return False
+        
+        return True
 
 
 class Question(models.Model):

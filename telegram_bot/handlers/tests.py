@@ -82,6 +82,24 @@ def format_timer(seconds):
     return f"{mins:02d}:{secs:02d}"
 
 
+@sync_to_async
+def check_user_lives(user):
+    """Foydalanuvchi yurakchalarini tekshirish"""
+    return user.has_lives()
+
+
+@sync_to_async
+def lose_user_life(user):
+    """Foydalanuvchi yurakchalarini kamaytirish"""
+    return user.lose_life()
+
+
+@sync_to_async
+def get_user_lives_info(user):
+    """Foydalanuvchi yurakchalar ma'lumotini olish"""
+    return user.get_lives_info()
+
+
 async def start_topic_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Topic testini boshlash"""
     query = update.callback_query
@@ -96,6 +114,32 @@ async def start_topic_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
     topic = await get_topic(topic_id)
     if not topic:
         await query.edit_message_text("❌ Mavzu topilmadi.")
+        return
+    
+    # Yurakchalarni tekshirish
+    has_lives = await check_user_lives(user)
+    if not has_lives:
+        lives_info = await get_user_lives_info(user)
+        
+        text = "❤️ *Yurakchalar tugadi!*\n\n"
+        text += "Test yechish uchun yurakchalar kerak.\n\n"
+        
+        if lives_info['next_life_in']:
+            minutes = int(lives_info['next_life_in'].total_seconds() / 60)
+            text += f"⏱ Keyingi yurakcha: {minutes} daqiqada\n\n"
+        
+        text += "Yoki Pro obuna oling va cheksiz yurakchalardan foydalaning!"
+        
+        keyboard = [
+            [InlineKeyboardButton("💎 Pro obuna", callback_data="subscription_plans")],
+            [InlineKeyboardButton("⬅️ Orqaga", callback_data=f"topic_{topic_id}")]
+        ]
+        
+        await query.edit_message_text(
+            text,
+            parse_mode='Markdown',
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
         return
 
     questions = await get_topic_questions(topic)
@@ -364,6 +408,10 @@ async def finish_topic_from_callback(query, context: ContextTypes.DEFAULT_TYPE):
     score = int((correct / total) * 100) if total > 0 else 0
     passed = score >= topic.passing_score
     time_taken = int(time.time() - session['start_time'])
+    
+    # Agar test o'tmasa, yurakcha yo'qotish
+    if not passed and user:
+        await lose_user_life(user)
 
     if user:
         await save_topic_result(
@@ -386,6 +434,7 @@ async def finish_topic_from_callback(query, context: ContextTypes.DEFAULT_TYPE):
         text += "\n🎉 Tabriklaymiz!"
     else:
         text += f"\n💪 O'tish uchun {topic.passing_score}% kerak."
+        text += "\n❤️ 1 yurakcha yo'qotildi."
 
     # Barcha test xabarlarini o'chirish
     previous_messages = context.user_data.get('question_messages', [])

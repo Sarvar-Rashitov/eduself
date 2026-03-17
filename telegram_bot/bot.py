@@ -47,6 +47,7 @@ def main():
         from telegram_bot.handlers.mock_exams import register_handlers as mock_handlers
         from telegram_bot.handlers.institutions import register_handlers as inst_handlers
         from telegram_bot.handlers.profile import register_handlers as profile_handlers
+        from telegram_bot.handlers.subscription import register_handlers as subscription_handlers
         from telegram_bot.handlers.ai_chat import register_handlers as ai_handlers
         from telegram_bot.handlers.common import register_handlers as common_handlers
 
@@ -58,6 +59,7 @@ def main():
         mock_handlers(app)
         inst_handlers(app)
         profile_handlers(app)
+        subscription_handlers(app)
         ai_handlers(app)
         common_handlers(app)
         
