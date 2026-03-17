@@ -11,7 +11,7 @@ def main_menu_keyboard():
     keyboard = [
         [KeyboardButton("📚 Fanlar"), KeyboardButton("🏆 Sertifikatlar")],
         [KeyboardButton("📝 Mock Imtihonlar"), KeyboardButton("🏫 Muassasalar")],
-        [KeyboardButton("🤖 AI Hamroh"), KeyboardButton("👤 Profil")]
+        [KeyboardButton("💎 EduSelf Pro"), KeyboardButton("👤 Profil")]
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
