@@ -49,7 +49,6 @@ def create_payment(user, plan):
     return payment
 
 
-@require_subscription("subscription")
 async def subscription_plans_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Obuna tariflari ro'yxati"""
     if update.callback_query:
