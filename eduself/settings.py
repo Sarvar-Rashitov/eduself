@@ -195,9 +195,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eduself.wsgi.application'
 
 DATABASES = {
-     'default': dj_database_url.config(default=env("DATABASE_URL"))
-    }
-
+    'default': dj_database_url.config(default=env("DATABASE_URL"))
+}
 
 
 

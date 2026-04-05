@@ -278,7 +278,18 @@ def subjects_view(request):
             subjects = Subject.objects.filter(is_active=True)
         title = "Barcha fanlar"
     
-    # Pagination - 8 ta fan har sahifada
+    # Mobile uchun pagination yo'q - barcha fanlarni ko'rsatish
+    if is_mobile(request):
+        context = {
+            'subjects': subjects,
+            'categories': SubjectCategory.objects.filter(id__in=user_selected_categories, is_active=True) if user_selected_categories else SubjectCategory.objects.filter(is_active=True),
+            'current_category': current_category,
+            'title': title,
+            'has_personalization': bool(user_selected_categories),
+        }
+        return render(request, 'core/subjects.html', context)
+    
+    # Desktop uchun pagination - 8 ta fan har sahifada
     paginator = Paginator(subjects, 8)
     page = request.GET.get('page', 1)
     
@@ -305,10 +316,7 @@ def subjects_view(request):
         'page_obj': subjects_page,
     }
     
-    if is_mobile(request):
-        return render(request, 'core/subjects.html', context)
-    else:
-        return render(request, 'core/subjects_desktop.html', context)
+    return render(request, 'core/subjects_desktop.html', context)
 
 
 def subject_detail_view(request, pk):
@@ -664,7 +672,10 @@ def translate_question_ajax(request, question_id):
 
 
 def certificates_view(request):
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    
     certificate_id = request.GET.get('certificate')
+    show_all = request.GET.get('all')  # Barcha topiclarni ko'rsatish uchun
     current_certificate = None
     topics = []
     
@@ -713,16 +724,53 @@ def certificates_view(request):
             topic.translated_description = topic.description
             topic.certificate.translated_name = topic.certificate.name
     
+    # Mobile uchun - sertifikatlarni ko'rsatish (pagination yo'q)
+    if is_mobile(request):
+        context = {
+            'certificates': all_certificates,  # Mobile'da sertifikatlar ko'rsatiladi
+            'all_certificates': all_certificates,
+            'current_certificate': current_certificate,
+        }
+        return render(request, 'core/certificates.html', context)
+    
+    # Agar AJAX request bo'lsa va all=1 bo'lsa, barcha topiclarni pagination'siz qaytarish
+    if show_all == '1' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Total topics count for display
+        total_topics = topics.count() if hasattr(topics, 'count') else len(topics)
+        
+        context = {
+            'all_certificates': all_certificates,
+            'current_certificate': current_certificate,
+            'topics': topics,  # Barcha topiclar pagination'siz
+            'total_topics': total_topics,
+        }
+        
+        return render(request, 'core/certificates_desktop.html', context)
+    
+    # Desktop uchun - topiclarni ko'rsatish (pagination bilan)
+    paginator = Paginator(topics, 6)  # 6 ta topic har sahifada
+    page = request.GET.get('page', 1)
+    
+    try:
+        topics_page = paginator.page(page)
+    except PageNotAnInteger:
+        topics_page = paginator.page(1)
+    except EmptyPage:
+        topics_page = paginator.page(paginator.num_pages)
+    
+    # Total topics count for display
+    total_topics = topics.count() if hasattr(topics, 'count') else len(topics)
+    
     context = {
         'all_certificates': all_certificates,
         'current_certificate': current_certificate,
-        'topics': topics,
+        'topics': topics_page,
+        'paginator': paginator,
+        'page_obj': topics_page,
+        'total_topics': total_topics,
     }
     
-    if is_mobile(request):
-        return render(request, 'core/certificates.html', context)
-    else:
-        return render(request, 'core/certificates_desktop.html', context)
+    return render(request, 'core/certificates_desktop.html', context)
 
 
 def certificate_detail_view(request, pk):

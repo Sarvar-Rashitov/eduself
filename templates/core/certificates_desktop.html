@@ -71,7 +71,7 @@
             <div class="hero-stats">
                 <div class="hero-stat">
                     <i class="fas fa-book"></i>
-                    <span>{{ topics.count }} ta fan</span>
+                    <span>{{ total_topics }} ta fan</span>
                 </div>
                 <div class="hero-stat">
                     <i class="fas fa-award"></i>
@@ -135,6 +135,59 @@
             <p>Qidiruv bo'yicha natija topilmadi</p>
             <small>Boshqa kalit so'zlar bilan qidirib ko'ring</small>
         </div>
+        
+        <!-- Pagination -->
+        {% if paginator.num_pages > 1 %}
+        <div class="pagination-wrapper">
+            <nav class="pagination-nav">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if current_certificate %}&certificate={{ current_certificate.id }}{% endif %}" class="pagination-btn pagination-prev">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M12 16l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Oldingi</span>
+                </a>
+                {% else %}
+                <span class="pagination-btn pagination-prev disabled">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M12 16l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Oldingi</span>
+                </span>
+                {% endif %}
+                
+                <div class="pagination-numbers">
+                    {% for num in paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="pagination-number active">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if current_certificate %}&certificate={{ current_certificate.id }}{% endif %}" class="pagination-number">{{ num }}</a>
+                        {% elif num == 1 or num == paginator.num_pages %}
+                        <a href="?page={{ num }}{% if current_certificate %}&certificate={{ current_certificate.id }}{% endif %}" class="pagination-number">{{ num }}</a>
+                        {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                        <span class="pagination-dots">...</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if current_certificate %}&certificate={{ current_certificate.id }}{% endif %}" class="pagination-btn pagination-next">
+                    <span>Keyingi</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M8 16l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                {% else %}
+                <span class="pagination-btn pagination-next disabled">
+                    <span>Keyingi</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M8 16l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
     </div>
 </section>
 
@@ -514,6 +567,118 @@
     font-size: 0.9rem;
     color: #94a3b8;
 }
+
+/* ===== PAGINATION ===== */
+.pagination-wrapper {
+    margin-top: 4rem;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    padding: 0.75rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.pagination-btn:hover:not(.disabled) {
+    background: #f8fafc;
+    border-color: #0b4f99;
+    color: #0b4f99;
+}
+
+.pagination-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pagination-btn svg {
+    flex-shrink: 0;
+}
+
+.pagination-numbers {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0 0.5rem;
+}
+
+.pagination-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 0.5rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.pagination-number:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: #0b4f99;
+}
+
+.pagination-number.active {
+    background: linear-gradient(135deg, #0b4f99 0%, #115eb2 100%);
+    color: white;
+    border-color: #0b4f99;
+    font-weight: 600;
+}
+
+.pagination-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .pagination-nav {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .pagination-btn span {
+        display: none;
+    }
+    
+    .pagination-numbers {
+        order: -1;
+        width: 100%;
+        justify-content: center;
+    }
+}
 </style>
 {% endblock %}
 
@@ -524,7 +689,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const filterDropdown = document.getElementById('filterDropdown');
     const searchInput = document.getElementById('certificateSearch');
     const noResults = document.getElementById('noResults');
-    const certificateCards = document.querySelectorAll('.certificate-card, .topic-card');
+    const topicsGrid = document.querySelector('.topics-grid');
+    const emptyState = document.querySelector('.empty-state');
+    const paginationWrapper = document.querySelector('.pagination-wrapper');
+    
+    let allTopicsData = [];
+    let searchTimeout;
+    let isSearching = false;
     
     // Filter dropdown toggle
     if (filterButton && filterDropdown) {
@@ -539,31 +710,102 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Search functionality
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            let visibleCount = 0;
-            
-            certificateCards.forEach(card => {
-                const title = card.querySelector('h3').textContent.toLowerCase();
-                const description = card.querySelector('.certificate-description, .topic-description');
-                const descText = description ? description.textContent.toLowerCase() : '';
-                
-                if (title.includes(searchTerm) || descText.includes(searchTerm)) {
-                    card.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
+    // Barcha topiclarni yuklash (AJAX orqali)
+    async function loadAllTopics() {
+        const certificateId = new URLSearchParams(window.location.search).get('certificate');
+        const url = certificateId ? 
+            `?certificate=${certificateId}&all=1` : 
+            '?all=1';
+        
+        try {
+            const response = await fetch(window.location.pathname + url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
             
-            if (searchTerm && visibleCount === 0) {
-                noResults.style.display = 'block';
-            } else {
-                noResults.style.display = 'none';
+            if (response.ok) {
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const topics = doc.querySelectorAll('.topic-card');
+                
+                allTopicsData = Array.from(topics).map(card => ({
+                    html: card.outerHTML,
+                    title: card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '',
+                    description: card.querySelector('.topic-description') ? 
+                        card.querySelector('.topic-description').textContent.toLowerCase() : '',
+                    certificate: card.querySelector('.certificate-badge') ? 
+                        card.querySelector('.certificate-badge').textContent.toLowerCase() : ''
+                }));
             }
+        } catch (error) {
+            console.error('Error loading topics:', error);
+            // Fallback: joriy sahifadagi topiclarni ishlatish
+            const currentTopics = document.querySelectorAll('.topic-card');
+            allTopicsData = Array.from(currentTopics).map(card => ({
+                html: card.outerHTML,
+                title: card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '',
+                description: card.querySelector('.topic-description') ? 
+                    card.querySelector('.topic-description').textContent.toLowerCase() : '',
+                certificate: card.querySelector('.certificate-badge') ? 
+                    card.querySelector('.certificate-badge').textContent.toLowerCase() : ''
+            }));
+        }
+    }
+    
+    // Sahifa yuklanganda barcha topiclarni olish
+    loadAllTopics();
+    
+    // Search functionality - barcha sahifalardan qidirish
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            searchTimeout = setTimeout(() => {
+                if (!searchTerm) {
+                    // Agar qidiruv bo'sh bo'lsa, asl holatga qaytarish
+                    if (isSearching) {
+                        window.location.href = window.location.pathname + 
+                            (window.location.search ? window.location.search.replace(/&?page=\d+/, '') : '');
+                    }
+                    return;
+                }
+                
+                performSearch(searchTerm);
+            }, 300);
         });
+    }
+    
+    function performSearch(searchTerm) {
+        isSearching = true;
+        
+        const filteredTopics = allTopicsData.filter(topic => 
+            topic.title.includes(searchTerm) || 
+            topic.description.includes(searchTerm) ||
+            topic.certificate.includes(searchTerm)
+        );
+        
+        if (filteredTopics.length > 0) {
+            // Topilgan natijalarni ko'rsatish
+            topicsGrid.innerHTML = filteredTopics.map(topic => topic.html).join('');
+            
+            if (emptyState) emptyState.style.display = 'none';
+            if (noResults) noResults.style.display = 'none';
+            topicsGrid.style.display = 'grid';
+            
+            // Pagination'ni yashirish
+            if (paginationWrapper) paginationWrapper.style.display = 'none';
+        } else {
+            // Natija topilmadi
+            topicsGrid.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'none';
+            if (noResults) noResults.style.display = 'block';
+            
+            // Pagination'ni yashirish
+            if (paginationWrapper) paginationWrapper.style.display = 'none';
+        }
     }
 });
 </script>
