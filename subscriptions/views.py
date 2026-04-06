@@ -117,7 +117,7 @@ def subscribe(request, plan_slug):
                 f"https://my.click.uz/services/pay?"
                 f"service_id={settings.CLICK_SERVICE_ID}&"
                 f"merchant_id={settings.CLICK_MERCHANT_ID}&"
-                f"amount={payment.final_amount}&"
+                f"amount={float(payment.final_amount)}&"
                 f"transaction_param={payment.id}&"
                 f"return_url={request.build_absolute_uri('/subscriptions/my-subscriptions/')}"
             )
@@ -136,7 +136,7 @@ def subscribe(request, plan_slug):
                 f"{settings.PAYME_ENDPOINT}?"
                 f"m={settings.PAYME_MERCHANT_ID}&"
                 f"ac={account}&"
-                f"a={int(payment.final_amount * 100)}&"
+                f"a={int(float(payment.final_amount) * 100)}&"
                 f"c={request.build_absolute_uri('/subscriptions/my-subscriptions/')}"
             )
             

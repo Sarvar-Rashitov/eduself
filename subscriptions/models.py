@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
+from decimal import Decimal
 import uuid
 
 
@@ -195,15 +196,16 @@ class PromoCode(models.Model):
         return True
     
     def get_discounted_price(self):
-        """Chegirmali narxni hisoblash"""
+        """Chegirmali narxni hisoblash - Python 3.13 uchun Decimal konversiyasi"""
         original_price = self.plan.price
         
         if self.discount_percent > 0:
-            discount = original_price * (self.discount_percent / 100)
+            # Decimal va float aralashmasligini ta'minlash
+            discount = original_price * (Decimal(str(self.discount_percent)) / Decimal('100'))
             return original_price - discount
         
         if self.discount_amount > 0:
-            return max(0, original_price - self.discount_amount)
+            return max(Decimal('0'), original_price - self.discount_amount)
         
         return original_price
     
