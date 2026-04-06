@@ -413,13 +413,17 @@ def topic_leaderboard_view(request, pk):
 def take_topic_test_view(request, pk):
     topic = get_object_or_404(Topic, pk=pk, is_active=True)
     
-    # Lives tekshirish - test boshlashdan oldin
+    # YANGI: Lives tekshirish
     from accounts.models import LivesSettings
     lives_settings = LivesSettings.get_settings()
     
-    if lives_settings.is_active and not request.user.has_lives():
-        messages.error(request, "Yurakchalaringiz tugagan! Keyingi yurakcha tiklanishini kuting yoki ertaga qaytib keling.")
-        return redirect('core:topic_leaderboard', pk=topic.pk)
+    show_lives_modal = False
+    if lives_settings.is_active:
+        request.user.check_daily_lives_reset()
+        request.user.refill_lives()
+        
+        if request.user.current_lives <= 0:
+            show_lives_modal = True
     
     questions = topic.questions.all().prefetch_related('answers')
     
@@ -507,13 +511,7 @@ def take_topic_test_view(request, pk):
             earned_points=earned_points
         )
         
-        # Lives tekshirish - muvaffaqiyatsiz bo'lsa yurakcha yo'qotish
-        from accounts.models import LivesSettings
-        lives_settings = LivesSettings.get_settings()
-        
-        if lives_settings.is_active and not passed:
-            request.user.lose_life()
-            messages.warning(request, f"Test muvaffaqiyatsiz! Yurakcha yo'qotdingiz. Qolgan: {request.user.current_lives} ❤️")
+        # ESLATMA: Lives har bir savolda kamayadi, test oxirida emas
         
         # Faqat yangi natija oldingi eng yaxshi natijadan yaxshi bo'lsa, farqni qo'shish
         if earned_points > previous_best_points:
@@ -526,7 +524,19 @@ def take_topic_test_view(request, pk):
     # Reklamalarni olish
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
     
-    context = {'topic': topic, 'questions': questions, 'advertisements': advertisements}
+    # Lives ma'lumotini qo'shish
+    from accounts.models import LivesSettings
+    lives_settings = LivesSettings.get_settings()
+    user_lives = request.user.current_lives if lives_settings.is_active else None
+    
+    context = {
+        'topic': topic, 
+        'questions': questions, 
+        'advertisements': advertisements,
+        'user_lives': user_lives,
+        'lives_active': lives_settings.is_active,
+        'show_lives_modal': show_lives_modal
+    }
     if is_mobile(request):
         return render(request, 'core/take_topic_test.html', context)
     else:
@@ -606,6 +616,8 @@ def check_answer_view(request, question_id, answer_id):
     """AJAX orqali javobni tekshirish"""
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
+            from accounts.models import LivesSettings
+            
             question = get_object_or_404(Question, id=question_id)
             selected_answer = get_object_or_404(Answer, id=answer_id, question=question)
             correct_answer = question.answers.filter(is_correct=True).first()
@@ -613,13 +625,33 @@ def check_answer_view(request, question_id, answer_id):
             # XP ma'lumotini qo'shish
             points_earned = question.points if selected_answer.is_correct else 0
             
+            # YANGI: Har bir savolga javob berganda lives kamayadi
+            lives_settings = LivesSettings.get_settings()
+            lives_decreased = False
+            remaining_lives = request.user.current_lives
+            show_pro_modal = False
+            
+            if lives_settings.is_active:
+                # Yurakcha yo'qotish (to'g'ri yoki noto'g'ri farqi yo'q)
+                if request.user.current_lives > 0:
+                    request.user.lose_life()
+                    lives_decreased = True
+                    remaining_lives = request.user.current_lives
+                    
+                    # Agar yurakchalar tugagan bo'lsa, Pro modal ko'rsatish
+                    if remaining_lives <= 0:
+                        show_pro_modal = True
+            
             return JsonResponse({
                 'is_correct': selected_answer.is_correct,
                 'correct_answer': correct_answer.text if correct_answer else '',
                 'correct_answer_id': correct_answer.id if correct_answer else None,
                 'selected_answer': selected_answer.text,
                 'points_earned': points_earned,
-                'question_points': question.points
+                'question_points': question.points,
+                'lives_decreased': lives_decreased,
+                'remaining_lives': remaining_lives,
+                'show_pro_modal': show_pro_modal
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -872,6 +904,8 @@ def check_cert_answer_view(request, question_id, answer_id):
     """AJAX orqali sertifikat test javobini tekshirish"""
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
+            from accounts.models import LivesSettings
+            
             question = get_object_or_404(CertificateQuestion, id=question_id)
             selected_answer = get_object_or_404(CertificateAnswer, id=answer_id, question=question)
             correct_answer = question.cert_answers.filter(is_correct=True).first()
@@ -879,13 +913,33 @@ def check_cert_answer_view(request, question_id, answer_id):
             # XP ma'lumotini qo'shish (float sifatida)
             points_earned = float(question.points) if selected_answer.is_correct else 0.0
             
+            # YANGI: Har bir savolga javob berganda lives kamayadi
+            lives_settings = LivesSettings.get_settings()
+            lives_decreased = False
+            remaining_lives = request.user.current_lives
+            show_pro_modal = False
+            
+            if lives_settings.is_active:
+                # Yurakcha yo'qotish (to'g'ri yoki noto'g'ri farqi yo'q)
+                if request.user.current_lives > 0:
+                    request.user.lose_life()
+                    lives_decreased = True
+                    remaining_lives = request.user.current_lives
+                    
+                    # Agar yurakchalar tugagan bo'lsa, Pro modal ko'rsatish
+                    if remaining_lives <= 0:
+                        show_pro_modal = True
+            
             return JsonResponse({
                 'is_correct': selected_answer.is_correct,
                 'correct_answer': correct_answer.text if correct_answer else '',
                 'correct_answer_id': correct_answer.id if correct_answer else None,
                 'selected_answer': selected_answer.text,
                 'points_earned': points_earned,
-                'question_points': float(question.points)
+                'question_points': float(question.points),
+                'lives_decreased': lives_decreased,
+                'remaining_lives': remaining_lives,
+                'show_pro_modal': show_pro_modal
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -940,9 +994,13 @@ def take_cert_test_view(request, pk):
     from accounts.models import LivesSettings
     lives_settings = LivesSettings.get_settings()
     
-    if lives_settings.is_active and not request.user.has_lives():
-        messages.error(request, "Yurakchalaringiz tugagan! Keyingi yurakcha tiklanishini kuting yoki ertaga qaytib keling.")
-        return redirect('core:cert_test_leaderboard', pk=test.pk)
+    show_lives_modal = False
+    if lives_settings.is_active:
+        request.user.check_daily_lives_reset()
+        request.user.refill_lives()
+        
+        if request.user.current_lives <= 0:
+            show_lives_modal = True
     
     questions = test.cert_questions.all().prefetch_related('cert_answers')
     
@@ -1048,7 +1106,12 @@ def take_cert_test_view(request, pk):
     # Reklamalarni olish
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
     
-    context = {'test': test, 'questions': questions, 'advertisements': advertisements}
+    context = {
+        'test': test, 
+        'questions': questions, 
+        'advertisements': advertisements,
+        'show_lives_modal': show_lives_modal
+    }
     if is_mobile(request):
         return render(request, 'core/take_cert_test.html', context)
     else:
@@ -1230,6 +1293,8 @@ def check_mock_answer_view(request, question_id, answer_id):
     """AJAX orqali mock exam javobini tekshirish"""
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
+            from accounts.models import LivesSettings
+            
             question = get_object_or_404(MockExamQuestion, id=question_id)
             selected_answer = get_object_or_404(MockExamAnswer, id=answer_id, question=question)
             correct_answer = question.mock_answers.filter(is_correct=True).first()
@@ -1237,13 +1302,33 @@ def check_mock_answer_view(request, question_id, answer_id):
             # XP ma'lumotini qo'shish (float sifatida)
             points_earned = float(question.points) if selected_answer.is_correct else 0.0
             
+            # YANGI: Har bir savolga javob berganda lives kamayadi
+            lives_settings = LivesSettings.get_settings()
+            lives_decreased = False
+            remaining_lives = request.user.current_lives
+            show_pro_modal = False
+            
+            if lives_settings.is_active:
+                # Yurakcha yo'qotish (to'g'ri yoki noto'g'ri farqi yo'q)
+                if request.user.current_lives > 0:
+                    request.user.lose_life()
+                    lives_decreased = True
+                    remaining_lives = request.user.current_lives
+                    
+                    # Agar yurakchalar tugagan bo'lsa, Pro modal ko'rsatish
+                    if remaining_lives <= 0:
+                        show_pro_modal = True
+            
             return JsonResponse({
                 'is_correct': selected_answer.is_correct,
                 'correct_answer': correct_answer.text if correct_answer else '',
                 'correct_answer_id': correct_answer.id if correct_answer else None,
                 'selected_answer': selected_answer.text,
                 'points_earned': points_earned,
-                'question_points': float(question.points)
+                'question_points': float(question.points),
+                'lives_decreased': lives_decreased,
+                'remaining_lives': remaining_lives,
+                'show_pro_modal': show_pro_modal
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -1293,9 +1378,13 @@ def take_mock_exam_view(request, pk):
     from accounts.models import LivesSettings
     lives_settings = LivesSettings.get_settings()
     
-    if lives_settings.is_active and not request.user.has_lives():
-        messages.error(request, "Yurakchalaringiz tugagan! Keyingi yurakcha tiklanishini kuting yoki ertaga qaytib keling.")
-        return redirect('core:mock_exam_leaderboard', pk=exam.pk)
+    show_lives_modal = False
+    if lives_settings.is_active:
+        request.user.check_daily_lives_reset()
+        request.user.refill_lives()
+        
+        if request.user.current_lives <= 0:
+            show_lives_modal = True
     
     # Mock imtihonlar uchun barcha imtihonlar ochiq
     
@@ -1403,7 +1492,12 @@ def take_mock_exam_view(request, pk):
     # Reklamalarni olish
     advertisements = Advertisement.objects.filter(is_active=True)[:5]
     
-    context = {'exam': exam, 'questions': questions, 'advertisements': advertisements}
+    context = {
+        'exam': exam, 
+        'questions': questions, 
+        'advertisements': advertisements,
+        'show_lives_modal': show_lives_modal
+    }
     if is_mobile(request):
         return render(request, 'core/take_mock_exam.html', context)
     else:
@@ -2579,6 +2673,36 @@ def lives_info_api(request):
         lives_info['next_life_in'] = int(lives_info['next_life_in'].total_seconds())
     
     return JsonResponse(lives_info)
+
+
+@require_http_methods(["GET"])
+def lives_check_api(request):
+    """API endpoint to check if user has lives before starting test"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required'}, status=401)
+    
+    from accounts.models import LivesSettings
+    lives_settings = LivesSettings.get_settings()
+    
+    if not lives_settings.is_active:
+        return JsonResponse({'has_lives': True, 'lives_active': False})
+    
+    # Check if user has Pro subscription with unlimited lives
+    if request.user.has_unlimited_lives():
+        return JsonResponse({'has_lives': True, 'unlimited': True})
+    
+    # Check daily reset and refill
+    request.user.check_daily_lives_reset()
+    request.user.refill_lives()
+    
+    has_lives = request.user.has_lives()
+    
+    return JsonResponse({
+        'has_lives': has_lives,
+        'current_lives': request.user.current_lives,
+        'max_lives': lives_settings.max_lives,
+        'lives_active': True
+    })
 
 
 # PWA Views

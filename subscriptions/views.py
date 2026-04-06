@@ -64,7 +64,13 @@ def pro_page(request):
         'plans': plans,
         'active_subscription': active_subscription,
     }
-    return render(request, 'subscriptions/pro_page.html', context)
+    
+    # Mobile yoki Desktop versiyani aniqlash
+    from core.views import is_mobile
+    if is_mobile(request):
+        return render(request, 'subscriptions/pro_page.html', context)
+    else:
+        return render(request, 'subscriptions/pro_page_desktop.html', context)
 
 
 @login_required

@@ -191,16 +191,16 @@
                                     Qulflangan
                                 </button>
                                 {% elif is_completed %}
-                                <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn-roadmap completed">
+                                <button onclick="checkLivesAndStart('{% url 'core:topic_leaderboard' topic.pk %}')" class="btn-roadmap completed">
                                     <i class="fas fa-redo"></i>
                                     Qayta topshirish
-                                </a>
+                                </button>
                                 {% else %}
                                 {% if user.is_authenticated %}
-                                <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn-roadmap active">
+                                <button onclick="checkLivesAndStart('{% url 'core:topic_leaderboard' topic.pk %}')" class="btn-roadmap active">
                                     <i class="fas fa-play"></i>
                                     Boshlash
-                                </a>
+                                </button>
                                 {% else %}
                                 <a href="{% url 'accounts:login' %}?next={% url 'core:topic_leaderboard' topic.pk %}" class="btn-roadmap active">
                                     <i class="fas fa-sign-in-alt"></i>
@@ -241,6 +241,10 @@
         </div>
     </div>
 </section>
+
+<!-- Pro Modal -->
+{% include 'core/includes/pro_modal.html' %}
+
 {% endblock %}
 
 {% block extra_css %}
@@ -248,7 +252,25 @@
 {% endblock %}
 
 {% block extra_js %}
+{% include 'core/includes/pro_modal_js.html' %}
+
 <script>
+function checkLivesAndStart(url) {
+    fetch('/api/lives/check/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_lives) {
+                window.location.href = url;
+            } else {
+                showProModal();
+            }
+        })
+        .catch(error => {
+            console.error('Error checking lives:', error);
+            window.location.href = url;
+        });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('topicSearch');
     const roadmapItems = document.querySelectorAll('.roadmap-item');

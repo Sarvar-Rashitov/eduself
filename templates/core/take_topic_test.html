@@ -117,6 +117,9 @@
         </div>
     </div>
 </div>
+
+{% include 'core/includes/pro_modal.html' %}
+
 {% endblock %}
 
 {% block extra_css %}
@@ -318,6 +321,9 @@
     }
 }
 </style>
+
+{% include 'core/includes/pro_modal_css.html' %}
+
 {% endblock %}
 
 {% block extra_js %}
@@ -441,6 +447,7 @@ function checkAnswer(questionIndex, questionId) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Response:', data); // Debug
         questionResults[questionId] = data;
         showAnswerResults(questionIndex, questionId, data);
         updateCurrentScore(data.points_earned);
@@ -458,6 +465,13 @@ function checkAnswer(questionIndex, questionId) {
         document.querySelectorAll(`input[name="question_${questionId}"]`).forEach(input => {
             input.disabled = true;
         });
+        
+        // YANGI: Lives kamayishi va Pro modal
+        console.log('Lives decreased:', data.lives_decreased, 'Show modal:', data.show_pro_modal); // Debug
+        if (data.lives_decreased && data.show_pro_modal) {
+            console.log('Showing Pro Modal'); // Debug
+            showProModal();
+        }
     })
     .catch(error => {
         console.error('Xatolik:', error);
@@ -538,6 +552,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Translate first question on page load
     translateCurrentQuestion();
+    
+    // YANGI: Agar lives 0 bo'lsa, modal ko'rsatish
+    {% if show_lives_modal %}
+    showProModal();
+    {% endif %}
 });
 
 window.addEventListener('beforeunload', function(e) {
@@ -569,4 +588,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 </script>
+
+{% include 'core/includes/pro_modal_js.html' %}
+
 {% endblock %}

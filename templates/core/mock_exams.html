@@ -11,7 +11,7 @@
 
 {% block header_actions %}
 {% if user.is_authenticated %}
-<div class="lives-header-compact" id="livesHeaderCompact">
+<div class="lives-header-compact" id="livesHeaderCompact" onclick="showLivesModal()" style="cursor: pointer;">
     <span class="lives-count" id="headerLivesCount">5</span>
     <span class="battery-icon">🔋</span>
 </div>

@@ -7,6 +7,252 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+/* Premium Home Section - Top Spacing */
+.premium-home-section {
+    margin-top: 60px;
+    padding: 0 16px;
+}
+
+/* Learning Hub Card - Modern & Minimal */
+.learning-hub-card {
+    position: relative;
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+    border-radius: 18px;
+    padding: 20px;
+    overflow: hidden;
+    border: 1.5px solid #c7d2fe;
+    box-shadow: 0 2px 12px rgba(99, 102, 241, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 16px;
+}
+
+.learning-hub-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6, #6366f1);
+    background-size: 200% 100%;
+}
+
+.learning-hub-card:active {
+    transform: scale(0.99);
+    border-color: #a5b4fc;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);
+}
+
+.learning-hub-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.learning-hub-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.learning-hub-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+}
+
+.learning-hub-subtitle {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+}
+
+.learning-hub-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.hub-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.hub-chip i {
+    font-size: 0.7rem;
+}
+
+.learning-hub-right {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.learning-hub-right i {
+    font-size: 1.2rem;
+    color: white;
+    transition: transform 0.3s;
+}
+
+.learning-hub-card:active .learning-hub-right i {
+    transform: translateX(2px);
+}
+
+/* Premium Pro Card - Elegant & Dark */
+.premium-pro-card {
+    position: relative;
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 18px;
+    margin: 0 16px 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-pro-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.1), transparent 70%);
+    filter: blur(20px);
+    pointer-events: none;
+}
+
+.premium-pro-card:active {
+    transform: scale(0.99);
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.premium-pro-card.active-state {
+    background: white;
+    border-color: #d1fae5;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+}
+
+.premium-pro-card.active-state::before {
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1), transparent 70%);
+}
+
+.premium-pro-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.premium-pro-badge {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 1px solid #fbbf24;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+}
+
+.premium-pro-badge i {
+    font-size: 1.3rem;
+    color: #f59e0b;
+}
+
+.premium-pro-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.premium-pro-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pro-badge-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 1px solid #fbbf24;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #f59e0b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.premium-pro-subtitle {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.premium-pro-cta {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.premium-pro-cta i {
+    font-size: 0.9rem;
+    transition: transform 0.3s;
+}
+
+.premium-pro-card:active .premium-pro-cta i {
+    transform: translateX(2px);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    .premium-home-section {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .premium-pro-card {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+</style>
 {% endblock %}
 
 {% block header %}
@@ -332,53 +578,56 @@ function closeFullPlatformToast(event) {
 }
 </style>
 
-<!-- Lives Section -->
-<div class="lives-home-section">
-    <div class="lives-home-card">
-        <div class="lives-home-header">
-            <div class="lives-home-icon">🔋</div>
-            <div class="lives-home-title">
-                <h3>{% t "Energiya" request.LANGUAGE_CODE %}</h3>
-                <p>{% t "Test ishlash uchun energiya" request.LANGUAGE_CODE %}</p>
+<!-- Learning Hub Section -->
+{% if user.is_authenticated %}
+<div class="premium-home-section">
+    <a href="{% url 'core:subjects' %}" class="text-decoration-none">
+        <div class="learning-hub-card">
+            <div class="learning-hub-content">
+                <div class="learning-hub-left">
+                    <h3 class="learning-hub-title">O'rganishni boshlang</h3>
+                    <p class="learning-hub-subtitle">Testlar, AI yordamchi va kurslarni bir joyda boshlang</p>
+                    <div class="learning-hub-chips">
+                        <span class="hub-chip">
+                            <i class="bi bi-fire"></i>
+                            120+ yangi testlar
+                        </span>
+                        <span class="hub-chip">
+                            <i class="bi bi-clock"></i>
+                            5 daqiqalik mashqlar
+                        </span>
+                    </div>
+                </div>
+                <div class="learning-hub-right">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
             </div>
         </div>
-        <div class="lives-home-body">
-            <div class="lives-home-batteries" id="homeLivesBatteries">
-                <!-- Batteries will be rendered here -->
-            </div>
-            <div class="lives-home-count">
-                <span class="current-count" id="homeCurrentLives">5</span>
-                <span class="max-count">/ 5</span>
-            </div>
-        </div>
-        <div class="lives-home-timer" id="homeLivesTimer" style="display: none;">
-            <i class="bi bi-clock-history"></i>
-            <span>{% t "Keyingi energiya:" request.LANGUAGE_CODE %} <strong id="homeTimerText">--:--</strong></span>
-        </div>
-        <div class="lives-home-info">
-            <i class="bi bi-info-circle"></i>
-            <span>{% t "Har kuni yangi energiya beriladi" request.LANGUAGE_CODE %}</span>
-        </div>
-    </div>
+    </a>
 </div>
+{% endif %}
 
-<!-- EduSelf Pro Section -->
+<!-- Premium EduSelf Pro Card -->
 {% if user.is_authenticated %}
     {% with active_sub=user.get_active_subscription %}
         {% if active_sub %}
             <!-- Pro foydalanuvchi - hozirgi ta'rifni ko'rsatish -->
             <a href="{% url 'subscriptions:my_subscriptions' %}" class="text-decoration-none">
-                <div class="eduself-pro-banner active-subscription">
-                    <div class="pro-banner-content">
-                        <div class="pro-banner-icon">
+                <div class="premium-pro-card active-state">
+                    <div class="premium-pro-content">
+                        <div class="premium-pro-badge">
                             <i class="bi bi-star-fill"></i>
                         </div>
-                        <div class="pro-banner-text">
-                            <h4>{{ active_sub.plan.name }}</h4>
-                            <p>{{ active_sub.end_date|date:"d.m.Y" }} gacha faol</p>
+                        <div class="premium-pro-text">
+                            <h4 class="premium-pro-title">
+                                {{ active_sub.plan.name }}
+                                <span class="pro-badge-label">PRO</span>
+                            </h4>
+                            <p class="premium-pro-subtitle">{{ active_sub.end_date|date:"d.m.Y" }} gacha faol</p>
                         </div>
-                        <div class="pro-banner-arrow">
-                            <i class="bi bi-chevron-right"></i>
+                        <div class="premium-pro-cta">
+                            <span>Ko'rish</span>
+                            <i class="bi bi-arrow-right"></i>
                         </div>
                     </div>
                 </div>
@@ -386,17 +635,21 @@ function closeFullPlatformToast(event) {
         {% else %}
             <!-- Oddiy foydalanuvchi - Pro'ga taklif qilish -->
             <a href="{% url 'subscriptions:pro_page' %}" class="text-decoration-none">
-                <div class="eduself-pro-banner">
-                    <div class="pro-banner-content">
-                        <div class="pro-banner-icon">
+                <div class="premium-pro-card">
+                    <div class="premium-pro-content">
+                        <div class="premium-pro-badge">
                             <i class="bi bi-star-fill"></i>
                         </div>
-                        <div class="pro-banner-text">
-                            <h4>EduSelf Pro</h4>
-                            <p>Cheksiz imkoniyatlar bilan o'rganing</p>
+                        <div class="premium-pro-text">
+                            <h4 class="premium-pro-title">
+                                EduSelf Pro
+                                <span class="pro-badge-label">PRO</span>
+                            </h4>
+                            <p class="premium-pro-subtitle">Cheksiz imkoniyatlar</p>
                         </div>
-                        <div class="pro-banner-arrow">
-                            <i class="bi bi-chevron-right"></i>
+                        <div class="premium-pro-cta">
+                            <span>Ko'rish</span>
+                            <i class="bi bi-arrow-right"></i>
                         </div>
                     </div>
                 </div>
@@ -991,6 +1244,67 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+/* AI Assistant Banner */
+.ai-assistant-banner {
+    margin: 1rem 0;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ai-assistant-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.ai-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ai-banner-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    animation: aiPulse 2s ease-in-out infinite;
+}
+
+@keyframes aiPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.ai-banner-text {
+    flex: 1;
+}
+
+.ai-banner-text h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+}
+
+.ai-banner-text p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.ai-banner-arrow {
+    font-size: 1.5rem;
+    color: white;
+}
+
 /* EduSelf Pro Banner */
 .eduself-pro-banner {
     margin: 1rem 0;

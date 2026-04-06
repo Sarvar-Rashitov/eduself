@@ -66,6 +66,7 @@ urlpatterns = [
     
     # Lives API
     path('api/lives-info/', views.lives_info_api, name='lives_info_api'),
+    path('api/lives/check/', views.lives_check_api, name='lives_check_api'),
     
     # PWA API
     path('api/push-subscribe/', views.push_subscribe_api, name='push_subscribe_api'),

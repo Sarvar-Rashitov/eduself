@@ -1,0 +1,51 @@
+<script>
+function showProModal(){
+    console.log('showProModal called'); // Debug
+    // Pro modal ko'rsatish
+    var modal = document.getElementById('proModal');
+    console.log('Modal element:', modal); // Debug
+    
+    if(modal){
+        // IMPORTANT: class qo'shish orqali ko'rsatish!
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+        console.log('Modal display set to flex and class added'); // Debug
+        
+        // Timer to'xtatish
+        if(typeof timerInterval !== 'undefined' && timerInterval){
+            clearInterval(timerInterval);
+            console.log('Timer stopped'); // Debug
+        }
+        
+        // Barcha tugmalarni disable qilish
+        var allButtons = document.querySelectorAll('.btn-action, .btn-check-answer, .btn-next');
+        console.log('Buttons found:', allButtons.length); // Debug
+        allButtons.forEach(function(btn){
+            btn.disabled = true;
+        });
+        
+        // Barcha javob kartalarini disable qilish
+        var allAnswerCards = document.querySelectorAll('.answer-card, .answer-option');
+        console.log('Answer cards found:', allAnswerCards.length); // Debug
+        allAnswerCards.forEach(function(card){
+            card.style.pointerEvents = 'none';
+            card.style.opacity = '0.6';
+        });
+        
+        console.log('Modal should be visible now'); // Debug
+    } else {
+        console.error('Modal element not found!'); // Debug
+    }
+}
+
+function closeProModalAndGoBack(){
+    console.log('closeProModalAndGoBack called'); // Debug
+    // Testdan chiqish - orqaga qaytish
+    // document.referrer yoki history.back() ishlatamiz
+    if (document.referrer && document.referrer !== window.location.href) {
+        window.location.href = document.referrer;
+    } else {
+        window.history.back();
+    }
+}
+</script>

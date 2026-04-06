@@ -1,0 +1,836 @@
+{% extends 'base_desktop.html' %}
+{% load static %}
+
+{% block title %}EduSelf Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header - Desktop -->
+    <div class="text-center mb-5">
+        <div class="pro-header-icon mb-3">
+            <i class="bi bi-star-fill"></i>
+        </div>
+        <h1 class="fw-bold mb-2 pro-title">EduSelf Pro</h1>
+        <p class="text-muted pro-subtitle">O'qishingizni yangi bosqichga olib chiqing</p>
+    </div>
+
+    <!-- Faol obuna va Statistika - Desktop Layout -->
+    {% if active_subscription %}
+    <div class="row g-4 mb-5">
+        <!-- Faol obuna -->
+        <div class="col-md-6">
+            <div class="active-subscription-card h-100">
+                <div class="d-flex align-items-center h-100">
+                    <div class="subscription-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1 fw-bold">{{ active_subscription.plan.name }} obunangiz faol</h5>
+                        <small class="text-muted">{{ active_subscription.end_date|date:"d.m.Y" }} gacha amal qiladi</small>
+                    </div>
+                    <a href="{% url 'subscriptions:my_subscriptions' %}" class="btn btn-light rounded-pill px-4">
+                        Batafsil
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistika -->
+        <div class="col-md-6">
+            <div class="stats-card h-100">
+                <h6 class="fw-bold mb-3">Foydalanish statistikasi</h6>
+                
+                <div class="row g-3">
+                    {% if active_subscription.plan.ai_analysis_limit != -1 %}
+                    <div class="col-6">
+                        <div class="stat-item">
+                            <div class="stat-progress">
+                                {% widthratio active_subscription.ai_analysis_used active_subscription.plan.ai_analysis_limit 100 as progress %}
+                                <div class="stat-progress-bar" style="width: {{ progress }}%; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+                            </div>
+                            <small class="text-muted d-block mt-2">AI tahlil</small>
+                            <div class="fw-bold small">{{ active_subscription.ai_analysis_used }}/{{ active_subscription.plan.ai_analysis_limit }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if active_subscription.plan.ai_companion_limit != -1 %}
+                    <div class="col-6">
+                        <div class="stat-item">
+                            <div class="stat-progress">
+                                {% widthratio active_subscription.ai_companion_used active_subscription.plan.ai_companion_limit 100 as progress %}
+                                <div class="stat-progress-bar" style="width: {{ progress }}%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                            </div>
+                            <small class="text-muted d-block mt-2">AI hamroh</small>
+                            <div class="fw-bold small">{{ active_subscription.ai_companion_used }}/{{ active_subscription.plan.ai_companion_limit }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if active_subscription.plan.university_exam_limit != -1 %}
+                    <div class="col-6">
+                        <div class="stat-item">
+                            <div class="stat-progress">
+                                {% widthratio active_subscription.university_exam_used active_subscription.plan.university_exam_limit 100 as progress %}
+                                <div class="stat-progress-bar" style="width: {{ progress }}%; background: linear-gradient(90deg, #f59e0b, #d97706);"></div>
+                            </div>
+                            <small class="text-muted d-block mt-2">Universitet</small>
+                            <div class="fw-bold small">{{ active_subscription.university_exam_used }}/{{ active_subscription.plan.university_exam_limit }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if active_subscription.plan.mock_exam_limit != -1 %}
+                    <div class="col-6">
+                        <div class="stat-item">
+                            <div class="stat-progress">
+                                {% widthratio active_subscription.mock_exam_used active_subscription.plan.mock_exam_limit 100 as progress %}
+                                <div class="stat-progress-bar" style="width: {{ progress }}%; background: linear-gradient(90deg, #3b82f6, #2563eb);"></div>
+                            </div>
+                            <small class="text-muted d-block mt-2">Mock exam</small>
+                            <div class="fw-bold small">{{ active_subscription.mock_exam_used }}/{{ active_subscription.plan.mock_exam_limit }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if active_subscription.plan.unlimited_lives %}
+                <div class="unlimited-badge mt-3">
+                    <i class="bi bi-infinity me-2"></i>
+                    <small>Cheksiz yurakchalar!</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Ta'riflar - Desktop Grid -->
+    <div class="row g-4 mb-5">
+        {% for plan in plans %}
+        <div class="col-lg-4 col-md-6">
+            <div class="plan-card {% if plan.is_popular %}popular-plan{% endif %} {% if active_subscription and active_subscription.plan.id == plan.id %}active-plan{% endif %} h-100">
+                {% if active_subscription and active_subscription.plan.id == plan.id %}
+                <div class="plan-badge active-badge">
+                    <i class="bi bi-check-circle-fill me-1"></i> Hozirgi ta'rif
+                </div>
+                {% elif plan.is_popular %}
+                <div class="plan-badge popular-badge">
+                    <i class="bi bi-star-fill me-1"></i> Mashhur
+                </div>
+                {% endif %}
+                
+                <div class="plan-content">
+                    <!-- Plan icon va nomi -->
+                    <div class="plan-header">
+                        <div class="plan-icon" style="background: {{ plan.color }}15;">
+                            <i class="{{ plan.icon }}" style="color: {{ plan.color }};"></i>
+                        </div>
+                        <div>
+                            <h5 class="plan-name">{{ plan.name }}</h5>
+                            <p class="plan-desc">{{ plan.description }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Narx -->
+                    <div class="plan-price">
+                        <span class="price-amount" style="color: {{ plan.color }};">{{ plan.price|floatformat:0 }}</span>
+                        <span class="price-currency">so'm</span>
+                        <div class="price-duration">{{ plan.duration_days }} kun</div>
+                    </div>
+
+                    <!-- Xususiyatlar -->
+                    <div class="plan-features">
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>
+                                {% if plan.unlimited_lives %}Cheksiz yurakchalar{% else %}Standart yurakchalar{% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>AI tahlil: {% if plan.ai_analysis_limit == -1 %}Cheksiz{% else %}{{ plan.ai_analysis_limit }}x{% endif %}</span>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>AI hamroh: {% if plan.ai_companion_limit == -1 %}Cheksiz{% else %}{{ plan.ai_companion_limit }}x{% endif %}</span>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Universitet: {% if plan.university_exam_limit == -1 %}Cheksiz{% else %}{{ plan.university_exam_limit }}x{% endif %}</span>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Mock: {% if plan.mock_exam_limit == -1 %}Cheksiz{% else %}{{ plan.mock_exam_limit }}x{% endif %}</span>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Sertifikat: {% if plan.certificate_test_limit == -1 %}Cheksiz{% else %}{{ plan.certificate_test_limit }}x{% endif %}</span>
+                        </div>
+                    </div>
+
+                    <!-- Tugma -->
+                    {% if active_subscription and active_subscription.plan.id == plan.id %}
+                    <button class="plan-button active-button" onclick="window.location.href='{% url 'subscriptions:my_subscriptions' %}'">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        Faol obuna
+                    </button>
+                    {% else %}
+                    <button class="plan-button select-button select-plan-btn" 
+                            style="background: {{ plan.color }};"
+                            data-plan-slug="{{ plan.slug }}"
+                            data-plan-name="{{ plan.name }}"
+                            data-plan-price="{{ plan.price|floatformat:0 }}"
+                            data-plan-duration="{{ plan.duration_days }}"
+                            data-plan-color="{{ plan.color }}"
+                            data-plan-icon="{{ plan.icon }}">
+                        Tanlash
+                        <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- To'lov qismi - Desktop -->
+    <div id="payment-section" class="payment-section" style="display: none;">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="payment-card">
+                    <!-- Tanlangan ta'rif -->
+                    <div class="selected-plan-info">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div id="selected-plan-icon" class="selected-plan-icon"></div>
+                                <div>
+                                    <h5 id="selected-plan-name" class="mb-0 fw-bold"></h5>
+                                    <small class="text-muted">
+                                        <span id="selected-plan-price"></span> so'm • 
+                                        <span id="selected-plan-duration"></span> kun
+                                    </small>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-light rounded-pill px-4" id="change-plan-btn">
+                                O'zgartirish
+                            </button>
+                        </div>
+                    </div>
+
+                    <form method="post" id="payment-form" action="">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan_slug" id="plan-slug-input">
+                        
+                        <!-- Promokod -->
+                        <div class="promo-section">
+                            <h5 class="fw-bold mb-3">Promokod</h5>
+                            <div class="promo-input-group">
+                                <input type="text" class="form-control" 
+                                       name="promo_code" id="promo-code" placeholder="Promokodni kiriting">
+                                <button type="button" class="btn btn-primary px-4" id="check-promo">
+                                    Tekshirish
+                                </button>
+                            </div>
+                            <div id="promo-message" class="mt-2"></div>
+                        </div>
+
+                        <!-- To'lov usuli -->
+                        <div class="payment-method-section">
+                            <h5 class="fw-bold mb-3">To'lov usuli</h5>
+                            
+                            <div class="payment-methods">
+                                <label class="payment-method-item">
+                                    <input type="radio" name="payment_method" value="click" checked>
+                                    <div class="payment-method-content">
+                                        <img src="{% static 'images/payment/click.jpg' %}" alt="Click">
+                                    </div>
+                                </label>
+
+                                <label class="payment-method-item">
+                                    <input type="radio" name="payment_method" value="payme">
+                                    <div class="payment-method-content">
+                                        <img src="{% static 'images/payment/Payme.png' %}" alt="Payme">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- To'lov tugmasi -->
+                        <button type="submit" class="payment-submit-btn">
+                            <i class="bi bi-credit-card me-2"></i>
+                            To'lovga o'tish
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referal - Desktop -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="referral-card">
+                <a href="{% url 'subscriptions:referral' %}" class="text-decoration-none">
+                    <div class="referral-content">
+                        <div class="referral-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="referral-text">
+                            <h5 class="mb-0 fw-bold">Do'stlaringizni taklif qiling</h5>
+                            <small class="text-muted">Har bir do'st uchun bepul Pro obuna oling</small>
+                        </div>
+                        <i class="bi bi-arrow-right referral-arrow"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Desktop optimized styles */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --card-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+    --card-shadow-hover: 0 12px 32px rgba(102, 126, 234, 0.18);
+}
+
+/* Header */
+.pro-header-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--primary-gradient);
+    border-radius: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    animation: float 3s ease-in-out infinite;
+}
+
+.pro-header-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+.pro-title {
+    font-size: 2.5rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pro-subtitle {
+    font-size: 1.1rem;
+}
+
+/* Active Subscription Card */
+.active-subscription-card {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 2px solid #10b98120;
+}
+
+.subscription-icon {
+    width: 56px;
+    height: 56px;
+    background: white;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.25rem;
+}
+
+.subscription-icon i {
+    font-size: 1.75rem;
+    color: #10b981;
+}
+
+/* Stats Card */
+.stats-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-progress {
+    height: 8px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.stat-progress-bar {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+.unlimited-badge {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-radius: 14px;
+    padding: 0.85rem;
+    text-align: center;
+    color: #1e40af;
+}
+
+/* Plan Card */
+.plan-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: var(--card-shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+}
+
+.plan-card:hover {
+    transform: translateY(-12px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.popular-plan {
+    border-color: #667eea;
+}
+
+.active-plan {
+    border-color: #10b981;
+}
+
+.plan-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem 1.25rem;
+    border-radius: 24px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.popular-badge {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.active-badge {
+    background: var(--success-gradient);
+    color: white;
+}
+
+.plan-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.plan-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.plan-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.plan-icon i {
+    font-size: 1.75rem;
+}
+
+.plan-name {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.plan-desc {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.plan-price {
+    margin-bottom: 1.5rem;
+}
+
+.price-amount {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.price-currency {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-left: 0.25rem;
+}
+
+.price-duration {
+    font-size: 0.95rem;
+    color: #9ca3af;
+    margin-top: 0.5rem;
+}
+
+.plan-features {
+    margin-bottom: 1.5rem;
+    flex: 1;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.feature-item i {
+    color: #10b981;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.plan-button {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 16px;
+    border: none;
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.select-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.select-button i {
+    transition: transform 0.3s ease;
+}
+
+.select-button:hover i {
+    transform: translateX(5px);
+}
+
+.active-button {
+    background: var(--success-gradient) !important;
+}
+
+/* Payment Section */
+.payment-section {
+    animation: slideUp 0.5s ease-out;
+    margin-bottom: 3rem;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.payment-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: var(--card-shadow-hover);
+}
+
+.selected-plan-info {
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 2px solid #e5e7eb;
+}
+
+.selected-plan-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.selected-plan-icon i {
+    font-size: 1.75rem;
+}
+
+.promo-section {
+    margin-bottom: 2rem;
+}
+
+.promo-input-group {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.promo-input-group .form-control {
+    flex: 1;
+    border-radius: 14px;
+    border: 2px solid #e5e7eb;
+    padding: 0.85rem 1.25rem;
+    font-size: 1rem;
+}
+
+.promo-input-group .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.promo-input-group .btn {
+    border-radius: 14px;
+    padding: 0.85rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.payment-method-section {
+    margin-bottom: 2rem;
+}
+
+.payment-methods {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.payment-method-item {
+    cursor: pointer;
+    position: relative;
+}
+
+.payment-method-item input {
+    position: absolute;
+    opacity: 0;
+}
+
+.payment-method-content {
+    border: 3px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.payment-method-content img {
+    height: 60px;
+    width: auto;
+    display: block;
+}
+
+.payment-method-item input:checked + .payment-method-content {
+    border-color: #667eea;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+    transform: scale(1.05);
+}
+
+.payment-method-item:hover .payment-method-content {
+    transform: scale(1.05);
+}
+
+.payment-submit-btn {
+    width: 100%;
+    padding: 1.25rem;
+    border-radius: 16px;
+    border: none;
+    background: var(--primary-gradient);
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.payment-submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.45);
+}
+
+/* Referral Card */
+.referral-card {
+    margin-top: 2rem;
+}
+
+.referral-content {
+    background: white;
+    border-radius: 20px;
+    padding: 1.75rem;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.referral-card:hover .referral-content {
+    transform: translateY(-6px);
+    box-shadow: var(--card-shadow-hover);
+    border-color: #667eea;
+}
+
+.referral-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--primary-gradient);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.referral-icon i {
+    font-size: 1.75rem;
+    color: white;
+}
+
+.referral-text {
+    flex: 1;
+}
+
+.referral-text h5 {
+    color: #111827;
+    font-size: 1.15rem;
+}
+
+.referral-text small {
+    font-size: 0.95rem;
+}
+
+.referral-arrow {
+    font-size: 1.75rem;
+    color: #667eea;
+    transition: transform 0.3s ease;
+}
+
+.referral-card:hover .referral-arrow {
+    transform: translateX(8px);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Plan selection
+    const selectPlanBtns = document.querySelectorAll('.select-plan-btn');
+    const paymentSection = document.getElementById('payment-section');
+    const changePlanBtn = document.getElementById('change-plan-btn');
+    
+    selectPlanBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const planSlug = this.dataset.planSlug;
+            const planName = this.dataset.planName;
+            const planPrice = this.dataset.planPrice;
+            const planDuration = this.dataset.planDuration;
+            const planColor = this.dataset.planColor;
+            const planIcon = this.dataset.planIcon;
+            
+            // Update selected plan info
+            document.getElementById('selected-plan-name').textContent = planName;
+            document.getElementById('selected-plan-price').textContent = planPrice;
+            document.getElementById('selected-plan-duration').textContent = planDuration;
+            document.getElementById('plan-slug-input').value = planSlug;
+            
+            // Update form action URL
+            const paymentForm = document.getElementById('payment-form');
+            paymentForm.action = `/subscriptions/subscribe/${planSlug}/`;
+            
+            const iconDiv = document.getElementById('selected-plan-icon');
+            iconDiv.style.background = planColor + '15';
+            iconDiv.innerHTML = `<i class="${planIcon}" style="font-size: 1.75rem; color: ${planColor};"></i>`;
+            
+            // Show payment section
+            paymentSection.style.display = 'block';
+            
+            // Scroll to payment section
+            setTimeout(() => {
+                paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        });
+    });
+    
+    // Change plan button
+    if (changePlanBtn) {
+        changePlanBtn.addEventListener('click', function() {
+            paymentSection.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+    
+    // Promo code check
+    const checkPromoBtn = document.getElementById('check-promo');
+    if (checkPromoBtn) {
+        checkPromoBtn.addEventListener('click', function() {
+            const code = document.getElementById('promo-code').value;
+            const planSlug = document.getElementById('plan-slug-input').value;
+            
+            if (!code) {
+                return;
+            }
+            
+            fetch('{% url "subscriptions:check_promo" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `code=${code}&plan_slug=${planSlug}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById('promo-message');
+                if (data.valid) {
+                    messageDiv.innerHTML = `<div class="alert alert-success rounded-4">${data.message}</div>`;
+                    document.getElementById('selected-plan-price').textContent = data.final_price.toFixed(0);
+                } else {
+                    messageDiv.innerHTML = `<div class="alert alert-danger rounded-4">${data.message}</div>`;
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

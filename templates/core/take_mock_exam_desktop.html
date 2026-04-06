@@ -136,6 +136,9 @@
         </div>
     </div>
 </div>
+
+{% include 'core/includes/pro_modal.html' %}
+
 {% endblock %}
 
 {% block extra_css %}
@@ -244,6 +247,9 @@
 .no-ads i{font-size:2.5rem;color:#e5e7eb;margin-bottom:12px}
 .no-ads p{font-size:.9rem;margin:0}
 </style>
+
+{% include 'core/includes/pro_modal_css.html' %}
+
 {% endblock %}
 
 {% block extra_js %}
@@ -332,6 +338,11 @@ function checkAnswer(qi, qid) {
         document.getElementById('checkAnswer-' + qi).style.display = 'none';
         document.getElementById('afterCheckButtons-' + qi).style.display = 'flex';
         document.querySelectorAll('input[name="question_' + qid + '"]').forEach(function(x) { x.disabled = true; });
+        
+        // YANGI: Lives kamayishi va Pro modal
+        if (d.lives_decreased && d.show_pro_modal) {
+            showProModal();
+        }
     })
     .catch(function(e) { console.error(e); alert('Xatolik!'); });
 }
@@ -380,7 +391,15 @@ function showFinishConfirmation() {
 function hideFinishConfirmation() { document.getElementById('finishModal').classList.remove('active'); }
 function confirmFinishExam() { hideFinishConfirmation(); submitExam(); }
 
-document.addEventListener('DOMContentLoaded', function() { startTimer(); updateProgressBar(); });
+document.addEventListener('DOMContentLoaded', function() { 
+    startTimer(); 
+    updateProgressBar(); 
+    
+    // YANGI: Agar lives 0 bo'lsa, modal ko'rsatish
+    {% if show_lives_modal %}
+    showProModal();
+    {% endif %}
+});
 
 window.addEventListener('beforeunload', function(e) {
     if (!testCompleted && timeRemaining > 0 && Object.keys(userAnswers).length > 0) {
@@ -390,4 +409,7 @@ window.addEventListener('beforeunload', function(e) {
     }
 });
 </script>
+
+{% include 'core/includes/pro_modal_js.html' %}
+
 {% endblock %}

@@ -128,10 +128,14 @@
         </div>
     </div>
 </div>
+
+{% include 'core/includes/pro_modal.html' %}
+
 {% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/test_page_modern.css' %}">
+{% include 'core/includes/pro_modal_css.html' %}
 {% endblock %}
 
 
@@ -234,6 +238,11 @@ function checkAnswer(qi,qid){
             for(var k=0;k<allInputs.length;k++){
                 allInputs[k].disabled=true;
             }
+            
+            // YANGI: Lives kamayishi va Pro modal
+            if(d.lives_decreased && d.show_pro_modal){
+                showProModal();
+            }
         }
     };
     xhr.send();
@@ -303,6 +312,11 @@ function confirmFinishTest(){
 document.addEventListener('DOMContentLoaded',function(){
     startTimer();
     updateProgressBar();
+    
+    // YANGI: Agar lives 0 bo'lsa, modal ko'rsatish
+    {% if show_lives_modal %}
+    showProModal();
+    {% endif %}
 });
 
 window.addEventListener('beforeunload',function(e){
@@ -313,4 +327,7 @@ window.addEventListener('beforeunload',function(e){
     }
 });
 </script>
+
+{% include 'core/includes/pro_modal_js.html' %}
+
 {% endblock %}

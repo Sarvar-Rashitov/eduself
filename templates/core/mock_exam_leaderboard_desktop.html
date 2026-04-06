@@ -28,8 +28,8 @@
                         </span>
                     </div>
                 </div>
-                <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-start-test">
-                    <i class="fas fa-play"></i>Boshlash</a>
+                <button onclick="checkLivesAndStart('{% url 'core:take_mock_exam' exam.pk %}')" class="btn btn-warning btn-start-test">
+                    <i class="fas fa-play"></i>Boshlash</button>
             </div>
         </div>
         <div class="leaderboard-grid">
@@ -59,11 +59,15 @@
                     </div>
                     {% else %}<div class="empty-leaderboard"><i class="fas fa-inbox"></i><p>Hali hech kim bu imtihonni ishlamagan</p></div>{% endif %}
                 </div>
-                <a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning btn-lg btn-block"><i class="fas fa-play"></i> Imtihonni boshlash</a>
+                <button onclick="checkLivesAndStart('{% url 'core:take_mock_exam' exam.pk %}')" class="btn btn-warning btn-lg btn-block"><i class="fas fa-play"></i> Imtihonni boshlash</button>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Pro Modal -->
+{% include 'core/includes/pro_modal.html' %}
+
 {% endblock %}
 
 {% block extra_css %}
@@ -168,4 +172,26 @@
 .leaderboard-row .score { font-weight: 600; color: var(--primary-color); }
 .btn-block { width: 100%; }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+{% include 'core/includes/pro_modal_js.html' %}
+
+<script>
+function checkLivesAndStart(url) {
+    fetch('/api/lives/check/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_lives) {
+                window.location.href = url;
+            } else {
+                showProModal();
+            }
+        })
+        .catch(error => {
+            console.error('Error checking lives:', error);
+            window.location.href = url;
+        });
+}
+</script>
 {% endblock %}

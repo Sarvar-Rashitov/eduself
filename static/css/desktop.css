@@ -3434,3 +3434,68 @@ body:not(.home-page) .main-content {
         animation-play-state: paused;
     }
 }
+
+
+/* ===== LIVES DISPLAY - DESKTOP ===== */
+.lives-display-desktop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+    border-radius: 12px;
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+}
+
+.lives-display-desktop:hover {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+    border-color: rgba(16, 185, 129, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.lives-count-desktop {
+    font-size: 18px;
+    font-weight: 700;
+    color: #10b981;
+    min-width: 20px;
+    text-align: center;
+}
+
+.battery-icon-desktop {
+    font-size: 20px;
+    animation: batteryPulseDesktop 2s ease-in-out infinite;
+}
+
+@keyframes batteryPulseDesktop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Transparent header uchun */
+.header.transparent-header .lives-display-desktop {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.header.transparent-header .lives-count-desktop {
+    color: white;
+}
+
+.header.transparent-header .lives-display-desktop:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Scrolled header uchun */
+.header.transparent-header.scrolled .lives-display-desktop {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.header.transparent-header.scrolled .lives-count-desktop {
+    color: white;
+}

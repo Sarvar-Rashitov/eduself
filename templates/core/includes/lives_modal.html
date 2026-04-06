@@ -1,0 +1,324 @@
+<!-- Lives Modal -->
+<div id="livesModal" class="lives-modal" style="display: none;" onclick="if(event.target === this) closeLivesModal()">
+    <div class="lives-modal-content">
+        <button class="lives-modal-close" onclick="closeLivesModal()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        
+        <div class="lives-modal-header">
+            <div class="lives-modal-icon">🔋</div>
+            <h3>Energiya</h3>
+            <p>Test ishlash uchun energiya</p>
+        </div>
+        
+        <div class="lives-modal-body">
+            <div class="lives-modal-batteries" id="modalLivesBatteries">
+                <!-- Batteries will be rendered here -->
+            </div>
+            <div class="lives-modal-count">
+                <span class="current-count" id="modalLivesCount">5</span>
+                <span class="max-count">/ 5</span>
+            </div>
+        </div>
+        
+        <div class="lives-modal-timer" id="modalLivesTimer" style="display: none;">
+            <i class="bi bi-clock-history"></i>
+            <span>Keyingi energiya: <strong id="modalTimerText">--:--</strong></span>
+        </div>
+        
+        <div class="lives-modal-info">
+            <div class="info-item">
+                <i class="bi bi-1-circle-fill"></i>
+                <span>Har bitta savolga bitta energiya sarflanadi</span>
+            </div>
+            <div class="info-item">
+                <i class="bi bi-calendar-check"></i>
+                <span>Har kuni 5 ta yangi energiya beriladi</span>
+            </div>
+            <div class="info-item">
+                <i class="bi bi-clock"></i>
+                <span>Har 1.5 soatda bitta energiya beriladi</span>
+            </div>
+        </div>
+        
+        <a href="{% url 'subscriptions:pro_page' %}" class="lives-modal-pro-btn">
+            <i class="bi bi-infinity"></i>
+            <span>Cheksiz energiya uchun Pro obuna</span>
+        </a>
+    </div>
+</div>
+
+<style>
+.lives-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.lives-modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 24px;
+    padding: 32px 24px 24px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.lives-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    color: #64748b;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.lives-modal-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #1e293b;
+}
+
+.lives-modal-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.lives-modal-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.lives-modal-header h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 4px 0;
+}
+
+.lives-modal-header p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+}
+
+.lives-modal-body {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.lives-modal-batteries {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.modal-battery {
+    font-size: 32px;
+    transition: all 0.3s ease;
+}
+
+.modal-battery.full {
+    animation: batteryPulse 2s ease-in-out infinite;
+}
+
+@keyframes batteryPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.lives-modal-count {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.lives-modal-count .current-count {
+    color: #10b981;
+}
+
+.lives-modal-count .max-count {
+    color: #94a3b8;
+    font-size: 24px;
+}
+
+.lives-modal-timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #065f46;
+}
+
+.lives-modal-timer i {
+    font-size: 16px;
+}
+
+.lives-modal-timer strong {
+    color: #047857;
+    font-size: 16px;
+}
+
+.lives-modal-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.info-item i {
+    font-size: 20px;
+    color: #0b4f99;
+    flex-shrink: 0;
+}
+
+.info-item span {
+    font-size: 14px;
+    color: #334155;
+    font-weight: 500;
+}
+
+.lives-modal-pro-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #0b4f99 0%, #115eb2 100%);
+    color: white;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(11, 79, 153, 0.3);
+}
+
+.lives-modal-pro-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(11, 79, 153, 0.4);
+    color: white;
+}
+
+.lives-modal-pro-btn i {
+    font-size: 18px;
+}
+
+@media (max-width: 480px) {
+    .lives-modal-content {
+        padding: 28px 20px 20px;
+    }
+    
+    .lives-modal-header h3 {
+        font-size: 22px;
+    }
+    
+    .modal-battery {
+        font-size: 28px;
+    }
+    
+    .lives-modal-count {
+        font-size: 28px;
+    }
+    
+    .info-item span {
+        font-size: 13px;
+    }
+}
+</style>
+
+<script>
+// Lives Modal Functions
+function showLivesModal() {
+    const modal = document.getElementById('livesModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        updateLivesModalContent();
+    }
+}
+
+function closeLivesModal() {
+    const modal = document.getElementById('livesModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function updateLivesModalContent() {
+    fetch('/api/lives-info/')
+        .then(response => response.json())
+        .then(data => {
+            const modalLivesCount = document.getElementById('modalLivesCount');
+            const modalBatteries = document.getElementById('modalLivesBatteries');
+            const modalTimer = document.getElementById('modalLivesTimer');
+            const modalTimerText = document.getElementById('modalTimerText');
+            
+            if (modalLivesCount) {
+                modalLivesCount.textContent = data.current_lives;
+            }
+            
+            if (modalBatteries) {
+                let batteriesHTML = '';
+                for (let i = 0; i < data.max_lives; i++) {
+                    if (i < data.current_lives) {
+                        batteriesHTML += '<div class="modal-battery full">🔋</div>';
+                    } else {
+                        batteriesHTML += '<div class="modal-battery empty">🪫</div>';
+                    }
+                }
+                modalBatteries.innerHTML = batteriesHTML;
+            }
+            
+            if (data.next_life_in && data.next_life_in > 0) {
+                if (modalTimer) modalTimer.style.display = 'flex';
+                if (modalTimerText) {
+                    const minutes = Math.floor(data.next_life_in / 60);
+                    const seconds = data.next_life_in % 60;
+                    modalTimerText.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    setTimeout(() => updateLivesModalContent(), 1000);
+                }
+            } else {
+                if (modalTimer) modalTimer.style.display = 'none';
+            }
+        })
+        .catch(error => console.error('Error fetching lives info:', error));
+}
+</script>

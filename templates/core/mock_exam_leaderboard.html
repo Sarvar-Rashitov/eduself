@@ -113,7 +113,34 @@
     </div>
 </div>
 
-<a href="{% url 'core:take_mock_exam' exam.pk %}" class="btn btn-warning w-100 mb-4">
+<button onclick="checkLivesAndStart('{% url 'core:take_mock_exam' exam.pk %}')" class="btn btn-warning w-100 mb-4">
     <i class="bi bi-play-circle me-2"></i>{% t "Imtihonni boshlash" request.LANGUAGE_CODE %}
-</a>
+</button>
+
+<!-- Pro Modal -->
+{% include 'core/includes/pro_modal.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+{% include 'core/includes/pro_modal_js.html' %}
+
+<script>
+function checkLivesAndStart(url) {
+    fetch('/api/lives/check/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_lives) {
+                window.location.href = url;
+            } else {
+                showProModal();
+            }
+        })
+        .catch(error => {
+            console.error('Error checking lives:', error);
+            window.location.href = url;
+        });
+}
+</script>
 {% endblock %}

@@ -70,6 +70,12 @@
                     <a href="{% url 'core:news_list' %}" class="nav-link {% if 'news' in request.path %}active{% endif %}">Yangiliklar</a>
                     
                     {% if user.is_authenticated %}
+                    <!-- Lives Display - Desktop -->
+                    <div class="lives-display-desktop" id="livesDisplayDesktop" onclick="showLivesModal()" style="cursor: pointer;">
+                        <span class="lives-count-desktop" id="headerLivesCountDesktop">5</span>
+                        <span class="battery-icon-desktop">🔋</span>
+                    </div>
+                    
                     <!-- Pro Button -->
                     {% if not user.is_pro_user %}
                     <button class="pro-btn-desktop" id="proButtonDesktop">
@@ -1058,6 +1064,32 @@
     
     <!-- Toast Notification System -->
     <script src="{% static 'js/toast.js' %}"></script>
+    
+    {% if user.is_authenticated %}
+    {% include 'core/includes/lives_modal.html' %}
+    
+    <script>
+    // Desktop lives display update
+    function updateDesktopLivesDisplay() {
+        fetch('/api/lives-info/')
+            .then(response => response.json())
+            .then(data => {
+                const livesCountDesktop = document.getElementById('headerLivesCountDesktop');
+                if (livesCountDesktop) {
+                    livesCountDesktop.textContent = data.current_lives;
+                }
+            })
+            .catch(error => console.error('Error fetching lives info:', error));
+    }
+    
+    // Update on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDesktopLivesDisplay();
+        // Update every 60 seconds
+        setInterval(updateDesktopLivesDisplay, 60000);
+    });
+    </script>
+    {% endif %}
     
     {% block extra_js %}{% endblock %}
 </body>

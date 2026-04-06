@@ -45,40 +45,99 @@
     </div>
 </div>
 
-<div id="topicsList">
+<div id="topicsList" class="roadmap-container">
 {% if topics %}
     {% for topic in topics %}
-    <div class="topic-card {% if not topic.questions.count %}disabled{% endif %}">
-        <div class="topic-icon" style="width: 40px; height: 40px; font-size: 1.1rem;">
-            <i class="bi bi-bookmark"></i>
-        </div>
-        <div class="topic-info">
-            <div class="topic-name" style="font-size: 0.95rem;">{{ topic.name|translate:request.LANGUAGE_CODE }}</div>
-            <div class="topic-meta" style="display: flex; gap: 8px; align-items: center; font-size: 0.7rem;">
-                <span style="display: flex; align-items: center; gap: 3px; color: #6366f1;">
-                    <i class="bi bi-question-circle" style="font-size: 0.75rem;"></i>
-                    {{ topic.questions.count }}
-                </span>
-                {% if topic.time_limit %}
-                <span style="display: flex; align-items: center; gap: 3px; color: #3b82f6;">
-                    <i class="bi bi-clock" style="font-size: 0.75rem;"></i>
-                    {{ topic.time_limit }}{% t "d" request.LANGUAGE_CODE %}
-                </span>
+    <div class="roadmap-item {% if topic.is_locked %}locked{% elif topic.is_completed %}completed{% else %}active{% endif %}" data-topic-id="{{ topic.id }}">
+        <!-- Connection Line -->
+        {% if not forloop.first %}
+        <div class="roadmap-connector"></div>
+        {% endif %}
+        
+        <!-- Topic Card -->
+        <div class="roadmap-card">
+            <!-- Status Badge -->
+            <div class="roadmap-status">
+                {% if topic.is_locked %}
+                    <div class="status-badge locked-badge">
+                        <i class="bi bi-lock-fill"></i>
+                    </div>
+                {% elif topic.is_completed %}
+                    <div class="status-badge completed-badge">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                {% else %}
+                    <div class="status-badge active-badge">
+                        <i class="bi bi-circle-fill"></i>
+                    </div>
                 {% endif %}
             </div>
+            
+            <!-- Card Content -->
+            <div class="roadmap-content">
+                <div class="roadmap-header">
+                    <div class="roadmap-icon {% if topic.is_locked %}locked{% elif topic.is_completed %}completed{% else %}active{% endif %}">
+                        <i class="bi bi-bookmark-fill"></i>
+                    </div>
+                    <div class="roadmap-info">
+                        <h3 class="roadmap-title">{{ topic.name|translate:request.LANGUAGE_CODE }}</h3>
+                        <div class="roadmap-meta">
+                            <span class="meta-item">
+                                <i class="bi bi-question-circle"></i>
+                                {{ topic.questions.count }} {% t "savol" request.LANGUAGE_CODE %}
+                            </span>
+                            {% if topic.time_limit %}
+                            <span class="meta-item">
+                                <i class="bi bi-clock"></i>
+                                {{ topic.time_limit }}{% t "d" request.LANGUAGE_CODE %}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar (if completed) -->
+                {% if topic.is_completed and topic.user_progress %}
+                <div class="progress-wrapper">
+                    <div class="progress-bar-custom">
+                        <div class="progress-fill" style="width: {{ topic.user_progress }}%"></div>
+                    </div>
+                    <span class="progress-text">{{ topic.user_progress }}%</span>
+                </div>
+                {% endif %}
+                
+                <!-- Action Button -->
+                <div class="roadmap-action">
+                    {% if topic.is_locked %}
+                        <button class="btn-roadmap locked" disabled>
+                            <i class="bi bi-lock-fill"></i>
+                            {% t "Qulflangan" request.LANGUAGE_CODE %}
+                        </button>
+                    {% elif topic.questions.count %}
+                        {% if user.is_authenticated %}
+                            <button onclick="checkLivesAndStart('{% url 'core:topic_leaderboard' topic.pk %}')" class="btn-roadmap {% if topic.is_completed %}completed{% else %}active{% endif %}">
+                                <i class="bi bi-{% if topic.is_completed %}arrow-repeat{% else %}play-fill{% endif %}"></i>
+                                {% if topic.is_completed %}
+                                    {% t "Qayta topshirish" request.LANGUAGE_CODE %}
+                                {% else %}
+                                    {% t "Boshlash" request.LANGUAGE_CODE %}
+                                {% endif %}
+                            </button>
+                        {% else %}
+                            <a href="{% url 'accounts:login' %}?next={% url 'core:topic_leaderboard' topic.pk %}" class="btn-roadmap active">
+                                <i class="bi bi-play-fill"></i>
+                                {% t "Boshlash" request.LANGUAGE_CODE %}
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn-roadmap locked" disabled>
+                            <i class="bi bi-lock-fill"></i>
+                            {% t "Yopiq" request.LANGUAGE_CODE %}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        {% if topic.questions.count %}
-            {% if user.is_authenticated %}
-            <a href="{% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-primary btn-sm topic-btn">
-                <i class="bi bi-play-fill"></i>{% t "Boshlash" request.LANGUAGE_CODE %}</a>
-            {% else %}
-            <a href="{% url 'accounts:login' %}?next={% url 'core:topic_leaderboard' topic.pk %}" class="btn btn-primary btn-sm topic-btn">
-                <i class="bi bi-play-fill"></i>{% t "Boshlash" request.LANGUAGE_CODE %}</a>
-            {% endif %}
-        {% else %}
-            <button class="btn btn-secondary btn-sm topic-btn" disabled>
-                <i class="bi bi-lock"></i>{% t "Yopiq" request.LANGUAGE_CODE %}</button>
-        {% endif %}
     </div>
     {% endfor %}
 {% else %}
@@ -94,106 +153,332 @@
     <p>{% t "Qidiruv bo'yicha mavzu topilmadi" request.LANGUAGE_CODE %}</p>
     <small class="text-muted">{% t "Boshqa kalit so'zlar bilan qidirib ko'ring" request.LANGUAGE_CODE %}</small>
 </div>
+
+<!-- Pro Modal -->
+{% include 'core/includes/pro_modal.html' %}
+
 {% endblock %}
 
 {% block extra_css %}
 <style>
-.topic-card {
-    display: flex;
-    align-items: center;
-}
-
-.topic-card.disabled {
-    opacity: 0.6;
-    background-color: #f8f9fa;
-}
-
-.topic-card.disabled:hover {
-    transform: none;
-}
-
-.topic-btn {
-    margin-left: auto;
-    white-space: nowrap;
-    font-size: 0.7rem;
-    padding: 4px 8px;
-}
-
-.topic-btn i {
-    font-size: 0.65rem;
-}
-
-.search-icon-btn {
+/* Roadmap Container */
+.roadmap-container {
     position: relative;
-    width: 44px;
-    height: 44px;
+    padding: 20px 0;
+}
+
+/* Roadmap Item */
+.roadmap-item {
+    position: relative;
+    margin-bottom: 24px;
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+.roadmap-item:nth-child(1) { animation-delay: 0.1s; }
+.roadmap-item:nth-child(2) { animation-delay: 0.2s; }
+.roadmap-item:nth-child(3) { animation-delay: 0.3s; }
+.roadmap-item:nth-child(4) { animation-delay: 0.4s; }
+.roadmap-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Connector Line */
+.roadmap-connector {
+    position: absolute;
+    left: 28px;
+    top: -24px;
+    width: 3px;
+    height: 24px;
+    background: linear-gradient(180deg, 
+        rgba(99, 102, 241, 0.3) 0%, 
+        rgba(99, 102, 241, 0.1) 100%);
+    z-index: 0;
+}
+
+.roadmap-item.locked .roadmap-connector {
+    background: linear-gradient(180deg, 
+        rgba(156, 163, 175, 0.3) 0%, 
+        rgba(156, 163, 175, 0.1) 100%);
+}
+
+.roadmap-item.completed .roadmap-connector {
+    background: linear-gradient(180deg, 
+        rgba(16, 185, 129, 0.5) 0%, 
+        rgba(16, 185, 129, 0.2) 100%);
+}
+
+/* Status Badge */
+.roadmap-status {
+    position: absolute;
+    left: 0;
+    top: 20px;
+    z-index: 2;
+}
+
+.status-badge {
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
-    border: none;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    color: white;
-    font-size: 1.2rem;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    transition: all 0.3s ease;
-    animation: searchPulse 2s infinite;
-    z-index: 10;
-    flex-shrink: 0;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
-.search-icon-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
-    animation: none;
-}
-
-.search-icon-btn:active {
-    transform: scale(0.95);
-}
-
-.search-icon-btn::before {
+.status-badge::before {
     content: '';
     position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
+    inset: -4px;
     border-radius: 50%;
+    padding: 4px;
+    background: linear-gradient(135deg, currentColor, transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.3;
+}
+
+.active-badge {
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.completed-badge {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.locked-badge {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+    color: white;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
+    }
+}
+
+/* Roadmap Card */
+.roadmap-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    margin-left: 72px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.roadmap-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
     opacity: 0;
-    z-index: -1;
-    animation: searchGlow 2s infinite;
+    transition: opacity 0.3s ease;
 }
 
-@keyframes searchPulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
+.roadmap-item.active .roadmap-card::before {
+    opacity: 1;
 }
 
-@keyframes searchGlow {
-    0%, 100% {
-        opacity: 0;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.3;
-        transform: scale(1.2);
-    }
+.roadmap-item.completed .roadmap-card::before {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    opacity: 1;
 }
 
+.roadmap-item.locked .roadmap-card {
+    opacity: 0.7;
+    background: #f9fafb;
+}
+
+.roadmap-item.active .roadmap-card:active {
+    transform: scale(0.98);
+}
+
+/* Roadmap Header */
+.roadmap-header {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.roadmap-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.roadmap-icon.active {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    color: #6366f1;
+}
+
+.roadmap-icon.completed {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+    color: #10b981;
+}
+
+.roadmap-icon.locked {
+    background: rgba(156, 163, 175, 0.1);
+    color: #9ca3af;
+}
+
+.roadmap-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.roadmap-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+}
+
+.roadmap-item.locked .roadmap-title {
+    color: #9ca3af;
+}
+
+.roadmap-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.meta-item i {
+    font-size: 14px;
+}
+
+/* Progress Bar */
+.progress-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.progress-bar-custom {
+    flex: 1;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #10b981;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Action Button */
+.roadmap-action {
+    margin-top: 16px;
+}
+
+.btn-roadmap {
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-roadmap i {
+    font-size: 16px;
+}
+
+.btn-roadmap.active {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-roadmap.active:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.btn-roadmap.completed {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-roadmap.completed:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-roadmap.locked {
+    background: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Search Styles */
 .search-bar-sticky {
     position: sticky;
     top: 60px;
     z-index: 100;
     background: var(--background-color);
     padding: 12px 0;
-    margin: 0 -16px;
+    margin: 0 -16px 20px -16px;
     padding-left: 16px;
     padding-right: 16px;
     transition: all 0.3s ease;
@@ -218,11 +503,66 @@
         transform: translateY(0);
     }
 }
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+}
+
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .roadmap-card {
+        background: #1f2937;
+    }
+    
+    .roadmap-title {
+        color: #f9fafb;
+    }
+    
+    .roadmap-item.locked .roadmap-card {
+        background: #111827;
+    }
+    
+    .progress-bar-custom {
+        background: #374151;
+    }
+}
 </style>
 {% endblock %}
 
 {% block extra_js %}
+{% include 'core/includes/pro_modal_js.html' %}
+
 <script>
+function checkLivesAndStart(url) {
+    fetch('/api/lives/check/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_lives) {
+                window.location.href = url;
+            } else {
+                showProModal();
+            }
+        })
+        .catch(error => {
+            console.error('Error checking lives:', error);
+            window.location.href = url;
+        });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const searchBar = document.getElementById('searchBar');
     const searchInput = document.getElementById('topicSearch');
@@ -231,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const showAllButton = document.getElementById('showAllTopics');
     const noResults = document.getElementById('noTopicResults');
     const topicsList = document.getElementById('topicsList');
-    const topicCards = document.querySelectorAll('.topic-card');
+    const topicCards = document.querySelectorAll('.roadmap-item');
     
     let searchTimeout;
     let isSearchOpen = false;
@@ -281,11 +621,11 @@ document.addEventListener('DOMContentLoaded', function() {
         let visibleCount = 0;
         
         topicCards.forEach(card => {
-            const topicName = card.querySelector('.topic-name').textContent.toLowerCase();
-            const topicMeta = card.querySelector('.topic-meta').textContent.toLowerCase();
+            const topicName = card.querySelector('.roadmap-title').textContent.toLowerCase();
+            const topicMeta = card.querySelector('.roadmap-meta').textContent.toLowerCase();
             
             if (topicName.includes(query) || topicMeta.includes(query)) {
-                card.style.display = 'flex';
+                card.style.display = 'block';
                 visibleCount++;
             } else {
                 card.style.display = 'none';
@@ -310,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
         noResults.style.display = 'none';
         
         topicCards.forEach(card => {
-            card.style.display = 'flex';
+            card.style.display = 'block';
         });
     }
 });
