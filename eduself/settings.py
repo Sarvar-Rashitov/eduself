@@ -194,9 +194,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'eduself.wsgi.application'
 
-DATABASES = {
-    'default': dj_database_url.config(default=env("DATABASE_URL"))
-}
+# Database configuration
+# SQLite yoki PostgreSQL (environment variable orqali)
+if os.environ.get('USE_SQLITE') == 'True':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(default=env("DATABASE_URL"))
+    }
 
 
 
